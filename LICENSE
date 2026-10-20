@@ -1,0 +1,42 @@
+This repository contains three kinds of material under different terms.
+
+1. Source code (everything except the items in 2 and 3) — MIT License, below.
+2. Our own written content — the interpretations, notes, punch-line commentary,
+   cheat sheets, outlines, corpus summaries and generated Markdown bundles in
+   `content/`, `data/corpus-index.json` and `design/` — Creative Commons
+   Attribution 4.0 International (CC BY 4.0):
+   https://creativecommons.org/licenses/by/4.0/legalcode
+   Attribution: "matt-pocock-study contributors, https://github.com/ledondev520/matt-pocock-study".
+3. Third-party material is NOT covered by 1 or 2:
+   - Short quotations of Matt Pocock's posts, articles and pages remain
+     copyright of Matt Pocock. Each quotation links to its original source and
+     is used for commentary and study.
+   - Files reused from Matt Pocock's MIT-licensed repositories live in
+     `third_party/` and keep their original copyright and MIT notices; see
+     THIRD_PARTY_NOTICES.md.
+   - Names and trademarks belong to their owners. This is an unofficial,
+     non-commercial study project, not affiliated with or endorsed by Matt Pocock.
+
+---------------------------------------------------------------------------
+
+MIT License
+
+Copyright (c) 2026 matt-pocock-study contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

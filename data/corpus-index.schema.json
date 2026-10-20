@@ -1,0 +1,199 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Public study corpus index (metadata and original summaries only)",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "id",
+      "type",
+      "url",
+      "date",
+      "tags",
+      "metrics",
+      "summary"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "minLength": 1
+      },
+      "type": {
+        "type": "string",
+        "enum": [
+          "post",
+          "article",
+          "repo",
+          "web"
+        ]
+      },
+      "url": {
+        "type": "string",
+        "format": "uri",
+        "pattern": "^https?://"
+      },
+      "date": {
+        "type": "string",
+        "format": "date-time"
+      },
+      "tags": {
+        "type": "array",
+        "uniqueItems": true,
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "metrics": {
+        "type": "object",
+        "properties": {
+          "likes": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "reposts": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "replies": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "quotes": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "bookmarks": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "impressions": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "stars": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "additionalProperties": false
+      },
+      "summary": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "zh",
+          "en"
+        ],
+        "properties": {
+          "zh": {
+            "type": "string",
+            "maxLength": 40,
+            "pattern": "^[^\\r\\n\"“”„‟«»「」『』]*$"
+          },
+          "en": {
+            "type": "string",
+            "allOf": [
+              {
+                "pattern": "^[^\\r\\n\"“”„‟«»「」『』]*$"
+              },
+              {
+                "pattern": "^\\s*(?:\\S+(?:\\s+\\S+){0,24})?\\s*$"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "allOf": [
+      {
+        "if": {
+          "properties": {
+            "type": {
+              "enum": [
+                "post",
+                "article"
+              ]
+            }
+          }
+        },
+        "then": {
+          "properties": {
+            "metrics": {
+              "type": "object",
+              "properties": {
+                "likes": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "reposts": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "replies": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "quotes": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "bookmarks": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "impressions": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "type": {
+              "const": "repo"
+            }
+          }
+        },
+        "then": {
+          "properties": {
+            "metrics": {
+              "type": "object",
+              "properties": {
+                "stars": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "type": {
+              "const": "web"
+            }
+          }
+        },
+        "then": {
+          "properties": {
+            "metrics": {
+              "type": "object",
+              "properties": {},
+              "additionalProperties": false
+            }
+          }
+        }
+      }
+    ]
+  }
+}

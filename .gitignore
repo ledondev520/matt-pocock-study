@@ -1,0 +1,22 @@
+node_modules/
+dist/
+.cache/
+generated/
+*.sqlite
+*.sqlite-*
+public/content.json
+public/llms*.txt
+public/en/
+public/zh/
+*.tsbuildinfo
+
+# raw scraped corpus (copyrighted originals) — never commit
+.corpus-raw/
+corpus-raw/
+# secrets
+.env
+.env.*
+!.env.example
+# local scratch
+*.log
+check.png
