@@ -30,7 +30,7 @@
       "id": "july",
       "at": "2026-07-02T00:00:00Z",
       "title": "2026-07 新命名",
-      "detail": "/wayfinder → /to-spec → /to-tickets → /implement → /code-review"
+      "detail": "新名称：wayfinder、spec、tickets、implement、review 五步"
     },
     {
       "id": "oct",
@@ -51,8 +51,7 @@
       "dot": "violet",
       "title": "Matt Pocock · 2026-07-02",
       "items": [
-        "/wayfinder -> /to-spec -> /to-tickets -> /implement -> /code-review",
-        "https://x.com/mattpocockuk/status/2072625252144730215"
+        "/wayfinder -> /to-spec -> /to-tickets -> /implement -> /code-review — https://x.com/mattpocockuk/status/2072625252144730215"
       ]
     }
   ]
