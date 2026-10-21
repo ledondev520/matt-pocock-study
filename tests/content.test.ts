@@ -11,6 +11,7 @@ import { buildContent, readPages, renderMarkdown } from '../scripts/content'
 import registry from '../data/figures.json'
 import { siteUrl } from '../src/lib/site'
 import type { Page } from '../src/lib/content'
+import { licences } from '../scripts/licences'
 
 // One content build is shared by every test in this file that reads the real pages; building is
 // the slow part, so it runs once. Hooks keep Vitest's default timeout.
@@ -56,6 +57,44 @@ it('exports every present page with absolute indexes and readable components', a
       expect(markdown).not.toMatch(/```(?:quote|cards|exercise|figure|note)/)
     }
   }
+})
+
+it('every page that cites a reused MIT source ships that source\'s full licence text', async () => {
+  // A page cites a reused MIT source when it states that source's copyright line (the notice every
+  // adaptation carries). Pages that only link or describe an MIT repository reuse nothing.
+  const cited: string[] = []
+  for (const page of pages) {
+    const source = await readFile(`content/${page.lang}/${page.slug}.md`, 'utf8')
+    for (const [id, entry] of Object.entries(licences)) {
+      const copyrightLines = (await readFile(entry.file, 'utf8')).match(/^Copyright .*$/gm) ?? []
+      expect(copyrightLines.length).toBeGreaterThan(0)
+      // Any line that says it adapts this repository must also carry the notice.
+      const adapts = source.split('\n').some(line => (line.includes(entry.repo) || line.includes('][skills]') && id === 'mattpocock-skills') && /改编|adapt/i.test(line))
+      const states = copyrightLines.some(line => source.includes(line))
+      if (adapts) expect(states, `${page.lang}/${page.slug} adapts ${id} without its copyright line`).toBe(true)
+      if (!states) continue
+      cited.push(`${page.lang}/${page.slug}:${id}`)
+      const text = await readFile(entry.file, 'utf8')
+      expect(text.startsWith('MIT License\n\nCopyright ')).toBe(true)
+      expect(text).toContain('The above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.')
+      // HTML: a licence section whose <pre> holds the exact text.
+      const blocks = [...new JSDOM(page.html).window.document.querySelectorAll('.licence-text pre')].map(pre => pre.textContent)
+      expect(blocks, `${page.lang}/${page.slug} HTML`).toContain(text)
+      // Downloads: single-page Markdown and the language bundle carry it too.
+      expect(await readFile(join(output, page.lang, `${page.slug}.md`), 'utf8'), `${page.lang}/${page.slug}.md`).toContain(text)
+      expect(await readFile(join(page.lang === 'en' ? output : join(output, 'zh'), 'llms-full.txt'), 'utf8')).toContain(text)
+    }
+  }
+  // Every page that reuses skills material (both languages) and the copyright page for Archify.
+  expect(cited.sort()).toEqual(['about-and-copyright', 'agent-documents', 'cheat-sheets', 'context-and-handoff', 'learning-path', 'review-and-pr', 'writing-to-teach']
+    .flatMap(slug => ['en', 'zh'].map(lang => `${lang}/${slug}:mattpocock-skills`))
+    .concat(['en/about-and-copyright:archify', 'zh/about-and-copyright:archify']).sort())
+})
+
+it('licence text is fixed by hash and rejected when edited or unknown', async () => {
+  const { licenceText } = await import('../scripts/licences')
+  expect(() => licenceText('nope')).toThrow(/Unknown licence id/)
+  await expect(renderMarkdown('```licence\nid: nope\n```', 'en')).rejects.toThrow(/Unknown licence id/)
 })
 
 describe('shared content contract', () => {

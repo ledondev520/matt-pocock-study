@@ -57,7 +57,7 @@ Adapted from Matt Pocock's [skills repository](https://github.com/mattpocock/ski
 id: d16-practice-loop
 ```
 
-Teach one small concept, then ask for a decision. Define completion as handling an unfamiliar input. Reading smoothly is insufficient evidence. The copyright line and a link to the licence text appear below and on the [copyright page](/en/about-and-copyright).
+Teach one small concept, then ask for a decision. Define completion as handling an unfamiliar input. Reading smoothly is insufficient evidence. The complete licence follows at the end of this page; see also the [copyright page](/en/about-and-copyright).
 
 ## Check the teaching too
 
@@ -95,6 +95,10 @@ Done means another reader can predict the feedback from your explanation and jus
 
 ## skills MIT notice
 
-The structure adapted here comes from [mattpocock/skills](https://github.com/mattpocock/skills), MIT licence, Copyright (c) 2026 Matt Pocock. Full text: [the repository LICENSE](https://github.com/mattpocock/skills/blob/main/LICENSE); this site's THIRD_PARTY_NOTICES keeps the same notice.
+The structure adapted here comes from [mattpocock/skills](https://github.com/mattpocock/skills), MIT licence, Copyright (c) 2026 Matt Pocock. The complete licence follows, identical to [the repository LICENSE](https://github.com/mattpocock/skills/blob/main/LICENSE).
+
+```licence
+id: mattpocock-skills
+```
 
 Unofficial, non-commercial study notes. No affiliation with or endorsement by Matt Pocock. Quoted works remain their authors’ copyright; MIT reuse retains its copyright and licence notices.

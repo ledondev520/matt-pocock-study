@@ -87,13 +87,17 @@ Carry this state into a fresh session with the [handoff lesson](/en/context-and-
 - Matt Pocock, [review evidence and merge risk](https://x.com/mattpocockuk/status/2107062474914550098), 2026-10-05.
 - [skills repository][skills]: the two structures identified above; Copyright (c) 2026 Matt Pocock.
 - [show-me upstream credit][showme], Dex Horthy / HumanLayer; attribution only.
-- [Site copyright details](/en/about-and-copyright). The copyright line and MIT licence link for the adapted structures appear at the end of this page.
+- [Site copyright details](/en/about-and-copyright). The complete MIT licence for the adapted structures follows at the end of this page.
 
 [skills]: https://github.com/mattpocock/skills
 [showme]: https://github.com/humanlayer/skills/blob/main/plugins/show-me/skills/show-me/SKILL.md
 
 ## skills MIT notice
 
-The structure adapted here comes from [mattpocock/skills](https://github.com/mattpocock/skills), MIT licence, Copyright (c) 2026 Matt Pocock. Full text: [the repository LICENSE](https://github.com/mattpocock/skills/blob/main/LICENSE); this site's THIRD_PARTY_NOTICES keeps the same notice.
+The structure adapted here comes from [mattpocock/skills](https://github.com/mattpocock/skills), MIT licence, Copyright (c) 2026 Matt Pocock. The complete licence follows, identical to [the repository LICENSE](https://github.com/mattpocock/skills/blob/main/LICENSE).
+
+```licence
+id: mattpocock-skills
+```
 
 Unofficial, non-commercial study notes, with no affiliation with or endorsement by Matt Pocock. Quoted works belong to their authors; MIT reuse carries separate copyright and licence notices.

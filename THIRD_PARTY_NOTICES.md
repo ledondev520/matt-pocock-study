@@ -70,7 +70,13 @@ The registry above records licence observations, not permission to reuse these e
 
 ## Files in this repository · 本仓库实际复用的文件
 
-None yet. 目前尚未复用任何上游文件。
+| File | Upstream | Copyright line | Used by |
+|---|---|---|---|
+| `third_party/mattpocock-skills/LICENSE` | [skills/LICENSE](https://github.com/mattpocock/skills/blob/main/LICENSE), byte-identical | Copyright (c) 2026 Matt Pocock | Full licence text at the end of the 7 pages (zh + en) that adapt skills structures; the text is not retyped, the build reads this file and checks its sha256 (`scripts/licences.ts`) |
+| `third_party/archify/LICENSE` | [archify/LICENSE](https://github.com/tt-a1i/archify/blob/main/LICENSE), byte-identical | Copyright (c) 2026 tt-a1i (Archify); Copyright (c) 2025 Cocoon AI | Full licence text on the copyright page (zh + en); diagrams embed Archify-derived CSS |
+
+The adapted skills structures themselves are rewritten in the pages, not copied files.
+被改编的 skills 结构在页面中重写，不是整份复制的文件；对应页面页末附完整 MIT 许可。
 
 ## Other open-source code · 其他开源代码
 

@@ -90,12 +90,16 @@ Make those artifact paths easier to discover with [agent documentation](/en/agen
 
 - Matt Pocock, [a contextual heuristic](https://x.com/mattpocockuk/status/2087111966854730148), 2026-08-11.
 - [skills repository][skills]: handoff adaptation identified above; Copyright (c) 2026 Matt Pocock.
-- [Site copyright details](/en/about-and-copyright). The copyright line and a link to the MIT licence text appear at the end of this page.
+- [Site copyright details](/en/about-and-copyright). The complete MIT licence follows at the end of this page.
 
 [skills]: https://github.com/mattpocock/skills
 
 ## skills MIT notice
 
-The structure adapted here comes from [mattpocock/skills](https://github.com/mattpocock/skills), MIT licence, Copyright (c) 2026 Matt Pocock. Full text: [the repository LICENSE](https://github.com/mattpocock/skills/blob/main/LICENSE); this site's THIRD_PARTY_NOTICES keeps the same notice.
+The structure adapted here comes from [mattpocock/skills](https://github.com/mattpocock/skills), MIT licence, Copyright (c) 2026 Matt Pocock. The complete licence follows, identical to [the repository LICENSE](https://github.com/mattpocock/skills/blob/main/LICENSE).
+
+```licence
+id: mattpocock-skills
+```
 
 Unofficial, non-commercial study notes, with no affiliation with or endorsement by Matt Pocock. Quoted works belong to their authors; MIT reuse carries separate copyright and licence notices.

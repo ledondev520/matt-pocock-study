@@ -58,7 +58,7 @@ note: 本站译意：有时教会一个概念，只需找到恰当的例子。
 id: d16-practice-loop
 ```
 
-先教一个小概念，再做需要判断的练习。把完成标准写成「能处理一个没见过的输入」，不要用「刚读完很顺畅」替代。版权行与许可原文链接见页末及[版权页](/zh/about-and-copyright)。
+先教一个小概念，再做需要判断的练习。把完成标准写成「能处理一个没见过的输入」，不要用「刚读完很顺畅」替代。完整许可附后（见页末），另见[版权页](/zh/about-and-copyright)。
 
 ## 教学也要核验
 
@@ -96,6 +96,10 @@ answer: 示例：导入表有一行缺姓名，怎样定位？返回行号与字
 
 ## skills MIT 许可声明
 
-本页改编的结构来自 [mattpocock/skills](https://github.com/mattpocock/skills)，MIT 许可，Copyright (c) 2026 Matt Pocock。全文见[原仓库 LICENSE](https://github.com/mattpocock/skills/blob/main/LICENSE)。
+本页改编的结构来自 [mattpocock/skills](https://github.com/mattpocock/skills)，MIT 许可，Copyright (c) 2026 Matt Pocock。完整许可附后，与[原仓库 LICENSE](https://github.com/mattpocock/skills/blob/main/LICENSE)一字不差。
+
+```licence
+id: mattpocock-skills
+```
 
 非官方、非商业的学习整理，与 Matt Pocock 无隶属或背书关系。所引作品版权归原作者；MIT 复用内容另附版权与许可声明。

@@ -70,7 +70,7 @@ id: d20-routes
 - **换种情境** 混合输入与失败条件，检查是否会选择方法。
 ```
 
-版权行与许可原文链接见页末及[版权页](/zh/about-and-copyright)。以上顺序由本站设计，不是 Matt 的官方路径，也不承诺固定学习小时数。
+完整许可附后（见页末），另见[版权页](/zh/about-and-copyright)。以上顺序由本站设计，不是 Matt 的官方路径，也不承诺固定学习小时数。
 
 ```note
 kind: inference
@@ -92,6 +92,10 @@ kind: inference
 
 ## skills MIT 许可声明
 
-本页改编的结构来自 [mattpocock/skills](https://github.com/mattpocock/skills)，MIT 许可，Copyright (c) 2026 Matt Pocock。全文见[原仓库 LICENSE](https://github.com/mattpocock/skills/blob/main/LICENSE)。
+本页改编的结构来自 [mattpocock/skills](https://github.com/mattpocock/skills)，MIT 许可，Copyright (c) 2026 Matt Pocock。完整许可附后，与[原仓库 LICENSE](https://github.com/mattpocock/skills/blob/main/LICENSE)一字不差。
+
+```licence
+id: mattpocock-skills
+```
 
 非官方、非商业的学习整理，与 Matt Pocock 无隶属或背书关系。所引作品版权归原作者；MIT 复用内容另附版权与许可声明。

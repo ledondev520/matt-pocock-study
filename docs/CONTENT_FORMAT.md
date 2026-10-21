@@ -64,4 +64,6 @@ Rendered as the archify diagram (owner diagram) or the illustrated SVG / placeho
 
 6. Callout: ```note ...``` (本站推论 / 尚未验证 etc.), first line `kind: inference|unverified|tip`, then Markdown.
 
+7. Full licence: ```licence``` with one line `id: mattpocock-skills|archify`. The build inserts the upstream LICENSE verbatim from `third_party/<id>/LICENSE` (sha256-checked in `scripts/licences.ts`) into the page, its `.md` download and `llms-full.txt`. Every page that adapts a reused MIT source states its copyright line and ends with this block; never type licence text into content.
+
 Quote rules (copyright): only quotes listed in OUTLINE for that page, each ≤ 2 sentences with its URL and date. Everything else is our own words. Never invent "Matt said". No other copied text.
