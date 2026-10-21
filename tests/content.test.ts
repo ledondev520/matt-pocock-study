@@ -11,7 +11,7 @@ import { buildContent, readPages, renderMarkdown } from '../scripts/content'
 import registry from '../data/figures.json'
 import { siteUrl } from '../src/lib/site'
 
-// One parser window for all 44 rendered pages; a JSDOM per page cost most of this test's time.
+// One parser window, used only for each page's single heading; parsing all 44 full pages cost most of this test's time.
 const htmlParser = new (new JSDOM('').window.DOMParser)()
 
 it('exports every present page with absolute indexes and readable components', async () => {
@@ -33,9 +33,13 @@ it('exports every present page with absolute indexes and readable components', a
         const markdown = await readFile(join(output, lang, `${page.slug}.md`), 'utf8')
         expect(markdown).toBe(`# ${page.title}\n\n${page.summary}\n\n${page.markdown}`)
         const model = { pages, currentPage: page, figures: { zh: {}, en: {} }, corpusCount: 0, corpusItems: [], corpusTags: [], siteUrl: siteUrl() }
-        const doc = htmlParser.parseFromString(renderToString(createElement(Site, { model, path: `/${lang}/${page.slug}` })), 'text/html')
-        expect(doc.querySelectorAll('h1')).toHaveLength(1)
-        expect(doc.querySelector('h1')!.textContent).toBe(page.title)
+        const html = renderToString(createElement(Site, { model, path: `/${lang}/${page.slug}` }))
+        // Count every <h1 start tag in the server markup (stricter than a DOM query: comments and
+        // raw-text content count too), then parse only the heading to read its text.
+        const headings = [...html.matchAll(/<h1[\s>/][\s\S]*?<\/h1>/gi)]
+        expect(html.match(/<h1[\s>/]/gi) ?? []).toHaveLength(1)
+        expect(headings).toHaveLength(1)
+        expect(htmlParser.parseFromString(headings[0][0], 'text/html').body.textContent).toBe(page.title)
         expect(markdown).not.toContain('slug:')
         expect(markdown).not.toMatch(/```(?:quote|cards|exercise|figure|note)/)
       }
