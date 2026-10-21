@@ -11,10 +11,21 @@ import { validateSvg } from './import-art.mjs'
 
 const registry = validateFigureRegistry(registryData)
 
+// Validation is pure, so results are memoised by exact source text, profile and language:
+// a figure placed on several pages is parsed once per build, and any change to the bytes
+// is validated afresh.
+const validated = new Map<string, string>()
+function validSvg(source: string, options: { profile: 'art' | 'diagram'; lang: Lang }) {
+  const key = `${options.profile}\0${options.lang}\0${source}`
+  let result = validated.get(key)
+  if (result === undefined) { result = validateSvg(source, options); validated.set(key, result) }
+  return result
+}
+
 export const escapeHtml = (value: string) => value.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!)
 // Hand-written fallbacks pass through the same SVG boundary as imported diagrams.
 function validatedMarkup(html: string, lang: Lang, profile: 'art' | 'diagram' = 'art') {
-  return html.replace(/<svg[\s\S]*?<\/svg>/g, svg => validateSvg(svg.replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" '), { profile, lang }))
+  return html.replace(/<svg[\s\S]*?<\/svg>/g, svg => validSvg(svg.replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" '), { profile, lang }))
 }
 export const figureById = (id: string) => registry.figures.find(f => f.id === id)
 async function exists(file: string) { try { await access(file); return true } catch { return false } }
@@ -27,7 +38,7 @@ export async function figureHtml(id: string, lang: Lang, assetRoot = 'public'): 
   const path = `/${f.owner === 'diagram' ? 'diagrams' : 'art'}/${id}.${lang}.svg`
   if (await exists(`${assetRoot}${path}`)) {
     if (f.owner === 'diagram') {
-      const svg = validateSvg(await readFile(`${assetRoot}${path}`, 'utf8'), { profile: 'diagram', lang })
+      const svg = validSvg(await readFile(`${assetRoot}${path}`, 'utf8'), { profile: 'diagram', lang })
       return `<figure class="registry-figure" data-figure="${id}"><div role="img" aria-label="${escapeHtml(alt)}">${svg}</div><figcaption>${caption}</figcaption></figure>`
     }
     const darkPath = path.replace(/\.svg$/, '-dark.svg')
@@ -44,7 +55,7 @@ export async function buildFigures(outputDir?: string): Promise<Figures> {
   for (const lang of ['zh', 'en'] as const) for (const f of registry.figures) {
     result[lang][f.id] = await figureHtml(f.id, lang)
     if (outputDir) {
-      await writeOutput(`${outputDir}/figures`, `${f.id}.${lang}.svg`, validateSvg(await downloadableFigure(f.id, lang), { profile: f.owner === 'diagram' ? 'diagram' : 'art', lang }))
+      await writeOutput(`${outputDir}/figures`, `${f.id}.${lang}.svg`, validSvg(await downloadableFigure(f.id, lang), { profile: f.owner === 'diagram' ? 'diagram' : 'art', lang }))
     }
   }
   return result
