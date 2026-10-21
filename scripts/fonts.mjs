@@ -3,8 +3,6 @@ import { createRequire } from 'node:module'
 import { dirname, extname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { create } from 'fontkit'
-import ts from 'typescript'
-import { SaxesParser } from 'saxes'
 import subsetFont from 'subset-font'
 import { outputPath, writeOutput } from './output-path.mjs'
 
@@ -13,42 +11,22 @@ const fontsource = dirname(require.resolve('@fontsource/noto-sans-sc/package.jso
 export const fontWeights = [400, 700]
 // scripts/ and server/ render labels into HTML (code toolbar, exercise headings, 404).
 const roots = ['content', 'data', 'src', 'scripts', 'server', 'diagrams', 'public/art']
-const extensions = new Set(['.md', '.json', '.ts', '.tsx', '.js', '.jsx', '.mjs', '.css', '.svg'])
+const extensions = new Set(['.md', '.json', '.ts', '.tsx', '.js', '.jsx', '.mjs', '.css', '.svg', '.html'])
 
 // Latin, shared punctuation and symbols continue to use the preceding Latin
 // families/system fallback. Only CJK text is eligible to trigger Noto downloads.
 // Script_Extensions, not Script: marks shared by kana (U+30FC ー, U+3099 ゙, U+309B ゛) are
 // Script=Common but are Hiragana/Katakana by extension, and Noto covered them before.
+// Shared with the browser coverage check (e2e/font-coverage.ts), which runs it in the page.
+export const notoPattern = '[\\p{Script_Extensions=Han}\\p{Script_Extensions=Hiragana}\\p{Script_Extensions=Katakana}\\p{Script_Extensions=Hangul}\\p{Script_Extensions=Bopomofo}\\u3000-\\u303f\\uff00-\\uffef]'
+const notoRegExp = new RegExp(notoPattern, 'u')
 export function notoCharacter(character) {
-  return /[\p{Script_Extensions=Han}\p{Script_Extensions=Hiragana}\p{Script_Extensions=Katakana}\p{Script_Extensions=Hangul}\p{Script_Extensions=Bopomofo}\u3000-\u303f\uff00-\uffef]/u.test(character)
+  return notoRegExp.test(character)
 }
 
-// Every way shipped text can spell a character: literal, HTML/SVG numeric entity,
-// JSON/JS escape (\uXXXX, \u{X}, surrogate pairs) and CSS escape (\XXXXXX).
-// Decoding is deliberately applied to every file type; over-collecting only adds glyphs.
-export function decodedTexts(text) {
-  const code = value => { const n = parseInt(value, 16); return n > 0x10ffff ? '' : String.fromCodePoint(n) }
-  return [
-    text,
-    text.replace(/&#(x[\da-f]+|\d+);?/gi, (_, c) => c[0].toLowerCase() === 'x' ? code(c.slice(1)) : code(Number(c).toString(16))),
-    text.replace(/\\u\{([\da-f]+)\}/gi, (_, c) => code(c)).replace(/\\u([\da-f]{4})/gi, (_, c) => String.fromCharCode(parseInt(c, 16))),
-    text.replace(/\\([\da-f]{1,6})\s?/gi, (_, c) => code(c)),
-  ]
-}
-
-// String, template and JSX text values of a JS/TS file, with escapes decoded by the parser.
-// Regex literals are not strings, so code-point ranges such as /[\u4e00-\u9fff]/ are ignored.
-export function scriptStrings(file, text) {
-  const values = []
-  const source = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true)
-  function visit(node) {
-    if (ts.isStringLiteralLike(node) || ts.isTemplateHead(node) || ts.isTemplateMiddleOrTemplateTail(node) || ts.isJsxText(node)) values.push(node.text)
-    ts.forEachChild(node, visit)
-  }
-  visit(source)
-  return values
-}
-
+// Source collection only decides which glyphs go into the subset; over-collecting is
+// harmless. It reads literal characters. Whether every character the built site actually
+// renders is covered is checked in the browser (e2e/font-coverage.pw.ts), not here.
 export async function collectCharacters(root = '.') {
   const characters = new Set()
   function add(text) {
@@ -59,23 +37,7 @@ export async function collectCharacters(root = '.') {
       const file = outputPath(directory, entry.name)
       if (entry.isDirectory()) await walk(file)
       else if (entry.isFile() && extensions.has(extname(file))) {
-        const text = await readFile(file, 'utf8')
-        // Conservative scan includes frontmatter, code examples and CSS content. Code files are
-        // decoded through the TypeScript AST below instead, so regex ranges are not collected.
-        if (/\.[cm]?[jt]sx?$/.test(file)) add(text)
-        else for (const decoded of decodedTexts(text)) add(decoded)
-        if (extname(file) === '.json') {
-          add(JSON.stringify(JSON.parse(text))) // Decode escaped JSON (including corpus summaries).
-        } else if (/\.[cm]?[jt]sx?$/.test(file)) {
-          for (const value of scriptStrings(file, text)) add(value)
-        } else if (extname(file) === '.svg') {
-          const parser = new SaxesParser()
-          parser.on('text', add)
-          parser.on('cdata', add)
-          parser.write(text).close()
-        } else if (extname(file) === '.css') {
-          add(text.replace(/\\([\da-f]{1,6})\s?/gi, (_, code) => String.fromCodePoint(parseInt(code, 16))))
-        }
+        add(await readFile(file, 'utf8'))
       }
     }
   }
@@ -91,31 +53,6 @@ export function checkCoverage(buffer, characters, label = 'subset') {
 
 function unicodeRange(characters) {
   return [...characters].map(c => `U+${c.codePointAt(0).toString(16).toUpperCase()}`).join(',')
-}
-
-export async function checkFonts(root = '.', output = 'generated/fonts') {
-  const characters = await collectCharacters(root)
-  for (const weight of fontWeights) checkCoverage(await readFile(outputPath(output, `noto-sans-sc-${weight}.woff2`)), characters, `${weight}`)
-}
-
-// Post-build guard: every CJK character in the shipped HTML, JSON, SVG and JS must be in both subsets.
-export async function checkDist(dist = 'dist', output = 'generated/fonts') {
-  const characters = new Set()
-  async function walk(directory) {
-    for (const entry of await readdir(directory, { withFileTypes: true })) {
-      const file = outputPath(directory, entry.name)
-      if (entry.isDirectory()) await walk(file)
-      else if (/\.(html|json|svg|js|mjs|css|txt|xml|webmanifest)$/.test(entry.name)) {
-        const text = await readFile(file, 'utf8')
-        // Bundles: literal text plus parsed string values (esbuild may emit \uXXXX escapes).
-        const texts = /\.m?js$/.test(entry.name) ? [text, ...scriptStrings(file, text)] : decodedTexts(text)
-        for (const value of texts) for (const character of value) if (notoCharacter(character)) characters.add(character)
-      }
-    }
-  }
-  await walk(dist)
-  for (const weight of fontWeights) checkCoverage(await readFile(outputPath(output, `noto-sans-sc-${weight}.woff2`)), characters, `${dist} ${weight}`)
-  return characters.size
 }
 
 export async function buildFonts(root = '.', output = 'generated/fonts') {
@@ -141,11 +78,7 @@ export async function buildFonts(root = '.', output = 'generated/fonts') {
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  if (process.argv.includes('--check')) await checkFonts()
-  else if (process.argv.includes('--check-dist')) console.log(`Noto Sans SC: ${await checkDist()} built characters covered.`)
-  else {
-    await buildFonts()
-    // Vite copies public assets so the distributed site includes the license.
-    await writeOutput('public/fonts', 'OFL.txt', await readFile(resolve(fontsource, 'LICENSE')))
-  }
+  await buildFonts()
+  // Vite copies public assets so the distributed site includes the license.
+  await writeOutput('public/fonts', 'OFL.txt', await readFile(resolve(fontsource, 'LICENSE')))
 }

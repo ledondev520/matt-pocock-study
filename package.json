@@ -13,7 +13,7 @@
     "test:layout": "playwright test",
     "build:content": "tsx scripts/build-content.ts",
     "build:fonts": "node scripts/fonts.mjs",
-    "build": "npm run build:content && npm run og && npm run build:fonts && vite build && tsx scripts/static.tsx && node scripts/fonts.mjs --check-dist && tsx scripts/compress.ts",
+    "build": "npm run build:content && npm run og && npm run build:fonts && vite build && tsx scripts/static.tsx && tsx scripts/compress.ts",
     "start": "tsx server/index.ts",
     "dev": "npm run build:content && npm run build:fonts && concurrently -k \"tsx watch --include 'content/**/*.md' server/index.ts --dev\" \"vite --host localhost\"",
     "corpus:x": "node scripts/corpus/fetch-x.mjs",

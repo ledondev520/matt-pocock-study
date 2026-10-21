@@ -2,7 +2,7 @@ import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import { buildFonts, checkCoverage, checkDist, checkFonts, collectCharacters, fontWeights, notoCharacter } from '../scripts/fonts.mjs'
+import { buildFonts, checkCoverage, collectCharacters, fontWeights, notoCharacter } from '../scripts/fonts.mjs'
 
 let temporary: string
 let output: string
@@ -25,7 +25,6 @@ describe('Noto Sans SC subsets', () => {
       expect(font.readUInt32BE(8)).toBe(font.length)
       expect(() => checkCoverage(font, characters, `${weight}`)).not.toThrow()
     }
-    await expect(checkFonts('.', output)).resolves.toBeUndefined()
     const css = await readFile(join(output, 'noto-sans-sc.css'), 'utf8')
     expect(css.match(/@font-face/g)).toHaveLength(2)
     expect(css.match(/font-family: 'Noto Sans SC'/g)).toHaveLength(2)
@@ -35,46 +34,26 @@ describe('Noto Sans SC subsets', () => {
     expect([...characters].every(character => character.codePointAt(0)! > 127)).toBe(true)
   })
 
-  it('collects both languages, client corpus data, UI escapes, diagrams and SVG text', async () => {
+  it('collects literal CJK from both languages, corpus data, UI, build/server labels, diagrams and SVG', async () => {
     const root = join(temporary, 'inputs')
     const files = {
       'content/zh/page.md': '中',
-      'content/en/page.md': '英 &#x6587;',
-      'data/corpus-index.json': '{"summary":{"zh":"\\u8bed","en":"料"}}',
-      'src/ui.tsx': 'const text = "\\u754c"; const view = <span>面</span>; const message = `\\u663e${text}示`;',
-      'src/style.css': '.example::after { content: "\\5f0f "; }',
+      'content/en/page.md': '英文',
+      'data/corpus-index.json': '{"summary":{"zh":"语","en":"料"}}',
+      'src/ui.tsx': 'const text = "界"; const view = <span>面</span>; const message = `显${text}示`;',
+      'src/style.css': '.example::after { content: "式"; }',
       'scripts/render.tsx': 'const label = lang === "zh" ? "复" : "Copy";',
       'server/app.ts': 'const notFound = "找";',
       'diagrams/src/example.json': '{"label":"图"}',
-      'public/art/example.svg': '<svg xmlns="http://www.w3.org/2000/svg"><text>画&#x5b57;</text></svg>',
+      'public/art/example.svg': '<svg xmlns="http://www.w3.org/2000/svg"><text>画字</text></svg>',
     }
     for (const [path, content] of Object.entries(files)) {
       await mkdir(join(root, path, '..'), { recursive: true })
       await writeFile(join(root, path), content)
     }
     expect(await collectCharacters(root)).toEqual(new Set([...'中英文语料界面显示式复找图画字']))
-  })
-
-  it('rejects a Han character added to temporary content after generation (mutation)', async () => {
-    const root = join(temporary, 'mutation')
-    for (const directory of ['content/zh', 'content/en', 'data', 'src', 'scripts', 'server', 'diagrams', 'public/art']) {
-      await mkdir(join(root, directory), { recursive: true })
-    }
-    const file = join(root, 'content/zh/page.md')
-    await writeFile(file, '中文')
-    await expect(checkFonts(root, output)).resolves.toBeUndefined()
-    const characters = await collectCharacters()
-    // Find an unused BMP Han, rather than relying on a permanently rare fixture.
-    let code = 0x4e00
-    while (characters.has(String.fromCodePoint(code))) code++
-    const added = String.fromCodePoint(code)
-    expect(added).toMatch(/\p{Script=Han}/u)
-    await writeFile(file, `中文${added}`)
-    for (const weight of fontWeights) {
-      const font = await readFile(join(output, `noto-sans-sc-${weight}.woff2`))
-      expect(() => checkCoverage(font, new Set([added]))).toThrow(`U+${code.toString(16).toUpperCase()}`)
-    }
-    await expect(checkFonts(root, output)).rejects.toThrow(/cmap missing/)
+    // Escaped spellings are deliberately not decoded here: the browser gate catches anything
+    // the site renders that the subset lacks (e2e/font-coverage.pw.ts).
   })
 
   it('generates byte-identical fonts and CSS from the same inputs', async () => {
@@ -85,17 +64,14 @@ describe('Noto Sans SC subsets', () => {
     }
   }, 30_000)
 
-  it('fails the post-build check when shipped output contains a character outside the subset (mutation)', async () => {
-    const dist = join(temporary, 'dist')
-    await mkdir(join(dist, 'zh'), { recursive: true })
-    // Labels rendered by scripts/ (code toolbar, exercise heading) must be covered too.
-    await writeFile(join(dist, 'zh', 'index.html'), '<button>复制</button><span>动手练习</span>')
-    await expect(checkDist(dist, output)).resolves.toBeGreaterThan(0)
+  it('rejects a subset that lacks a collected character (cmap check used during generation)', async () => {
     const characters = await collectCharacters()
     let code = 0x4e00
     while (characters.has(String.fromCodePoint(code))) code++
-    await writeFile(join(dist, 'zh', 'extra.json'), JSON.stringify({ title: String.fromCodePoint(code) }))
-    await expect(checkDist(dist, output)).rejects.toThrow(`U+${code.toString(16).toUpperCase()}`)
+    for (const weight of fontWeights) {
+      const font = await readFile(join(output, `noto-sans-sc-${weight}.woff2`))
+      expect(() => checkCoverage(font, new Set([String.fromCodePoint(code)]))).toThrow(`U+${code.toString(16).toUpperCase()}`)
+    }
   })
 
   it('treats kana marks that are Script=Common but Hiragana/Katakana by extension as Noto characters', () => {
@@ -104,29 +80,4 @@ describe('Noto Sans SC subsets', () => {
     for (const latin of ['A', '—', '→']) expect(notoCharacter(latin)).toBe(false)
   })
 
-  it('fails the post-build check for an out-of-subset character in every shipped encoding (mutation)', async () => {
-    const characters = await collectCharacters()
-    let code = 0x4e00
-    while (characters.has(String.fromCodePoint(code))) code++
-    const hex = code.toString(16)
-    const spellings: Record<string, string> = {
-      'page.html': `<p>&#x${hex};</p>`,
-      'decimal.html': `<p>&#${code};</p>`,
-      'figure.svg': `<svg xmlns="http://www.w3.org/2000/svg"><text>&#x${hex};</text></svg>`,
-      'data.json': `{"title":"\\u${hex}"}`,
-      'app.js': `const label = "\\u{${hex}}"`,
-      'style.css': `.x::after { content: "\\${hex}"; }`,
-    }
-    for (const [name, content] of Object.entries(spellings)) {
-      const dist = join(temporary, `encoded-${name}`)
-      await mkdir(dist, { recursive: true })
-      await writeFile(join(dist, name), content)
-      await expect(checkDist(dist, output), name).rejects.toThrow(`U+${hex.toUpperCase()}`)
-    }
-    // Code-point ranges in bundled regexes (or regex source strings) are not displayed text.
-    const regexes = join(temporary, 'encoded-regex')
-    await mkdir(regexes, { recursive: true })
-    await writeFile(join(regexes, 'lib.js'), 'const a = /[\\u4e00-\\u9fff\\uf900]/u; const b = new RegExp("[\\\\uF900-\\\\uFDCF]")')
-    await expect(checkDist(regexes, output)).resolves.toBe(0)
-  })
 })
