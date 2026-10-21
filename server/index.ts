@@ -7,7 +7,7 @@ import { createIndex } from './db'
 const dev = process.argv.includes('--dev')
 const output = dev ? 'public' : 'dist'
 if (!dev) await access('dist/index.html')
-const pages = await buildContent('content', output)
+const pages = await buildContent('content', output, dev)
 await mkdir('generated', { recursive: true })
 const db = createIndex(pages, 'generated/content.sqlite')
 const port = Number(process.env.PORT ?? 8787)

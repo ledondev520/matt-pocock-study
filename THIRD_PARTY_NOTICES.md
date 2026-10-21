@@ -40,12 +40,16 @@ Copyright lines are copied from the upstream LICENSE file where it was checked;
 | [race-manager](https://github.com/mattpocock/race-manager) | Copyright (c) 2015 gatsbyjs |
 | [react-boilerplate-custom](https://github.com/mattpocock/react-boilerplate-custom) | Copyright (c) 2018 Maximilian Stoiber |
 
-Note: 8 of these repositories are starter templates whose LICENSE names another holder
-(gatsbyjs, Maximilian Stoiber). Reusing them means keeping *that* notice; they are not Matt Pocock's
-work and have little study value — prefer not to reuse them.
+The following eight template repositories are **link-only; no content reuse**. Their
+copyright holders are gatsbyjs or Maximilian Stoiber, as shown above:
+`day-tracker-typescript`, `gatsby-pomodoro`, `gatsby-starter-netlify-cms`, `gatsby-test`,
+`louiseburfitt-new`, `race-manager`, `one-coding-test`, `react-boilerplate-custom`.
 
-Note: `ai-hero-cli`'s LICENSE currently reads `<PLACEHOLDER>` as the holder; treat it as
-© Matt Pocock and keep the upstream file verbatim if anything is reused.
+`ai-hero-cli` is also **link-only; no code, template or course content reuse**.
+Its upstream copyright line contains `<PLACEHOLDER>`; we do not substitute a holder.
+The registry above records licence observations, not permission to reuse these exclusions.
+
+八个模板仓库及版权行含占位符的 `ai-hero-cli` 仅作链接导览，不复用内容。
 
 ## Files in this repository · 本仓库实际复用的文件
 
@@ -55,3 +59,17 @@ None yet. 目前尚未复用任何上游文件。
 
 - `src/components/ui/*` follows the shadcn/ui component pattern (https://github.com/shadcn-ui/ui, MIT, Copyright (c) 2023 shadcn).
 - npm dependencies keep their own licenses (see `package-lock.json` and each package).
+
+## Self-hosted fonts · 自托管字体
+
+Fonts are distributed through these @fontsource packages under the SIL Open Font License 1.1 (OFL), with their bundled licence notices:
+
+- `@fontsource/inter`: Inter, Copyright 2016 The Inter Project Authors. [Source and OFL](https://github.com/rsms/inter/blob/master/LICENSE.txt).
+- `@fontsource/space-grotesk`: Space Grotesk, Copyright 2020 The Space Grotesk Project Authors. [Source and OFL](https://github.com/floriankarsten/space-grotesk/blob/master/OFL.txt).
+- `@fontsource/jetbrains-mono`: JetBrains Mono, Copyright 2020 The JetBrains Mono Project Authors. [Source and OFL](https://github.com/JetBrains/JetBrainsMono/blob/master/OFL.txt).
+- `@fontsource/noto-sans-sc`: Noto Sans SC, Google Inc. (as recorded in the package licence). [Source and OFL](https://github.com/notofonts/noto-cjk/blob/main/Sans/LICENSE).
+
+The electric design, hand-written SVGs and sample lesson are project-authored assets,
+ported into this platform. No additional upstream repository code was vendored.
+
+The complete package OFL notices are included in `public/font-licenses/` and distributed with the site.

@@ -20,3 +20,6 @@ corpus-raw/
 # local scratch
 *.log
 check.png
+
+# Generated downloadable figure fallbacks
+public/figures/

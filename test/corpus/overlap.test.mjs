@@ -132,3 +132,17 @@ test('guard CLI skips missing raw, require-raw fails, explicit target violation 
     return true;
   });
 });
+
+test('a quote block text line is allowed only when the block has an http(s) url field', async () => {
+  const quote = 'amber beacons carry distant echoes from gentle hills tonight';
+  const { hashes } = await buildSourceIndex([quote]);
+  const linked = findRuns(`\`\`\`quote\ntext: ${quote}\nauthor: A\nurl: https://example.com/q\n\`\`\`\n`, hashes);
+  assert.equal(linked.length, 1);
+  assert.equal(linked[0].allowed, true);
+  const unlinked = findRuns(`\`\`\`quote\ntext: ${quote}\nauthor: A\n\`\`\`\n`, hashes);
+  assert.equal(unlinked[0].allowed, false);
+  const outside = findRuns(`text: ${quote}\nurl: https://example.com/q\n`, hashes);
+  assert.equal(outside[0].allowed, false);
+  const otherLine = findRuns(`\`\`\`quote\ntext: hi\nnote: ${quote}\nurl: https://example.com/q\n\`\`\`\n`, hashes);
+  assert.equal(otherLine[0].allowed, false);
+});

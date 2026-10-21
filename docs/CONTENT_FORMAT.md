@@ -1,0 +1,67 @@
+# Content contract (shared by platform, content and diagram work)
+
+Pages: `content/zh/<slug>.md` and `content/en/<slug>.md`, same slug set. 21 pages from content/OUTLINE.md ("逐页提纲" 01–21) with the OUTLINE slugs, plus `corpus.md` (intro text for the corpus page). The old placeholder pages `welcome.md` and `about.md` are removed.
+
+Front matter (YAML):
+```yaml
+slug: specs-and-tickets        # OUTLINE slug
+number: 6                      # OUTLINE page number 1–21 (corpus: 0)
+title: 规格与工单                # short title
+subtitle: 把已定决策变成可执行工单   # OUTLINE page title
+section: workflow              # one of: start, principles, punchlines, workflow, agent-rules, typescript, writing, repos, cheatsheet, path, about, corpus
+order: 6                       # sort order = number
+summary: 一句话要点（≤40 中文字 / ≤25 English words）, used for cards, og image and llms.txt
+head: d06-spec-lifecycle       # figure id for the page head, or "card" (then the summary is shown as a key-point card)
+updated: 2026-10-21
+```
+Section labels (zh / en): start 从这里开始 / Start here; principles 核心理念 / Core ideas; punchlines Punch lines 精选 / Punch lines; workflow AI coding 工作流 / AI coding workflow; agent-rules 给 agent 立规矩 / Rules for agents; typescript TypeScript 心法 / TypeScript; writing 写作与传播 / Writing & teaching; repos 开源仓库导览 / Open-source guide; cheatsheet 速查表 / Cheat sheets; path 学习路径 / Learning paths; about 关于本站 / About; corpus 语料库 / Corpus.
+
+Body: Markdown. Every paragraph ≤ 4 lines: zh ≤ 110 characters, en ≤ 55 words (enforced by a test). Prefer the components below over long prose. `##` headings for sections (H1 comes from front matter, do not write `#`).
+
+Components are fenced code blocks with a special language; their body is simple `key: value` lines or Markdown lists:
+
+1. Key-point cards
+````
+```cards
+- **目标与行为** 谁要完成什么？系统应怎样回应？
+- **边界与未知** 哪些不做？哪些问题仍待确认？
+```
+````
+(2–4 items; bold part = card title, rest = text.)
+
+2. Comparison table: a normal Markdown table directly after a line `<!-- compare -->` (styled as comparison table; first column = row label).
+
+3. Punch-line quote (link REQUIRED; build fails without `url`):
+````
+```quote
+text: <exact quote copied from the OUTLINE quote table>
+author: Matt Pocock
+url: https://x.com/mattpocockuk/status/<id>
+date: YYYY-MM-DD
+note: 本站译意（我们自己的话）
+```
+````
+`text` is the exact short original (≤ 25 words, only quotes listed in OUTLINE for that page, keep English in both languages). `note` (optional) = our translation/comment, zh pages only "本站译意：…", en pages may comment.
+
+4. Exercise:
+````
+```exercise
+title: 把「添加收藏」切成一个闭环
+- 任务：…
+- 成功时观察到：…
+- 失败时观察到：…
+answer: 参考思路……（optional, shown in a collapsible <details>）
+```
+````
+
+5. Figure (illustration from data/figures.json):
+````
+```figure
+id: d04-triage
+```
+````
+Rendered as the archify diagram (owner diagram) or the illustrated SVG / placeholder (owner art), with bilingual alt and caption from data/figures.json. Put each figure where OUTLINE/illustration list says (page and point number).
+
+6. Callout: ```note ...``` (本站推论 / 尚未验证 etc.), first line `kind: inference|unverified|tip`, then Markdown.
+
+Quote rules (copyright): only quotes listed in OUTLINE for that page, each ≤ 2 sentences with its URL and date. Everything else is our own words. Never invent "Matt said". No other copied text.

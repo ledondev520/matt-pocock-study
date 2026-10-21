@@ -52,7 +52,21 @@ export async function buildSourceIndex(texts) {
   return { hashes, fields };
 }
 
+// Character ranges of the `text:` line of each ```quote block that also carries an
+// http(s) `url:` field. Such a line is a linked quotation, like a quote with an inline link.
+function linkedQuoteLines(text) {
+  const ranges = [];
+  for (const block of text.matchAll(/^```quote[^\n]*\n([\s\S]*?)^```/gm)) {
+    const body = block[1];
+    if (!/^url:\s*https?:\/\/\S+/m.test(body)) continue;
+    const bodyStart = block.index + block[0].indexOf('\n') + 1;
+    for (const line of body.matchAll(/^text:.*$/gm)) ranges.push([bodyStart + line.index, bodyStart + line.index + line[0].length]);
+  }
+  return ranges;
+}
+
 export function findRuns(text, hashes) {
+  const quoteLines = linkedQuoteLines(text);
   // Offsets refer to the original text, including newlines, for accurate reports.
   const matches = Array.from(text.matchAll(/[\p{Script=Latin}0-9]+/gu));
   const words = matches.map((match) => match[0].toLowerCase());
@@ -80,7 +94,8 @@ export function findRuns(text, hashes) {
       length: end - start,
       words: words.slice(start, end).join(' '),
       // A link on a different line cannot authorize a cross-line run.
-      allowed: end - start <= 30 && endOffset <= lineEnd && /https?:\/\/[^\s<>"')|]+/i.test(lineText),
+      allowed: end - start <= 30 && endOffset <= lineEnd &&
+        (/https?:\/\/[^\s<>"')|]+/i.test(lineText) || quoteLines.some(([a, b]) => a === lineStart && b === lineEnd)),
     };
   });
 }

@@ -1,0 +1,87 @@
+import { useEffect, useState, type FormEvent } from 'react'
+import { Zap, Github, Sun, Moon, Menu, ArrowUpRight, Search } from 'lucide-react'
+import { ChainFigure } from './Diagrams'
+import { sectionLabel, type Model, type Page } from './lib/content'
+import type { Lang } from './lib/lang'
+import type { CorpusRecord } from '../server/corpus'
+
+export const sourceUrl = 'https://github.com/ledondev520/matt-pocock-study'
+export function pageHref(model: Model, lang: Lang, slug: string) {
+  return model.pages.some(p => p.lang === lang && p.slug === slug) ? `/${lang}/${slug}` : `/${lang}#topics`
+}
+export function Figure({ id, lang, model }: { id: string; lang: Lang; model: Model }) {
+  return <div dangerouslySetInnerHTML={{ __html: model.figures[lang][id] ?? '' }} />
+}
+export function Site({ model, path, dark = false, onTheme, onLanguage }: {
+  model: Model; path: string; dark?: boolean; onTheme?: () => void; onLanguage?: (lang: Lang) => void;
+}) {
+  const [menu, setMenu] = useState(false)
+  const match = /^\/(zh|en)(?:\/([a-z0-9-]+))?\/?$/.exec(path)
+  const lang: Lang = match?.[1] === 'zh' ? 'zh' : 'en'
+  const slug = match?.[2]
+  const zh = lang === 'zh', other = zh ? 'en' : 'zh'
+  const t = (cn: string, en: string) => zh ? cn : en
+  const pages = model.pages.filter(p => p.lang === lang && p.slug !== 'corpus')
+  const page = model.pages.find(p => p.lang === lang && p.slug === slug)
+  const home = path === '/' || (!!match && !slug)
+  const corpus = !!match && slug === 'corpus'
+  const otherPath = `/${other}${page ? `/${page.slug}` : ''}`
+  useEffect(() => { setMenu(false) }, [path])
+  return <>
+    <a className="skip-link" href="#main">{t('跳至正文', 'Skip to content')}</a>
+    <header className="site-header"><div className="wrap header-inner">
+      <a className="brand" href={`/${lang}`}><span className="brand-icon"><Zap size={25} fill="currentColor" /></span><span><strong>Matt<span className="brand-dot">.</span>{t('学习笔记', 'Study notes')}</strong><span className="brand-sub">THINK CLEARLY. BUILD BETTER.</span></span></a>
+      <nav className={menu ? 'main-nav open' : 'main-nav'} aria-label={t('主导航', 'Main navigation')}>
+        <a href={`/${lang}#topics`}>{t('学习笔记', 'Notes')}</a><a href={`/${lang}/corpus`}>{t('语料库', 'Corpus')}</a><a href={pageHref(model, lang, 'learn-from-matt')}>{t('关于', 'About')}</a>
+      </nav>
+      <div className="header-tools"><a className="language-toggle" href={otherPath} hrefLang={other} lang={other} onClick={() => onLanguage?.(other)}>{t('EN', '中文')}</a><span className="tool-divider" /><button className="icon-button" onClick={onTheme} aria-label={t(dark ? '切换浅色主题' : '切换深色主题', dark ? 'Switch to light theme' : 'Switch to dark theme')} aria-pressed={dark}>{dark ? <Sun size={19} /> : <Moon size={19} />}</button><a className="github-link" href={sourceUrl} aria-label="GitHub source"><Github size={21} /></a><button className="icon-button mobile-menu" aria-label={t('打开导航', 'Toggle navigation')} aria-expanded={menu} onClick={() => setMenu(!menu)}><Menu size={22} /></button></div>
+    </div></header>
+    <main id="main" tabIndex={-1}>
+      {home ? <Home model={model} lang={lang} pages={pages} /> : corpus ? <Corpus model={model} lang={lang} intro={page} /> : page && match ? <Article model={model} page={page} pages={pages} /> : <div className="wrap missing-page"><span className="eyebrow">404</span><h1>{t('这个地址没有页面', 'Page not found')}</h1><Figure id="spot-404" model={model} lang={lang} /><div className="hero-actions"><a className="primary-button" href={`/${lang}`}>{t('回到首页', 'Back home')}</a><a href={`/${lang}/corpus`}>{t('搜索语料库', 'Search the corpus')} ↗</a></div></div>}
+    </main>
+    <footer className="site-footer wrap"><div className="footer-main"><div className="footer-brand"><Zap size={20} /><strong>Matt · {t('学习笔记', 'Study notes')}</strong></div><a href={sourceUrl}><Github size={18} /> {t('查看源码', 'View source')} ↗</a></div><div className="footer-bottom"><p>{t('非官方、非商业的学习整理，与 Matt Pocock 无隶属或背书关系。所引作品版权归原作者；MIT 复用内容另附版权与许可声明。', 'Independent, unofficial, non-commercial study notes, with no affiliation or endorsement from Matt Pocock. Original works belong to their authors; MIT adaptations retain their notices.')}</p></div><div className="footer-legal"><a href={`${sourceUrl}/blob/main/LICENSE`}>LICENSE</a><a href={`${sourceUrl}/blob/main/THIRD_PARTY_NOTICES.md`}>THIRD_PARTY_NOTICES</a><a href={pageHref(model, lang, 'about-and-copyright')}>{t('关于本站与版权', 'About & copyright')}</a><a href={lang === 'zh' ? '/zh/llms.txt' : '/llms.txt'}>llms.txt</a></div></footer>
+  </>
+}
+function Home({ model, lang, pages }: { model: Model; lang: Lang; pages: Page[] }) {
+  const zh = lang === 'zh', t = (cn: string, en: string) => zh ? cn : en
+  const links = Object.fromEntries(['alignment-and-prototypes', 'specs-and-tickets', 'implementation-and-feedback', 'review-and-pr', 'standards-and-checks'].map(slug => [slug, pageHref(model, lang, slug)]))
+  const routes = [
+    ['ai-coding-workflow', t('AI coding 工作流', 'AI coding workflow'), t('从对齐到交付，把反馈变成下一次的规范。', 'Align, build and verify. Bring feedback into the next decision.')],
+    ['typescript-foundations', t('TypeScript 心法', 'TypeScript foundations'), t('从 unknown 到可靠边界，让类型减少错误空间。', 'From unknown data to reliable boundaries and fewer invalid states.')],
+    ['writing-to-teach', t('写作与教学', 'Writing & teaching'), t('从一个具体困惑开始，把方法讲清楚。', 'Start with a concrete problem and make the method clear.')],
+  ]
+  return <>
+    <section className="hero"><div className="hero-grid" /><div className="wrap hero-inner"><div className="hero-copy"><div className="hero-eyebrow"><span className="status-dot" /> INDEPENDENT STUDY NOTES <span>LEARN IN PUBLIC</span></div><h1>{t('想清楚，', 'Think clearly.')}<br /><span className="lime-word">{t('再动手。', 'Build better.')}</span></h1><p className="hero-deck">{t('向 Matt Pocock 学习：用更清晰的思考、更短的反馈回路，做出可验证的改变。', 'Learning from Matt Pocock: clearer thinking, shorter feedback loops, and changes you can verify.')}</p><div className="hero-actions"><a className="hero-primary" href={pageHref(model, lang, 'learn-from-matt')}>{t('从这里开始', 'Start here')} <ArrowUpRight size={18} /></a><a className="hero-secondary" href={`/${lang}/corpus`}>{t('探索语料库', 'Explore the corpus')} ↗</a></div><div className="tribute"><p>{t('Matt Pocock 是开发者教育者，他的公开教学涉及 TypeScript、AI 工程与 agent 工作流。这里用我们自己的话整理学习笔记，向他的分享致敬。', 'Matt Pocock is a developer educator whose public teaching spans TypeScript, AI engineering and agent workflows. These independently written notes are a tribute to his sharing.')}</p><p>{t('欢迎关注他，直接从原作学习。', 'Follow Matt and learn directly from his work.')}</p><div className="author-links"><a href="https://x.com/mattpocockuk">X / @mattpocockuk ↗</a><a href="https://github.com/mattpocock">GitHub ↗</a><a href="https://www.aihero.dev">AI Hero ↗</a></div></div></div><ChainFigure lang={lang} links={links} /></div><div className="wrap hero-bottom"><span>{t('非官方 · 非商业 · 独立整理', 'UNOFFICIAL · NON-COMMERCIAL · INDEPENDENT')}</span><span>TYPE / BUILD / TEACH <span className="pink-star">✳</span></span></div></section>
+    <section className="wrap corpus-section"><div className="corpus-panel"><div className="corpus-heading"><div><span className="eyebrow">THE PUBLIC LEARNING INDEX</span><h2>{t('一份持续生长的语料库', 'A growing public corpus')}</h2></div><div className="corpus-count"><strong>{model.corpusCount.toLocaleString()}</strong><span>{t('条公开资料', 'PUBLIC SOURCES')}</span></div></div><p className="corpus-description">{t('持续更新 Matt 的公开精华：帖子、文章、仓库与网站。只收索引和本站摘要，每一条都通向原文。', 'A continuously updated index of Matt’s best public posts, articles, repositories and websites. Our summaries help you find the original.')}</p><a className="corpus-enter" href={`/${lang}/corpus`}><Search size={19} />{t('搜索、筛选，找到当前需要的原始资料', 'Search and filter the sources you need')}<ArrowUpRight size={19} /></a><div className="home-corpus-figure"><Figure id="home-corpus" model={model} lang={lang} /></div></div></section>
+    <section className="wrap topics-section"><div className="section-heading"><div><span className="eyebrow">CHOOSE YOUR STARTING POINT</span><h2>{t('从你现在的卡点开始', 'Start where you are stuck')}</h2></div></div><div className="route-overview"><Figure id="home-routes" model={model} lang={lang} /></div><div className="topic-grid">{routes.map(([slug, title, summary], i) => <div className={`topic-card accent-${['lime', 'pink', 'violet'][i]}`} key={slug}><a href={pageHref(model, lang, slug)}><span className="eyebrow">0{i + 1} / {t('学习入口', 'ENTRY POINT')}</span><h3>{title}<ArrowUpRight size={20} /></h3><p>{summary}</p>{!pages.some(p => p.slug === slug) && <span className="coming-soon">{t('课程整理中 · 先浏览已完成笔记', 'In preparation · browse available notes')}</span>}</a></div>)}</div></section>
+    <section className="reading-section" id="topics"><div className="wrap"><span className="eyebrow">THE FIELD NOTES</span><h2>{t('把方法带回工作现场', 'Take the methods back to work')}</h2>{Array.from(new Set(pages.map(p => p.section))).map(section => <div className="section-group" id={`section-${section}`} key={section}><h3>{sectionLabel(section, lang)}</h3><div className="topic-grid">{pages.filter(p => p.section === section).map(p => <div className="topic-card" key={p.slug}><a href={`/${lang}/${p.slug}`}><span className="eyebrow">{String(p.number).padStart(2, '0')}</span><h3>{p.title} ↗</h3><p>{p.summary}</p></a></div>)}</div></div>)}</div></section>
+  </>
+}
+function Article({ page, pages }: { model: Model; page: Page; pages: Page[] }) {
+  const { lang } = page, zh = lang === 'zh', t = (cn: string, en: string) => zh ? cn : en
+  const index = pages.findIndex(p => p.slug === page.slug)
+  return <div className="article-page wrap"><div className="article-layout"><aside className="article-sidebar"><a href={`/${lang}`}>{t('← 返回学习笔记', '← Back to notes')}</a><span className="eyebrow">{sectionLabel(page.section, lang)}</span><ol>{pages.filter(p => p.section === page.section).map(p => <li key={p.slug} className={p.slug === page.slug ? 'current' : ''}><a href={`/${lang}/${p.slug}`} aria-current={p.slug === page.slug ? 'page' : undefined}>{String(p.number).padStart(2, '0')} {p.title}</a></li>)}</ol><span className="eyebrow">{t('全部栏目', 'ALL SECTIONS')}</span><ul>{Array.from(new Set(pages.map(p => p.section))).map(section => <li key={section}><a href={`/${lang}#section-${section}`}>{sectionLabel(section, lang)}</a></li>)}</ul></aside><article className="full-article"><nav className="breadcrumb" aria-label={t('面包屑导航', 'Breadcrumb')}><a href={`/${lang}#section-${page.section}`}>{sectionLabel(page.section, lang)}</a><span>/</span><span>{page.title}</span></nav><div className="article-kicker"><span>{String(page.number).padStart(2, '0')}</span>{t('独立学习笔记', 'INDEPENDENT FIELD NOTE')}</div><h1>{page.title}<span className="accent-period">.</span></h1><p className="article-lede">{page.subtitle}</p><div className="article-updated">{t('更新于', 'Updated')} <time dateTime={page.updated}>{page.updated}</time><a href={`/${lang}/${page.slug}.md`} download>{t('下载 .md', 'Download .md')} ↓</a></div><div dangerouslySetInnerHTML={{ __html: page.headHtml }} /><div className="article-body" dangerouslySetInnerHTML={{ __html: page.html }} /><nav className="article-end" aria-label={t('相邻页面', 'Adjacent pages')}>{pages[index - 1] ? <a href={`/${lang}/${pages[index - 1].slug}`}>← {pages[index - 1].title}</a> : <a href={`/${lang}`}>{t('← 首页', '← Home')}</a>}{pages[index + 1] && <a href={`/${lang}/${pages[index + 1].slug}`}>{pages[index + 1].title} →</a>}</nav></article><aside className="page-toc"><span className="eyebrow">{t('本页目录', 'ON THIS PAGE')}</span><ol>{page.toc.map(item => <li key={item.id}><a href={`#${item.id}`}>{item.title}</a></li>)}</ol><a href={`/${lang}/${page.slug}.md`} download>{t('下载 Markdown', 'Download Markdown')} ↓</a></aside></div></div>
+}
+function Corpus({ model, lang, intro }: { model: Model; lang: Lang; intro?: Page }) {
+  const zh = lang === 'zh', t = (cn: string, en: string) => zh ? cn : en
+  const [q, setQ] = useState(''), [type, setType] = useState(''), [tag, setTag] = useState('')
+  const [from, setFrom] = useState(''), [to, setTo] = useState(''), [sort, setSort] = useState('engagement')
+  const [offset, setOffset] = useState(0), [version, setVersion] = useState(0)
+  const [rows, setRows] = useState<CorpusRecord[]>(model.corpusItems), [total, setTotal] = useState(model.corpusCount)
+  const [loading, setLoading] = useState(false), [error, setError] = useState('')
+  useEffect(() => {
+    const controller = new AbortController()
+    const timer = setTimeout(() => {
+      setLoading(true); setError('')
+      const params = new URLSearchParams({ q, type, tag, from, to, sort, limit: '20', offset: String(offset) })
+      fetch(`/api/corpus?${params}`, { signal: controller.signal }).then(async response => {
+        if (!response.ok) throw new Error(response.status === 400 ? 'invalid' : 'unavailable')
+        return response.json() as Promise<{ items: CorpusRecord[]; total: number }>
+      }).then(data => { setRows(data.items); setTotal(data.total) }).catch((reason: unknown) => { if (!controller.signal.aborted) setError(reason instanceof Error ? reason.message : 'unavailable') }).finally(() => { if (!controller.signal.aborted) setLoading(false) })
+    }, 200)
+    return () => { clearTimeout(timer); controller.abort() }
+  }, [q, type, tag, from, to, sort, offset, version])
+  const resetPage = (setter: (value: string) => void, value: string) => { setter(value); setOffset(0) }
+  function submit(event: FormEvent) { event.preventDefault(); setVersion(v => v + 1) }
+  return <div className="wrap corpus-reader"><div className="corpus-page-intro"><a href={`/${lang}`}>{t('← 返回首页', '← Back home')}</a><span className="eyebrow">THE PUBLIC LEARNING INDEX</span><h1>{t('语料库', 'Corpus')}<span className="accent-period">.</span></h1>{intro && <div className="intro-prose" dangerouslySetInnerHTML={{ __html: intro.html }} />}</div><section className="corpus-panel"><form role="search" onSubmit={submit}><label htmlFor="corpus-q">{t('搜索中英文摘要与标签', 'Search bilingual summaries and tags')}</label><div className="search-row"><div className="search-box"><Search size={20} /><input id="corpus-q" type="search" maxLength={200} value={q} onChange={e => resetPage(setQ, e.target.value)} placeholder={t('例如：typescript、工作流…', 'Try typescript or workflow…')} /></div><button className="primary-button">{t('搜索', 'Search')}</button></div><div className="corpus-filter-row"><label>{t('类型', 'Type')}<select aria-label={t('类型', 'Type')} value={type} onChange={e => resetPage(setType, e.target.value)}><option value="">{t('全部', 'All')}</option>{['post', 'article', 'repo', 'web'].map(value => <option key={value}>{value}</option>)}</select></label><label>{t('起始日期', 'From')}<input type="date" value={from} onChange={e => resetPage(setFrom, e.target.value)} /></label><label>{t('截止日期', 'To')}<input type="date" value={to} onChange={e => resetPage(setTo, e.target.value)} /></label><label>{t('排序', 'Sort')}<select aria-label={t('排序', 'Sort')} value={sort} onChange={e => resetPage(setSort, e.target.value)}><option value="engagement">{t('互动数', 'Engagement')}</option><option value="date">{t('最新', 'Newest')}</option></select></label></div><fieldset className="tag-filters"><legend>{t('主题标签', 'Topic tags')}</legend><button type="button" aria-pressed={!tag} onClick={() => resetPage(setTag, '')}>{t('全部', 'All')}</button>{model.corpusTags.map(value => <button type="button" key={value} aria-pressed={tag === value} onClick={() => resetPage(setTag, tag === value ? '' : value)}>{value}</button>)}</fieldset></form><p className="result-count" role="status">{loading ? t('搜索中…', 'Searching…') : `${total} ${t('条结果', 'results')}`}</p>{error ? <div role="alert"><p>{error === 'invalid' ? t('请检查日期范围与筛选条件。', 'Check the date range and filters.') : t('暂时无法读取语料，请重试。', 'The corpus is unavailable. Please retry.')}</p><button onClick={() => setVersion(v => v + 1)}>{t('重试', 'Retry')}</button></div> : rows.length ? <div aria-busy={loading}>{rows.map(record => <div className="corpus-record" key={record.id}><span className="type-badge">{record.type}</span><div className="record-main"><a className="record-title" href={record.url} target="_blank" rel="noreferrer">{record.summary[lang]} <ArrowUpRight size={18} /></a><div className="record-detail"><time dateTime={record.date}>{record.date.slice(0, 10)}</time><span>{record.tags.join(' · ')}</span></div><div className="record-metrics">{Object.entries(record.metrics).map(([name, value]) => <span key={name}>{name}: {value?.toLocaleString()}</span>)}</div></div></div>)}</div> : <div className="empty-state"><h2>{t('没有匹配的记录', 'No matching sources')}</h2><Figure model={model} lang={lang} id="spot-empty" /><p>{t('换个关键词，去掉类型或标签筛选，或放宽日期范围。', 'Try another keyword, remove a type or tag filter, or widen the date range.')}</p><button onClick={() => { setQ(''); setType(''); setTag(''); setFrom(''); setTo(''); setOffset(0) }}>{t('清除筛选', 'Clear filters')}</button></div>}<div className="pagination"><button disabled={!offset || loading} onClick={() => setOffset(Math.max(0, offset - 20))}>{t('← 上一页', '← Previous')}</button><span>{total ? `${offset + 1}–${Math.min(offset + 20, total)} / ${total}` : '0 / 0'}</span><button disabled={offset + 20 >= total || loading} onClick={() => setOffset(offset + 20)}>{t('下一页 →', 'Next →')}</button></div></section></div>
+}

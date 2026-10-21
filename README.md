@@ -1,104 +1,82 @@
-# Matt Pocock study notes
+# Matt Pocock study notes · 学习笔记
 
-An unofficial, non-commercial bilingual study site about Matt Pocock’s public work, intended for matt.withkeya.com. This is a small tribute to his teaching: [follow Matt](https://x.com/mattpocockuk) and read the original sources. It is independent and is not endorsed by him. The two placeholder pages in each language are our own writing; they contain no copied passages.
+An independent, unofficial, non-commercial bilingual study site about Matt Pocock’s public teaching. [Follow Matt](https://x.com/mattpocockuk), explore his [GitHub](https://github.com/mattpocock), and learn from [AI Hero](https://www.aihero.dev). There is no affiliation or endorsement.
 
-## Run locally
+这是用我们自己的话整理的非官方、非商业双语学习站，与 Matt Pocock 无隶属或背书关系。欢迎关注原作者，直接阅读他的作品。
 
-Use Node 20.19+ (20.x) and npm:
+## Run / 运行
 
-```sh
-npm install
-npm run dev
-```
-
-Open the Vite URL printed in the terminal. The dev command starts Vite and Hono together; Markdown edits restart content generation. After installing dependencies, all scripts work offline.
-
-```sh
-npm run lint
-npm run typecheck
-npm test
-npm run build
-npm start
-```
-
-## Deploy
-
-Install dependencies with `npm ci` (including dev dependencies, since the server runs with `tsx`), run `npm run build`, then run `npm start` behind any HTTPS reverse proxy. Set `PORT` if needed; the default is 8787. Keep `content/`, `server/`, `scripts/`, `src/lib/`, the package files, and installed dependencies alongside `dist/`. The process needs write access to `dist/` and `generated/`. Use your process manager to keep it running.
-
-## Layout and generated files
-
-- `content/en/*.md` and `content/zh/*.md`: the source of truth. Front matter requires `slug`, `title`, numeric `order`, and `section`. Both languages must have the same slugs. Markdown is trusted, repository-authored content and may contain HTML.
-- `src/`: React reader; `/en/<slug>` and `/zh/<slug>` show pages. `/` chooses the language in the browser. Header controls save `lang` and `theme` in localStorage; initial theme follows the system. All theme tokens are in `src/index.css`; dark mode uses `.dark` on `<html>`.
-- `src/components/ui/button.tsx`: the only vendored shadcn/ui component, styled with Tailwind.
-- `scripts/`: renders Markdown into HTML and generates `public/content.json` for the reader. Vite copies the generated public files into `dist/` during build. Start regenerates them directly in `dist/` (or `public/` during dev).
-- `/llms.txt` and `/zh/llms.txt`: English and Chinese indexes with an H1, summary blockquote, and Markdown page links, following the [llms.txt format](https://llmstxt.org/).
-- `/llms-full.txt` and `/zh/llms-full.txt`: all pages in the corresponding language concatenated as Markdown.
-- `/en/<slug>.md` and `/zh/<slug>.md`: downloadable page bodies without front matter.
-- `server/`: Hono API and production static serving with an SPA fallback. `generated/content.sqlite` is a disposable SQLite content/search index rebuilt at build and start. Search uses parameterized `LIKE`, including Chinese text. Generated files are ignored by Git.
-- `tests/`: language selection, Accept-Language hint, generated files, and API tests without opening a port.
-
-API: `GET /api/health`, `GET /api/pages?lang=zh`, `GET /api/search?lang=en&q=notes`, and `GET /api/lang-hint`. The hint uses the first Accept-Language range: a case-insensitive `zh` prefix selects Chinese; otherwise English. Browser selection prefers a valid saved `lang`, then applies the same rule to `navigator.language`.
-
-## Corpus scripts
-
-`scripts/corpus/` fetches public metadata (X API, GitHub API, aihero.dev sitemap) into the git-ignored `.corpus-raw/`, builds `data/corpus-index.json` (links, dates, tags, engagement numbers and one-line summaries written by us), and `scripts/check-overlap.mjs` fails if any tracked file shares 8+ consecutive words with the raw originals (short linked quotes excepted). Credentials come only from environment variables; see `.env.example` and `scripts/README.md`.
-
-**Please respect X's Developer Agreement and terms, and each website's terms and robots rules.** Keep request rates low and never commit raw scraped text.
-
-## License
-
-- Code: MIT. Our own written content (`content/`, corpus summaries, design notes): CC BY 4.0. See `LICENSE`.
-- Quotes of Matt Pocock stay © Matt Pocock and link to their sources; material reused from his MIT repositories keeps its original notice under `third_party/`. See `THIRD_PARTY_NOTICES.md`.
-
-
-# Matt Pocock 学习笔记
-
-这是一个关于 Matt Pocock 公开作品的非官方、非商业双语学习站点，计划用于 matt.withkeya.com。我们用这个小项目向他的教学致敬：欢迎[关注 Matt](https://x.com/mattpocockuk)，直接阅读原始来源。本项目独立维护，未获其背书。每种语言的两篇占位页面均为我们自行撰写，没有复制他的原文。
-
-## 本地运行
-
-使用 Node 20.19+（20.x）及 npm：
+Node 20.19+ (20.x) and npm:
 
 ```sh
 npm install
 npm run dev
 ```
 
-打开终端显示的 Vite 地址。开发命令同时启动 Vite 和 Hono；修改 Markdown 后会重新生成内容。安装依赖后，所有脚本均可离线运行。
+`dev` starts Vite and Hono, watching content changes. Production:
 
 ```sh
 npm run lint
 npm run typecheck
 npm test
+npm run og
 npm run build
 npm start
 ```
 
-## 部署
+Set `SITE_URL` to the public HTTPS origin when building (default: `https://matt.withkeya.com`). It controls canonical, hreflang, Open Graph and LLM links. Set `PORT` for the server (default: `8787`). Use the same environment at build and start. No `.npmrc` is needed.
 
-执行 `npm ci` 安装依赖（包含开发依赖，因为服务使用 `tsx`），运行 `npm run build`，然后通过任意 HTTPS 反向代理运行 `npm start`。可通过 `PORT` 设置监听端口，默认值为 8787。部署时，在 `dist/` 旁保留 `content/`、`server/`、`scripts/`、`src/lib/`、包管理文件和已安装的依赖。进程需要对 `dist/` 和 `generated/` 有写入权限，可由进程管理器保持运行。
+构建时通过 `SITE_URL` 设置公开站点地址，控制 canonical、双语替代链接、OG 与 LLM 索引。服务端口由 `PORT` 设置。构建和启动使用相同环境配置。
 
-## 目录与生成文件
+## Layout / 目录
 
-- `content/en/*.md` 与 `content/zh/*.md`：唯一内容来源。Front matter 必须包含 `slug`、`title`、数字 `order` 和 `section`，两种语言使用相同的 slug。Markdown 是仓库中可信的自编内容，可以包含 HTML。
-- `src/`：React 阅读界面，页面地址为 `/en/<slug>` 和 `/zh/<slug>`。`/` 在浏览器中选择语言。页眉控件将语言和主题分别保存在 localStorage 的 `lang` 和 `theme` 中；默认主题跟随系统。所有主题变量集中在 `src/index.css`，深色模式通过 `<html>` 的 `.dark` 类启用。
-- `src/components/ui/button.tsx`：唯一内置的 shadcn/ui 组件，使用 Tailwind 样式。
-- `scripts/`：将 Markdown 渲染为 HTML，生成阅读器使用的 `public/content.json`。构建时 Vite 将生成的静态文件复制到 `dist/`。启动服务时直接在 `dist/` 中重新生成，开发模式则使用 `public/`。
-- `/llms.txt` 与 `/zh/llms.txt`：英文、中文目录，按照 [llms.txt 格式](https://llmstxt.org/)提供一级标题、摘要引用块及 Markdown 页面链接。
-- `/llms-full.txt` 与 `/zh/llms-full.txt`：将对应语言的全部页面合并为 Markdown。
-- `/en/<slug>.md` 与 `/zh/<slug>.md`：可下载的页面正文，不含 front matter。
-- `server/`：Hono API、生产静态文件服务和 SPA 回退。`generated/content.sqlite` 是可删除的内容与搜索索引，构建及启动时重建；搜索采用参数化 `LIKE`，支持中文。生成文件均已加入 Git 忽略规则。
-- `tests/`：语言选择、Accept-Language 提示、生成文件及无需监听端口的 API 测试。
+- `content/{zh,en}/*.md`: paired lessons and corpus introduction. The exact shared contract is [docs/CONTENT_FORMAT.md](docs/CONTENT_FORMAT.md); the teaching plan is [content/OUTLINE.md](content/OUTLINE.md). Builds support any paired subset of lessons. Links to unpublished entries lead to the available index.
+- `src/`: the electric React reader, shared static rendering, responsive navigation and saved language/theme choices. Self-hosted Inter, Space Grotesk, JetBrains Mono and Noto Sans SC come from @fontsource. Theme is set before paint.
+- `scripts/content.ts`: validates front matter, renders cards, comparison tables, quotes, exercises, figures and notes; generates Markdown downloads, `content.json`, figures and bilingual `llms.txt` / `llms-full.txt`.
+- `scripts/static.tsx`: renders complete crawler-readable home, article and corpus HTML with absolute metadata into `dist/`; `404.html` is served with HTTP 404 for unknown routes.
+- `data/figures.json`: bilingual illustration registry. `public/diagrams/` holds themeable inline diagrams; `public/art/` holds imported light/dark art. Missing files use intentional placeholders and generated downloadable SVG fallbacks under `/figures/`. The home chain and tracer have hand-written SVG fallbacks.
+- `data/corpus-index.json`: public links, metadata and our summaries. `server/` imports it into SQLite with FTS5 and parameterized LIKE fallback for CJK/partial matches. Disposable indexes live in ignored `generated/`.
+- `tests/`: contract, parity, paragraph limits, illustration safety, SQLite API, metadata, links and 404 tests. `test/corpus/` retains the ingestion tests. `npm test` also checks text-token contrast; [docs/DESIGN.md](docs/DESIGN.md) records the approved palette and contrast table.
 
-API：`GET /api/health`、`GET /api/pages?lang=zh`、`GET /api/search?lang=en&q=notes`、`GET /api/lang-hint`。语言提示检查 Accept-Language 的第一个语言范围：以 `zh` 开头（不区分大小写）则选择中文，否则选择英文。浏览器优先使用有效的已保存 `lang`，否则对 `navigator.language` 使用相同规则。
+内容必须按同名 slug 成对提供中英文，格式见共享契约。构建只显示已完成页面；后续内容与插图放入对应目录即可接入。生成文件与数据库不入库，OG PNG 除外。
 
-## 语料脚本
+## Figures and OG images / 插图与分享图
 
-`scripts/corpus/` 抓取公开元数据(X API、GitHub API、aihero.dev sitemap)到被 git 忽略的 `.corpus-raw/`,生成 `data/corpus-index.json`(链接、日期、标签、互动数和我们自己写的一句话摘要);`scripts/check-overlap.mjs` 检查已跟踪文件与原文是否有连续 8 个及以上相同的词(带链接的短引用除外)。凭据只从环境变量读取,见 `.env.example` 和 `scripts/README.md`。
+```sh
+npm run import:art -- art-delivery
+npm run og
+```
 
-**请遵守 X 的开发者协议与服务条款,以及各网站的使用条款和 robots 规则。** 控制请求频率,不要提交抓取的原文。
+Art filenames must be known art figure IDs: `<id>.zh.svg`, `<id>.en.svg`, `<id>.zh-dark.svg`, `<id>.en-dark.svg`. The importer validates the entire batch before copying into `public/art/`, rejecting scripts, event handlers, active embedded content, entities and external references. Rebuild after importing. Theme switches art immediately; missing dark art falls back to light.
 
-## 许可
+插图导入先验证整批 SVG；未知 ID 和不安全引用会失败。语言由文件名切换，深色图缺失时回退到浅色图。重新构建后即可展示。
 
-- 代码:MIT。我们自己写的内容(`content/`、语料摘要、设计笔记):CC BY 4.0。见 `LICENSE`。
-- Matt Pocock 的引文版权归他本人,均附原文链接;来自他 MIT 仓库的复用内容放在 `third_party/` 并保留原许可声明。见 `THIRD_PARTY_NOTICES.md`。
+`npm run og` writes **1200×630** electric PNGs to `public/og/{zh,en}/` for all present lessons, home and corpus. **Keep these generated PNGs in source control.** It discovers OS fonts through `fc-match`; install fontconfig and **Noto Sans CJK / Noto Sans SC** first. Missing CJK fonts cause a clear error. No OS font paths are stored in the repository. Regenerate OG images after changing titles or summaries, then build.
+
+分享图使用系统 CJK 字体，通过 `fc-match` 动态发现；标题或摘要更新后重新生成 PNG，再执行构建。PNG 是应保留的静态资源。
+
+## API and exports / 接口与导出
+
+- `GET /api/corpus?q=&type=post|article|repo|web&tag=&from=YYYY-MM-DD&to=YYYY-MM-DD&sort=engagement|date&limit=20&offset=0` → `{total, items}`. Limit: 1–200; invalid parameters return 400. Engagement = likes + 2×reposts + bookmarks + stars. Dates and metrics are collection snapshots.
+- `GET /api/corpus/tags` → sorted unique tags.
+- `GET /api/health`, `/api/pages?lang=zh`, `/api/search?lang=en&q=...`, `/api/lang-hint`.
+- `/<lang>/<slug>.md`, `/llms.txt`, `/llms-full.txt`, `/zh/llms.txt`, `/zh/llms-full.txt`. Quotes keep attribution, source URL and date. Components become readable Markdown.
+- `/` selects saved language, then `navigator.language` (`zh*` → Chinese, otherwise English). `/zh` and `/en` are homes. Language switching preserves the page; theme uses localStorage and defaults to the OS preference.
+
+## Deployment / 部署
+
+Run `npm ci` with development dependencies, `npm run og`, `npm run build`, then `npm start` behind an HTTPS reverse proxy. Keep `content/`, `data/`, `public/`, `scripts/`, `src/`, `server/`, package files and dependencies with `dist/`. The process rebuilds disposable content and corpus indexes at start and needs write access to `dist/` and `generated/`. A process manager can keep it running. Unknown routes return a real 404.
+
+安装依赖，生成分享图并构建后，通过任意 HTTPS 反向代理运行服务。启动会重建可删除索引，需要对产物目录有写权限。不要把密钥、原始抓取资料或构建输出提交到仓库。
+
+`npm run review` uses headless Google Chrome (installed on the OS) against a running site on port 8811, with its profile and screenshots in ignored `.cache/`. Set `REVIEW_URL` to review another local instance. It checks both sizes/themes, navigation, preferences, corpus search and 404s.
+
+## Corpus maintenance and licence / 语料维护与许可
+
+`scripts/corpus/` collects public metadata into ignored `.corpus-raw/`; build/apply-summaries scripts produce the public index. See [scripts/README.md](scripts/README.md). Respect source terms and request limits. `npm run check:overlap` checks original-text overlap when raw material is available.
+
+Code is MIT; our original writing is CC BY 4.0. Quotations belong to their authors. Reuse is limited to registered MIT material with notices under `third_party/`.
+
+The eight template repositories and `ai-hero-cli` are link-only, with no content reuse. Fonts retain OFL notices. See [LICENSE](LICENSE) and [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
+代码采用 MIT，本站原创文字采用 CC BY 4.0。原作版权归原作者；获许可的改编保留准确声明。八个模板仓库与 `ai-hero-cli` 仅链接，不复用内容；字体保留 OFL 声明。
