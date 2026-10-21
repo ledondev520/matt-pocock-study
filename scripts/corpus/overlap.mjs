@@ -52,7 +52,24 @@ export async function buildSourceIndex(texts) {
   return { hashes, fields };
 }
 
+// Only the renderer's exact quote fence with one short text and one URL qualifies.
+function linkedQuoteLines(text) {
+  const ranges = [];
+  for (const block of text.matchAll(/^```quote\n([\s\S]*?)^```$/gm)) {
+    const body = block[1];
+    const lines = [...body.matchAll(/^text:.*$/gm)];
+    const urls = [...body.matchAll(/^url:.*$/gm)];
+    if (lines.length !== 1 || urls.length !== 1 || !/^url: https?:\/\/\S+$/.test(urls[0][0])) continue;
+    const quote = lines[0][0].slice(5).trim();
+    if (!quote || quote.split(/\s+/).length > 30 || tokenize(quote).length > 30) continue;
+    const bodyStart = block.index + block[0].indexOf('\n') + 1;
+    ranges.push([bodyStart + lines[0].index, bodyStart + lines[0].index + lines[0][0].length]);
+  }
+  return ranges;
+}
+
 export function findRuns(text, hashes) {
+  const quoteLines = linkedQuoteLines(text);
   // Offsets refer to the original text, including newlines, for accurate reports.
   const matches = Array.from(text.matchAll(/[\p{Script=Latin}0-9]+/gu));
   const words = matches.map((match) => match[0].toLowerCase());
@@ -80,7 +97,8 @@ export function findRuns(text, hashes) {
       length: end - start,
       words: words.slice(start, end).join(' '),
       // A link on a different line cannot authorize a cross-line run.
-      allowed: end - start <= 30 && endOffset <= lineEnd && /https?:\/\/[^\s<>"')|]+/i.test(lineText),
+      allowed: end - start <= 30 && endOffset <= lineEnd &&
+        (/https?:\/\/[^\s<>"')|]+/i.test(lineText) || quoteLines.some(([a, b]) => a === lineStart && b === lineEnd)),
     };
   });
 }

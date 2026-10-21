@@ -1,0 +1,806 @@
+{
+  "figures": [
+    {
+      "id": "home-hero",
+      "owner": "diagram",
+      "placement": "01 首页第一屏,致敬区右侧(第 1、3 段)",
+      "kind": "步骤(主链 + 回环)",
+      "viewBox": "0 0 1600 1000",
+      "alt": {
+        "zh": "从对齐到 PR 的开发闭环",
+        "en": "From alignment to PR, with review feeding back into standards."
+      },
+      "caption": {
+        "zh": "从对齐到 PR 的开发闭环。",
+        "en": "From alignment to PR, with review feeding back into standards."
+      }
+    },
+    {
+      "id": "home-corpus",
+      "owner": "diagram",
+      "placement": "01 首页「语料库」入口卡(语料库章节)",
+      "kind": "步骤(数据流)",
+      "viewBox": "0 0 800 500",
+      "alt": {
+        "zh": "公开来源到可搜索索引",
+        "en": "Public sources become searchable summaries that link to the originals."
+      },
+      "caption": {
+        "zh": "公开来源到可搜索索引。",
+        "en": "Public sources become searchable summaries that link to the originals."
+      }
+    },
+    {
+      "id": "home-routes",
+      "owner": "art",
+      "placement": "01 首页三条入口(第 5 段)",
+      "kind": "决策树",
+      "viewBox": "0 0 800 500",
+      "alt": {
+        "zh": "按当前问题选择学习入口",
+        "en": "Choose a learning entry point for your current problem."
+      },
+      "caption": {
+        "zh": "按当前问题选择学习入口。",
+        "en": "Choose a learning entry point for your current problem."
+      }
+    },
+    {
+      "id": "d02-failure-sort",
+      "owner": "diagram",
+      "placement": "02 核心理念 第 1 段(连到第 3–4 段)",
+      "kind": "决策树",
+      "viewBox": "0 0 800 500",
+      "alt": {
+        "zh": "四类失败与对应环境改进",
+        "en": "Four failure categories suggest four changes to the environment."
+      },
+      "caption": {
+        "zh": "四类失败与对应环境改进。",
+        "en": "Four failure categories suggest four changes to the environment."
+      }
+    },
+    {
+      "id": "s02-silent-success",
+      "owner": "art",
+      "placement": "02 核心理念 第 5 段",
+      "kind": "步骤",
+      "viewBox": "0 0 800 500",
+      "alt": {
+        "zh": "让静默失败逐层变得可见",
+        "en": "Expose a silent failure through reproduction, checks and review evidence."
+      },
+      "caption": {
+        "zh": "让静默失败逐层变得可见。",
+        "en": "Expose a silent failure through reproduction, checks and review evidence."
+      }
+    },
+    {
+      "id": "s03-card-anatomy",
+      "owner": "art",
+      "placement": "03 Punch lines 第 1 段",
+      "kind": "结构",
+      "viewBox": "0 0 800 500",
+      "alt": {
+        "zh": "短句卡的五层解释",
+        "en": "A quote card adds meaning, conditions and a next action."
+      },
+      "caption": {
+        "zh": "短句卡的五层解释。",
+        "en": "A quote card adds meaning, conditions and a next action."
+      }
+    },
+    {
+      "id": "d04-triage",
+      "owner": "diagram",
+      "placement": "04 工作流总览 第 2 段",
+      "kind": "决策树",
+      "viewBox": "0 0 800 500",
+      "alt": {
+        "zh": "根据风险与未知选择流程",
+        "en": "Risk and uncertainty determine how much process is needed."
+      },
+      "caption": {
+        "zh": "根据风险与未知选择流程。",
+        "en": "Risk and uncertainty determine how much process is needed."
+      }
+    },
+    {
+      "id": "d04-main-chain",
+      "owner": "diagram",
+      "placement": "04 工作流总览 第 3–4 段",
+      "kind": "步骤(带输入输出)",
+      "viewBox": "0 0 800 500",
+      "alt": {
+        "zh": "工作流各步的输入与产出",
+        "en": "Each workflow step has an input and a verifiable output."
+      },
+      "caption": {
+        "zh": "工作流各步的输入与产出。",
+        "en": "Each workflow step has an input and a verifiable output."
+      }
+    },
+    {
+      "id": "d04-timeline",
+      "owner": "diagram",
+      "placement": "04 工作流总览 第 5 段",
+      "kind": "时间线",
+      "viewBox": "0 0 800 500",
+      "alt": {
+        "zh": "工作流建议随时间变化",
+        "en": "Workflow advice evolves as tools and experience change."
+      },
+      "caption": {
+        "zh": "工作流建议随时间变化。",
+        "en": "Workflow advice evolves as tools and experience change."
+      }
+    },
+    {
+      "id": "d05-alignment-flow",
+      "owner": "diagram",
+      "placement": "05 对齐与原型 第 2–4 段",
+      "kind": "步骤",
+      "viewBox": "0 0 800 500",
+      "alt": {
+        "zh": "把模糊请求收敛成行为",
+        "en": "Turn an unclear request into agreed, observable behaviour."
+      },
+      "caption": {
+        "zh": "把模糊请求收敛成行为。",
+        "en": "Turn an unclear request into agreed, observable behaviour."
+      }
+    },
+    {
+      "id": "s05-three-questions",
+      "owner": "art",
+      "placement": "05 对齐与原型 第 5 段",
+      "kind": "对照表",
+      "viewBox": "0 0 800 500",
+      "alt": {
+        "zh": "查证、取舍与原型的区别",
+        "en": "Separate research, human tradeoffs and questions needing a prototype."
+      },
+      "caption": {
+        "zh": "查证、取舍与原型的区别。",
+        "en": "Separate research, human tradeoffs and questions needing a prototype."
+      }
+    },
+    {
+      "id": "d06-spec-lifecycle",
+      "owner": "diagram",
+      "placement": "06 规格与工单 第 2–4 段",
+      "kind": "状态图(生命周期)",
+      "viewBox": "0 0 800 500",
+      "alt": {
+        "zh": "规格、纵向工单与 ADR 的关系",
+        "en": "Specs capture decisions, tickets deliver slices, and ADRs preserve rationale."
+      },
+      "caption": {
+        "zh": "规格、纵向工单与 ADR 的关系。",
+        "en": "Specs capture decisions, tickets deliver slices, and ADRs preserve rationale."
+      }
+    },
+    {
+      "id": "s06-tracer",
+      "owner": "art",
+      "placement": "06 规格与工单 第 3 段",
+      "kind": "前后对比",
+      "viewBox": "0 0 800 500",
+      "alt": {
+        "zh": "分层实施与纵向切片对照",
+        "en": "Vertical slices connect UI, API and DB early to expose integration risk."
+      },
+      "caption": {
+        "zh": "分层实施与纵向切片对照。",
+        "en": "Vertical slices connect UI, API and DB early to expose integration risk."
+      }
+    },
+    {
+      "id": "s06-ticket-anatomy",
+      "owner": "art",
+      "placement": "06 规格与工单 第 5 段",
+      "kind": "结构",
+      "viewBox": "0 0 800 500",
+      "alt": {
+        "zh": "可独立验收的工单结构",
+        "en": "A ticket states a complete capability, dependencies and acceptance criteria."
+      },
+      "caption": {
+        "zh": "可独立验收的工单结构。",
+        "en": "A ticket states a complete capability, dependencies and acceptance criteria."
+      }
+    },
+    {
+      "id": "d07-feedback-loop",
+      "owner": "diagram",
+      "placement": "07 实现与反馈 第 2–4 段",
+      "kind": "步骤(回环)",
+      "viewBox": "0 0 800 500",
+      "alt": {
+        "zh": "复现、实现、检查与修复的反馈环",
+        "en": "Reproduce, implement, check and repair until the behaviour is verified."
+      },
+      "caption": {
+        "zh": "复现、实现、检查与修复的反馈环。",
+        "en": "Reproduce, implement, check and repair until the behaviour is verified."
+      }
+    },
+    {
+      "id": "s07-hitl-afk",
+      "owner": "art",
+      "placement": "07 实现与反馈 第 2、5 段",
+      "kind": "对照表",
+      "viewBox": "0 0 800 500",
+      "alt": {
+        "zh": "人参与决策与自主执行的边界",
+        "en": "Human involvement depends on how clear the boundaries and feedback are."
+      },
+      "caption": {
+        "zh": "人参与决策与自主执行的边界。",
+        "en": "Human involvement depends on how clear the boundaries and feedback are."
+      }
+    },
+    {
+      "id": "s07-evidence",
+      "owner": "art",
+      "placement": "07 实现与反馈 第 6 段",
+      "kind": "步骤",
+      "viewBox": "0 0 800 500",
+      "alt": {
+        "zh": "修复前后的可重复验证证据",
+        "en": "A fix needs repeatable evidence of failure before and success after."
+      },
+      "caption": {
+        "zh": "修复前后的可重复验证证据。",
+        "en": "A fix needs repeatable evidence of failure before and success after."
+      }
+    },
+    {
+      "id": "s08-two-axes",
+      "owner": "art",
+      "placement": "08 评审与 PR 第 1–3 段",
+      "kind": "结构(2×2)",
+      "viewBox": "0 0 800 500",
+      "alt": {
+        "zh": "需求与规范分别评审",
+        "en": "Review requirements and standards as two independent dimensions."
+      },
+      "caption": {
+        "zh": "需求与规范分别评审。",
+        "en": "Review requirements and standards as two independent dimensions."
+      }
+    },
+    {
+      "id": "s08-pr-blocks",
+      "owner": "art",
+      "placement": "08 评审与 PR 第 4 段",
+      "kind": "结构",
+      "viewBox": "0 0 800 500",
+      "alt": {
+        "zh": "PR 的变化、证据与风险",
+        "en": "A PR explains the change, before-and-after evidence and merge risks."
+      },
+      "caption": {
+        "zh": "PR 的变化、证据与风险。",
+        "en": "A PR explains the change, before-and-after evidence and merge risks."
+      }
+    },
+    {
+      "id": "d09-context-decision",
+      "owner": "diagram",
+      "placement": "09 上下文与交接 第 2 段",
+      "kind": "决策树",
+      "viewBox": "0 0 800 500",
+      "alt": {
+        "zh": "按上下文需要选择会话动作",
+        "en": "Choose a session action based on whether the current context is still needed."
+      },
+      "caption": {
+        "zh": "按上下文需要选择会话动作。",
+        "en": "Choose a session action based on whether the current context is still needed."
+      }
+    },
+    {
+      "id": "s09-handoff-card",
+      "owner": "art",
+      "placement": "09 上下文与交接 第 4 段",
+      "kind": "结构",
+      "viewBox": "0 0 800 500",
+      "alt": {
+        "zh": "交接卡的六个必要字段",
+        "en": "Six handoff fields let the next session continue without replaying the chat."
+      },
+      "caption": {
+        "zh": "交接卡的六个必要字段。",
+        "en": "Six handoff fields let the next session continue without replaying the chat."
+      }
+    },
+    {
+      "id": "s10-index",
+      "owner": "art",
+      "placement": "10 Agent 文档 第 1–3 段",
+      "kind": "前后对比",
+      "viewBox": "0 0 800 500",
+      "alt": {
+        "zh": "长规则文档与短导航入口对照",
+        "en": "A short AGENTS.md routes tasks to relevant documents and real configuration."
+      },
+      "caption": {
+        "zh": "长规则文档与短导航入口对照。",
+        "en": "A short AGENTS.md routes tasks to relevant documents and real configuration."
+      }
+    },
+    {
+      "id": "d10-what-stays",
+      "owner": "diagram",
+      "placement": "10 Agent 文档 第 2–4 段",
+      "kind": "决策树",
+      "viewBox": "0 0 800 500",
+      "alt": {
+        "zh": "判断说明应该保留、移走还是删除",
+        "en": "Decide whether an instruction belongs at the root, beside its topic, or nowhere."
+      },
+      "caption": {
+        "zh": "判断说明应该保留、移走还是删除。",
+        "en": "Decide whether an instruction belongs at the root, beside its topic, or nowhere."
+      }
+    },
+    {
+      "id": "s11-two-kinds",
+      "owner": "art",
+      "placement": "11 规范与检查 第 1–2 段",
+      "kind": "对照表",
+      "viewBox": "0 0 800 500",
+      "alt": {
+        "zh": "机械检查与人工评审的分工",
+        "en": "Automate factual checks and reserve contextual tradeoffs for review."
+      },
+      "caption": {
+        "zh": "机械检查与人工评审的分工。",
+        "en": "Automate factual checks and reserve contextual tradeoffs for review."
+      }
+    },
+    {
+      "id": "d11-rule-loop",
+      "owner": "diagram",
+      "placement": "11 规范与检查 第 2–3 段",
+      "kind": "步骤(回环)",
+      "viewBox": "0 0 800 500",
+      "alt": {
+        "zh": "把真实失败变成有效检查",
+        "en": "Turn a real failure into a rule that catches its next occurrence."
+      },
+      "caption": {
+        "zh": "把真实失败变成有效检查。",
+        "en": "Turn a real failure into a rule that catches its next occurrence."
+      }
+    },
+    {
+      "id": "s11-error-message",
+      "owner": "art",
+      "placement": "11 规范与检查 第 2、6 段",
+      "kind": "前后对比",
+      "viewBox": "0 0 800 500",
+      "alt": {
+        "zh": "检查报错应说明修复方法",
+        "en": "A useful check explains the violation, its reason and how to repair it."
+      },
+      "caption": {
+        "zh": "检查报错应说明修复方法。",
+        "en": "A useful check explains the violation, its reason and how to repair it."
+      }
+    },
+    {
+      "id": "s12-adr-fields",
+      "owner": "art",
+      "placement": "12 决策与复盘 第 2 段",
+      "kind": "结构",
+      "viewBox": "0 0 800 500",
+      "alt": {
+        "zh": "ADR 的背景、选择、理由与状态",
+        "en": "An ADR preserves context, choice, rationale, consequences and status."
+      },
+      "caption": {
+        "zh": "ADR 的背景、选择、理由与状态。",
+        "en": "An ADR preserves context, choice, rationale, consequences and status."
+      }
+    },
+    {
+      "id": "d12-retro-flow",
+      "owner": "diagram",
+      "placement": "12 决策与复盘 第 3–4 段",
+      "kind": "步骤",
+      "viewBox": "0 0 800 500",
+      "alt": {
+        "zh": "基于证据提出并验证最小改进",
+        "en": "Use session evidence to propose a small improvement for human confirmation."
+      },
+      "caption": {
+        "zh": "基于证据提出并验证最小改进。",
+        "en": "Use session evidence to propose a small improvement for human confirmation."
+      }
+    },
+    {
+      "id": "s13-unknown",
+      "owner": "art",
+      "placement": "13 TypeScript 基础心法 第 1–2 段",
+      "kind": "前后对比",
+      "viewBox": "0 0 800 500",
+      "alt": {
+        "zh": "外部数据先验证再收窄",
+        "en": "Treat external data as unknown and validate it before trusting its type."
+      },
+      "caption": {
+        "zh": "外部数据先验证再收窄。",
+        "en": "Treat external data as unknown and validate it before trusting its type."
+      }
+    },
+    {
+      "id": "s13-generic",
+      "owner": "art",
+      "placement": "13 TypeScript 基础心法 第 3 段",
+      "kind": "前后对比",
+      "viewBox": "0 0 800 500",
+      "alt": {
+        "zh": "泛型保留输入输出关系",
+        "en": "Generics preserve the relationship between input and output types."
+      },
+      "caption": {
+        "zh": "泛型保留输入输出关系。",
+        "en": "Generics preserve the relationship between input and output types."
+      }
+    },
+    {
+      "id": "d13-error-read",
+      "owner": "diagram",
+      "placement": "13 TypeScript 基础心法 第 4 段",
+      "kind": "步骤",
+      "viewBox": "0 0 800 500",
+      "alt": {
+        "zh": "把类型错误拆成可查证的问题",
+        "en": "Translate a type error into expectations, actual values and the mismatch."
+      },
+      "caption": {
+        "zh": "把类型错误拆成可查证的问题。",
+        "en": "Translate a type error into expectations, actual values and the mismatch."
+      }
+    },
+    {
+      "id": "d14-tool-picker",
+      "owner": "diagram",
+      "placement": "14 实用类型工具 第 1–5 段",
+      "kind": "对照表",
+      "viewBox": "0 0 800 500",
+      "alt": {
+        "zh": "按问题选择类型工具并了解边界",
+        "en": "Match type tools to their purpose and understand their runtime limits."
+      },
+      "caption": {
+        "zh": "按问题选择类型工具并了解边界。",
+        "en": "Match type tools to their purpose and understand their runtime limits."
+      }
+    },
+    {
+      "id": "s14-brand",
+      "owner": "art",
+      "placement": "14 实用类型工具 第 2 段",
+      "kind": "前后对比",
+      "viewBox": "0 0 800 500",
+      "alt": {
+        "zh": "品牌类型防止领域 ID 混用",
+        "en": "Branded types distinguish domain IDs without validating network data."
+      },
+      "caption": {
+        "zh": "品牌类型防止领域 ID 混用。",
+        "en": "Branded types distinguish domain IDs without validating network data."
+      }
+    },
+    {
+      "id": "s15-booleans",
+      "owner": "art",
+      "placement": "15 状态与模块边界 第 1 段",
+      "kind": "前后对比",
+      "viewBox": "0 0 800 500",
+      "alt": {
+        "zh": "布尔组合与合法状态字段对照",
+        "en": "One explicit state avoids contradictory combinations of boolean flags."
+      },
+      "caption": {
+        "zh": "布尔组合与合法状态字段对照。",
+        "en": "One explicit state avoids contradictory combinations of boolean flags."
+      }
+    },
+    {
+      "id": "d15-states",
+      "owner": "diagram",
+      "placement": "15 状态与模块边界 第 2、5 段",
+      "kind": "状态图",
+      "viewBox": "0 0 800 500",
+      "alt": {
+        "zh": "合法状态转换与应拦截的转换",
+        "en": "Model allowed transitions and test that forbidden transitions are rejected."
+      },
+      "caption": {
+        "zh": "合法状态转换与应拦截的转换。",
+        "en": "Model allowed transitions and test that forbidden transitions are rejected."
+      }
+    },
+    {
+      "id": "s15-deep-module",
+      "owner": "art",
+      "placement": "15 状态与模块边界 第 3 段",
+      "kind": "对照表(结构对比)",
+      "viewBox": "0 0 800 500",
+      "alt": {
+        "zh": "简单接口包住有价值的复杂度",
+        "en": "A deep module exposes a simple interface and hides useful complexity."
+      },
+      "caption": {
+        "zh": "简单接口包住有价值的复杂度。",
+        "en": "A deep module exposes a simple interface and hides useful complexity."
+      }
+    },
+    {
+      "id": "s16-lesson-order",
+      "owner": "art",
+      "placement": "16 写作与教学 第 1–2 段",
+      "kind": "步骤",
+      "viewBox": "0 0 800 500",
+      "alt": {
+        "zh": "按问题、原因、方法、例子讲解",
+        "en": "Teach through a concrete problem, its cause, a method and an example."
+      },
+      "caption": {
+        "zh": "按问题、原因、方法、例子讲解。",
+        "en": "Teach through a concrete problem, its cause, a method and an example."
+      }
+    },
+    {
+      "id": "d16-practice-loop",
+      "owner": "diagram",
+      "placement": "16 写作与教学 第 4 段",
+      "kind": "步骤(回环)",
+      "viewBox": "0 0 800 500",
+      "alt": {
+        "zh": "通过提取与练习检验迁移能力",
+        "en": "Retrieval and spaced practice test whether learning transfers to new problems."
+      },
+      "caption": {
+        "zh": "通过提取与练习检验迁移能力。",
+        "en": "Retrieval and spaced practice test whether learning transfers to new problems."
+      }
+    },
+    {
+      "id": "d17-feedback-flow",
+      "owner": "diagram",
+      "placement": "17 互动、反馈与署名 第 2–3 段",
+      "kind": "步骤",
+      "viewBox": "0 0 800 500",
+      "alt": {
+        "zh": "把具体反馈变成改进候选",
+        "en": "Ask for a reproducible situation before turning feedback into a change."
+      },
+      "caption": {
+        "zh": "把具体反馈变成改进候选。",
+        "en": "Ask for a reproducible situation before turning feedback into a change."
+      }
+    },
+    {
+      "id": "s17-attribution",
+      "owner": "art",
+      "placement": "17 互动、反馈与署名 第 4 段",
+      "kind": "结构",
+      "viewBox": "0 0 800 500",
+      "alt": {
+        "zh": "原作者贡献与本站改动分别署名",
+        "en": "Credit the original contribution separately from this site's adaptations."
+      },
+      "caption": {
+        "zh": "原作者贡献与本站改动分别署名。",
+        "en": "Credit the original contribution separately from this site's adaptations."
+      }
+    },
+    {
+      "id": "d18-repo-picker",
+      "owner": "diagram",
+      "placement": "18 开源仓库导览 第 2 段",
+      "kind": "决策树",
+      "viewBox": "0 0 800 500",
+      "alt": {
+        "zh": "按要解决的问题选择仓库",
+        "en": "Select a repository by the problem it helps solve."
+      },
+      "caption": {
+        "zh": "按要解决的问题选择仓库。",
+        "en": "Select a repository by the problem it helps solve."
+      }
+    },
+    {
+      "id": "d18-license-tree",
+      "owner": "diagram",
+      "placement": "18 开源仓库导览 第 4–5 段",
+      "kind": "决策树",
+      "viewBox": "0 0 800 500",
+      "alt": {
+        "zh": "复用前核实许可与适用范围",
+        "en": "Check the exact licence and scope before reusing repository material."
+      },
+      "caption": {
+        "zh": "复用前核实许可与适用范围。",
+        "en": "Check the exact licence and scope before reusing repository material."
+      }
+    },
+    {
+      "id": "d19-rule-placement",
+      "owner": "diagram",
+      "placement": "19 速查表 第 3 段",
+      "kind": "对照表",
+      "viewBox": "0 0 800 500",
+      "alt": {
+        "zh": "根据规则作用选择存放位置",
+        "en": "Place navigation, standards, checks and durable decisions in the right documents."
+      },
+      "caption": {
+        "zh": "根据规则作用选择存放位置。",
+        "en": "Place navigation, standards, checks and durable decisions in the right documents."
+      }
+    },
+    {
+      "id": "d20-routes",
+      "owner": "diagram",
+      "placement": "20 学习路径 第 2–5 段",
+      "kind": "结构(四条路线)",
+      "viewBox": "0 0 800 500",
+      "alt": {
+        "zh": "四条学习路线及各自交付任务",
+        "en": "Four learning paths end in concrete tasks that demonstrate progress."
+      },
+      "caption": {
+        "zh": "四条学习路线及各自交付任务。",
+        "en": "Four learning paths end in concrete tasks that demonstrate progress."
+      }
+    },
+    {
+      "id": "d21-source-scope",
+      "owner": "diagram",
+      "placement": "21 关于本站与版权 第 2 段",
+      "kind": "步骤(数据流)",
+      "viewBox": "0 0 800 500",
+      "alt": {
+        "zh": "来源范围、产物与排除内容",
+        "en": "Public sources support independent notes; paid course material stays outside scope."
+      },
+      "caption": {
+        "zh": "来源范围、产物与排除内容。",
+        "en": "Public sources support independent notes; paid course material stays outside scope."
+      }
+    },
+    {
+      "id": "s21-four-marks",
+      "owner": "art",
+      "placement": "21 关于本站与版权 第 3 段",
+      "kind": "对照表",
+      "viewBox": "0 0 800 500",
+      "alt": {
+        "zh": "区分引文、译意、推论与许可改编",
+        "en": "Distinguish quotations, interpretations, inferences and licensed adaptations."
+      },
+      "caption": {
+        "zh": "区分引文、译意、推论与许可改编。",
+        "en": "Distinguish quotations, interpretations, inferences and licensed adaptations."
+      }
+    },
+    {
+      "id": "spot-empty",
+      "owner": "art",
+      "placement": "语料页搜索无结果(空状态)",
+      "kind": "步骤",
+      "viewBox": "0 0 800 500",
+      "alt": {
+        "zh": "无结果时放宽关键词与筛选条件",
+        "en": "Try another keyword, remove filters or widen the date range."
+      },
+      "caption": {
+        "zh": "无结果时放宽关键词与筛选条件。",
+        "en": "Try another keyword, remove filters or widen the date range."
+      }
+    },
+    {
+      "id": "spot-404",
+      "owner": "art",
+      "placement": "404 页",
+      "kind": "结构",
+      "viewBox": "0 0 800 500",
+      "alt": {
+        "zh": "从首页或语料库重新开始",
+        "en": "Restart from the home page, learning paths or the corpus."
+      },
+      "caption": {
+        "zh": "从首页或语料库重新开始。",
+        "en": "Restart from the home page, learning paths or the corpus."
+      }
+    }
+  ],
+  "pageHeads": {
+    "02": {
+      "type": "figure",
+      "value": "d02-failure-sort"
+    },
+    "03": {
+      "type": "figure",
+      "value": "s03-card-anatomy"
+    },
+    "04": {
+      "type": "figure",
+      "value": "d04-triage"
+    },
+    "05": {
+      "type": "figure",
+      "value": "d05-alignment-flow"
+    },
+    "06": {
+      "type": "figure",
+      "value": "d06-spec-lifecycle"
+    },
+    "07": {
+      "type": "figure",
+      "value": "d07-feedback-loop"
+    },
+    "08": {
+      "type": "figure",
+      "value": "s08-two-axes"
+    },
+    "09": {
+      "type": "figure",
+      "value": "d09-context-decision"
+    },
+    "10": {
+      "type": "figure",
+      "value": "s10-index"
+    },
+    "11": {
+      "type": "figure",
+      "value": "d11-rule-loop"
+    },
+    "12": {
+      "type": "figure",
+      "value": "d12-retro-flow"
+    },
+    "13": {
+      "type": "figure",
+      "value": "s13-unknown"
+    },
+    "14": {
+      "type": "figure",
+      "value": "d14-tool-picker"
+    },
+    "15": {
+      "type": "figure",
+      "value": "d15-states"
+    },
+    "16": {
+      "type": "figure",
+      "value": "s16-lesson-order"
+    },
+    "17": {
+      "type": "card",
+      "value": "「把反馈变成改进,给贡献者署名:先问清具体问题,转述时保留作者与链接。」"
+    },
+    "18": {
+      "type": "figure",
+      "value": "d18-repo-picker"
+    },
+    "19": {
+      "type": "card",
+      "value": "「把方法带回工作现场:不重读长课也能决定下一步。」"
+    },
+    "20": {
+      "type": "figure",
+      "value": "d20-routes"
+    },
+    "21": {
+      "type": "card",
+      "value": "「非官方、非商业的独立整理:读者能分辨原话、本站解读和获许可的改编。」"
+    }
+  }
+}

@@ -434,6 +434,11 @@
 
 ## 需要保留许可声明的内容
 
+本版明确决定：以下八个模板仓库仅作链接导览，不复用代码、文字或模板：`day-tracker-typescript`、`gatsby-pomodoro`、`gatsby-starter-netlify-cms`、`gatsby-test`、`louiseburfitt-new`、`race-manager`、`one-coding-test`、`react-boilerplate-custom`。其版权人为 gatsbyjs 或 Maximilian Stoiber，不能归到 Matt 名下。
+
+`ai-hero-cli` 的版权行含 `<PLACEHOLDER>`，也仅链接，不复用内容；不自行替作者补全版权人。以上决定同步记录于 `THIRD_PARTY_NOTICES.md`。
+
+
 ### 本版计划的直接改编登记
 
 正文原则上自行表达；下表专门登记计划借用的模板或检查结构。每行「站内出现位置」同时覆盖中文、英文、Markdown 下载与该语言 `llms-full.txt`。所有行均核对了本地 `github/repos/skills/LICENSE`，不是根据摘要猜测。文件路径以仓库根为基准。

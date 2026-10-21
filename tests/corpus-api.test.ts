@@ -5,7 +5,7 @@ import type { CorpusRecord } from '../server/corpus'
 
 const records: CorpusRecord[] = [
   { id: 'a', type: 'post', url: 'https://example.org/a', date: '2026-01-02', tags: ['ai-coding'], metrics: { likes: 10 }, summary: { zh: '先对齐再动手', en: 'Align before building' } },
-  { id: 'b', type: 'repo', url: 'https://example.org/b', date: '2026-03-04', tags: ['typescript'], metrics: { stars: 500 }, summary: { zh: '类型重置', en: 'A types reset' } },
+  { id: 'b', type: 'repo', url: 'https://example.org/b', date: '2026-03-04T18:00:00.000Z', tags: ['typescript'], metrics: { stars: 500 }, summary: { zh: '类型重置', en: 'A types reset' } },
   { id: 'c', type: 'post', url: 'https://example.org/c', date: '2026-05-06', tags: ['ai-coding'], metrics: { likes: 99 }, summary: { zh: '小步提交', en: 'Small steps' } },
 ]
 const app = createApp(createIndex([]), undefined, records)
@@ -26,4 +26,25 @@ describe('/api/corpus', () => {
     expect((await app.request('/api/corpus?type=tweet')).status).toBe(400)
     expect((await app.request('/api/corpus?limit=0')).status).toBe(400)
   })
+})
+
+it('paginates, lists unique tags, searches CJK and treats SQL as literal text', async () => {
+  expect((await get('?limit=1&offset=1')).items[0].id).toBe('c')
+  expect((await get('?q=' + encodeURIComponent('对齐'))).items[0].id).toBe('a')
+  expect((await get('?q=' + encodeURIComponent("' OR 1=1 --"))).total).toBe(0)
+  expect(await (await app.request('/api/corpus/tags')).json()).toEqual(['ai-coding', 'typescript'])
+})
+it.each(['sort=wrong', 'limit=201', 'limit=1.5', 'offset=-1', 'from=nope', 'from=2026-02-31', 'from=2026-04-01&to=2026-01-01', 'q=' + 'x'.repeat(201)])('rejects %s', async params => {
+  expect((await app.request('/api/corpus?' + params)).status).toBe(400)
+})
+
+it('includes timestamped records through the final day of a date range', async () => {
+  expect((await get('?from=2026-03-04&to=2026-03-04')).items.map((r: CorpusRecord) => r.id)).toEqual(['b'])
+})
+
+it.each(['q=a%00b', 'q=%01', 'q=%09', 'q=%0A', 'q=%0D', 'q=%1F', 'q=%7F', 'q=%C2%85', 'offset=1e19', 'offset=1e100', 'offset=9007199254740992', 'offset=100001', 'offset=1.5', 'limit=1e19', 'limit=Infinity'])('rejects unsafe API input %s', async params => {
+  expect((await app.request('/api/corpus?' + params)).status).toBe(400)
+})
+it('accepts the paging boundaries', async () => {
+  expect((await app.request('/api/corpus?offset=100000&limit=200')).status).toBe(200)
 })

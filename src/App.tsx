@@ -1,140 +1,88 @@
-import { useEffect, useState, type FormEvent } from 'react'
-import { Button } from '@/components/ui/button'
-import type { Page, PageSummary } from '@/lib/content'
-import { pickLang, type Lang } from '@/lib/lang'
-import { savePreference, storedPreference } from '@/lib/preferences'
+import { useEffect, useState } from 'react'
+import { flushSync } from 'react-dom'
+import { Site } from './Site'
+import type { Model, Page } from './lib/content'
+import { metadata } from './lib/metadata'
+import { pickLang, routeInfo } from './lib/lang'
+import { savePreference, storedPreference } from './lib/preferences'
 
-const copy = {
-  en: {
-    name: 'Matt · Study notes',
-    tribute: 'Matt Pocock is a developer educator and the creator of Total TypeScript and AI Hero. These notes are a small tribute to his public teaching, written in our own words.',
-    follow: 'Follow Matt and learn directly from his work:',
-    pages: 'Pages', search: 'Search notes', submit: 'Search', empty: 'No matching notes.',
-    failed: 'Could not load the notes. Please try again.', searchFailed: 'Search is unavailable. Please try again.',
-    loading: 'Loading notes…', missing: 'Page not found.', home: 'Go to the welcome page',
-    download: 'Download .md', dark: 'Dark theme', light: 'Light theme',
-    footer: 'Unofficial, non-commercial study notes. All rights to the original works belong to Matt Pocock. Quotes link to their sources.',
-  },
-  zh: {
-    name: 'Matt · 学习笔记',
-    tribute: 'Matt Pocock 是开发者教育者，也是 Total TypeScript 和 AI Hero 的创作者。我们用自己的话记录学习心得，向他的公开教学致敬。',
-    follow: '欢迎关注 Matt，直接从他的作品中学习：',
-    pages: '页面', search: '搜索笔记', submit: '搜索', empty: '没有找到相关笔记。',
-    failed: '无法加载笔记，请重试。', searchFailed: '搜索暂时不可用，请重试。',
-    loading: '正在加载笔记…', missing: '页面不存在。', home: '前往欢迎页',
-    download: '下载 .md', dark: '深色主题', light: '浅色主题',
-    footer: '非官方、非商业的学习整理，版权归原作者 Matt Pocock。引用均附原文链接。',
-  },
-}
-
-export function App() {
-  const route = window.location.pathname.match(/^\/(en|zh)\/([^/]+)\/?$/)
-  const lang: Lang = route ? route[1] as Lang : pickLang(storedPreference('lang'), navigator.language)
-  const slug = route?.[2]
-  const text = copy[lang]
-  const otherLang = lang === 'en' ? 'zh' : 'en'
-  const [dark, setDark] = useState(() => document.documentElement.classList.contains('dark'))
-  const [pages, setPages] = useState<Page[] | null>(null)
-  const [loadError, setLoadError] = useState(false)
-  const [query, setQuery] = useState('')
-  const [results, setResults] = useState<PageSummary[] | null>(null)
-  const [searchError, setSearchError] = useState(false)
-  const [searching, setSearching] = useState(false)
-
+export function App({ model: initialModel }: { model: Model }) {
+  const [model, setModel] = useState(initialModel)
+  const [path, setPath] = useState(window.location.pathname)
+  const [dark, setDark] = useState(false)
   useEffect(() => {
-    document.documentElement.lang = lang
-    if (window.location.pathname === '/') window.location.replace(`/${lang}/welcome`)
-    const controller = new AbortController()
-    fetch('/content.json', { signal: controller.signal })
-      .then((response) => {
-        if (!response.ok) throw new Error('Content unavailable')
-        return response.json() as Promise<Page[]>
-      })
-      .then(setPages)
-      .catch(() => { if (!controller.signal.aborted) setLoadError(true) })
-    return () => controller.abort()
-  }, [lang])
-
-  const page = pages?.find((item) => item.lang === lang && item.slug === slug)
+    setDark(document.documentElement.classList.contains('dark'))
+    let navigation = 0
+    let renderedPath = window.location.pathname
+    async function navigate(target: string, push = false) {
+      const version = ++navigation
+      const url = new URL(target, location.href)
+      const { lang, slug, home } = routeInfo(url.pathname)
+      try {
+        let next: Model
+        if (import.meta.env.DEV) {
+          const pages: Page[] = await (await fetch('/content.json')).json()
+          next = { ...initialModel, pages, currentPage: pages.find(p => p.lang === lang && p.slug === slug) }
+        } else {
+          const response = await fetch(home ? `/${lang}/index.json` : `/${lang}/${slug}.json`)
+          if (!response.ok) throw new Error('Page data unavailable')
+          next = await response.json()
+        }
+        if (version !== navigation) return
+        if (push) history.pushState(null, '', url.pathname + url.hash)
+        // Commit the destination before looking up its heading. In particular,
+        // Chinese fragments arrive percent-encoded in URL.hash.
+        flushSync(() => { setModel(next); setPath(url.pathname) })
+        renderedPath = url.pathname
+        if (url.hash) {
+          let id = url.hash.slice(1)
+          try { id = decodeURIComponent(id) } catch { /* A literal malformed fragment can still be an ID. */ }
+          document.getElementById(id)?.scrollIntoView()
+        } else window.scrollTo(0, 0)
+      } catch { if (version === navigation) location.assign(url.href) }
+    }
+    if (window.location.pathname === '/') {
+      const target = `/${pickLang(storedPreference('lang'), navigator.language)}`
+      history.replaceState(null, '', target); void navigate(target)
+    }
+    const pop = () => {
+      if (location.pathname === renderedPath) {
+        // Native hash/history traversal already owns scrolling on this page.
+        navigation++
+        return
+      }
+      void navigate(location.pathname + location.search + location.hash)
+    }
+    const click = (event: MouseEvent) => {
+      if (event.defaultPrevented || event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return
+      const target = event.target instanceof Element ? event.target.closest('a') : null
+      if (!target || target.hasAttribute('download') || target.getAttribute('target') === '_blank') return
+      const href = target.getAttribute('href')
+      if (!href) return
+      const url = new URL(href, location.href)
+      if (url.origin !== location.origin || !routeInfo(url.pathname).valid) return
+      if (url.pathname === location.pathname && url.hash) return
+      event.preventDefault(); void navigate(url.pathname + url.hash, true)
+    }
+    const copy = async (event: MouseEvent) => {
+      const button = event.target instanceof Element ? event.target.closest<HTMLButtonElement>('[data-copy]') : null
+      if (!button) return
+      try { await navigator.clipboard.writeText(button.closest('.code-window')?.querySelector('code')?.textContent ?? ''); button.textContent = document.documentElement.lang === 'zh' ? '已复制' : 'Copied' }
+      catch { button.textContent = document.documentElement.lang === 'zh' ? '请手动选择复制' : 'Select text to copy' }
+    }
+    window.addEventListener('popstate', pop); document.addEventListener('click', click); document.addEventListener('click', copy)
+    return () => { navigation++; window.removeEventListener('popstate', pop); document.removeEventListener('click', click); document.removeEventListener('click', copy) }
+  }, [initialModel])
   useEffect(() => {
-    document.title = `${page?.title ?? text.name} · Matt Pocock`
-  }, [page, text.name])
-
+    const m = metadata(model, path)
+    document.documentElement.lang = m.lang; document.title = m.title
+    for (const [selector, value] of [['meta[name="description"]', m.description], ['meta[property="og:title"]', m.title], ['meta[property="og:description"]', m.description], ['meta[property="og:url"]', m.url], ['meta[property="og:image"]', m.image]]) document.querySelector(selector)?.setAttribute('content', value)
+    document.querySelector('link[rel="canonical"]')?.setAttribute('href', m.url)
+    document.querySelectorAll('link[rel="alternate"]').forEach(link => link.setAttribute('href', link.getAttribute('hreflang') === m.lang ? m.url : m.alternate))
+  }, [model, path])
   function toggleTheme() {
-    document.documentElement.classList.toggle('dark', !dark)
-    savePreference('theme', dark ? 'light' : 'dark')
-    setDark(!dark)
+    const value = !dark
+    document.documentElement.classList.toggle('dark', value); savePreference('theme', value ? 'dark' : 'light'); setDark(value)
   }
-
-  async function search(event: FormEvent) {
-    event.preventDefault()
-    setSearching(true)
-    setSearchError(false)
-    setResults(null)
-    try {
-      const response = await fetch(`/api/search?${new URLSearchParams({ lang, q: query })}`)
-      if (!response.ok) throw new Error('Search unavailable')
-      setResults(await response.json() as PageSummary[])
-    } catch { setSearchError(true) }
-    finally { setSearching(false) }
-  }
-
-  return (
-    <div className="shell">
-      <a className="skip-link" href="#main">{lang === 'en' ? 'Skip to content' : '跳至正文'}</a>
-      <header>
-        <a className="site-name" href={`/${lang}/welcome`}>{text.name}</a>
-        <div className="header-actions">
-          <Button variant="outline" size="sm" asChild>
-            <a href={`/${otherLang}/${slug ?? 'welcome'}`} lang={otherLang} hrefLang={otherLang} onClick={() => savePreference('lang', otherLang)}>
-              {lang === 'en' ? '中文' : 'English'}
-            </a>
-          </Button>
-          <Button variant="outline" size="sm" onClick={toggleTheme} aria-pressed={dark}>{dark ? text.light : text.dark}</Button>
-          <a href="https://github.com/ledondev520/matt-pocock-study">GitHub</a>
-        </div>
-      </header>
-
-      <aside className="tribute" aria-label={lang === 'en' ? 'About Matt Pocock' : '关于 Matt Pocock'}>
-        <p>{text.tribute}</p>
-        <p>{text.follow} <a href="https://x.com/mattpocockuk">X</a>{' · '}
-          <a href="https://github.com/mattpocock">GitHub</a>{' · '}
-          <a href="https://www.aihero.dev">AI Hero</a>
-        </p>
-      </aside>
-
-      <nav aria-label={text.pages}>
-        {Array.from(new Set(pages?.filter((item) => item.lang === lang).map((item) => item.section))).map((section) => (
-          <div className="page-links" key={section}>
-            <span className="muted">{section}</span>
-            {pages?.filter((item) => item.lang === lang && item.section === section).map((item) => (
-              <a key={item.slug} href={`/${lang}/${item.slug}`} aria-current={item.slug === slug ? 'page' : undefined}>{item.title}</a>
-            ))}
-          </div>
-        ))}
-      </nav>
-
-      <form role="search" onSubmit={(event) => { void search(event) }}>
-        <label htmlFor="search">{text.search}</label>
-        <div className="search-controls">
-          <input id="search" type="search" value={query} onChange={(event) => setQuery(event.target.value)} maxLength={200} required />
-          <Button variant="outline" disabled={searching}>{text.submit}</Button>
-        </div>
-      </form>
-      <div role="status" aria-live="polite">
-        {searchError && <p>{text.searchFailed}</p>}
-        {results && (results.length ? <ul>{results.map((result) => <li key={result.slug}><a href={`/${lang}/${result.slug}`}>{result.title}</a></li>)}</ul> : <p>{text.empty}</p>)}
-      </div>
-
-      <main id="main" tabIndex={-1}>
-        {loadError ? <p role="alert">{text.failed}</p> : !pages ? <p>{text.loading}</p> : page ? (
-          <>
-            <article className="prose" dangerouslySetInnerHTML={{ __html: page.html }} />
-            <p><a href={`/${lang}/${page.slug}.md`} download>{text.download}</a></p>
-          </>
-        ) : <><h1>{text.missing}</h1><a href={`/${lang}/welcome`}>{text.home}</a></>}
-      </main>
-      <footer><p>{text.footer}</p></footer>
-    </div>
-  )
+  return <Site key={path} model={model} path={path} dark={dark} onTheme={toggleTheme} onLanguage={lang => savePreference('lang', lang)} />
 }

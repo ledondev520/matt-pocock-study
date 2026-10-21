@@ -11,7 +11,10 @@ export { tokenize, buildSourceIndex, findRuns } from './corpus/overlap.mjs';
 
 function excluded(file) {
   const name = relative(process.cwd(), resolve(file)).split(sep).join('/');
-  return name === 'third_party' || name.startsWith('third_party/') || /(^|\/)package-lock\.json$/.test(name);
+  // Verbatim third-party license texts (font OFL notices) must be shipped unchanged; they are
+  // not corpus content, so they are not compared against it.
+  return name === 'third_party' || name.startsWith('third_party/') || name.startsWith('public/font-licenses/') ||
+    /(^|\/)package-lock\.json$/.test(name);
 }
 
 // Default targets are prose and data (where copied originals would live). Source code is
