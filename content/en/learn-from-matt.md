@@ -1,60 +1,93 @@
 ---
 slug: learn-from-matt
 number: 1
-title: Learning from Matt Pocock
-subtitle: Build your own development practice from public teaching
+title: Learning from Matt
+subtitle: Learning from Matt Pocock
 section: start
 order: 1
-summary: Choose a problem, follow the sources, and test one useful idea.
-head: card
+summary: Choose a starting point around a problem you actually need to solve.
+head: home-hero
 updated: 2026-10-21
 ---
 
-## Start with a problem of your own
+## Start with the problem on your desk
 
-Tutorials, tools and model announcements can fill a notebook without improving your development practice. Pick one real obstacle, then test a method with a small exercise.
+You have saved tutorials and tried new tools, yet a real project still leaves you wondering what to do next. These notes offer a starting point for that moment: identify one obstacle and work toward one observable result.
 
-Matt moved from voice teaching into development. His public work spans XState, TypeScript education, AI engineering and agent workflows. We study his reasoning, feedback habits and explanations.
+A reading list becomes useful when it changes what you do. Each lesson asks you to make a choice, try something small, and check the outcome.
 
-## Follow the original author
+```figure
+id: home-hero
+```
 
-These independently written notes are a tribute to his public teaching. Follow [Matt on X](https://x.com/mattpocockuk), explore his [GitHub](https://github.com/mattpocock), and read [AI Hero](https://www.aihero.dev).
+## A teacher who moved into development
+
+Matt Pocock moved from voice teaching into software development. His public work has covered XState, TypeScript education, AI engineering, and agent workflows. Those areas provide the context for these notes.
+
+This site pays tribute to his teaching and public sharing. We study how problems are framed, explanations are built, and feedback informs the work. The lessons and exercises here are independently written by the maintainers.
 
 ```quote
 text: I poured my 10 years of teaching experience into a skill.
 author: Matt Pocock
 url: https://x.com/mattpocockuk/status/2064023481398824993
 date: 2026-06-08
-note: This describes the author's intent, rather than a learning outcome independently verified by this site.
 ```
 
-## Choose an entry point
+That line describes the author's investment in his work. Whether a teaching approach helps you is a separate question, best tested by completing an unfamiliar task yourself.
+
+## Go directly to the author
+
+Explore his [X account](https://x.com/mattpocockuk), [GitHub](https://github.com/mattpocock),
+and [AI Hero](https://aihero.dev/skills). Open the originals when you need context or want to check a date.
+
+These are unofficial, noncommercial study notes. Read [About and Copyright](/en/about-and-copyright) for the distinction between quotations, our commentary, and licensed reuse.
+
+## Choose the obstacle you recognize
+
+Think of a recent task that stalled. Did the agent build the wrong thing? Did a type error stop you? Could you solve the problem but struggle to explain it? Pick the route closest to that experience.
 
 ```cards
-- **AI coding workflow** Stuck on requirements, handoffs or acceptance? Start with behaviour and verification.
-- **TypeScript foundations** Unsure whether external data is trustworthy? Start with unknown and narrowing.
-- **Writing & teaching** Know the solution but struggle to explain it? Organise the problem, cause, method and example.
+- **AI coding** Use the [workflow overview](/en/ai-coding-workflow) to choose the steps your task needs.
+- **TypeScript** Start with [foundations](/en/typescript-foundations) to practice checking data and understanding types.
+- **Teaching** Try [writing to teach](/en/writing-to-teach) to turn one idea into a lesson someone can use.
 ```
 
 ```figure
 id: home-routes
 ```
 
-More lessons will join the home index as they are completed. Start with [specs and tickets](/en/specs-and-tickets) and practise turning an idea into one verifiable capability.
+## Make your first choice testable
 
 ```exercise
-title: Choose one small win for today
-- Write down one concrete problem from your project.
-- Choose an entry point and a method to try.
-- Define evidence: something reproducible, checkable, or usable by a colleague.
-answer: Turn “the AI keeps getting it wrong” into “a failed save still shows success”, then write a check for that failure path.
+title: Choose an outcome for today's reading
+- Task: name a real obstacle and select one route above.
+- Deliverable: write one sentence describing a small task you want to complete afterward.
+- Check: name an observable result, such as reproducing a failure and verifying its repair.
+answer: If an agent built the wrong behavior, choose the workflow route. Aim to produce agreed behaviors and a separate list of unresolved questions.
 ```
 
-## Quick reference & boundaries
+You are ready to begin when you can name a page, an action, and the evidence that will count as success. If that feels vague, narrow the task to one operation or one error.
 
-This site is independent, unofficial and non-commercial, with no affiliation or endorsement from Matt Pocock. Original works belong to their authors. Our suggestions are labelled.
+## Corpus: find the original
 
-- Name the problem before choosing a lesson.
-- Test the method through observable results.
-- Read the original sources with their dates and context.
-- See [THIRD_PARTY_NOTICES](https://github.com/ledondev520/matt-pocock-study/blob/main/THIRD_PARTY_NOTICES.md) for licences and attribution.
+The [corpus](/en/corpus) is a continuing index of selected public work. Records carry links, dates, types, tags, engagement figures, and summaries written for this site. Follow a record to read its source.
+
+```figure
+id: home-corpus
+```
+
+## Quick reference
+
+```cards
+- **Pick a problem** Start with today's obstacle and one route.
+- **Produce evidence** Complete a small task to check what you learned.
+- **Check context** Read source dates and distinguish quotations from our judgments.
+```
+## Sources
+
+- [Matt Pocock · 2026-06-08](https://x.com/mattpocockuk/status/2064023481398824993)
+- [X](https://x.com/mattpocockuk)
+- [GitHub](https://github.com/mattpocock)
+- [AI Hero](https://aihero.dev/skills)
+
+Independent, unofficial, noncommercial study notes. This site has no affiliation with or endorsement from Matt Pocock. Referenced works belong to their authors; MIT reuse carries separate copyright and license notices.
