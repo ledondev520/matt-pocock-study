@@ -63,10 +63,12 @@ export function exportSvg(spec, identity, links = {}) {
   for (const sheet of document.styleSheets) {
     try { collect(sheet.cssRules) } catch { /* No external stylesheet is needed. */ }
   }
+  // Sizing (width, max-width, centring) lives in the site stylesheet: the inline-SVG
+  // CSS allowlist only permits paint and text properties.
   // Compact layout rules also override Archify's small context type and the
   // tree's inverse root treatment. Pink is always paired with a dash or cross.
   const css = [...new Set(fragments)].join('') + `
-.${scope}{display:block;width:100%;max-width:390px;margin-inline:auto;height:auto;background:var(--background,#F8F7FC);color:var(--foreground,#241B35);font-family:system-ui,sans-serif}
+.${scope}{display:block;color:var(--foreground,#241B35);font-family:system-ui,sans-serif}
 .${scope} text{fill:var(--foreground,#241B35);font-size:14px}
 .${scope} .export-title{font-size:18px;font-weight:700}
 .${scope} .export-label{font-size:14px;font-weight:650}
@@ -181,7 +183,7 @@ export function exportSvg(spec, identity, links = {}) {
     const destinations = links[node.id]
     const href = typeof destinations === 'string' ? destinations : destinations?.[0]
     if (href && /^\/(zh|en)\/[a-z0-9-]+$/.test(href)) {
-      const anchor = make('a', { href, 'aria-label': node.label })
+      const anchor = make('a', { href }) // the visible label inside names the link
       anchor.append(group)
       layer.append(anchor)
       if (destinations.length > 1 && Array.isArray(destinations)) extraNotes.push({ title: node.label, items: destinations.slice(1), links: true })

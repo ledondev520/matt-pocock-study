@@ -400,6 +400,8 @@ button, select { font: inherit; }
 .route-overview { max-width: 640px; margin: 24px auto; }
 .registry-figure { margin-block: 26px; }
 .registry-figure svg, .registry-figure img { width: 100%; height: auto; display: block; }
+/* Archify diagrams are laid out for a 390px reading column. */
+.registry-figure svg[class^="arch-"] { max-width: 390px; margin-inline: auto; }
 .registry-figure figcaption { margin-top: 12px; color: var(--muted-foreground); }
 .figure-placeholder { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 15px; padding: 28px; text-align: center; background: var(--muted); border: 1px dashed var(--slice-border); border-radius: 10px; }
 .figure-placeholder > span { color: var(--muted-foreground); font: 15px/1.7 'JetBrains Mono', monospace; overflow-wrap: anywhere; }
