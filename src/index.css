@@ -461,6 +461,12 @@ code { font-family: 'JetBrains Mono', monospace; font-size: .88em; }p code, li c
 .corpus-enter svg { flex-shrink: 0; }.corpus-enter svg:last-child { margin-left: auto; }
 .full-article .key-card { margin: 0; }
 @media (max-width: 480px) { .topic-card h3 { padding-left: 0; } }
+/* Long unbroken tokens (file paths in inline code, bare URLs) may break inside the article column
+   instead of widening the page. break-word, not anywhere: it leaves min-content sizing alone, so
+   table column widths and every layout where the token already fits stay exactly as before. */
+.article-body :not(pre) > code, .article-body a { overflow-wrap: break-word; }
+/* Inline code keeps the space before a closing bracket with the bracket (see codespanHtml). */
+.code-keep { white-space: nowrap; }
 @media (max-width: 360px) {
   .header-inner { gap: 8px; }
   .brand { flex-shrink: 1; min-width: 0; gap: 6px; }

@@ -93,7 +93,7 @@ Our original code was checked with TypeScript 5.7.3, strict mode and ES2022, wit
 
 ```exercise
 title: Predict the boundary before running it
-- Task: Predict readSeats for { seats: 3 }, { seats: "3" } and null. Run the cases and compare.
+- Task: Predict readSeats for `{ seats: 3 }`, `{ seats: "3" }` and `null`. Run the cases and compare.
 - Explain why echoWide's result cannot immediately be used as number, and which layer you would change.
 answer: Only the first input returns 3; the others throw. echoWide's declaration permits text. If the contract is to return the input unchanged, use a generic to retain that relationship, or narrow at the caller. An assertion alone establishes no numeric condition.
 ```

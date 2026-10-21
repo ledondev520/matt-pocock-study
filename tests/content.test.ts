@@ -6,8 +6,8 @@ import { createElement } from 'react'
 import { renderToString } from 'react-dom/server'
 import { JSDOM } from 'jsdom'
 import { Site } from '../src/Site'
-import { marked } from 'marked'
-import { buildContent, readPages, renderMarkdown } from '../scripts/content'
+import { marked, type Tokens } from 'marked'
+import { buildContent, codespanHtml, readPages, renderMarkdown } from '../scripts/content'
 import registry from '../data/figures.json'
 import { siteUrl } from '../src/lib/site'
 import type { Page } from '../src/lib/content'
@@ -57,6 +57,46 @@ it('exports every present page with absolute indexes and readable components', a
       expect(markdown).not.toMatch(/```(?:quote|cards|exercise|figure|note)/)
     }
   }
+})
+
+// Inline code is escaped first and only gains markup: <wbr> after "/" between path segments and a
+// span keeping " }" together. Neither adds text, so the copied text is the source text.
+it('inline code markup adds break points without adding text or unescaped HTML', () => {
+  expect(codespanHtml('skills/productivity/teach/SKILL.md')).toBe('<code>skills/<wbr>productivity/<wbr>teach/<wbr>SKILL.md</code>')
+  expect(codespanHtml('{ seats: 3 }')).toBe('<code>{ seats: 3<span class="code-keep"> }</span></code>')
+  for (const text of ['skills/productivity/teach/SKILL.md', '{ seats: "3" }', 'https://example.com/a/b/', '//x//', 'a & b/c\'d"e', '</code><b>x</b>', '<span class="code-keep"> }</span>', '<wbr>/&lt;']) {
+    const body = new JSDOM(`<p>${codespanHtml(text)}</p>`).window.document.body
+    expect(body.textContent, text).toBe(text)
+    expect(body.querySelectorAll('code'), text).toHaveLength(1)
+    const elements = [...body.querySelectorAll('code *')]
+    expect(elements.every(el => (el.tagName === 'WBR' && !el.attributes.length) || (el.tagName === 'SPAN' && el.getAttributeNames().join() === 'class' && el.className === 'code-keep' && !el.children.length)), text).toBe(true)
+    expect(elements.filter(el => el.tagName === 'WBR').every(wbr => wbr.previousSibling?.textContent?.endsWith('/')), text).toBe(true)
+  }
+})
+
+it('break points in inline code change neither the copied text nor the .md and llms-full exports', async () => {
+  let markedUp = 0
+  for (const page of pages) {
+    const exported = new Set<string>()
+    marked.walkTokens(marked.lexer(page.markdown), token => { if (token.type === 'codespan') exported.add((token as Tokens.Codespan).text) })
+    for (const code of pageDocument(page.html).querySelectorAll(':not(pre) > code')) {
+      if (!code.querySelector('wbr, .code-keep')) continue
+      markedUp++
+      expect(exported, `${page.lang}/${page.slug}`).toContain(code.textContent)
+    }
+  }
+  expect(markedUp).toBeGreaterThan(0)
+  for (const lang of ['en', 'zh'] as const) {
+    const base = lang === 'en' ? output : join(output, lang)
+    const exports = [await readFile(join(base, 'llms-full.txt'), 'utf8'), ...await Promise.all(pages.filter(page => page.lang === lang).map(page => readFile(join(output, lang, `${page.slug}.md`), 'utf8')))]
+    for (const text of exports) expect(text).not.toMatch(/<wbr|code-keep/)
+    const learning = await readFile(join(output, lang, 'learning-path.md'), 'utf8')
+    expect(learning).toContain('`skills/productivity/teach/SKILL.md`')
+    expect(exports[0]).toContain('`skills/productivity/teach/SKILL.md`')
+  }
+  const html = pages.find(page => page.lang === 'en' && page.slug === 'learning-path')!.html
+  const code = [...pageDocument(html).querySelectorAll('code')].find(el => el.textContent === 'skills/productivity/teach/SKILL.md')!
+  expect(code.querySelectorAll('wbr')).toHaveLength(3)
 })
 
 // Rule, checked on the rendered page rather than through the build's own helper: an inline <svg>

@@ -20,6 +20,7 @@ npm run lint
 npm run typecheck
 npm test
 npm run build
+npm run test:layout   # Playwright on the build: no page scrolls horizontally at 320/390/1440px, and no line starts with trailing punctuation at 320/390px
 npm start
 ```
 
@@ -35,7 +36,7 @@ Set `SITE_URL` to the public HTTPS origin when building (default: `https://matt.
 - `scripts/static.tsx`: renders complete crawler-readable home, article and corpus HTML with absolute metadata into `dist/`; `404.html` is served with HTTP 404 for unknown routes.
 - `data/figures.json`: bilingual illustration registry. `public/diagrams/` holds themeable inline diagrams; `public/art/` holds imported light/dark art. Missing files use intentional placeholders and generated downloadable SVG fallbacks under `/figures/`. The home chain and tracer have hand-written SVG fallbacks. Registry IDs must be safe lowercase slugs; all builder writes use a shared resolved-path containment check.
 - `data/corpus-index.json`: public links, metadata and our summaries. `server/` imports it into SQLite with FTS5 and parameterized LIKE fallback for CJK/partial matches. Disposable indexes live in ignored `generated/`.
-- `tests/`: contract, parity, paragraph limits, illustration safety, SQLite API, metadata, links and 404 tests. `test/corpus/` retains the ingestion tests. `npm test` also checks text-token contrast; [docs/DESIGN.md](docs/DESIGN.md) records the approved palette and contrast table.
+- `tests/`: contract, parity, paragraph limits, illustration safety, SQLite API, metadata, links and 404 tests. `test/corpus/` retains the ingestion tests. `e2e/` holds Playwright layout checks over every built page (route list derived from `dist/`) (`npm run test:layout`, needs `npx playwright install chromium` once; CI runs it in the Layout job). `npm test` also checks text-token contrast; [docs/DESIGN.md](docs/DESIGN.md) records the approved palette and contrast table.
 
 内容必须按同名 slug 成对提供中英文，格式见共享契约。构建只显示已完成页面；后续内容与插图放入对应目录即可接入。生成文件（包括 figures.json、OG PNG）与数据库均不入库。
 

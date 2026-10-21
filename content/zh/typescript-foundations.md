@@ -100,7 +100,7 @@ kind: tip
 
 ```exercise
 title: 先预测，再检查边界
-- 任务：预测 readSeats 对 { seats: 3 }、{ seats: "3" }、null 的结果，再运行核对。
+- 任务：预测 readSeats 对 `{ seats: 3 }`、`{ seats: "3" }`、`null` 的结果，再运行核对。
 - 再解释：为何 echoWide 的结果不能直接当 number？你会修正哪一层？
 answer: 只有第一个返回 3，其余报错。echoWide 的声明允许返回文本；如果契约是原样返回，用泛型保留关系，也可在调用处检查类型。盲目断言没有证明数值条件。
 ```

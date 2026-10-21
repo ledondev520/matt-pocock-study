@@ -28,3 +28,7 @@ public/og/
 
 # Archify HTML, browser profiles and delivery receipts
 .archify/
+
+# Playwright layout check output
+test-results/
+playwright-report/
