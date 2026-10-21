@@ -26,6 +26,18 @@ beforeAll(async () => {
   model = JSON.parse(document.getElementById('site-data')!.textContent!)
 }, 130000)
 afterAll(() => db.close())
+it('build writes Brotli q11 and gzip siblings for all eligible dist files', async () => {
+  const { brotliCompressSync, brotliDecompressSync, constants, gunzipSync } = await import('node:zlib')
+  for (const file of await walk('dist', '')) {
+    if (!/\.(html|css|js|mjs|svg|json|txt|md|xml)$/i.test(file)) continue
+    const bytes = await readFile(file)
+    if (bytes.length < 1024) continue
+    const br = await readFile(file + '.br')
+    expect(br, file).toEqual(brotliCompressSync(bytes, { params: { [constants.BROTLI_PARAM_QUALITY]: 11 } }))
+    expect(brotliDecompressSync(br), file).toEqual(bytes)
+    expect(gunzipSync(await readFile(file + '.gz')), file).toEqual(bytes)
+  }
+}, 120000)
 async function files(root: string): Promise<string[]> {
   const results: string[] = []
   for (const entry of await readdir(root, { withFileTypes: true })) {

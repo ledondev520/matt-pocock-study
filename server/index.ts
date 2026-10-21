@@ -1,18 +1,19 @@
-import { access, mkdir } from 'node:fs/promises'
+import { access, mkdir, readFile } from 'node:fs/promises'
 import { serve } from '@hono/node-server'
 import { buildContent } from '../scripts/content'
 import { createApp } from './app'
 import { createIndex } from './db'
+import { parseListenOptions } from './listen'
+import type { Page } from '../src/lib/content'
 
 const dev = process.argv.includes('--dev')
 const output = dev ? 'public' : 'dist'
 if (!dev) await access('dist/index.html')
-const pages = await buildContent('content', output, dev)
+// Production must preserve the build's bytes and their precompressed siblings.
+const pages: Page[] = dev ? await buildContent('content', output, true) : JSON.parse(await readFile('dist/content.json', 'utf8'))
 await mkdir('generated', { recursive: true })
 const db = createIndex(pages, 'generated/content.sqlite')
-const port = Number(process.env.PORT ?? 8787)
-if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('PORT must be an integer from 1 to 65535')
-const server = serve({ fetch: createApp(db, output).fetch, port }, (info) => {
+const server = serve({ fetch: createApp(db, output).fetch, ...parseListenOptions() }, (info) => {
   console.log(`Study site listening on port ${info.port}`)
 })
 for (const signal of ['SIGINT', 'SIGTERM'] as const) {

@@ -12,7 +12,7 @@
     "test": "vitest run && node --test test/corpus/ && npm run contrast",
     "test:layout": "playwright test",
     "build:content": "tsx scripts/build-content.ts",
-    "build": "npm run build:content && npm run og && vite build && tsx scripts/static.tsx",
+    "build": "npm run build:content && npm run og && vite build && tsx scripts/static.tsx && tsx scripts/compress.ts",
     "start": "tsx server/index.ts",
     "dev": "npm run build:content && concurrently -k \"tsx watch --include 'content/**/*.md' server/index.ts --dev\" \"vite --host localhost\"",
     "corpus:x": "node scripts/corpus/fetch-x.mjs",

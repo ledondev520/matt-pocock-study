@@ -1,6 +1,10 @@
 import { readFileSync } from 'node:fs'
+import { readFile } from 'node:fs/promises'
+import { createHash } from 'node:crypto'
 import { join } from 'node:path'
 import { Hono } from 'hono'
+import { compress } from 'hono/compress'
+import { parseAccept } from 'hono/utils/accept'
 import { serveStatic } from '@hono/node-server/serve-static'
 import type Database from 'better-sqlite3'
 import { acceptLanguageHint, pickLang, routeInfo } from '../src/lib/lang'
@@ -15,7 +19,30 @@ export function createApp(db: Database.Database, staticRoot?: string, corpus: Co
     c.header('X-Content-Type-Options', 'nosniff')
     c.header('Referrer-Policy', 'strict-origin-when-cross-origin')
     c.header('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'")
-    c.header('Cache-Control', c.req.path.startsWith('/assets/') ? 'public, max-age=31536000, immutable' : 'public, max-age=0, must-revalidate')
+    c.header('Cache-Control', c.req.path.startsWith('/assets/') ? 'public, max-age=31536000, immutable' : 'no-cache')
+    const vary = c.res.headers.get('Vary')
+    if (vary !== '*' && !vary?.split(',').some(value => value.trim().toLowerCase() === 'accept-encoding')) c.header('Vary', vary ? `${vary}, Accept-Encoding` : 'Accept-Encoding')
+  })
+  // Hash after compression so each wire representation has its own strong validator.
+  app.use('*', async (c, next) => {
+    await next()
+    if (c.res.status === 206 || c.res.status === 304) return
+    const existing = c.res.headers.get('ETag')
+    const tag = existing && !existing.startsWith('W/') ? existing : `"${createHash('sha256').update(new Uint8Array(await c.res.clone().arrayBuffer())).digest('hex')}"`
+    c.header('ETag', tag)
+    const condition = c.req.header('If-None-Match')
+    if (['GET', 'HEAD'].includes(c.req.method) && (condition === '*' || condition?.split(',').some(value => value.trim().replace(/^W\//, '') === tag))) {
+      const headers = new Headers(c.res.headers)
+      await c.res.body?.cancel()
+      c.res = new Response(null, { status: 304, headers })
+      for (const name of ['Content-Length', 'Content-Encoding', 'Content-Type']) c.res.headers.delete(name)
+    }
+  })
+  app.use('*', compress({ encoding: 'gzip', threshold: 1024 }))
+  app.use('*', async (c, next) => {
+    await next()
+    // Hono only applies the threshold when Content-Length is known.
+    if (c.res.body && !c.res.headers.has('Content-Length')) c.header('Content-Length', String((await c.res.clone().arrayBuffer()).byteLength))
   })
   app.get('/api/corpus/tags', (c) => c.json(corpusTags(db)))
   app.get('/api/health', (c) => c.json({ ok: true }))
@@ -52,7 +79,29 @@ export function createApp(db: Database.Database, staticRoot?: string, corpus: Co
       if (!routeInfo(path).valid && !asset) return c.html(missingHtml(path), 404)
       await next()
     })
-    app.use('*', serveStatic({ root: staticRoot }))
+    const staticFiles = serveStatic({
+      root: staticRoot,
+      precompressed: true,
+      onFound: async (path, c) => {
+        // Static HEAD responses have no body; hash the selected file for GET/HEAD parity.
+        c.header('ETag', `"${createHash('sha256').update(await readFile(path)).digest('hex')}"`)
+      },
+    })
+    app.use('*', async (c, next) => {
+      // serveStatic expects bare encoding tokens; honor quality values before calling it.
+      const original = c.req.raw
+      const accepted = parseAccept(original.headers.get('Accept-Encoding') ?? '')
+      const quality = (encoding: string) => accepted.find(value => value.type.toLowerCase() === encoding)?.q ?? accepted.find(value => value.type === '*')?.q ?? 0
+      const best = Math.max(quality('br'), quality('gzip'))
+      const headers = new Headers(original.headers)
+      headers.set('Accept-Encoding', ['br', 'gzip'].filter(encoding => best > 0 && quality(encoding) === best).join(', '))
+      c.req.raw = new Request(original, { headers })
+      try {
+        const response = await staticFiles(c, next)
+        if (response && /^\/(zh|en)\/[a-z0-9-]+\.md$/.test(c.req.path)) response.headers.set('Content-Type', 'text/markdown; charset=utf-8')
+        return response
+      } finally { c.req.raw = original }
+    })
     app.get('*', (c) => c.html(missingHtml(c.req.path), 404))
   }
   return app
