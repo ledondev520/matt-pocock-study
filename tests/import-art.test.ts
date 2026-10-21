@@ -117,3 +117,45 @@ it.each([
 ])('rejects diagram anchor %s', attributes => {
   expect(() => validateSvg(svg(`<a ${attributes}/>`), { profile: 'diagram', lang: 'zh' })).toThrow()
 })
+
+describe('presentation attributes accept only local references and static values (PR #1 r3)', () => {
+  const resource = [
+    `mask="image-set(&quot;/api/health?svg-mask=1&quot; 1x)"`,
+    `mask="image-set(&quot;https://example.org/m.png&quot; 1x)"`,
+    `mask="image-set('https://example.org/m.png' 1x)"`,
+    `mask="image-set(url(https://example.org/m.png) 1x)"`,
+    `mask="-webkit-image-set(&quot;https://example.org/m.png&quot; 1x)"`,
+    `mask="IMAGE-SET(&quot;/x&quot; 1x)"`,
+    `mask="image-set (&quot;/x&quot; 1x)"`,
+    `mask="image(&quot;/x.png&quot;)"`,
+    `mask="cross-fade(url(#a), url(#b), 50%)"`,
+    `mask="url(/x.svg#m)"`,
+    `mask="url(https://example.org/m.svg#m)"`,
+    `mask="url(#m) image-set(&quot;/x&quot; 1x)"`,
+    `clip-path="image-set(&quot;/x&quot; 1x)"`,
+    `clip-path="url(/x.svg#c)"`,
+    `clip-path="inset(10px)"`,
+    `marker-end="url(/x.svg#m)"`,
+    `fill="image-set(&quot;/x&quot; 1x)"`,
+    `fill="url(/x.svg#g)"`,
+    `stroke="url(https://example.org/g)"`,
+    `stroke="expression(alert(1))"`,
+    `stop-color="image(&quot;/x&quot;)"`,
+    `transform="translate(1) image-set(&quot;/x&quot; 1x)"`,
+    `transform="url(#a)"`,
+    `font-family="@import x"`,
+    `class="a(b)"`,
+    `d="M0 0 url(#x)"`,
+  ]
+  it.each(resource)('rejects %s', attr => expect(() => validateSvg(svg(`<rect ${attr}/>`))).toThrow())
+  it.each(['filter="url(#f)"', 'cursor="pointer"', 'onbegin="x"', 'requiredFeatures="x"'])('rejects attributes without a grammar: %s', attr =>
+    expect(() => validateSvg(svg(`<rect ${attr}/>`))).toThrow())
+  it('keeps local url(#id) references and static paint values', () => {
+    const out = validateSvg(svg('<defs><mask id="m"/><clipPath id="c"/><linearGradient id="g"/><marker id="k"/></defs><rect mask="url(#m)" clip-path="url(#c)" fill="url(#g)" stroke="var(--primary)" marker-end="url(#k)" transform="translate(2 3) rotate(4)"/><rect mask="none" fill="#5129C5"/>'))
+    expect(out).toContain('mask="url(#m)"')
+    expect(out).toContain('clip-path="url(#c)"')
+    expect(out).toContain('fill="url(#g)"')
+    expect(out).toContain('marker-end="url(#k)"')
+    expect(out).not.toMatch(/image-set|image\(/)
+  })
+})

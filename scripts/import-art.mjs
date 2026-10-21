@@ -14,6 +14,33 @@ const XMLNS = 'http://www.w3.org/2000/xmlns/'
 const elements = new Set('svg g defs symbol use path rect circle ellipse line polyline polygon text tspan title desc linearGradient radialGradient stop clipPath mask pattern marker style'.split(' '))
 const attributes = new Set(`id class role aria-label aria-labelledby aria-describedby aria-hidden viewBox width height x y x1 y1 x2 y2 cx cy r rx ry d points transform fill fill-opacity fill-rule stroke stroke-width stroke-opacity stroke-linecap stroke-linejoin stroke-dasharray stroke-dashoffset stroke-miterlimit opacity color style href font-family font-size font-weight font-style text-anchor dominant-baseline alignment-baseline letter-spacing textLength lengthAdjust dx dy rotate offset stop-color stop-opacity gradientUnits gradientTransform spreadMethod fx fy fr clip-path clip-rule clipPathUnits mask maskUnits maskContentUnits patternUnits patternContentUnits patternTransform preserveAspectRatio marker-start marker-mid marker-end markerWidth markerHeight markerUnits refX refY orient overflow vector-effect`.split(/\s+/))
 const localReference = /^#[A-Za-z_][\w:.-]*$/
+const localUrl = /^url\(\s*#[A-Za-z_][\w:.-]*\s*\)$/
+// Every allowed attribute has an explicit value grammar; an attribute without one is rejected.
+// Resource-loading syntax (url( other than a bare local fragment, image-set(, image(, @import,
+// expression(, external href) is refused for every attribute before any grammar is consulted.
+const noFunctions = value => { if (/[()]/.test(value)) throw new Error('SVG attribute does not accept functions') }
+const grammar = {}
+const define = (names, check) => { for (const name of names.split(/\s+/)) grammar[name] = check }
+define('id class role aria-label aria-labelledby aria-describedby aria-hidden', noFunctions)
+define('viewBox width height x y x1 y1 x2 y2 cx cy r rx ry d points dx dy rotate offset textLength fx fy fr refX refY markerWidth markerHeight stroke-width stroke-dashoffset stroke-miterlimit stroke-dasharray opacity fill-opacity stroke-opacity stop-opacity font-size letter-spacing', value => {
+  if (!/^[\w\s.,%+-]*$/.test(value)) throw new Error('Invalid SVG numeric attribute')
+})
+define('fill-rule clip-rule stroke-linecap stroke-linejoin text-anchor dominant-baseline alignment-baseline lengthAdjust gradientUnits spreadMethod clipPathUnits maskUnits maskContentUnits patternUnits patternContentUnits preserveAspectRatio markerUnits orient overflow vector-effect font-weight font-style', value => {
+  if (!/^[\w\s.-]*$/.test(value)) throw new Error('Invalid SVG keyword attribute')
+})
+define('transform gradientTransform patternTransform', value => {
+  if (!/^[\w\s.,()+-]*$/.test(value)) throw new Error('Invalid SVG transform')
+  for (const [, name] of value.matchAll(/([A-Za-z_-]+)\s*\(/g)) if (!/^(?:matrix|translate|scale|rotate|skewX|skewY)$/.test(name)) throw new Error('Forbidden SVG transform function')
+})
+define('font-family', value => cssValue('font-family', value))
+// Paint attributes: a bare local url(#id), or the CSS paint grammar (keywords, hex, var/rgb/hsl/calc).
+define('fill stroke color stop-color', (value, name) => { if (!localUrl.test(value.trim())) cssValue(name, value) })
+// Reference-only attributes may only point inside the same document.
+define('mask clip-path marker-start marker-mid marker-end', value => {
+  if (!(value.trim() === 'none' || localUrl.test(value.trim()))) throw new Error('SVG references must be none or url(#local-id)')
+})
+define('style href', () => {})
+const resourceSyntax = /(?:^|[^\w-])(?:-[a-z]+-)?(?:image-set|image|cross-fade|element|paint|src)\s*\(|@import|expression\s*\(/i
 function staticValue(value) {
   // Forbid CSS obfuscation and HTML raw-text breakouts before checking URLs.
   if (/\\|\/\*|@import|expression|<|\]\]>|(?:data|javascript)\s*:/i.test(value)) throw new Error('Unsafe SVG value')
@@ -52,8 +79,10 @@ export function validateSvg(source, { profile = 'art', lang } = {}) {
           continue
         }
         if (attr.namespaceURI && !(attr.namespaceURI === XLINK && attr.localName === 'href')) throw new Error('Forbidden attribute namespace')
-        if (!attributes.has(attr.localName)) throw new Error(`Forbidden SVG attribute: ${attr.name}`)
+        if (!attributes.has(attr.localName) || !grammar[attr.localName]) throw new Error(`Forbidden SVG attribute: ${attr.name}`)
+        if (resourceSyntax.test(attr.value)) throw new Error('SVG resource syntax is forbidden')
         staticValue(attr.value)
+        grammar[attr.localName](attr.value, attr.localName)
         if (attr.localName === 'style') { clean.setAttribute('style', cssDeclarations(attr.value)); continue }
         if (cssProperties.has(attr.localName)) cssValue(attr.localName, attr.value)
         if (link && attr.localName === 'href') {

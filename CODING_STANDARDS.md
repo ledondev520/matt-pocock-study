@@ -26,3 +26,4 @@ A review-time checklist; each rule targets a mistake that tends to repeat.
 13. SSR、客户端与 metadata 共用语言及 404 判定，浏览器检查须覆盖多层未知路径、console 错误和 CSP 违规；静态响应正确不保证 hydration 正确。(PR #1) (PR #1 r2)
 14. 内联 SVG 的 CSS 必须使用属性和值函数允许列表，所有选择器限定在各自 SVG 根并隔离作用域，禁用资源加载、转义和未批准的 at-rules；只检查 href/url() 会漏过 image-set 字符串外链及整页样式。(PR #1)
 15. 同页 fragment 链接及其前进后退必须保留浏览器原生滚动和历史，不触发页面数据加载或滚动重置；跨页 fragment 须在目标 DOM 就绪后解码并滚动，浏览器回归覆盖中英文锚点和历史导航。(PR #1)
+- SVG presentation attributes are CSS too: every allowed attribute needs an explicit value grammar, resource syntax (`url(` non-local, `image-set(`, `image(`, `@import`, `expression(`) is rejected in every attribute, and reference attributes (mask, clip-path, marker-*) accept only `url(#local-id)`. Why: an attribute outside the CSS-property set skipped value checks and loaded resources. (PR #1 r3)
