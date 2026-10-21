@@ -17,8 +17,8 @@ const fields = (text: string) => Object.fromEntries([...text.matchAll(/^([a-z]+)
 // is ever emitted as HTML. A <wbr> after each "/" that sits between path segments lets a long path
 // wrap at a segment boundary instead of pushing its trailing punctuation onto a line of its own;
 // spaces before a closing bracket are kept with it (span.code-keep, white-space: nowrap), so "}"
-// never starts a line. After escaping, the source text has no literal < > & " ' left, so the only
-// tags in the output are the fixed ones added here; "/" stays as ordinary text with <wbr> after it.
+// never starts a line. Special characters are turned into entities first, so no source text can
+// become a tag (the only tags are the fixed ones added here), and "/" stays as ordinary text.
 // Neither <wbr> nor the span adds text, so copied text is unchanged; the .md and llms-full exports
 // come from the Markdown source.
 export const codespanHtml = (text: string) => `<code>${escapeHtml(text)
