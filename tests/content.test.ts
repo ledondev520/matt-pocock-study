@@ -11,6 +11,9 @@ import { buildContent, readPages, renderMarkdown } from '../scripts/content'
 import registry from '../data/figures.json'
 import { siteUrl } from '../src/lib/site'
 
+// One parser window for all 44 rendered pages; a JSDOM per page cost most of this test's time.
+const htmlParser = new (new JSDOM('').window.DOMParser)()
+
 it('exports every present page with absolute indexes and readable components', async () => {
   const output = await mkdtemp(join(tmpdir(), 'study-content-'))
   try {
@@ -30,7 +33,7 @@ it('exports every present page with absolute indexes and readable components', a
         const markdown = await readFile(join(output, lang, `${page.slug}.md`), 'utf8')
         expect(markdown).toBe(`# ${page.title}\n\n${page.summary}\n\n${page.markdown}`)
         const model = { pages, currentPage: page, figures: { zh: {}, en: {} }, corpusCount: 0, corpusItems: [], corpusTags: [], siteUrl: siteUrl() }
-        const doc = new JSDOM(renderToString(createElement(Site, { model, path: `/${lang}/${page.slug}` }))).window.document
+        const doc = htmlParser.parseFromString(renderToString(createElement(Site, { model, path: `/${lang}/${page.slug}` })), 'text/html')
         expect(doc.querySelectorAll('h1')).toHaveLength(1)
         expect(doc.querySelector('h1')!.textContent).toBe(page.title)
         expect(markdown).not.toContain('slug:')
