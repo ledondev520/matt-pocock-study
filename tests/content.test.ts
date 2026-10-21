@@ -15,7 +15,7 @@ it('exports every present page with absolute indexes and readable components', a
   const output = await mkdtemp(join(tmpdir(), 'study-content-'))
   try {
     const pages = await buildContent('content', output)
-    expect(pages).toHaveLength(6)
+    expect(pages).toHaveLength(44)
     expect(JSON.parse(await readFile(join(output, 'content.json'), 'utf8'))).toEqual(pages)
     for (const lang of ['en', 'zh']) {
       const base = lang === 'en' ? output : join(output, lang)

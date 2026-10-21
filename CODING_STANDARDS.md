@@ -12,7 +12,7 @@ A review-time checklist; each rule targets a mistake that tends to repeat.
 
 1. 本地测试以退出码和未处理异常为准,不能只看 "Tests N passed";mock 的返回值形状要与真实实现一致(例如返回 Promise)。原因:断言全过但有未处理异常时 vitest 退出码为 1,CI 会失败。
 2. 新增的回归测试必须证明在改动前的代码(或去掉关键判断的变异)上会失败。原因:写在错误时机的测试变异后仍然全部通过,抓不到问题。
-3. PR 描述和注释里的"行为等价 / 完全一致 / 全仓清单"这类说法必须有实测证据,并在每次修复后与最终 diff 同步。原因:过度或过时的声明会掩盖真实的行为差异。
+3. PR 描述和注释里的"行为等价 / 完全一致 / 全仓清单"这类说法必须有实测证据,并在每次修复后与最终 diff 同步。正文和下载说明里"包含 / 附带 / 完整"之类对产物的声明同理。原因:过度或过时的声明会掩盖真实的行为差异。(PR #2)
 4. 删除或写入文件前,相对和绝对路径都先 resolve 再做包含检查;判断越界用 `rel === '..'` 或以 `'..' + path.sep` 开头,不用 `startsWith('..')`。原因:只检查相对路径会让根外的别名路径通过,`startsWith('..')` 会误拒 `..valid` 这类合法名字。 (PR #1) (PR #1 r2)
 5. 不提交密钥、token、cookie、`.env`、服务器地址、本机绝对路径;凭据只从环境变量读,`.env.example` 只写变量名。原因:仓库公开,历史里的泄露无法撤回。
 6. 不提交构建产物、本地数据库、抓取的原始数据(`.corpus-raw/`)。新的产物类型出现时同步收紧 `.gitignore`。原因:原始语料受版权保护,构建产物会和源码不同步。 (PR #1)
@@ -27,3 +27,5 @@ A review-time checklist; each rule targets a mistake that tends to repeat.
 14. 内联 SVG 的 CSS 必须使用属性和值函数允许列表，所有选择器限定在各自 SVG 根并隔离作用域，禁用资源加载、转义和未批准的 at-rules；只检查 href/url() 会漏过 image-set 字符串外链及整页样式。(PR #1)
 15. 同页 fragment 链接及其前进后退必须保留浏览器原生滚动和历史，不触发页面数据加载或滚动重置；跨页 fragment 须在目标 DOM 就绪后解码并滚动，浏览器回归覆盖中英文锚点和历史导航。(PR #1)
 - SVG presentation attributes are CSS too: every allowed attribute needs an explicit value grammar, resource syntax (`url(` non-local, `image-set(`, `image(`, `@import`, `expression(`) is rejected in every attribute, and reference attributes (mask, clip-path, marker-*) accept only `url(#local-id)`. Why: an attribute outside the CSS-property set skipped value checks and loaded resources. (PR #1 r3)
+16. 交互区域的 DOM 顺序必须与视觉顺序、键盘和读屏顺序一致；不用 CSS `order` 移动含可聚焦元素的区域，调整布局后实测 Tab 顺序。原因：截图正确时，焦点仍可能越过首屏主操作跳到页底。(PR #2)
+17. 中英文教学例子须核对依赖方向、允许 / 禁止和前后条件在两种语言里一致，不能只比对标题和组件结构。原因：结构配对通过时，仍可能把合法路径译成违规路径。(PR #2)
