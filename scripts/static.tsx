@@ -1,3 +1,4 @@
+import { embedsArchify, archifyAppendix } from './licences.mjs'
 import { readFile } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
@@ -16,8 +17,11 @@ export function pageModel(model: Model, pages: Page[], path: string): Model {
   const { lang, slug, home } = routeInfo(path)
   const currentPage = pages.find(p => p.lang === lang && p.slug === slug)
   const ids = home ? ['home-hero', 'home-corpus', 'home-routes'] : slug === 'corpus' ? ['spot-empty'] : currentPage ? [] : ['spot-404']
-  return { ...model, currentPage,
-    figures: { zh: {}, en: {}, [lang]: Object.fromEntries(ids.map(id => [id, model.figures[lang][id]])) },
+  const figures = Object.fromEntries(ids.map(id => [id, model.figures[lang][id]]))
+  // Views outside articles get Archify's full licence when one of their figures is an Archify diagram.
+  const licenceHtml = Object.values(figures).some(html => embedsArchify(html ?? '')) ? archifyAppendix(lang).html : undefined
+  return { ...model, currentPage, licenceHtml,
+    figures: { zh: {}, en: {}, [lang]: figures },
     corpusItems: slug === 'corpus' ? model.corpusItems : [], corpusTags: slug === 'corpus' ? model.corpusTags : [],
   }
 }

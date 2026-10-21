@@ -73,7 +73,7 @@ The following structures adapt Matt Pocock's [skills repository](https://github.
 
 The PR source credits Dex Horthy / HumanLayer's [upstream work](https://github.com/humanlayer/skills/blob/main/plugins/show-me/skills/show-me/SKILL.md). We retain that credit without taking upstream content or assuming its licence.
 
-Our added examples and explanations are our writing. This register covers both languages, single-page Markdown and language-specific bundles. Exports must retain authorship, source files and full notices. The skills MIT copyright line and a link to the licence text appear at the end of this page.
+Our added examples and explanations are our writing. This register covers both languages, single-page Markdown and language-specific bundles. Exports must retain authorship, source files and full notices. The complete MIT licences for skills and Archify follow at the end of this page.
 
 ## Known gaps and corrections
 
@@ -108,6 +108,18 @@ Done means you can separate original wording, translation, judgement and adaptat
 
 ## skills MIT notice
 
-The structure adapted here comes from [mattpocock/skills](https://github.com/mattpocock/skills), MIT licence, Copyright (c) 2026 Matt Pocock. Full text: [the repository LICENSE](https://github.com/mattpocock/skills/blob/main/LICENSE); this site's THIRD_PARTY_NOTICES keeps the same notice.
+The structure adapted here comes from [mattpocock/skills](https://github.com/mattpocock/skills), MIT licence, Copyright (c) 2026 Matt Pocock. The complete licence follows, identical to [the repository LICENSE](https://github.com/mattpocock/skills/blob/main/LICENSE).
+
+```licence
+id: mattpocock-skills
+```
+
+CSS fragments inside this site's diagrams are adapted from [Archify](https://github.com/tt-a1i/archify), MIT licence, Copyright (c) 2026 tt-a1i (Archify); Copyright (c) 2025 Cocoon AI.
+
+Archify's complete licence follows, identical to [the repository LICENSE](https://github.com/tt-a1i/archify/blob/main/LICENSE).
+
+```licence
+id: archify
+```
 
 Unofficial, non-commercial study notes. No affiliation with or endorsement by Matt Pocock. Quoted works remain their authors’ copyright; MIT reuse retains its copyright and licence notices.

@@ -8,9 +8,10 @@ import type { Lang } from '../src/lib/lang'
 import { codeHtml } from './code'
 import { siteUrl } from '../src/lib/site'
 import { figureHtml, figureMarkdown, figureById, escapeHtml, buildFigures } from './figures'
+import { licenceBlock, embedsArchify, archifyAppendix } from './licences.mjs'
 
 const languages = ['en', 'zh'] as const
-const componentNames = ['cards', 'quote', 'exercise', 'figure', 'note']
+const componentNames = ['cards', 'quote', 'exercise', 'figure', 'note', 'licence']
 const fields = (text: string) => Object.fromEntries([...text.matchAll(/^([a-z]+):\s*(.*)$/gm)].map(([, key, value]) => [key, value]))
 const inline = (text: string) => marked.parseInline(text) as string
 const md = (text: string) => marked.parse(text, { async: false })
@@ -41,7 +42,10 @@ export async function renderMarkdown(source: string, lang: Lang) {
     const { text, lang: kind } = token as Tokens.Code
     const f = fields(text)
     let html = '', readable = ''
-    if (kind === 'figure') {
+    if (kind === 'licence') {
+      // Full upstream licence text, verbatim from third_party/ (hash-checked); never typed into content.
+      ({ html, markdown: readable } = licenceBlock(f.id ?? '', lang))
+    } else if (kind === 'figure') {
       html = await figureHtml(f.id, lang); readable = figureMarkdown(f.id, lang)
     } else if (kind === 'quote') {
       if (!/^https?:\/\//.test(f.url ?? '')) throw new Error('Quote requires an http(s) url')
@@ -74,7 +78,7 @@ export async function renderMarkdown(source: string, lang: Lang) {
   const pending: Promise<void>[] = []
   marked.walkTokens(tokens, token => { pending.push(transform(token)) })
   await Promise.all(pending)
-  const markdown = source.replace(/```(cards|quote|exercise|figure|note)\s*\n[\s\S]*?\n```/g, raw => exports.get(raw) ?? '')
+  const markdown = source.replace(/```(cards|quote|exercise|figure|note|licence)\s*\n[\s\S]*?\n```/g, raw => exports.get(raw) ?? '')
   return { html: marked.parser(tokens, { renderer }), markdown: markdown.trim() + '\n', toc }
 }
 
@@ -106,6 +110,14 @@ export async function readPages(contentDir: string): Promise<Page[]> {
   for (const page of pages) {
     const available = new Set(pages.filter(p => p.lang === page.lang).map(p => p.slug))
     page.html = page.html.replace(/href="\/(en|zh)\/([a-z0-9-]+)(#[^"]*)?"/g, (all, targetLang, slug) => available.has(slug) ? all : `href="/${targetLang}#topics"`)
+  }
+  // A page whose body or head embeds an Archify-generated diagram carries Archify's full licence at
+  // its end (HTML, .md download and llms-full), unless it already has that licence block.
+  for (const page of pages) {
+    if (!embedsArchify(page.html + page.headHtml) || page.html.includes(licenceBlock('archify', page.lang).html)) continue
+    const appendix = archifyAppendix(page.lang)
+    page.html += appendix.html
+    page.markdown = `${page.markdown.trimEnd()}\n\n${appendix.markdown}\n`
   }
   return pages.sort((a, b) => a.order - b.order || a.slug.localeCompare(b.slug))
 }

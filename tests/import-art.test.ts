@@ -159,3 +159,35 @@ describe('presentation attributes accept only local references and static values
     expect(out).not.toMatch(/image-set|image\(/)
   })
 })
+
+describe('Archify licence comment in diagram SVGs', async () => {
+  const { archifySvgComment } = await import('../scripts/licences.mjs')
+  const { readFile } = await import('node:fs/promises')
+  const comment = archifySvgComment()
+  const file = await readFile('public/diagrams/d02-failure-sort.en.svg', 'utf8')
+  const body = file.slice(comment.length)
+  const licence = await readFile('third_party/archify/LICENSE', 'utf8')
+  it('is generated from the full licence text and is the start of each committed file', () => {
+    expect(file.startsWith(comment)).toBe(true)
+    expect(comment).toBe(`<!--\nCSS in this file is adapted from Archify (tt-a1i/archify), MIT licence:\n\n${licence}-->\n`)
+  })
+  it('is accepted only in its exact form, first in a diagram file, and is not reserialized', () => {
+    // Each validation scopes ids with a fresh random svg-<uuid>; compare with that normalized.
+    const scoped = (source: string) => validateSvg(source, { profile: 'diagram', lang: 'en' }).replace(/svg-[0-9a-f-]{36}/g, 'svg-scope')
+    const clean = scoped(comment + body)
+    expect(clean).toBe(scoped(body))
+    expect(clean).not.toContain('<!--')
+  })
+  it.each([
+    ['an edited year', comment.replace('2026 tt-a1i', '2027 tt-a1i') + body],
+    ['a truncated notice', comment.replace('Cocoon AI\n', '') + body],
+    ['a second copy', comment + comment + body],
+    ['leading whitespace', ' ' + comment + body],
+    ['any other comment', '<!-- note -->\n' + body],
+    ['the comment inside the root', body.replace('>', '>' + comment)],
+    ['an extra comment after it', comment + '<!-- </style><script>alert(1)</script> -->' + body],
+  ])('rejects %s', (_, source) => expect(() => validateSvg(source, { profile: 'diagram', lang: 'en' })).toThrow())
+  it('is not accepted for illustrated artwork', () => {
+    expect(() => validateSvg(comment + svg(''))).toThrow(/comments are forbidden/)
+  })
+})

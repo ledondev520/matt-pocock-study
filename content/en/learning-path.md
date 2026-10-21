@@ -69,7 +69,7 @@ The small-win, practice and review structure adapts Matt Pocock's [skills reposi
 - **Change the context** Mix inputs and failure conditions to practise selecting a method.
 ```
 
-The copyright line and a link to the licence text appear below and on the [copyright page](/en/about-and-copyright). These route sequences are this site's design. They are not Matt's official learning path and promise no fixed completion time.
+The complete licence follows at the end of this page; see also the [copyright page](/en/about-and-copyright). These route sequences are this site's design. They are not Matt's official learning path and promise no fixed completion time.
 
 ```note
 kind: inference
@@ -91,6 +91,10 @@ Our suggestion: ask a person or another session to verify each completed segment
 
 ## skills MIT notice
 
-The structure adapted here comes from [mattpocock/skills](https://github.com/mattpocock/skills), MIT licence, Copyright (c) 2026 Matt Pocock. Full text: [the repository LICENSE](https://github.com/mattpocock/skills/blob/main/LICENSE); this site's THIRD_PARTY_NOTICES keeps the same notice.
+The structure adapted here comes from [mattpocock/skills](https://github.com/mattpocock/skills), MIT licence, Copyright (c) 2026 Matt Pocock. The complete licence follows, identical to [the repository LICENSE](https://github.com/mattpocock/skills/blob/main/LICENSE).
+
+```licence
+id: mattpocock-skills
+```
 
 Unofficial, non-commercial study notes. No affiliation with or endorsement by Matt Pocock. Quoted works remain their authors’ copyright; MIT reuse retains its copyright and licence notices.

@@ -97,13 +97,17 @@ kind: inference
 - Matt Pocock，[评审证据与合并风险](https://x.com/mattpocockuk/status/2107062474914550098)，2026-10-05。
 - [skills 仓库][skills]：上列两份结构改编；Copyright (c) 2026 Matt Pocock。
 - [show-me 上游致谢][showme]，Dex Horthy / HumanLayer；仅列来源。
-- [本站版权说明](/zh/about-and-copyright)；改编结构的版权行与 MIT 许可原文链接见页末。
+- [本站版权说明](/zh/about-and-copyright)；改编结构的完整 MIT 许可附后（见页末）。
 
 [skills]: https://github.com/mattpocock/skills
 [showme]: https://github.com/humanlayer/skills/blob/main/plugins/show-me/skills/show-me/SKILL.md
 
 ## skills MIT 许可声明
 
-本页改编的结构来自 [mattpocock/skills](https://github.com/mattpocock/skills)，MIT 许可，Copyright (c) 2026 Matt Pocock。全文见[原仓库 LICENSE](https://github.com/mattpocock/skills/blob/main/LICENSE)。
+本页改编的结构来自 [mattpocock/skills](https://github.com/mattpocock/skills)，MIT 许可，Copyright (c) 2026 Matt Pocock。完整许可附后，与[原仓库 LICENSE](https://github.com/mattpocock/skills/blob/main/LICENSE)一字不差。
+
+```licence
+id: mattpocock-skills
+```
 
 非官方、非商业的学习整理，与 Matt Pocock 无隶属或背书关系。所引作品版权归原作者；MIT 复用内容另附版权与许可声明。

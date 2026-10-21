@@ -55,7 +55,7 @@ Navigation points a collaborator to information; checks reject mechanically dete
 
 ## Verification and handoff
 
-These fields condense structures from Matt Pocock's [skills repository](https://github.com/mattpocock/skills), adapted under MIT. The copyright line and a link to the licence text appear below and on the [copyright page](/en/about-and-copyright).
+These fields condense structures from Matt Pocock's [skills repository](https://github.com/mattpocock/skills), adapted under MIT. The complete licence follows at the end of this page; see also the [copyright page](/en/about-and-copyright).
 
 <!-- compare -->
 | Field | What to retain | Full lesson |
@@ -117,6 +117,10 @@ Done means the selection addresses the reported failure and the action produces 
 
 ## skills MIT notice
 
-The structure adapted here comes from [mattpocock/skills](https://github.com/mattpocock/skills), MIT licence, Copyright (c) 2026 Matt Pocock. Full text: [the repository LICENSE](https://github.com/mattpocock/skills/blob/main/LICENSE); this site's THIRD_PARTY_NOTICES keeps the same notice.
+The structure adapted here comes from [mattpocock/skills](https://github.com/mattpocock/skills), MIT licence, Copyright (c) 2026 Matt Pocock. The complete licence follows, identical to [the repository LICENSE](https://github.com/mattpocock/skills/blob/main/LICENSE).
+
+```licence
+id: mattpocock-skills
+```
 
 Unofficial, non-commercial study notes. No affiliation with or endorsement by Matt Pocock. Quoted works remain their authors’ copyright; MIT reuse retains its copyright and licence notices.

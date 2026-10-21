@@ -86,7 +86,9 @@ describe('API (Hono app.request, no listening port)', () => {
   // Pages whose English title or body contains the literal character (not a LIKE wildcard).
   const literalMatches: Record<string, string[]> = {
     '%': ['cheat-sheets'],
-    '_': ['review-and-pr', 'context-and-handoff', 'agent-documents', 'standards-and-checks', 'practical-type-tools', 'writing-to-teach', 'cheat-sheets', 'learning-path', 'about-and-copyright'],
+    // Exact set of English pages whose text contains a literal underscore (the old THIRD_PARTY_NOTICES
+    // sentence left the licence notices when the full licence text replaced it).
+    '_': ['standards-and-checks', 'practical-type-tools', 'cheat-sheets'],
   }
   it.each(['', '%', '_', "' OR 1=1 --", 'no-such-note'])('handles empty or literal search %s', async (q) => {
     const response = await app.request(`/api/search?${new URLSearchParams({ lang: 'en', q })}`)

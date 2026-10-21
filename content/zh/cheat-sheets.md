@@ -56,7 +56,7 @@ id: d19-rule-placement
 
 ## 验证与交接
 
-以下字段压缩自 Matt Pocock 的 [skills 仓库](https://github.com/mattpocock/skills)，MIT 改编；版权行与许可原文链接见页末及[版权页](/zh/about-and-copyright)。
+以下字段压缩自 Matt Pocock 的 [skills 仓库](https://github.com/mattpocock/skills)，MIT 改编；完整许可附后（见页末），另见[版权页](/zh/about-and-copyright)。
 
 <!-- compare -->
 | 字段 | 留下什么 | 回到原课 |
@@ -120,6 +120,10 @@ answer: 打开实现与反馈，运行目标行为并记录预期与实际；交
 
 ## skills MIT 许可声明
 
-本页改编的结构来自 [mattpocock/skills](https://github.com/mattpocock/skills)，MIT 许可，Copyright (c) 2026 Matt Pocock。全文见[原仓库 LICENSE](https://github.com/mattpocock/skills/blob/main/LICENSE)。
+本页改编的结构来自 [mattpocock/skills](https://github.com/mattpocock/skills)，MIT 许可，Copyright (c) 2026 Matt Pocock。完整许可附后，与[原仓库 LICENSE](https://github.com/mattpocock/skills/blob/main/LICENSE)一字不差。
+
+```licence
+id: mattpocock-skills
+```
 
 非官方、非商业的学习整理，与 Matt Pocock 无隶属或背书关系。所引作品版权归原作者；MIT 复用内容另附版权与许可声明。

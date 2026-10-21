@@ -182,3 +182,51 @@ it.each(['/index.html', '/zh/index.html', '/en/specs-and-tickets/index.html', '/
     expect(doc.documentElement.lang).toBe(metadata(scoped, path).lang)
   }
 })
+
+// Archify reuse, derived from the built site itself: every HTML page whose DOM has an inline <svg>
+// with an arch-* class, and every shipped .svg file whose root has one, must carry Archify's full
+// licence. No list of pages or files is written down here.
+async function walk(root: string, suffix: string): Promise<string[]> {
+  const results: string[] = []
+  for (const entry of await readdir(root, { withFileTypes: true })) {
+    const path = join(root, entry.name)
+    if (entry.isDirectory()) results.push(...await walk(path, suffix))
+    else if (entry.name.endsWith(suffix)) results.push(path)
+  }
+  return results
+}
+const isArchify = (svg: Element) => [...svg.classList].some(name => name.startsWith('arch-'))
+it('every built page and SVG file that embeds Archify CSS carries the Archify licence in full', async () => {
+  const licence = await readFile('third_party/archify/LICENSE', 'utf8')
+  const pagesWithArchify: string[] = []
+  for (const file of await files('dist')) {
+    const doc = new JSDOM(await readFile(file, 'utf8')).window.document
+    if (![...doc.querySelectorAll('svg')].some(isArchify)) continue
+    pagesWithArchify.push(file)
+    const blocks = [...doc.querySelectorAll('.licence-text pre')].map(pre => pre.textContent)
+    expect(blocks.filter(block => block === licence), `${file} Archify licence`).toHaveLength(1)
+    // Article routes also export Markdown; it and the language bundle must carry the text.
+    const route = /^dist\/(zh|en)\/([a-z0-9-]+)\/index\.html$/.exec(file)
+    if (route && model.pages.some(p => p.lang === route[1] && p.slug === route[2])) {
+      expect(await readFile(`dist/${route[1]}/${route[2]}.md`, 'utf8'), `${route[2]}.md`).toContain(licence.trimEnd())
+    }
+  }
+  // Both home pages show Archify diagrams; the rule above must therefore have reached them.
+  expect(pagesWithArchify).toEqual(expect.arrayContaining(['dist/zh/index.html', 'dist/en/index.html']))
+  for (const lang of ['zh', 'en']) expect(await readFile(lang === 'en' ? 'dist/llms-full.txt' : 'dist/zh/llms-full.txt', 'utf8')).toContain(licence.trimEnd())
+
+  const svgFiles: string[] = []
+  for (const file of await walk('dist', '.svg')) {
+    const source = await readFile(file, 'utf8')
+    const body = source.replace(/^<!--[\s\S]*?-->\n/, '')
+    const root = new JSDOM(body, { contentType: 'image/svg+xml' }).window.document.documentElement
+    if (!isArchify(root)) continue
+    svgFiles.push(file)
+    const comment = /^<!--\n([\s\S]*?)-->\n/.exec(source)
+    expect(comment?.[1], `${file} licence comment`).toContain(licence)
+  }
+  // The rule must reach every committed Archify diagram as shipped under /diagrams.
+  const committed = (await readdir('public/diagrams')).filter(name => name.endsWith('.svg'))
+  expect(committed.length).toBeGreaterThan(0)
+  for (const name of committed) expect(svgFiles).toContain(`dist/diagrams/${name}`)
+})

@@ -1,3 +1,4 @@
+import { archifySvgComment } from '../licences.mjs'
 import { spawn } from 'node:child_process'
 import { mkdir, mkdtemp, readFile, readdir, realpath, rename, rm, writeFile } from 'node:fs/promises'
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path'
@@ -97,8 +98,10 @@ async function main() {
       extracted = JSON.parse(serialized.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&amp;/g, '&'))
       if (extracted.error) throw new Error(extracted.error)
     } finally { await rm(await inside(root, profile), { recursive: true, force: true }) }
-    const svg = extracted.svg.replace(/>\s+</g, '><') + '\n'
-    if (!svg.includes('viewBox=') || !svg.includes('<title') || /<(?:script|foreignObject)\b|\son[a-z]+\s*=|(?:https?:\/\/|javascript:|file:)/i.test(svg.replace('http://www.w3.org/2000/svg', ''))) throw new Error(`Unsafe SVG export: ${name}`)
+    const body = extracted.svg.replace(/>\s+</g, '><') + '\n'
+    if (!body.includes('viewBox=') || !body.includes('<title') || /<(?:script|foreignObject)\b|\son[a-z]+\s*=|(?:https?:\/\/|javascript:|file:)/i.test(body.replace('http://www.w3.org/2000/svg', ''))) throw new Error(`Unsafe SVG export: ${name}`)
+    // Every exported file starts with Archify's full licence comment (hash-checked text).
+    const svg = archifySvgComment() + body
     const target = await inside(output, join(output, `${id}.${lang}.svg`))
     const temporary = await inside(output, `${target}.tmp`)
     await writeFile(temporary, svg)

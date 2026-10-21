@@ -1,1 +1,27 @@
+<!--
+CSS in this file is adapted from Archify (tt-a1i/archify), MIT licence:
+
+MIT License
+
+Copyright (c) 2026 tt-a1i (Archify)
+Copyright (c) 2025 Cocoon AI
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+-->
 <svg xmlns="http://www.w3.org/2000/svg" class="arch-d19-rule-placement-zh" role="img" aria-labelledby="arch-d19-rule-placement-zh-title arch-d19-rule-placement-zh-desc" viewBox="0 0 390 550"><title id="arch-d19-rule-placement-zh-title">一条规则放在哪</title><desc id="arch-d19-rule-placement-zh-desc">按规则的作用选择位置。</desc><style>.arch-d19-rule-placement-zh { display: block; color: var(--foreground,#241B35); font-family: system-ui, sans-serif; }.arch-d19-rule-placement-zh text { fill: var(--foreground,#241B35); font-size: 14px; }.arch-d19-rule-placement-zh .export-title { font-size: 18px; font-weight: 700; }.arch-d19-rule-placement-zh .export-label { font-size: 14px; font-weight: 650; }.arch-d19-rule-placement-zh .export-detail { font-size: 14px; fill: var(--muted-foreground,#6B607B); }.arch-d19-rule-placement-zh .export-arrow { fill: var(--primary,#5129C5); }.arch-d19-rule-placement-zh .export-wrong-arrow { fill: var(--pink,#F25CAC); }.arch-d19-rule-placement-zh .export-note { fill: var(--card,#FFFFFF); stroke: var(--border,#DCD6E7); }</style><defs><marker id="arch-d19-rule-placement-zh-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L8 4L0 8Z" class="export-arrow"/></marker><marker id="arch-d19-rule-placement-zh-wrong" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L8 4L0 8Z" class="export-wrong-arrow"/></marker></defs><text x="24" y="30" class="t-primary export-title"><tspan x="24" dy="0">一条规则放在哪</tspan></text><g aria-hidden="true"/><g/><g><rect x="24" y="72" width="342" height="76" rx="8" class="export-note"/><text x="36" y="96" class="t-primary export-label"><tspan x="36" dy="0">导航</tspan></text><text x="36" y="118" class="t-primary export-detail"><tspan x="36" dy="0">放在哪: AGENTS.md</tspan></text></g><g><rect x="24" y="166" width="342" height="76" rx="8" class="export-note"/><text x="36" y="190" class="t-primary export-label"><tspan x="36" dy="0">需要判断的规范</tspan></text><text x="36" y="212" class="t-primary export-detail"><tspan x="36" dy="0">放在哪: CODING_STANDARDS</tspan></text></g><g><rect x="24" y="260" width="342" height="76" rx="8" class="export-note"/><text x="36" y="284" class="t-primary export-label"><tspan x="36" dy="0">可机械执行的规则</tspan></text><text x="36" y="306" class="t-primary export-detail"><tspan x="36" dy="0">放在哪: lint / hook / CI</tspan></text></g><g><rect x="24" y="354" width="342" height="76" rx="8" class="export-note"/><text x="36" y="378" class="t-primary export-label"><tspan x="36" dy="0">长期理由</tspan></text><text x="36" y="400" class="t-primary export-detail"><tspan x="36" dy="0">放在哪: ADR</tspan></text></g><g><rect x="24" y="448" width="342" height="76" rx="8" class="export-note"/><text x="36" y="472" class="t-primary export-label"><tspan x="36" dy="0">领域语言</tspan></text><text x="36" y="494" class="t-primary export-detail"><tspan x="36" dy="0">放在哪: GLOSSARY</tspan></text></g></svg>
