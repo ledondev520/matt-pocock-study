@@ -1,4 +1,5 @@
 import { execFile } from 'node:child_process'
+import { createHash } from 'node:crypto'
 import { mkdtemp, mkdir, readFile, rm, symlink, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
@@ -22,6 +23,7 @@ beforeAll(async () => {
     await writeFile(join(root, file + '.br'), brotliCompressSync(body))
     await writeFile(join(root, file + '.gz'), gzipSync(body))
   }
+  await writeFile(join(root, 'assets/plain.js'), body)
   const corpus = [{ id: 'large', type: 'article' as const, summary: { zh: body, en: body }, metrics: {}, url: 'https://example.com', tags: [], date: '2026-01-01' }]
   app = createApp(db, root, corpus)
 })
@@ -29,7 +31,7 @@ afterAll(async () => { db.close(); await rm(root, { recursive: true, force: true
 
 it.each(['/en', '/assets/app.js', '/image.svg'])('serves precompressed %s with Brotli preferred and original MIME', async path => {
   const identity = await app.request(path)
-  for (const [accept, encoding] of [['gzip, br', 'br'], ['gzip', 'gzip'], ['br;q=0, gzip', 'gzip'], ['br;q=0.5, gzip;q=0.5', 'br'], ['br;q=0.2, gzip;q=1', 'gzip'], ['*', 'br']]) {
+  for (const [accept, encoding] of [['gzip, br', 'br'], ['gzip', 'gzip'], ['br;q=0, gzip', 'gzip'], ['br;q=0.5, gzip;q=0.5', 'br'], ['br;q=0.5, gzip;q=0.5, identity;q=0.5', 'br'], ['br;q=0.2, gzip;q=1', 'gzip'], ['*', 'br']]) {
     const response = await app.request(path, { headers: { 'Accept-Encoding': accept } })
     expect(response.headers.get('Content-Encoding')).toBe(encoding)
     expect(response.headers.get('Content-Type')).toBe(identity.headers.get('Content-Type'))
@@ -49,7 +51,7 @@ it.each(['/api/corpus', '/en/missing'])('gzips large dynamic response %s exactly
   const original = await app.request(path)
   const bytes = Buffer.from(await original.arrayBuffer())
   expect(bytes.length).toBeGreaterThanOrEqual(1024)
-  const compressed = await app.request(path, { headers: { 'Accept-Encoding': 'br, gzip' } })
+  const compressed = await app.request(path, { headers: { 'Accept-Encoding': 'gzip' } })
   expect(compressed.headers.get('Content-Encoding')).toBe('gzip')
   expect(compressed.headers.get('X-Content-Type-Options')).toBe('nosniff')
   expect(compressed.headers.get('Vary')).toMatch(/Accept-Encoding/i)
@@ -64,9 +66,9 @@ it('keeps small dynamic JSON uncompressed and sends nosniff on errors too', asyn
   }
 })
 
-it.each(['/en', '/en/article.md', '/api/corpus', '/en/missing', '/assets/app.js'])('caches %s with encoding-specific strong ETags and conditional 304s', async path => {
+it.each(['/en', '/en/article.md', '/api/corpus', '/assets/app.js'])('caches %s with encoding-specific strong ETags and conditional 304s', async path => {
   const tags = new Set<string>()
-  for (const encoding of ['identity', 'gzip', ...(path.startsWith('/api/') || path.endsWith('/missing') ? [] : ['br'])]) {
+  for (const encoding of ['identity', 'gzip', ...(path.startsWith('/api/') ? [] : ['br'])]) {
     const headers = { 'Accept-Encoding': encoding }
     const response = await app.request(path, { headers })
     const cache = path.startsWith('/assets/') ? 'public, max-age=31536000, immutable' : 'no-cache'
@@ -80,15 +82,119 @@ it.each(['/en', '/en/article.md', '/api/corpus', '/en/missing', '/assets/app.js'
     expect(conditional.status).toBe(304)
     expect(await conditional.text()).toBe('')
     expect(conditional.headers.get('ETag')).toBe(tag)
+    expect(conditional.headers.get('Content-Length')).toBeNull()
+    expect(conditional.headers.get('Content-Encoding')).toBeNull()
     expect(conditional.headers.get('Cache-Control')).toBe(cache)
     expect(conditional.headers.get('Vary')).toMatch(/Accept-Encoding/i)
     expect(conditional.headers.get('X-Content-Type-Options')).toBe('nosniff')
-    expect(conditional.headers.get('Content-Length')).toBeNull()
-    expect(conditional.headers.get('Content-Encoding')).toBeNull()
     const stale = await app.request(path, { headers: { ...headers, 'If-None-Match': '"stale"' } })
     expect(stale.status).toBe(response.status)
     await stale.arrayBuffer()
   }
+})
+
+it.each([
+  ['/api/missing', 404], ['/en/missing', 404], ['/en/missing.md', 404], ['/api/corpus?limit=0', 400],
+] as const)('preserves error status and body on conditional requests to %s', async (path, status) => {
+  for (const encoding of ['identity', 'gzip', 'br']) {
+    const headers = { 'Accept-Encoding': encoding }
+    const original = await app.request(path, { headers })
+    const bytes = Buffer.from(await original.arrayBuffer())
+    // The old middleware generated this tag even for error responses.
+    const tag = `"${createHash('sha256').update(bytes).digest('hex')}"`
+    for (const condition of ['*', tag, `"other", W/${tag}`]) {
+      const conditionalHeaders = { ...headers, 'If-None-Match': condition }
+      const response = await app.request(path, { headers: conditionalHeaders })
+      expect(response.status).toBe(status)
+      expect(Buffer.from(await response.arrayBuffer())).toEqual(bytes)
+      const head = await app.request(path, { method: 'HEAD', headers: conditionalHeaders })
+      expect(head.status).toBe(status)
+      for (const name of parityHeaders) expect(head.headers.get(name), name).toBe(response.headers.get(name))
+      expect(await head.text()).toBe('')
+    }
+  }
+})
+
+it('limits validators to successful GET/HEAD responses, preserving 500 and POST bodies', async () => {
+  const fixtureDb = createIndex([])
+  try {
+    const fixture = createApp(fixtureDb, undefined, [])
+    fixture.get('/failure', c => c.text(body, 500))
+    fixture.post('/success', c => c.text(body))
+    const tag = `"${createHash('sha256').update(body).digest('hex')}"`
+    for (const condition of ['*', tag]) {
+      for (const [path, method, status] of [['/failure', 'GET', 500], ['/failure', 'HEAD', 500], ['/success', 'POST', 200]] as const) {
+        const response = await fixture.request(path, { method, headers: { 'If-None-Match': condition } })
+        expect(response.status).toBe(status)
+        expect(response.headers.get('ETag')).toBeNull()
+        expect(await response.text()).toBe(method === 'HEAD' ? '' : body)
+      }
+    }
+  } finally { fixtureDb.close() }
+})
+
+const parityHeaders = ['Content-Type', 'Content-Encoding', 'Content-Length', 'ETag', 'Vary', 'Cache-Control']
+const representations = ['/en', '/assets/app.js', '/assets/plain.js', '/api/corpus', '/en/article.md']
+it.each(representations.flatMap(path => ['identity', 'gzip', 'br'].map(encoding => [path, encoding])))('matches GET headers and conditional status for HEAD %s (%s)', async (path, encoding) => {
+  const headers = { 'Accept-Encoding': encoding }
+  const get = await app.request(path, { headers })
+  const head = await app.request(path, { method: 'HEAD', headers })
+  expect(head.status).toBe(get.status)
+  for (const name of parityHeaders) expect(head.headers.get(name), name).toBe(get.headers.get(name))
+  expect(await head.text()).toBe('')
+  const bytes = await get.arrayBuffer()
+  expect(get.headers.get('Content-Length')).toBe(String(bytes.byteLength))
+  const conditionalHeaders = { ...headers, 'If-None-Match': get.headers.get('ETag')! }
+  const conditionalGet = await app.request(path, { headers: conditionalHeaders })
+  const conditionalHead = await app.request(path, { method: 'HEAD', headers: conditionalHeaders })
+  expect(conditionalGet.status).toBe(304)
+  expect(conditionalHead.status).toBe(304)
+  for (const name of parityHeaders) expect(conditionalHead.headers.get(name), name).toBe(conditionalGet.headers.get(name))
+  expect(await conditionalGet.text()).toBe('')
+  expect(await conditionalHead.text()).toBe('')
+})
+
+const negotiations = [
+  ['identity;q=1, br;q=0.1, gzip;q=0.1', null],
+  ['br;q=0.5, gzip;q=0.5', 'br'],
+  ['gzip;q=0.1', 'gzip'],
+  ['*;q=0.5', 'br'],
+  ['br;q=0.5, gzip;q=0.5, identity;q=0.5', 'br'],
+  ['br;q=0.1, gzip;q=0.8, identity;q=0.2', 'gzip'],
+  ['identity;q=0, br;q=0.1, gzip;q=0', 'br'],
+  ['*;q=0, identity;q=0.5', null],
+  ['*;q=0, gzip;q=1', 'gzip'],
+  ['identity;q=0, br;q=0, gzip;q=0', '406'],
+  ['*;q=0', '406'],
+] as const
+it.each(representations.flatMap(path => negotiations.map(([accept, encoding]) => ({ path, accept, encoding }))))('negotiates $path with $accept -> $encoding', async ({ path, accept, encoding }) => {
+  const original = await app.request(path)
+  const bytes = Buffer.from(await original.arrayBuffer())
+  const headers = { 'Accept-Encoding': accept }
+  const response = await app.request(path, { headers })
+  expect(response.status).toBe(encoding === '406' ? 406 : 200)
+  expect(response.headers.get('Vary')).toMatch(/Accept-Encoding/i)
+  if (encoding === '406') {
+    expect(response.headers.get('Content-Encoding')).toBeNull()
+    await response.arrayBuffer()
+    const head = await app.request(path, { method: 'HEAD', headers })
+    expect(head.status).toBe(406)
+    for (const name of parityHeaders) expect(head.headers.get(name), name).toBe(response.headers.get(name))
+    expect(await head.text()).toBe('')
+    return
+  }
+  expect(response.headers.get('Content-Encoding')).toBe(encoding)
+  expect(response.headers.get('Content-Type')).toBe(original.headers.get('Content-Type'))
+  const encoded = Buffer.from(await response.arrayBuffer())
+  expect(response.headers.get('Content-Length')).toBe(String(encoded.length))
+  expect(encoding === 'br' ? brotliDecompressSync(encoded) : encoding === 'gzip' ? gunzipSync(encoded) : encoded).toEqual(bytes)
+})
+
+it('honors identity refusal even for small dynamic JSON', async () => {
+  const response = await app.request('/api/health', { headers: { 'Accept-Encoding': 'identity;q=0, gzip;q=1' } })
+  expect(response.status).toBe(200)
+  expect(response.headers.get('Content-Encoding')).toBe('gzip')
+  expect(JSON.parse(gunzipSync(Buffer.from(await response.arrayBuffer())).toString())).toEqual({ ok: true })
 })
 
 it.each(['identity', 'gzip', 'br'])('serves Markdown inline with nosniff (%s)', async encoding => {

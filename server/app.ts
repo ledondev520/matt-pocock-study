@@ -1,9 +1,10 @@
 import { readFileSync } from 'node:fs'
-import { readFile } from 'node:fs/promises'
 import { createHash } from 'node:crypto'
 import { join } from 'node:path'
+import { promisify } from 'node:util'
+import { brotliCompress, constants, gzip } from 'node:zlib'
 import { Hono } from 'hono'
-import { compress } from 'hono/compress'
+import { COMPRESSIBLE_CONTENT_TYPE_REGEX } from 'hono/compress'
 import { parseAccept } from 'hono/utils/accept'
 import { serveStatic } from '@hono/node-server/serve-static'
 import type Database from 'better-sqlite3'
@@ -11,9 +12,36 @@ import { acceptLanguageHint, pickLang, routeInfo } from '../src/lib/lang'
 import { listPages, searchPages } from './db'
 import { loadCorpus, queryCorpus, importCorpus, corpusTags, type CorpusRecord } from './corpus'
 
+const encodeBrotli = promisify(brotliCompress)
+const encodeGzip = promisify(gzip)
+
+function negotiateEncoding(header: string | undefined) {
+  const accepted = parseAccept(header ?? '')
+  const wildcard = accepted.find(value => value.type === '*')?.q
+  // Unlisted identity stays acceptable (RFC 9110 §12.5.3) but ranks below any coding the client listed.
+  const quality = (encoding: string) => accepted.find(value => value.type.toLowerCase() === encoding)?.q
+    ?? (encoding === 'identity' ? wildcard ?? 0.001 : wildcard ?? 0)
+  // Stable sorting preserves the server preference for equal quality values.
+  const encoding = (['br', 'gzip', 'identity'] as const).filter(value => quality(value) > 0)
+    .sort((a, b) => quality(b) - quality(a))[0]
+  return { encoding, identityAllowed: quality('identity') > 0 }
+}
+
 export function createApp(db: Database.Database, staticRoot?: string, corpus: CorpusRecord[] = loadCorpus()) {
   importCorpus(db, corpus)
   const app = new Hono()
+  app.use('*', async (c, next) => {
+    if (c.req.method !== 'HEAD') return next()
+    // Hono routes HEAD as GET but leaves the raw method unchanged. Normalize it
+    // for the entire representation pipeline, then discard only the final body.
+    const original = c.req.raw
+    c.req.raw = new Request(original, { method: 'GET' })
+    try {
+      await next()
+      await c.res.body?.cancel()
+      c.res = new Response(null, c.res)
+    } finally { c.req.raw = original }
+  })
   app.use('*', async (c, next) => {
     await next()
     c.header('X-Content-Type-Options', 'nosniff')
@@ -26,23 +54,46 @@ export function createApp(db: Database.Database, staticRoot?: string, corpus: Co
   // Hash after compression so each wire representation has its own strong validator.
   app.use('*', async (c, next) => {
     await next()
-    if (c.res.status === 206 || c.res.status === 304) return
+    if (c.res.status !== 200 || !['GET', 'HEAD'].includes(c.req.method)) return
     const existing = c.res.headers.get('ETag')
     const tag = existing && !existing.startsWith('W/') ? existing : `"${createHash('sha256').update(new Uint8Array(await c.res.clone().arrayBuffer())).digest('hex')}"`
     c.header('ETag', tag)
     const condition = c.req.header('If-None-Match')
-    if (['GET', 'HEAD'].includes(c.req.method) && (condition === '*' || condition?.split(',').some(value => value.trim().replace(/^W\//, '') === tag))) {
+    if (condition === '*' || condition?.split(',').some(value => value.trim().replace(/^W\//, '') === tag)) {
       const headers = new Headers(c.res.headers)
       await c.res.body?.cancel()
       c.res = new Response(null, { status: 304, headers })
       for (const name of ['Content-Length', 'Content-Encoding', 'Content-Type']) c.res.headers.delete(name)
     }
   })
-  app.use('*', compress({ encoding: 'gzip', threshold: 1024 }))
   app.use('*', async (c, next) => {
     await next()
-    // Hono only applies the threshold when Content-Length is known.
-    if (c.res.body && !c.res.headers.has('Content-Length')) c.header('Content-Length', String((await c.res.clone().arrayBuffer()).byteLength))
+    const { encoding, identityAllowed } = negotiateEncoding(c.req.header('Accept-Encoding'))
+    const notAcceptable = async () => {
+      if (!c.res.bodyUsed) await c.res.body?.cancel()
+      c.res = new Response('Not Acceptable', { status: 406, headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Content-Length': '14' } })
+      c.header('Content-Length', '14')
+      c.res.headers.delete('Content-Encoding')
+      c.res.headers.delete('ETag')
+    }
+    if (!encoding) return notAcceptable()
+    if (!c.res.body || c.res.headers.has('Content-Encoding')) return
+    const bytes = new Uint8Array(await c.res.arrayBuffer())
+    const canCompress = c.res.status !== 206 && !c.res.headers.has('Transfer-Encoding')
+      && COMPRESSIBLE_CONTENT_TYPE_REGEX.test(c.res.headers.get('Content-Type') ?? '')
+      && !/(?:^|,)\s*no-transform\s*(?:,|$)/i.test(c.res.headers.get('Cache-Control') ?? '')
+    if (!canCompress && !identityAllowed) return notAcceptable()
+    // Keep small responses plain only when identity is acceptable.
+    const compressed = canCompress && encoding !== 'identity' && (bytes.byteLength >= 1024 || !identityAllowed)
+    // On-the-fly Brotli uses quality 5: q11 (Node's default) costs too much CPU per request.
+    const result = compressed ? await (encoding === 'br' ? encodeBrotli(bytes, { params: { [constants.BROTLI_PARAM_QUALITY]: 5 } }) : encodeGzip(bytes)) : bytes
+    // Update the context first: Hono carries its existing headers into a new response.
+    c.res.headers.set('Content-Length', String(result.byteLength))
+    if (compressed) {
+      c.res.headers.set('Content-Encoding', encoding)
+      c.res.headers.delete('ETag')
+    }
+    c.res = new Response(result, c.res)
   })
   app.get('/api/corpus/tags', (c) => c.json(corpusTags(db)))
   app.get('/api/health', (c) => c.json({ ok: true }))
@@ -82,23 +133,17 @@ export function createApp(db: Database.Database, staticRoot?: string, corpus: Co
     const staticFiles = serveStatic({
       root: staticRoot,
       precompressed: true,
-      onFound: async (path, c) => {
-        // Static HEAD responses have no body; hash the selected file for GET/HEAD parity.
-        c.header('ETag', `"${createHash('sha256').update(await readFile(path)).digest('hex')}"`)
-      },
     })
     app.use('*', async (c, next) => {
-      // serveStatic expects bare encoding tokens; honor quality values before calling it.
+      // serveStatic expects bare tokens; use the same negotiation as dynamic responses.
       const original = c.req.raw
-      const accepted = parseAccept(original.headers.get('Accept-Encoding') ?? '')
-      const quality = (encoding: string) => accepted.find(value => value.type.toLowerCase() === encoding)?.q ?? accepted.find(value => value.type === '*')?.q ?? 0
-      const best = Math.max(quality('br'), quality('gzip'))
+      const { encoding } = negotiateEncoding(c.req.header('Accept-Encoding'))
       const headers = new Headers(original.headers)
-      headers.set('Accept-Encoding', ['br', 'gzip'].filter(encoding => best > 0 && quality(encoding) === best).join(', '))
+      headers.set('Accept-Encoding', encoding ?? '')
       c.req.raw = new Request(original, { headers })
       try {
         const response = await staticFiles(c, next)
-        if (response && /^\/(zh|en)\/[a-z0-9-]+\.md$/.test(c.req.path)) response.headers.set('Content-Type', 'text/markdown; charset=utf-8')
+        if (response instanceof Response && /^\/(zh|en)\/[a-z0-9-]+\.md$/.test(c.req.path)) response.headers.set('Content-Type', 'text/markdown; charset=utf-8')
         return response
       } finally { c.req.raw = original }
     })
