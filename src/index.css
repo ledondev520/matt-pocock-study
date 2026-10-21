@@ -542,5 +542,7 @@ svg[class^="arch-"] .export-success .export-box { fill: var(--muted); stroke: va
 .dark svg[class^="arch-"] .export-success text { fill: var(--foreground); }
 
 svg.inline-arrow { display: inline-block; width: 1em; height: 1em; vertical-align: -0.125em; flex-shrink: 0; }
+/* Arrow-to-label spacing on adjacent-page links and pagination: one gap, no text space. */
+.article-end > a, .pagination button { display: inline-flex; align-items: center; gap: 0.4em; }
 .language-toggle[lang="zh-Hans"] { font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", system-ui, sans-serif; }
 .entry-spot { display: block; width: 100%; height: auto; margin-bottom: 18px; }

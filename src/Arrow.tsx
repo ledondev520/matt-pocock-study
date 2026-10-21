@@ -6,7 +6,9 @@ const paths: Record<ArrowDirection, string> = {
   down: 'M8 3v10m-5-5 5 5 5-5',
   'up-right': 'M4 12l8-8M4 4h8v8',
 }
-export const arrowDirections: Record<string, ArrowDirection> = { '←': 'left', '→': 'right', '↓': 'down', '↗': 'up-right' }
+export const arrowDirections: Readonly<Record<string, ArrowDirection>> = { '←': 'left', '→': 'right', '↓': 'down', '↗': 'up-right' }
+// Own-key lookup only: inherited names such as "constructor" or "__proto__" are ordinary text.
+export const arrowDirection = (part: string): ArrowDirection | undefined => Object.hasOwn(arrowDirections, part) ? arrowDirections[part] : undefined
 
 // Navigation arrows are decorative. Prose arrows retain their meaning in the accessible name.
 export function Arrow({ dir, label }: { dir: ArrowDirection; label?: string }) {
@@ -16,9 +18,9 @@ export function Arrow({ dir, label }: { dir: ArrowDirection; label?: string }) {
 }
 
 export function ArrowText({ children }: { children: string }) {
-  return children.split(/([←→↓↗])/).map((part, i) => arrowDirections[part] ? <Arrow key={i} dir={arrowDirections[part]} label={part} /> : part)
+  return children.split(/([←→↓↗])/).map((part, i) => { const dir = arrowDirection(part); return dir ? <Arrow key={i} dir={dir} label={part} /> : part })
 }
 
 export function SvgArrowText({ children }: { children: string }) {
-  return children.split(/([←→↓↗])/).map((part, i) => arrowDirections[part] ? <tspan key={i} fontFamily="system-ui, sans-serif">{part}</tspan> : part)
+  return children.split(/([←→↓↗])/).map((part, i) => arrowDirection(part) ? <tspan key={i} fontFamily="system-ui, sans-serif">{part}</tspan> : part)
 }

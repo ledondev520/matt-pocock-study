@@ -1,7 +1,7 @@
 import { expect, it } from 'vitest'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { JSDOM } from 'jsdom'
-import { Arrow, arrowDirections, ArrowText } from '../src/Arrow'
+import { Arrow, arrowDirections, ArrowText, SvgArrowText } from '../src/Arrow'
 import { renderArrows } from '../scripts/arrows'
 import { renderMarkdown } from '../scripts/content'
 import { buildContent } from '../scripts/content'
@@ -31,15 +31,39 @@ it('renders each arrow as consistent SVG geometry with decorative or meaningful 
   expect(text.querySelectorAll('svg[role="img"]')).toHaveLength(4)
 })
 
-it('replaces rendered article arrows, including components, code and tables, but preserves Markdown', async () => {
-  const source = 'A → B ← C ↓ D ↗ E\n\n`A → B`\n\n| Flow |\n| --- |\n| A → B |\n\n```cards\n- **A → B** Follow ↓\n- **C ← D** Open ↗\n```\n\n```note\nkind: tip\nA → B\n```\n'
+it('replaces rendered article arrows in prose, components and tables, but keeps code and Markdown verbatim', async () => {
+  const inline = 'A → B ← C'
+  const block = 'const s = "A → B ← C ↓ D ↗ E";'
+  const source = `A → B ← C ↓ D ↗ E\n\n\`${inline}\`\n\n\`\`\`js\n${block}\n\`\`\`\n\n| Flow |\n| --- |\n| A → B |\n\n\`\`\`cards\n- **A → B** Follow ↓\n- **C ← D** Open ↗\n\`\`\`\n\n\`\`\`note\nkind: tip\nA → B\n\`\`\`\n`
   const { html, markdown } = await renderMarkdown(source, 'en')
   const doc = new JSDOM(html).window.document
+  // The copy button copies code.textContent, so code must match the source character for character.
+  const codes = [...doc.querySelectorAll('code')]
+  expect(codes.map(c => c.textContent!.replace(/\n$/, ''))).toEqual(expect.arrayContaining([inline, block]))
+  for (const code of codes) expect(code.querySelector('svg')).toBeNull()
+  for (const code of codes) code.remove()
   expect(doc.body.textContent).not.toMatch(/[←→↓↗]/)
-  expect(doc.querySelectorAll('svg[role="img"][aria-label]')).toHaveLength(11)
+  expect(doc.querySelectorAll('svg[role="img"][aria-label]')).toHaveLength(10)
   for (const glyph of Object.keys(arrowDirections)) expect(markdown).toContain(glyph)
-  expect(markdown).toContain('`A → B`')
+  expect(markdown).toContain(`\`${inline}\``)
+  expect(markdown).toContain(block)
   expect(markdown).not.toContain('<svg')
+})
+
+it('treats inherited object keys as ordinary text, not arrows', () => {
+  for (const word of ['constructor', 'toString', '__proto__']) {
+    const react = new JSDOM(renderToStaticMarkup(<p><ArrowText>{word}</ArrowText></p>)).window.document
+    expect(react.querySelector('p')!.textContent).toBe(word)
+    expect(react.querySelector('svg')).toBeNull()
+    const svgText = new JSDOM(renderToStaticMarkup(<svg><text><SvgArrowText>{word}</SvgArrowText></text></svg>)).window.document
+    expect(svgText.querySelector('text')!.textContent).toBe(word)
+    expect(svgText.querySelector('tspan')).toBeNull()
+  }
+  const html = renderArrows('<p>constructor→toString←__proto__</p>')
+  const doc = new JSDOM(html).window.document
+  expect(doc.querySelector('p')!.textContent).toBe('constructortoString__proto__')
+  expect(html).not.toContain('native code')
+  expect(doc.querySelectorAll('svg[role="img"]')).toHaveLength(2)
 })
 
 it('leaves attributes intact and isolates SVG text symbols from the CJK webfont', () => {
