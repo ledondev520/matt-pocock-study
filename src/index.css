@@ -467,3 +467,16 @@ code { font-family: 'JetBrains Mono', monospace; font-size: .88em; }p code, li c
   .brand-icon { width: 28px; height: 32px; flex-shrink: 0; }
   .header-tools { gap: 4px; flex-shrink: 0; }
 }
+
+/* Corpus page: the search panel comes straight after the title so it is on the first screen
+   (phones and desktop); the intro text follows the results. Intro headings get their own space. */
+.corpus-reader { display: flex; flex-direction: column; }
+.corpus-reader .corpus-panel { order: 1; }
+.corpus-reader .corpus-intro-prose { order: 2; margin-top: 40px; }
+.corpus-intro-prose p { font-size: 18px; line-height: 1.85; margin-top: 12px; }
+.corpus-intro-prose h2 { margin-top: 32px; margin-bottom: 4px; font-size: 22px; line-height: 1.5; font-weight: 700; }
+@media (max-width: 720px) {
+  .corpus-reader .corpus-page-intro { margin-bottom: 16px; }
+  .corpus-reader .corpus-intro-prose { margin-top: 30px; }
+  .corpus-intro-prose p { font-size: 17px; }
+}
