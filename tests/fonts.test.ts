@@ -52,8 +52,16 @@ describe('Noto Sans SC subsets', () => {
       await writeFile(join(root, path), content)
     }
     expect(await collectCharacters(root)).toEqual(new Set([...'中英文语料界面显示式复找图画字']))
-    // Escaped spellings are deliberately not decoded here: the browser gate catches anything
+    // Escaped spellings in source code are not decoded here: the browser gate catches anything
     // the site renders that the subset lacks (e2e/font-coverage.pw.ts).
+  })
+
+  it('collects corpus data as parsed, so records reached only by paging or search are in the subset', async () => {
+    // A record the first page never shows, written with JSON escapes (key and value).
+    const root = join(temporary, 'json-inputs')
+    for (const directory of ['content', 'data', 'src', 'scripts', 'server', 'diagrams', 'public/art']) await mkdir(join(root, directory), { recursive: true })
+    await writeFile(join(root, 'data/corpus-index.json'), '[{"summary":{"zh":"\\u4e02\\ud842\\udfb7"},"metrics":{"\\u4e03":1}}]')
+    expect(await collectCharacters(root)).toEqual(new Set(['丂', '七', '\u{20BB7}']))
   })
 
   it('generates byte-identical fonts and CSS from the same inputs', async () => {

@@ -25,8 +25,8 @@ export function notoCharacter(character) {
 }
 
 // Source collection only decides which glyphs go into the subset; over-collecting is
-// harmless. It reads literal characters. Whether every character the built site actually
-// renders is covered is checked in the browser (e2e/font-coverage.pw.ts), not here.
+// harmless. It reads literal characters, plus the parsed keys and strings of JSON files.
+// Whether every character the built site actually renders is covered is checked in the browser (e2e/font-coverage.pw.ts), not here.
 export async function collectCharacters(root = '.') {
   const characters = new Set()
   function add(text) {
@@ -37,7 +37,11 @@ export async function collectCharacters(root = '.') {
       const file = outputPath(directory, entry.name)
       if (entry.isDirectory()) await walk(file)
       else if (entry.isFile() && extensions.has(extname(file))) {
-        add(await readFile(file, 'utf8'))
+        const text = await readFile(file, 'utf8')
+        add(text)
+        // JSON data (the corpus the server pages and searches through) is shown as its
+        // parsed values, which may be written as \u escapes. Collect keys and strings as parsed.
+        if (extname(file) === '.json') JSON.parse(text, (key, value) => { add(key); if (typeof value === 'string') add(value); return value })
       }
     }
   }
