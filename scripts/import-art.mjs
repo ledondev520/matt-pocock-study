@@ -7,6 +7,9 @@ import { cssProperties, cssValue, cssDeclarations, cssStylesheet } from './svg-c
 import { validateFigureRegistry } from './figure-registry.mjs'
 import { writeOutput } from './output-path.mjs'
 import { existsSync } from 'node:fs'
+import { archifySvgComment } from './licences.mjs'
+
+let archifyComment
 
 const SVG = 'http://www.w3.org/2000/svg'
 const XLINK = 'http://www.w3.org/1999/xlink'
@@ -53,6 +56,13 @@ function staticValue(value) {
 
 /** Validate a static SVG subset, then serialize a fresh tree for HTML embedding. */
 export function validateSvg(source, { profile = 'art', lang } = {}) {
+  // The only comment ever accepted: Archify's licence comment, byte-exact (generated from the
+  // hash-checked LICENSE), as the very first bytes of a diagram file. It is removed before every
+  // check below, so any other comment, a second copy, or a copy anywhere else is still rejected.
+  if (profile === 'diagram') {
+    archifyComment ??= archifySvgComment()
+    if (source.startsWith(archifyComment)) source = source.slice(archifyComment.length)
+  }
   // XML declarations are parsed for validity, then omitted by serialization.
   const withoutDeclaration = source.replace(/^\uFEFF?<\?xml\s[^?]*\?>/, '')
   if (/<!\s*(?:ENTITY|DOCTYPE)|<\?|<!--/i.test(withoutDeclaration)) throw new Error('SVG declarations, processing instructions and comments are forbidden')

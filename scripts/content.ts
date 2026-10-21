@@ -8,7 +8,7 @@ import type { Lang } from '../src/lib/lang'
 import { codeHtml } from './code'
 import { siteUrl } from '../src/lib/site'
 import { figureHtml, figureMarkdown, figureById, escapeHtml, buildFigures } from './figures'
-import { licences, licenceText, type LicenceId } from './licences'
+import { licenceBlock, embedsArchify, archifyAppendix } from './licences.mjs'
 
 const languages = ['en', 'zh'] as const
 const componentNames = ['cards', 'quote', 'exercise', 'figure', 'note', 'licence']
@@ -44,10 +44,7 @@ export async function renderMarkdown(source: string, lang: Lang) {
     let html = '', readable = ''
     if (kind === 'licence') {
       // Full upstream licence text, verbatim from third_party/ (hash-checked); never typed into content.
-      const licence = licenceText(f.id ?? '')
-      const label = `${lang === 'zh' ? '完整许可：' : 'Full licence: '}${licences[f.id as LicenceId].name}`
-      html = `<section class="licence-text"><h3>${escapeHtml(label)}</h3><pre lang="en">${escapeHtml(licence)}</pre></section>`
-      readable = `### ${label}\n\n\`\`\`text\n${licence.trimEnd()}\n\`\`\``
+      ({ html, markdown: readable } = licenceBlock(f.id ?? '', lang))
     } else if (kind === 'figure') {
       html = await figureHtml(f.id, lang); readable = figureMarkdown(f.id, lang)
     } else if (kind === 'quote') {
@@ -113,6 +110,14 @@ export async function readPages(contentDir: string): Promise<Page[]> {
   for (const page of pages) {
     const available = new Set(pages.filter(p => p.lang === page.lang).map(p => p.slug))
     page.html = page.html.replace(/href="\/(en|zh)\/([a-z0-9-]+)(#[^"]*)?"/g, (all, targetLang, slug) => available.has(slug) ? all : `href="/${targetLang}#topics"`)
+  }
+  // A page whose body or head embeds an Archify-generated diagram carries Archify's full licence at
+  // its end (HTML, .md download and llms-full), unless it already has that licence block.
+  for (const page of pages) {
+    if (!embedsArchify(page.html + page.headHtml) || page.html.includes(licenceBlock('archify', page.lang).html)) continue
+    const appendix = archifyAppendix(page.lang)
+    page.html += appendix.html
+    page.markdown = `${page.markdown.trimEnd()}\n\n${appendix.markdown}\n`
   }
   return pages.sort((a, b) => a.order - b.order || a.slug.localeCompare(b.slug))
 }

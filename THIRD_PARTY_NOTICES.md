@@ -12,10 +12,13 @@ Copyright (c) 2025 Cocoon AI
 ```
 
 The full upstream license is preserved at [third_party/archify/LICENSE](third_party/archify/LICENSE).
+Every page that embeds these diagrams, and every diagram SVG file, carries that full text
+(see "Files in this repository" below).
 The reused rules, as shipped after theme mapping and scoping, are kept in
 [third_party/archify/diagram-css.css](third_party/archify/diagram-css.css).
 SVG 内嵌的 CSS 片段来自 Archify 并作主题适配，遵循 MIT 许可；图表文字和例子
-由本站编写。原始版权行如上，许可全文保存在该文件中。
+由本站编写。原始版权行如上，许可全文保存在该文件中；含这些图的页面页末、
+每个图表 SVG 文件开头的注释里都附有完整许可。
 
 ## Quotations · 引用
 Short quotations from Matt Pocock (https://x.com/mattpocockuk, https://www.aihero.dev,
@@ -72,8 +75,8 @@ The registry above records licence observations, not permission to reuse these e
 
 | File | Upstream | Copyright line | Used by |
 |---|---|---|---|
-| `third_party/mattpocock-skills/LICENSE` | [skills/LICENSE](https://github.com/mattpocock/skills/blob/main/LICENSE), byte-identical | Copyright (c) 2026 Matt Pocock | Full licence text at the end of the 7 pages (zh + en) that adapt skills structures; the text is not retyped, the build reads this file and checks its sha256 (`scripts/licences.ts`) |
-| `third_party/archify/LICENSE` | [archify/LICENSE](https://github.com/tt-a1i/archify/blob/main/LICENSE), byte-identical | Copyright (c) 2026 tt-a1i (Archify); Copyright (c) 2025 Cocoon AI | Full licence text on the copyright page (zh + en); diagrams embed Archify-derived CSS |
+| `third_party/mattpocock-skills/LICENSE` | [skills/LICENSE](https://github.com/mattpocock/skills/blob/main/LICENSE), byte-identical | Copyright (c) 2026 Matt Pocock | Full licence text at the end of the 7 pages (zh + en) that adapt skills structures; the text is not retyped, the build reads this file and checks its sha256 (`scripts/licences.mjs`) |
+| `third_party/archify/LICENSE` | [archify/LICENSE](https://github.com/tt-a1i/archify/blob/main/LICENSE), byte-identical | Copyright (c) 2026 tt-a1i (Archify); Copyright (c) 2025 Cocoon AI | Full licence text on the copyright page (zh + en) and at the end of every page whose HTML embeds an Archify diagram (inline `<svg>` with an `arch-*` class; this includes both home pages), its `.md` download and `llms-full.txt`; each `public/diagrams/*.svg` starts with an XML comment holding the full text. All copies are generated from this file after its sha256 check (`scripts/licences.mjs`) |
 
 The adapted skills structures themselves are rewritten in the pages, not copied files.
 被改编的 skills 结构在页面中重写，不是整份复制的文件；对应页面页末附完整 MIT 许可。

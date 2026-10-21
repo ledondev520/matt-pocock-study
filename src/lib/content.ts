@@ -28,4 +28,6 @@ export interface Page extends PageSummary {
   toc: { id: string; title: string }[]
 }
 export type Figures = Record<Lang, Record<string, string>>
-export interface Model { pages: PageSummary[]; currentPage?: Page; figures: Figures; corpusCount: number; corpusItems: import('../../server/corpus').CorpusRecord[]; corpusTags: string[]; siteUrl: string }
+export interface Model { pages: PageSummary[]; currentPage?: Page; figures: Figures; corpusCount: number; corpusItems: import('../../server/corpus').CorpusRecord[]; corpusTags: string[]; siteUrl: string
+  /** Archify licence appendix for non-article views whose figures embed Archify diagrams; set at build time. */
+  licenceHtml?: string }
