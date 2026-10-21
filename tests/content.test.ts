@@ -88,9 +88,15 @@ it('every page that cites a reused MIT source or embeds Archify CSS ships that s
       expect(blocks.filter(block => block === text), `${page.lang}/${page.slug} HTML`).toHaveLength(1)
       // Downloads: single-page Markdown and the language bundle carry it too.
       const markdown = await readFile(join(output, page.lang, `${page.slug}.md`), 'utf8')
-      expect(markdown.split(text.trimEnd()).length - 1, `${page.lang}/${page.slug}.md`).toBe(1)
+      // The complete text, trailing newline included, then: exactly once.
+      expect(markdown, `${page.lang}/${page.slug}.md`).toContain(text)
+      expect(markdown.split(text).length - 1, `${page.lang}/${page.slug}.md`).toBe(1)
       const bundle = await readFile(join(page.lang === 'en' ? output : join(output, 'zh'), 'llms-full.txt'), 'utf8')
-      expect(bundle.slice(bundle.indexOf(page.markdown), bundle.indexOf(page.markdown) + page.markdown.length), `${page.lang}/${page.slug} in llms-full`).toContain(text.trimEnd())
+      expect(bundle).toContain(text)
+      // ...and inside this page's own section of the bundle.
+      const at = bundle.indexOf(page.markdown)
+      expect(at, `${page.lang}/${page.slug} in llms-full`).toBeGreaterThanOrEqual(0)
+      expect(bundle.slice(at, at + page.markdown.length), `${page.lang}/${page.slug} in llms-full`).toContain(text)
     }
   }
   // The set comes from the rules above; cross-check the Archify part against a second rule taken
