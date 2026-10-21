@@ -3,6 +3,7 @@ import { join } from 'node:path'
 import { parse } from 'yaml'
 import { marked } from 'marked'
 import type { Page } from '../src/lib/content'
+import { siteUrl } from '../src/lib/site'
 
 const languages = ['en', 'zh'] as const
 
@@ -51,7 +52,7 @@ export async function buildContent(contentDir: string, outputDir: string): Promi
     const summary = lang === 'en'
       ? 'Unofficial, non-commercial study notes about Matt Pocock’s public work, written in our own words.'
       : '用我们自己的话整理 Matt Pocock 公开作品的学习笔记，非官方、非商业。'
-    const links = localized.map((page) => `- [${page.title}](https://matt.withkeya.com/${lang}/${page.slug}.md): ${page.section}`).join('\n')
+    const links = localized.map((page) => `- [${page.title}](${siteUrl()}/${lang}/${page.slug}.md): ${page.section}`).join('\n')
     const index = `# ${title}\n\n> ${summary}\n\n## ${lang === 'en' ? 'Pages' : '页面'}\n\n${links}\n`
     const full = `# ${title}\n\n> ${summary}\n\n${localized.map((page) => `<!-- /${lang}/${page.slug}.md -->\n\n${page.markdown}`).join('\n---\n\n')}`
     const base = lang === 'en' ? outputDir : join(outputDir, 'zh')
