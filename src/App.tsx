@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { flushSync } from 'react-dom'
 import { Site } from './Site'
 import type { Model, Page } from './lib/content'
 import { metadata } from './lib/metadata'
@@ -12,6 +13,7 @@ export function App({ model: initialModel }: { model: Model }) {
   useEffect(() => {
     setDark(document.documentElement.classList.contains('dark'))
     let navigation = 0
+    let renderedPath = window.location.pathname
     async function navigate(target: string, push = false) {
       const version = ++navigation
       const url = new URL(target, location.href)
@@ -28,15 +30,29 @@ export function App({ model: initialModel }: { model: Model }) {
         }
         if (version !== navigation) return
         if (push) history.pushState(null, '', url.pathname + url.hash)
-        setModel(next); setPath(url.pathname)
-        requestAnimationFrame(() => { if (url.hash) document.getElementById(url.hash.slice(1))?.scrollIntoView(); else window.scrollTo(0, 0) })
+        // Commit the destination before looking up its heading. In particular,
+        // Chinese fragments arrive percent-encoded in URL.hash.
+        flushSync(() => { setModel(next); setPath(url.pathname) })
+        renderedPath = url.pathname
+        if (url.hash) {
+          let id = url.hash.slice(1)
+          try { id = decodeURIComponent(id) } catch { /* A literal malformed fragment can still be an ID. */ }
+          document.getElementById(id)?.scrollIntoView()
+        } else window.scrollTo(0, 0)
       } catch { if (version === navigation) location.assign(url.href) }
     }
     if (window.location.pathname === '/') {
       const target = `/${pickLang(storedPreference('lang'), navigator.language)}`
       history.replaceState(null, '', target); void navigate(target)
     }
-    const pop = () => { void navigate(window.location.pathname) }
+    const pop = () => {
+      if (location.pathname === renderedPath) {
+        // Native hash/history traversal already owns scrolling on this page.
+        navigation++
+        return
+      }
+      void navigate(location.pathname + location.search + location.hash)
+    }
     const click = (event: MouseEvent) => {
       if (event.defaultPrevented || event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return
       const target = event.target instanceof Element ? event.target.closest('a') : null
@@ -44,7 +60,7 @@ export function App({ model: initialModel }: { model: Model }) {
       const href = target.getAttribute('href')
       if (!href) return
       const url = new URL(href, location.href)
-      if (url.origin !== location.origin || !/^\/(zh|en)(\/[-a-z0-9]+)?\/?$/.test(url.pathname)) return
+      if (url.origin !== location.origin || !routeInfo(url.pathname).valid) return
       if (url.pathname === location.pathname && url.hash) return
       event.preventDefault(); void navigate(url.pathname + url.hash, true)
     }

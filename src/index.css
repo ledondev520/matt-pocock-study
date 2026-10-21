@@ -236,7 +236,7 @@ figure figcaption { font-size: 17px; line-height: 1.8; }
 .chain-svg a:focus-visible { outline: none; }
 .chain-svg a:focus-visible .chain-final { stroke: var(--hero-text); stroke-width: 4px; }
 .chain-kicker { fill: var(--hero-muted); font-size: 15px; font-weight: 600; }
-.chain-number { fill: var(--hero-muted); font: 14px 'JetBrains Mono', monospace; }
+.chain-number { fill: var(--hero-muted); font-size: 14px; font-family: 'JetBrains Mono', monospace; }
 .chain-name { fill: var(--hero-text); font-size: 19px; font-weight: 700; }
 .chain-label { fill: var(--hero-text); font-size: 16px; }
 .chain-line { fill: none; stroke: var(--hero-text); stroke-width: 1.6px; }

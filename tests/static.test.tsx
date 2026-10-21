@@ -140,3 +140,16 @@ it.each(['/zh/a/b', '/zh/a_b', '/zh/不存在'])('shares Chinese 404 rendering a
   expect(metadata(scoped, path).lang).toBe('zh')
   expect(metadata(scoped, path).title).toContain('页面不存在')
 })
+
+it.each(['/index.html', '/zh/index.html', '/en/specs-and-tickets/index.html', '/zh/%73pecs-and-tickets', '/%7ah/specs-and-tickets'])('returns real 404 HTML matching client rendering for alias %s', async path => {
+  for (const method of ['GET', 'HEAD']) {
+    const response = await app.request(path, { method })
+    expect(response.status).toBe(404)
+    if (method === 'HEAD') continue
+    const doc = new JSDOM(await response.text()).window.document
+    const scoped: Model = JSON.parse(doc.getElementById('site-data')!.textContent!)
+    const client = new JSDOM(renderToString(<Site model={scoped} path={path} />)).window.document
+    expect(doc.querySelector('h1')!.textContent).toBe(client.querySelector('h1')!.textContent)
+    expect(doc.documentElement.lang).toBe(metadata(scoped, path).lang)
+  }
+})

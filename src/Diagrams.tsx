@@ -15,12 +15,12 @@ export function ChainFigure({ lang }: Props) {
         const y = 42 + i * 79;
         return <g key={name}>
           {i < 5 && <path d={`M194 ${y + 64}v13`} className="chain-line" markerEnd="url(#chain-arrow)" />}
-          <g aria-label={`${name}: ${labels[i]}`}>
+          <a href={`/${lang}/${i === 0 ? 'learn-from-matt' : 'specs-and-tickets'}`}>
             <rect x="46" y={y} width="302" height="64" rx="8" className={i === 5 ? 'chain-final' : 'chain-node'} />
             <text x="62" y={y + 25} className={i === 5 ? 'chain-number final-ink' : 'chain-number'}>{`0${i + 1}`}</text>
             <text x="100" y={y + 25} className={i === 5 ? 'chain-name final-ink' : 'chain-name'}>{name}<tspan x="328" textAnchor="end">↗</tspan></text>
             <text x="62" y={y + 50} className={i === 5 ? 'chain-label final-ink' : 'chain-label'}>{labels[i]}</text>
-          </g>
+          </a>
         </g>;
       })}
       <path d="M46 390 H18 V74 H42" className="chain-line loop-line" markerEnd="url(#chain-arrow)" />

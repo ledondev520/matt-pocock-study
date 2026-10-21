@@ -33,7 +33,7 @@ Set `SITE_URL` to the public HTTPS origin when building (default: `https://matt.
 - `src/`: the electric React reader, shared static rendering, responsive navigation and saved language/theme choices. Self-hosted Inter, Space Grotesk, JetBrains Mono and Noto Sans SC come from @fontsource. Theme is set before paint.
 - `scripts/content.ts`: validates front matter, renders cards, comparison tables, quotes, exercises, figures and notes; generates Markdown downloads, `content.json`, figures and bilingual `llms.txt` / `llms-full.txt`.
 - `scripts/static.tsx`: renders complete crawler-readable home, article and corpus HTML with absolute metadata into `dist/`; `404.html` is served with HTTP 404 for unknown routes.
-- `data/figures.json`: bilingual illustration registry. `public/diagrams/` holds themeable inline diagrams; `public/art/` holds imported light/dark art. Missing files use intentional placeholders and generated downloadable SVG fallbacks under `/figures/`. The home chain and tracer have hand-written SVG fallbacks.
+- `data/figures.json`: bilingual illustration registry. `public/diagrams/` holds themeable inline diagrams; `public/art/` holds imported light/dark art. Missing files use intentional placeholders and generated downloadable SVG fallbacks under `/figures/`. The home chain and tracer have hand-written SVG fallbacks. Registry IDs must be safe lowercase slugs; all builder writes use a shared resolved-path containment check.
 - `data/corpus-index.json`: public links, metadata and our summaries. `server/` imports it into SQLite with FTS5 and parameterized LIKE fallback for CJK/partial matches. Disposable indexes live in ignored `generated/`.
 - `tests/`: contract, parity, paragraph limits, illustration safety, SQLite API, metadata, links and 404 tests. `test/corpus/` retains the ingestion tests. `npm test` also checks text-token contrast; [docs/DESIGN.md](docs/DESIGN.md) records the approved palette and contrast table.
 
@@ -46,7 +46,7 @@ npm run import:art -- art-delivery
 npm run og
 ```
 
-Art filenames must be known art figure IDs: `<id>.zh.svg`, `<id>.en.svg`, `<id>.zh-dark.svg`, `<id>.en-dark.svg`. The importer validates the entire batch before copying into `public/art/`, rejecting scripts, event handlers, active embedded content, entities and external references. Rebuild after importing. Theme switches art immediately; missing dark art falls back to light.
+Art filenames must be known art figure IDs: `<id>.zh.svg`, `<id>.en.svg`, `<id>.zh-dark.svg`, `<id>.en-dark.svg`. The importer validates the entire batch before copying into `public/art/`, rejecting scripts, event handlers, active embedded content, entities and external references. SVG support is deliberately limited: an element/attribute allowlist, static presentation declarations only, and functions limited to `var`, `rgb`, `rgba`, `hsl`, `hsla`, `calc` and unquoted `url(#local-id)`. Quotes are allowed only in font families. Stylesheet selectors must start at their own SVG root class or ID and are rewritten under a unique scope. At-rules (including media rules), CSS escapes, custom declarations, resource functions and page-wide selectors are rejected. XML declarations and metadata are dropped; other processing instructions are rejected. Art has no links. The separate diagram profile permits only `href="/<same-language>/<known-slug>"` anchors (or corpus), with no other anchor attributes. Rebuild after importing. Theme switches art immediately; missing dark art falls back to light.
 
 插图导入先验证整批 SVG；未知 ID 和不安全引用会失败。语言由文件名切换，深色图缺失时回退到浅色图。重新构建后即可展示。
 
@@ -56,7 +56,9 @@ Art filenames must be known art figure IDs: `<id>.zh.svg`, `<id>.en.svg`, `<id>.
 
 Markdown content is trusted repository content; raw HTML is not sanitised.
 
-Static pages embed navigation metadata and only the current page body. SPA navigation loads the destination model from per-page JSON and falls back to full navigation if loading fails.
+Static pages embed navigation metadata and only the current page body. SPA navigation loads the destination model from per-page JSON and falls back to full navigation if loading fails. Same-page fragment links and their history entries use native browser navigation without loading JSON or resetting scroll; cross-page fragments scroll after rendering, including encoded Chinese headings. The hero's six keyboard-focusable nodes link to same-language content: Align opens the introduction; Spec, Tickets, Implement, Review and PR open the spec/ticket lesson. Focus has a visible contrasting stroke.
+
+Server, SSR and client use the same route grammar: `/`, `/zh`, `/en`, and `/<lang>/<lowercase-slug>` (with an optional trailing slash). HTML file aliases such as `/index.html`, `/zh/index.html`, and `/<lang>/<slug>/index.html`, plus percent-encoded page paths, return real localized HTTP 404s.
 
 ## API and exports / 接口与导出
 
@@ -72,7 +74,7 @@ Run `npm ci` with development dependencies, `npm run build` (including OG genera
 
 安装依赖，生成分享图并构建后，通过任意 HTTPS 反向代理运行服务。启动会重建可删除索引，需要对产物目录有写权限。不要把密钥、原始抓取资料或构建输出提交到仓库。
 
-`npm run review` uses headless Google Chrome (installed on the OS) against a running site on port 8811, with its profile and screenshots in ignored `.cache/`. Set `REVIEW_URL` to review another local instance. It checks 320/390/1440px in both themes, navigation, preferences, corpus search, nested localized 404s, console errors and CSP violations.
+`npm run review` uses headless Google Chrome (installed on the OS) against a running site on port 8811, with its profile and screenshots in ignored `.cache/`. Set `REVIEW_URL` to review another local instance. It checks 320/390/1440px in both themes, navigation, preferences, corpus search, nested localized 404s, rejected HTML aliases/encoded page paths, Chinese/English TOC and fragment history, cross-page fragments, six keyboard-accessible hero links, console errors and CSP violations.
 
 ## Corpus maintenance and licence / 语料维护与许可
 

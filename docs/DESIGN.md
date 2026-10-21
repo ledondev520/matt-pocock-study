@@ -29,15 +29,17 @@ Lime is never used for text or fine lines against a light background. In the fig
 
 Both figures are hand-written inline SVG React components in `src/Diagrams.tsx`. Every color comes from CSS variables. Each SVG includes a bilingual accessible title and description; every figure has a visible localized caption. There are no image assets, Mermaid diagrams, decorative orbit illustrations or motion dependencies.
 
-1. **Hero: the AI coding chain.** Six numbered, linked nodes explain Align → Spec → Tickets → Implement → Review → PR. Each node has a short action label. A dashed return path begins at Review and returns to Align; the attached Standards & feedback box explains mistake → rule → caught next review. The Spec node opens the article sample, preserving language and theme; other nodes expose the requested section hash routes.
+1. **Hero: the AI coding chain.** Six numbered, linked nodes explain Align → Spec → Tickets → Implement → Review → PR. Each node has a short action label. A dashed return path begins at Review and returns to Align; the attached Standards & feedback box explains mistake → rule → caught next review. Align opens the introduction; Spec, Tickets, Implement, Review and PR open the spec/ticket article sample. All six use real same-language anchors, preserve theme, support keyboard activation and show a contrasting focus stroke. Diagram anchors permit only known content paths without fragments; art has no links.
 2. **Tracer bullet: layer by layer versus vertical slices.** The left timeline completes UI, API and DB separately and ends in a pink integration warning. On the right, a lime first slice connects all three layers before slices two and three follow. Each slice has a check mark; the outcome states that each ticket can be verified independently. Shared layer labels and time direction make the comparison explicit. The panels stack on small screens so labels remain readable at 390px.
 
 ## Language, navigation and content
 
 - `/zh` and `/en` are localized homes. `/<lang>/<slug>` opens a lesson; `/<lang>/corpus` opens the live SQLite-backed index. Root selection prefers stored language, then browser language.
+- HTML file aliases and percent-encoded page paths return real localized 404s before static serving; server, SSR and client share the route grammar.
+- Same-page TOC fragments use native scrolling and history without per-page JSON requests or scroll resets. Cross-page fragments load the model, render, then scroll to the decoded heading ID, including Chinese fragments.
 - Language switching keeps the same lesson and uses SPA navigation. The theme control persists `theme`, while a head script applies the saved/system theme before paint. Illustrated art switches through light/dark image classes.
 - The complete 06 lesson preserves the approved sample's teaching sequence, sole attributed quotation, vertical-slice explanation and favourites exercise. The 01 lesson introduces the author and the site's independent scope.
-- All content follows `CONTENT_FORMAT.md`. Figures are registered in `data/figures.json`; missing assets use themed placeholders with explicit IDs and dimensions. The hand-written chain and tracer remain in `src/Diagrams.tsx`.
+- All content follows `CONTENT_FORMAT.md`. Figures are registered in `data/figures.json`; missing assets use themed placeholders with explicit IDs and dimensions. The hand-written chain and tracer remain in `src/Diagrams.tsx`. SVG CSS uses an explicit static property/function allowlist and root-scoped selectors rewritten under a unique scope; no at-rules, escapes or CSS resource loading are accepted. XML declarations and metadata are removed. Download fallbacks resolve the light palette to literal values and contain only scoped SVG presentation rules. Registry IDs are validated on load and generated files use a shared output containment helper.
 - Corpus records come from the public metadata index, with our own bilingual summaries. Metrics are snapshots, not claims about learning effectiveness.
 - The site is unofficial and non-commercial. Source: https://github.com/ledondev520/matt-pocock-study.
 
@@ -47,7 +49,7 @@ Both figures are hand-written inline SVG React components in `src/Diagrams.tsx`.
 
 `npm run contrast` recomputes the approved token pairs below; every pair must reach **4.5:1**. It runs as part of `npm test`.
 
-`npm run review` captures home/article light/dark at 1440px and 390px, plus English views, tracer details and corpus results, using headless Google Chrome. The profile, screenshots and measurement report live in ignored `.cache/`. The script checks horizontal overflow, runtime errors, navigation, saved preferences, corpus filtering and HTTP 404 responses. Screenshots are also inspected visually.
+`npm run review` captures home/article light/dark at 1440px, 390px and 320px, plus English views, tracer details and corpus results, using headless Google Chrome. The profile, screenshots and measurement report live in ignored `.cache/`. The script checks horizontal overflow, runtime errors, navigation, saved preferences, corpus filtering, alias/encoded HTTP 404 responses, Chinese/English TOC and fragment history, cross-page fragments and all six hero links with keyboard focus/activation. Screenshots are also inspected visually.
 
 <!-- contrast:start -->
 | Theme | Text / role | Foreground | Background | Contrast | AA |

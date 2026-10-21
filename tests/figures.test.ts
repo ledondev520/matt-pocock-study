@@ -1,8 +1,10 @@
-import { mkdtemp, mkdir, writeFile, rm } from 'node:fs/promises'
+import { mkdtemp, mkdir, writeFile, rm, readFile, readdir } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { expect, it } from 'vitest'
-import { figureHtml } from '../scripts/figures'
+import registry from '../data/figures.json'
+import { validateSvg } from '../scripts/import-art.mjs'
+import { figureHtml, buildFigures } from '../scripts/figures'
 
 it('renders intentional placeholders with real dimensions and bilingual alternative text', async () => {
   const html = await figureHtml('spot-empty', 'en', '.cache/nonexistent-art-fixture')
@@ -13,7 +15,7 @@ it('renders intentional placeholders with real dimensions and bilingual alternat
 })
 it('inlines themeable diagram SVGs and swaps illustrated artwork with a light fallback', async () => {
   const root = await mkdtemp(join(tmpdir(), 'figure-assets-'))
-  const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500"><style>text{fill:var(--foreground)}</style><text>Original diagram</text></svg>'
+  const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" class="fixture"><style>.fixture text{fill:var(--foreground)}</style><text>Original diagram</text></svg>'
   try {
     await mkdir(join(root, 'diagrams')); await mkdir(join(root, 'art'))
     await writeFile(join(root, 'diagrams/home-corpus.en.svg'), svg)
@@ -44,5 +46,24 @@ it.each([
     await mkdir(join(root, 'diagrams'))
     await writeFile(join(root, 'diagrams/home-corpus.en.svg'), `<svg xmlns="http://www.w3.org/2000/svg">${inner}</svg>`)
     await expect(figureHtml('home-corpus', 'en', root)).rejects.toThrow()
+  } finally { await rm(root, { recursive: true, force: true }) }
+})
+
+
+it('validates every shipped fallback/download SVG and restores all six localized hero links', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'shipped-figures-'))
+  try {
+    expect(validateSvg(await readFile('public/favicon.svg', 'utf8'))).toContain('<svg')
+    const result = await buildFigures(root)
+    expect(await readdir(join(root, 'figures'))).toHaveLength(registry.figures.length * 2)
+    for (const lang of ['zh', 'en'] as const) {
+      for (const figure of registry.figures) {
+        const source = await readFile(join(root, 'figures', `${figure.id}.${lang}.svg`), 'utf8')
+        expect(validateSvg(source, { profile: figure.owner === 'diagram' ? 'diagram' : 'art', lang })).toContain('<svg')
+        expect(result[lang][figure.id]).toBeTruthy()
+      }
+      const links = [...result[lang]['home-hero'].matchAll(/<a href="([^"]+)"/g)].map(match => match[1])
+      expect(links).toEqual([`/${lang}/learn-from-matt`, ...Array(5).fill(`/${lang}/specs-and-tickets`)])
+    }
   } finally { await rm(root, { recursive: true, force: true }) }
 })

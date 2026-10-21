@@ -43,11 +43,17 @@ export function createApp(db: Database.Database, staticRoot?: string, corpus: Co
   })
   app.all('/api/*', (c) => c.json({ error: 'Not found' }, 404))
   if (staticRoot) {
-    app.use('*', serveStatic({ root: staticRoot }))
-    app.get('*', (c) => {
-      const html = readFileSync(join(staticRoot, `${routeInfo(c.req.path).lang}/404.html`), 'utf8')
-      return c.html(html, 404)
+    const missingHtml = (path: string) => readFileSync(join(staticRoot, `${routeInfo(path).lang}/404.html`), 'utf8')
+    app.use('*', async (c, next) => {
+      const path = new URL(c.req.url).pathname
+      // Static serving must never decode or expose HTML aliases that the
+      // shared SSR/client route grammar interprets as a missing page.
+      const asset = !path.includes('%') && /\.[a-z0-9]+$/i.test(path) && !/\.html$/i.test(path)
+      if (!routeInfo(path).valid && !asset) return c.html(missingHtml(path), 404)
+      await next()
     })
+    app.use('*', serveStatic({ root: staticRoot }))
+    app.get('*', (c) => c.html(missingHtml(c.req.path), 404))
   }
   return app
 }

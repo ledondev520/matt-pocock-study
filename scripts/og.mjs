@@ -1,8 +1,9 @@
 import { execFileSync } from 'node:child_process'
-import { mkdir, access, writeFile } from 'node:fs/promises'
-import { resolve, relative, isAbsolute, sep } from 'node:path'
+import { access } from 'node:fs/promises'
+import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { readPages } from './content.ts'
+import { outputPath as containedPath, writeOutput } from './output-path.mjs'
 import { Resvg } from '@resvg/resvg-js'
 
 async function font(pattern, required, override) {
@@ -28,13 +29,8 @@ function lines(text, max) {
   return result.map(line => line.trim())
 }
 export function outputPath(root, lang, slug) {
-  const base = resolve(root)
-  const target = resolve(base, lang, `${slug}.png`)
-  for (const boundary of [base, resolve(base, lang)]) {
-    const rel = relative(boundary, target)
-    if (rel === '..' || rel.startsWith('..' + sep) || isAbsolute(rel)) throw new Error('OG output escapes its root')
-  }
-  return target
+  const base = containedPath(root, lang)
+  return containedPath(base, `${slug}.png`)
 }
 export async function generateOg(contentDir = 'content', outputDir = 'public/og') {
   const validated = await readPages(contentDir)
@@ -44,12 +40,11 @@ export async function generateOg(contentDir = 'content', outputDir = 'public/og'
     pages.push(...validated.filter(page => page.lang === lang))
     for (const page of pages) {
       const target = outputPath(outputDir, lang, page.slug)
-      await mkdir(resolve(target, '..'), { recursive: true })
       const title = lines(page.title, 19).slice(0, 3)
       const summary = lines(page.summary, 32).slice(0, 2)
       const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630"><rect width="1200" height="630" fill="#F8F7FC"/><rect width="1200" height="420" fill="#43209E"/><rect x="65" y="55" width="45" height="8" fill="#C6F432"/><text x="130" y="70" font-family="Inter, Noto Sans CJK SC" font-size="22" fill="#D8CCF3">MATT · STUDY NOTES / 学习笔记</text>${title.map((line, i) => `<text x="65" y="${172 + i * 77}" font-family="Space Grotesk, Noto Sans CJK SC" font-size="62" font-weight="700" fill="#FFFFFF">${escape(line)}</text>`).join('')}${summary.map((line, i) => `<text x="65" y="${482 + i * 40}" font-family="Inter, Noto Sans CJK SC" font-size="28" fill="#241B35">${escape(line)}</text>`).join('')}<text x="65" y="592" font-family="Inter, Noto Sans CJK SC" font-size="19" fill="#6B607B">INDEPENDENT · UNOFFICIAL · NON-COMMERCIAL</text><rect x="1085" y="555" width="48" height="48" rx="5" fill="#C6F432"/><text x="1095" y="590" font-size="35" fill="#221438">↗</text></svg>`
       const png = new Resvg(svg, { font: { loadSystemFonts: false, fontFiles: fonts, defaultFontFamily: 'Noto Sans CJK SC' } }).render().asPng()
-      await writeFile(target, png)
+      await writeOutput(outputDir, target, png)
     }
     console.log(`Generated ${pages.length} ${lang} OG images (1200×630).`)
   }

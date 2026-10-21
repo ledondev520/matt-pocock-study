@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises'
+import { readFile } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { renderToString } from 'react-dom/server'
@@ -8,6 +8,7 @@ import { metadata } from '../src/lib/metadata'
 import { routeInfo } from '../src/lib/lang'
 import { siteUrl } from '../src/lib/site'
 import { escapeHtml } from './figures'
+import { outputPath, writeOutput } from './output-path.mjs'
 import { createIndex } from '../server/db'
 import { importCorpus, loadCorpus, queryCorpus, corpusTags } from '../server/corpus'
 
@@ -38,10 +39,9 @@ export async function staticPages(root = 'dist') {
     const meta = `<title>${e(m.title)}</title><meta name="description" content="${e(m.description)}"><link rel="canonical" href="${e(m.url)}"><link rel="alternate" hreflang="${m.lang}" href="${e(m.url)}"><link rel="alternate" hreflang="${m.lang === 'zh' ? 'en' : 'zh'}" href="${e(m.alternate)}"><meta property="og:title" content="${e(m.title)}"><meta property="og:description" content="${e(m.description)}"><meta property="og:url" content="${e(m.url)}"><meta property="og:image" content="${e(m.image)}"><meta name="twitter:card" content="summary_large_image">${path.endsWith('/404') ? '<meta name="robots" content="noindex">' : ''}`
     const data = JSON.stringify(scoped).replace(/</g, () => '\\u003c')
     const html = template.replace('<html lang="en">', () => `<html lang="${m.lang}">`).replace('<!--page-meta-->', () => meta).replace('<div id="root"></div>', () => `<div id="root">${renderToString(<Site model={scoped} path={path} />)}</div>`).replace('<!--site-data-->', () => `<script id="site-data" type="application/json">${data}</script>`)
-    const target = path.endsWith('/404') ? join(root, path.slice(1) + '.html') : join(root, path.slice(1), 'index.html')
-    await mkdir(join(target, '..'), { recursive: true })
-    await writeFile(target, html)
-    await writeFile(path.endsWith('/404') ? target.replace(/\.html$/, '.json') : path === '/' || path === '/zh' || path === '/en' ? join(root, path.slice(1), 'index.json') : join(root, path.slice(1) + '.json'), JSON.stringify(scoped))
+    const target = path.endsWith('/404') ? outputPath(root, path.slice(1) + '.html') : outputPath(root, path.slice(1), 'index.html')
+    await writeOutput(root, target, html)
+    await writeOutput(root, path.endsWith('/404') ? target.replace(/\.html$/, '.json') : path === '/' || path === '/zh' || path === '/en' ? outputPath(root, path.slice(1), 'index.json') : outputPath(root, path.slice(1) + '.json'), JSON.stringify(scoped))
   }
   return model
 }

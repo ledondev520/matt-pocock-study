@@ -14,5 +14,5 @@ export function acceptLanguageHint(header: string | undefined): Lang {
 export function routeInfo(path: string) {
   const lang: Lang = path.split('/')[1] === 'zh' ? 'zh' : 'en'
   const match = /^\/(zh|en)(?:\/([a-z0-9-]+))?\/?$/.exec(path)
-  return { lang, slug: match?.[2], home: path === '/' || (!!match && !match[2]) }
+  return { valid: path === '/' || !!match, lang, slug: match?.[2], home: path === '/' || (!!match && !match[2]) }
 }

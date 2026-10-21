@@ -1,7 +1,12 @@
-import { readFile, readdir, mkdir, writeFile } from 'node:fs/promises'
+import { readFile, readdir } from 'node:fs/promises'
 import { resolve, basename } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { JSDOM } from 'jsdom'
+import { randomUUID } from 'node:crypto'
+import { cssProperties, cssValue, cssDeclarations, cssStylesheet } from './svg-css.mjs'
+import { validateFigureRegistry } from './figure-registry.mjs'
+import { writeOutput } from './output-path.mjs'
+import { existsSync } from 'node:fs'
 
 const SVG = 'http://www.w3.org/2000/svg'
 const XLINK = 'http://www.w3.org/1999/xlink'
@@ -17,8 +22,10 @@ function staticValue(value) {
 }
 
 /** Validate a static SVG subset, then serialize a fresh tree for HTML embedding. */
-export function validateSvg(source) {
-  if (/<!\s*(?:ENTITY|DOCTYPE)|<\?|<!--/i.test(source)) throw new Error('SVG declarations, processing instructions and comments are forbidden')
+export function validateSvg(source, { profile = 'art', lang } = {}) {
+  // XML declarations are parsed for validity, then omitted by serialization.
+  const withoutDeclaration = source.replace(/^\uFEFF?<\?xml\s[^?]*\?>/, '')
+  if (/<!\s*(?:ENTITY|DOCTYPE)|<\?|<!--/i.test(withoutDeclaration)) throw new Error('SVG declarations, processing instructions and comments are forbidden')
   let window
   try { window = new JSDOM(source, { contentType: 'image/svg+xml' }).window }
   catch { throw new Error('Invalid SVG XML') }
@@ -27,14 +34,19 @@ export function validateSvg(source) {
     const root = document.documentElement
     if (root.localName !== 'svg' || root.namespaceURI !== SVG) throw new Error('Expected an SVG root')
     const output = document.implementation.createDocument(SVG, 'svg', null)
+    const scope = `svg-${randomUUID()}`
     function copy(node) {
       if (node.nodeType === 3 || node.nodeType === 4) {
         if (node.nodeType === 4 && node.textContent.includes('<')) throw new Error('Unsafe SVG CDATA')
         return output.createTextNode(node.textContent)
       }
-      if (node.nodeType !== 1 || node.namespaceURI !== SVG || !elements.has(node.localName)) throw new Error('Forbidden SVG element or namespace')
+      if (node.nodeType === 1 && node.namespaceURI === SVG && node.localName === 'metadata') return null
+      const link = node.localName === 'a' && profile === 'diagram'
+      if (node.nodeType !== 1 || node.namespaceURI !== SVG || (!elements.has(node.localName) && !link)) throw new Error('Forbidden SVG element or namespace')
+      if (link && !node.hasAttribute('href')) throw new Error('Diagram anchors require href')
       const clean = output.createElementNS(SVG, node.localName)
       for (const attr of node.attributes) {
+        if (link && attr.name !== 'href') throw new Error('Diagram anchors only allow href')
         if (attr.namespaceURI === XMLNS) {
           if (!((attr.name === 'xmlns' && attr.value === SVG) || (attr.name === 'xmlns:xlink' && attr.value === XLINK))) throw new Error('Forbidden SVG namespace')
           continue
@@ -42,12 +54,20 @@ export function validateSvg(source) {
         if (attr.namespaceURI && !(attr.namespaceURI === XLINK && attr.localName === 'href')) throw new Error('Forbidden attribute namespace')
         if (!attributes.has(attr.localName)) throw new Error(`Forbidden SVG attribute: ${attr.name}`)
         staticValue(attr.value)
-        if (attr.localName === 'href' && !localReference.test(attr.value)) throw new Error('Only local SVG references are allowed')
+        if (attr.localName === 'style') { clean.setAttribute('style', cssDeclarations(attr.value)); continue }
+        if (cssProperties.has(attr.localName)) cssValue(attr.localName, attr.value)
+        if (link && attr.localName === 'href') {
+          const match = /^\/(zh|en)\/([a-z0-9-]+)$/.exec(attr.value)
+          if (attr.namespaceURI || !match || match[1] !== lang || (match[2] !== 'corpus' && !existsSync(`content/${lang}/${match[2]}.md`))) throw new Error('Forbidden diagram link')
+        }
+        if (!link && attr.localName === 'href' && !localReference.test(attr.value)) throw new Error('Only local SVG references are allowed')
         // Normalize xlink:href to SVG2 href; never preserve arbitrary prefixes.
         clean.setAttribute(attr.localName, attr.value)
       }
-      if (node.localName === 'style') staticValue(node.textContent)
-      for (const child of node.childNodes) clean.appendChild(copy(child))
+      if (node === root) clean.setAttribute('class', `${root.getAttribute('class') || ''} ${scope}`.trim())
+      if (node.localName === 'style') {
+        clean.textContent = cssStylesheet(node.textContent, root, scope)
+      } else for (const child of node.childNodes) { const safe = copy(child); if (safe) clean.appendChild(safe) }
       return clean
     }
     output.replaceChild(copy(root), output.documentElement)
@@ -56,7 +76,7 @@ export function validateSvg(source) {
 }
 
 export async function importArt(directory) {
-  const { figures } = JSON.parse(await readFile('data/figures.json', 'utf8'))
+  const { figures } = validateFigureRegistry(JSON.parse(await readFile('data/figures.json', 'utf8')))
   const ids = new Set(figures.filter(f => f.owner === 'art').map(f => f.id))
   const pending = []
   for (const file of (await readdir(directory)).sort()) {
@@ -67,8 +87,7 @@ export async function importArt(directory) {
     pending.push({ file, svg })
   }
   // Validate the complete batch before copying anything.
-  await mkdir('public/art', { recursive: true })
-  for (const { file, svg } of pending) await writeFile(`public/art/${file}`, svg)
+  for (const { file, svg } of pending) await writeOutput('public/art', file, svg)
   return pending.length
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {

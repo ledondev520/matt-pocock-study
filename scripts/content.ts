@@ -1,5 +1,6 @@
-import { mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises'
+import { mkdir, readdir, readFile, rm } from 'node:fs/promises'
 import { join } from 'node:path'
+import { outputPath, writeOutput } from './output-path.mjs'
 import { parse } from 'yaml'
 import { marked, type Token, type Tokens } from 'marked'
 import { sections, type Page, type Section } from '../src/lib/content'
@@ -111,22 +112,22 @@ export async function readPages(contentDir: string): Promise<Page[]> {
 
 export async function buildContent(contentDir: string, outputDir: string, clean = true): Promise<Page[]> {
   const pages = await readPages(contentDir)
-  await mkdir(outputDir, { recursive: true })
+  await mkdir(outputPath(outputDir), { recursive: true })
   for (const lang of languages) {
-    if (clean) await rm(join(outputDir, lang), { recursive: true, force: true })
-    await mkdir(join(outputDir, lang), { recursive: true })
+    if (clean) await rm(outputPath(outputDir, lang), { recursive: true, force: true })
+    await mkdir(outputPath(outputDir, lang), { recursive: true })
     const localized = pages.filter(page => page.lang === lang)
-    for (const page of localized) await writeFile(join(outputDir, lang, `${page.slug}.md`), `# ${page.title}\n\n${page.summary}\n\n${page.markdown}`)
+    for (const page of localized) await writeOutput(outputPath(outputDir, lang), `${page.slug}.md`, `# ${page.title}\n\n${page.summary}\n\n${page.markdown}`)
     const title = lang === 'en' ? 'Matt Pocock study notes' : 'Matt Pocock 学习笔记'
     const summary = lang === 'en' ? 'Independent, unofficial, non-commercial notes. Original works belong to their authors.' : '独立整理，非官方、非商业；原作品版权归原作者。'
     const links = localized.map(page => `- [${page.title}](${siteUrl()}/${lang}/${page.slug}.md): ${page.summary}`).join('\n')
     const index = `# ${title}\n\n> ${summary}\n\n## ${lang === 'en' ? 'Pages' : '页面'}\n\n${links}\n`
     const full = `# ${title}\n\n> ${summary}\n\n${localized.map(page => `## ${page.title}\n\n${page.markdown}`).join('\n---\n\n')}`
-    const base = lang === 'en' ? outputDir : join(outputDir, 'zh')
-    await writeFile(join(base, 'llms.txt'), index)
-    await writeFile(join(base, 'llms-full.txt'), full)
+    const base = lang === 'en' ? outputDir : outputPath(outputDir, 'zh')
+    await writeOutput(base, 'llms.txt', index)
+    await writeOutput(base, 'llms-full.txt', full)
   }
-  await writeFile(join(outputDir, 'content.json'), JSON.stringify(pages))
-  await writeFile(join(outputDir, 'figures.json'), JSON.stringify(await buildFigures(outputDir)))
+  await writeOutput(outputDir, 'content.json', JSON.stringify(pages))
+  await writeOutput(outputDir, 'figures.json', JSON.stringify(await buildFigures(outputDir)))
   return pages
 }
