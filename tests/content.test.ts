@@ -94,6 +94,13 @@ it('every page that cites a reused MIT source ships that source\'s full licence 
 it('licence text is fixed by hash and rejected when edited or unknown', async () => {
   const { licenceText } = await import('../scripts/licences')
   expect(() => licenceText('nope')).toThrow(/Unknown licence id/)
+  for (const [id, entry] of Object.entries(licences)) {
+    const original = await readFile(entry.file, 'utf8')
+    expect(licenceText(id)).toBe(original)
+    // Same file, one changed year / one extra byte: the pinned hash must reject both.
+    expect(() => licenceText(id, () => original.replace(/Copyright \(c\) (\d{4})/, (_, year) => `Copyright (c) ${Number(year) + 1}`))).toThrow(/Licence text changed/)
+    expect(() => licenceText(id, () => original + ' ')).toThrow(/Licence text changed/)
+  }
   await expect(renderMarkdown('```licence\nid: nope\n```', 'en')).rejects.toThrow(/Unknown licence id/)
 })
 

@@ -23,10 +23,11 @@ export const licences = {
 
 export type LicenceId = keyof typeof licences
 
-export function licenceText(id: string): string {
+/** `read` exists so tests can feed altered bytes through the real hash check. */
+export function licenceText(id: string, read: (file: string) => string = file => readFileSync(file, 'utf8')): string {
   if (!Object.hasOwn(licences, id)) throw new Error(`Unknown licence id: ${id}`)
   const entry = licences[id as LicenceId]
-  const text = readFileSync(entry.file, 'utf8')
+  const text = read(entry.file)
   if (createHash('sha256').update(text).digest('hex') !== entry.sha256) throw new Error(`Licence text changed: ${entry.file}`)
   return text
 }
