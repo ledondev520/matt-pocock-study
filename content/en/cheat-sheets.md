@@ -80,7 +80,7 @@ An unverified field should identify behaviours not run, missing environment and 
 | Trigger | First move | Full explanation |
 | --- | --- | --- |
 | Unknown input | Accept unknown, validate at runtime | [TS foundations](/en/typescript-foundations) |
-| Type relationships | Connect input and output types | [Practical type tools](/en/practical-type-tools) |
+| Type relationships | Connect input and output types | [TypeScript foundations](/en/typescript-foundations) |
 | Key types | Distinguish valid keys from arbitrary strings | [Practical type tools](/en/practical-type-tools) |
 | Contradictory states | List valid states and transitions | [States and boundaries](/en/state-and-module-boundaries) |
 

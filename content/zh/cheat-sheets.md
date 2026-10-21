@@ -83,7 +83,7 @@ PR 来源保留对 Dex Horthy / HumanLayer 的[上游致谢](https://github.com/
 | 遇到什么 | 先做什么 | 完整解释 |
 | --- | --- | --- |
 | 未知输入 | 接收 unknown，运行时验证 | [TS 基础](/zh/typescript-foundations) |
-| 类型关系 | 表达输入与输出关联 | [实用类型工具](/zh/practical-type-tools) |
+| 类型关系 | 表达输入与输出关联 | [TypeScript 基础](/zh/typescript-foundations) |
 | 键类型 | 区分合法键与任意字符串 | [实用类型工具](/zh/practical-type-tools) |
 | 矛盾状态 | 列合法状态与转换 | [状态与边界](/zh/state-and-module-boundaries) |
 
