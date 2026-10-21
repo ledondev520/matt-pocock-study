@@ -71,7 +71,7 @@ The following structures adapt Matt Pocock's [skills repository](https://github.
 
 The PR source credits Dex Horthy / HumanLayer's [upstream work](https://github.com/humanlayer/skills/blob/main/plugins/show-me/skills/show-me/SKILL.md). We retain that credit without taking upstream content or assuming its licence.
 
-Our added examples and explanations are our writing. This register covers both languages, single-page Markdown and language-specific bundles. Exports must retain authorship, source files and full notices. The complete skills MIT licence follows below.
+Our added examples and explanations are our writing. This register covers both languages, single-page Markdown and language-specific bundles. Exports must retain authorship, source files and full notices. The skills MIT copyright line and a link to the licence text appear at the end of this page.
 
 ## Known gaps and corrections
 

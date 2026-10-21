@@ -57,7 +57,7 @@ Adapted from Matt Pocock's [skills repository](https://github.com/mattpocock/ski
 id: d16-practice-loop
 ```
 
-Teach one small concept, then ask for a decision. Define completion as handling an unfamiliar input. Reading smoothly is insufficient evidence. The full licence appears below and on the [copyright page](/en/about-and-copyright).
+Teach one small concept, then ask for a decision. Define completion as handling an unfamiliar input. Reading smoothly is insufficient evidence. The copyright line and a link to the licence text appear below and on the [copyright page](/en/about-and-copyright).
 
 ## Check the teaching too
 

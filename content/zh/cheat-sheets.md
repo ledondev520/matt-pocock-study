@@ -56,7 +56,7 @@ id: d19-rule-placement
 
 ## 验证与交接
 
-以下字段压缩自 Matt Pocock 的 [skills 仓库](https://github.com/mattpocock/skills)，MIT 改编；完整许可见页末及[版权页](/zh/about-and-copyright)。
+以下字段压缩自 Matt Pocock 的 [skills 仓库](https://github.com/mattpocock/skills)，MIT 改编；版权行与许可原文链接见页末及[版权页](/zh/about-and-copyright)。
 
 <!-- compare -->
 | 字段 | 留下什么 | 回到原课 |
@@ -84,7 +84,7 @@ PR 来源保留对 Dex Horthy / HumanLayer 的[上游致谢](https://github.com/
 | --- | --- | --- |
 | 未知输入 | 接收 unknown，运行时验证 | [TS 基础](/zh/typescript-foundations) |
 | 类型关系 | 表达输入与输出关联 | [TypeScript 基础](/zh/typescript-foundations) |
-| 键类型 | 区分合法键与任意字符串 | [实用类型工具](/zh/practical-type-tools) |
+| 键类型 | 确认键可能是 string、number 还是 symbol | [实用类型工具](/zh/practical-type-tools) |
 | 矛盾状态 | 列合法状态与转换 | [状态与边界](/zh/state-and-module-boundaries) |
 
 ```note

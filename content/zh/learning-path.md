@@ -70,7 +70,7 @@ id: d20-routes
 - **换种情境** 混合输入与失败条件，检查是否会选择方法。
 ```
 
-完整许可见页末及[版权页](/zh/about-and-copyright)。以上顺序由本站设计，不是 Matt 的官方路径，也不承诺固定学习小时数。
+版权行与许可原文链接见页末及[版权页](/zh/about-and-copyright)。以上顺序由本站设计，不是 Matt 的官方路径，也不承诺固定学习小时数。
 
 ```note
 kind: inference

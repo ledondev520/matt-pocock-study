@@ -98,7 +98,7 @@ answer: 未决问题是跨页是否遗漏。下一步用 42 条匹配数据验�
 
 - Matt Pocock，[经验判断](https://x.com/mattpocockuk/status/2087111966854730148)，2026-08-11。
 - [skills 仓库][skills]：上述 handoff 结构改编；Copyright (c) 2026 Matt Pocock。
-- [本站版权说明](/zh/about-and-copyright)；许可全文随本页保留。
+- [本站版权说明](/zh/about-and-copyright)；版权行与 MIT 许可原文链接见页末。
 
 [skills]: https://github.com/mattpocock/skills
 

@@ -97,7 +97,7 @@ kind: inference
 - Matt Pocock，[评审证据与合并风险](https://x.com/mattpocockuk/status/2107062474914550098)，2026-10-05。
 - [skills 仓库][skills]：上列两份结构改编；Copyright (c) 2026 Matt Pocock。
 - [show-me 上游致谢][showme]，Dex Horthy / HumanLayer；仅列来源。
-- [本站版权说明](/zh/about-and-copyright)；下附改编结构所用的完整许可。
+- [本站版权说明](/zh/about-and-copyright)；改编结构的版权行与 MIT 许可原文链接见页末。
 
 [skills]: https://github.com/mattpocock/skills
 [showme]: https://github.com/humanlayer/skills/blob/main/plugins/show-me/skills/show-me/SKILL.md

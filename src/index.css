@@ -468,11 +468,9 @@ code { font-family: 'JetBrains Mono', monospace; font-size: .88em; }p code, li c
   .header-tools { gap: 4px; flex-shrink: 0; }
 }
 
-/* Corpus page: the search panel comes straight after the title so it is on the first screen
-   (phones and desktop); the intro text follows the results. Intro headings get their own space. */
-.corpus-reader { display: flex; flex-direction: column; }
-.corpus-reader .corpus-panel { order: 1; }
-.corpus-reader .corpus-intro-prose { order: 2; margin-top: 40px; }
+/* Corpus page: DOM order is title → search/results → intro, so visual, keyboard and reading
+   order agree and the search panel is on the first screen. Intro headings get their own space. */
+.corpus-intro-prose { margin-top: 40px; }
 .corpus-intro-prose p { font-size: 18px; line-height: 1.85; margin-top: 12px; }
 .corpus-intro-prose h2 { margin-top: 32px; margin-bottom: 4px; font-size: 22px; line-height: 1.5; font-weight: 700; }
 @media (max-width: 720px) {

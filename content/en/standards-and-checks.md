@@ -12,7 +12,7 @@ updated: 2026-10-21
 
 ## The reminder is there. The mistake keeps returning.
 
-Review finds another import from a domain module into a UI component. Last time, someone added “watch import direction” to the instructions. A person still has to catch the same mistake. First decide whether the rule has a mechanically checkable answer.
+Review finds another domain module importing a UI component. Last time, someone added “watch import direction” to the instructions. A person still has to catch the same mistake. First decide whether the rule has a mechanically checkable answer.
 
 Natural-language reminders spend judgement on a repeatable fact. Other questions, such as whether an abstraction earns its complexity, depend on context and need a reasoned review.
 

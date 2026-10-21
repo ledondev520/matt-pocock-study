@@ -55,7 +55,7 @@ Navigation points a collaborator to information; checks reject mechanically dete
 
 ## Verification and handoff
 
-These fields condense structures from Matt Pocock's [skills repository](https://github.com/mattpocock/skills), adapted under MIT. The full licence appears below and on the [copyright page](/en/about-and-copyright).
+These fields condense structures from Matt Pocock's [skills repository](https://github.com/mattpocock/skills), adapted under MIT. The copyright line and a link to the licence text appear below and on the [copyright page](/en/about-and-copyright).
 
 <!-- compare -->
 | Field | What to retain | Full lesson |
@@ -81,7 +81,7 @@ An unverified field should identify behaviours not run, missing environment and 
 | --- | --- | --- |
 | Unknown input | Accept unknown, validate at runtime | [TS foundations](/en/typescript-foundations) |
 | Type relationships | Connect input and output types | [TypeScript foundations](/en/typescript-foundations) |
-| Key types | Distinguish valid keys from arbitrary strings | [Practical type tools](/en/practical-type-tools) |
+| Key types | Check whether a key may be a string, number or symbol | [Practical type tools](/en/practical-type-tools) |
 | Contradictory states | List valid states and transitions | [States and boundaries](/en/state-and-module-boundaries) |
 
 ```note

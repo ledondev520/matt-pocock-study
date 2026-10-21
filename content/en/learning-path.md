@@ -69,7 +69,7 @@ The small-win, practice and review structure adapts Matt Pocock's [skills reposi
 - **Change the context** Mix inputs and failure conditions to practise selecting a method.
 ```
 
-The full licence appears below and on the [copyright page](/en/about-and-copyright). These route sequences are this site's design. They are not Matt's official learning path and promise no fixed completion time.
+The copyright line and a link to the licence text appear below and on the [copyright page](/en/about-and-copyright). These route sequences are this site's design. They are not Matt's official learning path and promise no fixed completion time.
 
 ```note
 kind: inference
