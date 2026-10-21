@@ -24,8 +24,17 @@ describe('API (Hono app.request, no listening port)', () => {
   it('lists only the selected language, in content order', async () => {
     const response = await app.request('/api/pages?lang=zh')
     const pages = await response.json()
-    const expected = (await readPages('content')).filter(p => p.lang === 'zh').map(p => p.slug)
-    expect(pages.map((p: { slug: string }) => p.slug)).toEqual(expected)
+    expect(pages.map((p: { lang: string; slug: string }) => ({ lang: p.lang, slug: p.slug }))).toEqual([
+      { lang: 'zh', slug: 'corpus' },
+      { lang: 'zh', slug: 'learn-from-matt' },
+      { lang: 'zh', slug: 'specs-and-tickets' },
+    ])
+    const english = await (await app.request('/api/pages?lang=en')).json()
+    expect(english.map((p: { lang: string; slug: string }) => ({ lang: p.lang, slug: p.slug }))).toEqual([
+      { lang: 'en', slug: 'corpus' },
+      { lang: 'en', slug: 'learn-from-matt' },
+      { lang: 'en', slug: 'specs-and-tickets' },
+    ])
     expect(pages[0]).not.toHaveProperty('markdown')
   })
   it('searches English and Chinese through SQLite', async () => {
@@ -43,4 +52,8 @@ describe('API (Hono app.request, no listening port)', () => {
     expect((await app.request(`/api/search?q=${'x'.repeat(201)}`)).status).toBe(400)
     expect((await app.request('/api/missing')).status).toBe(404)
   })
+})
+
+it.each(['\0', '\t', '\n', '\r', '\x1f', '\x7f', '\u0085'])('rejects search control character %j', async q => {
+  expect((await app.request('/api/search?' + new URLSearchParams({ q: 'a' + q + 'b' }))).status).toBe(400)
 })

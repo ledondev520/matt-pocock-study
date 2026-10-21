@@ -41,3 +41,10 @@ it.each(['sort=wrong', 'limit=201', 'limit=1.5', 'offset=-1', 'from=nope', 'from
 it('includes timestamped records through the final day of a date range', async () => {
   expect((await get('?from=2026-03-04&to=2026-03-04')).items.map((r: CorpusRecord) => r.id)).toEqual(['b'])
 })
+
+it.each(['q=a%00b', 'q=%01', 'q=%09', 'q=%0A', 'q=%0D', 'q=%1F', 'q=%7F', 'q=%C2%85', 'offset=1e19', 'offset=1e100', 'offset=9007199254740992', 'offset=100001', 'offset=1.5', 'limit=1e19', 'limit=Infinity'])('rejects unsafe API input %s', async params => {
+  expect((await app.request('/api/corpus?' + params)).status).toBe(400)
+})
+it('accepts the paging boundaries', async () => {
+  expect((await app.request('/api/corpus?offset=100000&limit=200')).status).toBe(200)
+})

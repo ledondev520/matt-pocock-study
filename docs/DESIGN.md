@@ -122,4 +122,3 @@ Both figures are hand-written inline SVG React components in `src/Diagrams.tsx`.
 | Both | Code: Line number | #A394B8 | #171126 | 6.54:1 | PASS |
 | Both | Code toolbar | #C2B7D6 | #211930 | 8.86:1 | PASS |
 <!-- contrast:end -->
-

@@ -146,3 +146,23 @@ test('a quote block text line is allowed only when the block has an http(s) url 
   const otherLine = findRuns(`\`\`\`quote\ntext: hi\nnote: ${quote}\nurl: https://example.com/q\n\`\`\`\n`, hashes);
   assert.equal(otherLine[0].allowed, false);
 });
+
+test('quote exemption rejects fake fences, repeated fields, overlong text and missing URL', async () => {
+  const words = Array.from({ length: 64 }, (_, i) => `word${i}`);
+  const { hashes } = await buildSourceIndex([words.join(' ')]);
+  const short = words.slice(0, 16).join(' ');
+  const cases = [
+    `\`\`\`quote-x\ntext: ${short}\nurl: https://example.org\n\`\`\``,
+    `\`\`\`quote extra\ntext: ${short}\nurl: https://example.org\n\`\`\``,
+    `\`\`\`quote\ntext: ${short}\ntext: ${words.slice(16, 32).join(' ')}\nurl: https://example.org\n\`\`\``,
+    `\`\`\`quote\ntext: ${words.slice(0, 31).join(' ')}\nurl: https://example.org\n\`\`\``,
+    `\`\`\`quote\ntext: ${short}\n\`\`\``,
+    `\`\`\`quote\ntext: ${short}\nurl: https://example.org\nurl: https://example.org/two\n\`\`\``,
+  ];
+  for (const text of cases) {
+    const hits = findRuns(text, hashes);
+    assert.ok(hits.length > 0);
+    assert.ok(hits.every(hit => !hit.allowed), text);
+  }
+  assert.equal(findRuns(`\`\`\`quote\ntext: ${words.slice(0, 30).join(' ')}\nurl: https://example.org\n\`\`\``, hashes)[0].allowed, true);
+});

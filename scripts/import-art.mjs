@@ -3,32 +3,56 @@ import { resolve, basename } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { JSDOM } from 'jsdom'
 
-/** Parse as XML so encoded attribute values cannot bypass reference checks. */
+const SVG = 'http://www.w3.org/2000/svg'
+const XLINK = 'http://www.w3.org/1999/xlink'
+const XMLNS = 'http://www.w3.org/2000/xmlns/'
+const elements = new Set('svg g defs symbol use path rect circle ellipse line polyline polygon text tspan title desc linearGradient radialGradient stop clipPath mask pattern marker style'.split(' '))
+const attributes = new Set(`id class role aria-label aria-labelledby aria-describedby aria-hidden viewBox width height x y x1 y1 x2 y2 cx cy r rx ry d points transform fill fill-opacity fill-rule stroke stroke-width stroke-opacity stroke-linecap stroke-linejoin stroke-dasharray stroke-dashoffset stroke-miterlimit opacity color style href font-family font-size font-weight font-style text-anchor dominant-baseline alignment-baseline letter-spacing textLength lengthAdjust dx dy rotate offset stop-color stop-opacity gradientUnits gradientTransform spreadMethod fx fy fr clip-path clip-rule clipPathUnits mask maskUnits maskContentUnits patternUnits patternContentUnits patternTransform preserveAspectRatio marker-start marker-mid marker-end markerWidth markerHeight markerUnits refX refY orient overflow vector-effect`.split(/\s+/))
+const localReference = /^#[A-Za-z_][\w:.-]*$/
+function staticValue(value) {
+  // Forbid CSS obfuscation and HTML raw-text breakouts before checking URLs.
+  if (/\\|\/\*|@import|expression|<|\]\]>|(?:data|javascript)\s*:/i.test(value)) throw new Error('Unsafe SVG value')
+  const remaining = value.replace(/url\(\s*(?:"(#[A-Za-z_][\w:.-]*)"|'(#[A-Za-z_][\w:.-]*)'|(#[A-Za-z_][\w:.-]*))\s*\)/gi, '')
+  if (/url\s*\(/i.test(remaining)) throw new Error('Only local SVG URLs are allowed')
+}
+
+/** Validate a static SVG subset, then serialize a fresh tree for HTML embedding. */
 export function validateSvg(source) {
-  if (/<!\s*(?:ENTITY|DOCTYPE)/i.test(source)) throw new Error('SVG entities and doctypes are forbidden')
-  let document
-  try { document = new JSDOM(source, { contentType: 'image/svg+xml' }).window.document }
+  if (/<!\s*(?:ENTITY|DOCTYPE)|<\?|<!--/i.test(source)) throw new Error('SVG declarations, processing instructions and comments are forbidden')
+  let window
+  try { window = new JSDOM(source, { contentType: 'image/svg+xml' }).window }
   catch { throw new Error('Invalid SVG XML') }
-  if (document.documentElement.localName !== 'svg') throw new Error('Expected an SVG root')
-  const external = value => {
-    const normalized = [...value].filter(char => char.charCodeAt(0) > 32 && char.charCodeAt(0) !== 127).join('')
-    return /^(?:[a-z][a-z\d+.-]*:|\/\/)/i.test(normalized) && !/^data:image\//i.test(normalized)
-  }
-  function checkReferences(value) {
-    if (/\\|\/\*/.test(value)) throw new Error('Escaped SVG values are forbidden')
-    for (const match of value.matchAll(/url\(\s*(?:"([^"]*)"|'([^']*)'|([^)]*))\s*\)/gi)) if (external(match[1] ?? match[2] ?? match[3])) throw new Error('External SVG URL')
-    if (/@import/i.test(value)) throw new Error('SVG imports are forbidden')
-  }
-  for (const node of document.querySelectorAll('*')) {
-    if (node.localName.toLowerCase() === 'style') checkReferences(node.textContent)
-    if (['script', 'foreignobject', 'iframe', 'embed', 'object'].includes(node.localName.toLowerCase())) throw new Error(`Forbidden SVG element: ${node.localName}`)
-    for (const attr of node.attributes) {
-      if (/^on/i.test(attr.localName)) throw new Error('SVG event attributes are forbidden')
-      if (['href', 'base'].includes(attr.localName) && external(attr.value)) throw new Error('External SVG reference')
-      checkReferences(attr.value)
+  try {
+    const document = window.document
+    const root = document.documentElement
+    if (root.localName !== 'svg' || root.namespaceURI !== SVG) throw new Error('Expected an SVG root')
+    const output = document.implementation.createDocument(SVG, 'svg', null)
+    function copy(node) {
+      if (node.nodeType === 3 || node.nodeType === 4) {
+        if (node.nodeType === 4 && node.textContent.includes('<')) throw new Error('Unsafe SVG CDATA')
+        return output.createTextNode(node.textContent)
+      }
+      if (node.nodeType !== 1 || node.namespaceURI !== SVG || !elements.has(node.localName)) throw new Error('Forbidden SVG element or namespace')
+      const clean = output.createElementNS(SVG, node.localName)
+      for (const attr of node.attributes) {
+        if (attr.namespaceURI === XMLNS) {
+          if (!((attr.name === 'xmlns' && attr.value === SVG) || (attr.name === 'xmlns:xlink' && attr.value === XLINK))) throw new Error('Forbidden SVG namespace')
+          continue
+        }
+        if (attr.namespaceURI && !(attr.namespaceURI === XLINK && attr.localName === 'href')) throw new Error('Forbidden attribute namespace')
+        if (!attributes.has(attr.localName)) throw new Error(`Forbidden SVG attribute: ${attr.name}`)
+        staticValue(attr.value)
+        if (attr.localName === 'href' && !localReference.test(attr.value)) throw new Error('Only local SVG references are allowed')
+        // Normalize xlink:href to SVG2 href; never preserve arbitrary prefixes.
+        clean.setAttribute(attr.localName, attr.value)
+      }
+      if (node.localName === 'style') staticValue(node.textContent)
+      for (const child of node.childNodes) clean.appendChild(copy(child))
+      return clean
     }
-  }
-  return source
+    output.replaceChild(copy(root), output.documentElement)
+    return new window.XMLSerializer().serializeToString(output.documentElement)
+  } finally { window.close() }
 }
 
 export async function importArt(directory) {

@@ -52,15 +52,18 @@ export async function buildSourceIndex(texts) {
   return { hashes, fields };
 }
 
-// Character ranges of the `text:` line of each ```quote block that also carries an
-// http(s) `url:` field. Such a line is a linked quotation, like a quote with an inline link.
+// Only the renderer's exact quote fence with one short text and one URL qualifies.
 function linkedQuoteLines(text) {
   const ranges = [];
-  for (const block of text.matchAll(/^```quote[^\n]*\n([\s\S]*?)^```/gm)) {
+  for (const block of text.matchAll(/^```quote\n([\s\S]*?)^```$/gm)) {
     const body = block[1];
-    if (!/^url:\s*https?:\/\/\S+/m.test(body)) continue;
+    const lines = [...body.matchAll(/^text:.*$/gm)];
+    const urls = [...body.matchAll(/^url:.*$/gm)];
+    if (lines.length !== 1 || urls.length !== 1 || !/^url: https?:\/\/\S+$/.test(urls[0][0])) continue;
+    const quote = lines[0][0].slice(5).trim();
+    if (!quote || quote.split(/\s+/).length > 30 || tokenize(quote).length > 30) continue;
     const bodyStart = block.index + block[0].indexOf('\n') + 1;
-    for (const line of body.matchAll(/^text:.*$/gm)) ranges.push([bodyStart + line.index, bodyStart + line.index + line[0].length]);
+    ranges.push([bodyStart + lines[0].index, bodyStart + lines[0].index + lines[0][0].length]);
   }
   return ranges;
 }

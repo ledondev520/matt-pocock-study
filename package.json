@@ -11,7 +11,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run && node --test test/corpus/ && npm run contrast",
     "build:content": "tsx scripts/build-content.ts",
-    "build": "npm run build:content && vite build && tsx scripts/static.tsx",
+    "build": "npm run build:content && npm run og && vite build && tsx scripts/static.tsx",
     "start": "tsx server/index.ts",
     "dev": "npm run build:content && concurrently -k \"tsx watch --include 'content/**/*.md' server/index.ts --dev\" \"vite --host localhost\"",
     "corpus:x": "node scripts/corpus/fetch-x.mjs",
@@ -21,7 +21,7 @@
     "corpus:summaries": "node scripts/corpus/apply-summaries.mjs",
     "check:overlap": "node scripts/check-overlap.mjs",
     "contrast": "node scripts/contrast.mjs",
-    "og": "node scripts/og.mjs",
+    "og": "tsx scripts/og.mjs",
     "import:art": "node scripts/import-art.mjs",
     "review": "node scripts/review.mjs"
   },

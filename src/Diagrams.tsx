@@ -1,11 +1,10 @@
 export type Language = 'zh' | 'en';
 type Props = { lang: Language; pageHref?: string; links?: Record<string, string> };
 
-export function ChainFigure({ lang, links = {} }: Props) {
+export function ChainFigure({ lang }: Props) {
   const zh = lang === 'zh';
   const names = zh ? ['对齐', '规格', '工单', '实现', '评审', 'PR'] : ['Align', 'Spec', 'Tickets', 'Implement', 'Review', 'PR'];
   const labels = zh ? ['先问清楚再动手', '把决定写下来', '切成可验收的小块', '小步提交，跑反馈', '对照规范拦问题', '证据 + 回滚方式'] : ['Ask before you build', 'Write decisions down', 'Small, verifiable slices', 'Small steps, run feedback', 'Check against standards', 'Evidence and rollback'];
-  const routes = ['alignment-and-prototypes', 'specs-and-tickets', 'specs-and-tickets', 'implementation-and-feedback', 'review-and-pr', 'review-and-pr'];
   return <figure className="chain-figure">
     <svg viewBox="0 0 360 638" aria-labelledby="chain-title chain-desc" className="chain-svg">
       <title id="chain-title">AI coding 工作流 / The AI coding chain</title>
@@ -16,12 +15,12 @@ export function ChainFigure({ lang, links = {} }: Props) {
         const y = 42 + i * 79;
         return <g key={name}>
           {i < 5 && <path d={`M194 ${y + 64}v13`} className="chain-line" markerEnd="url(#chain-arrow)" />}
-          <a href={links[routes[i]] ?? (i === 1 || i === 2 ? `/${lang}/specs-and-tickets` : `/${lang}#topics`)} aria-label={`${name}: ${labels[i]}`}>
+          <g aria-label={`${name}: ${labels[i]}`}>
             <rect x="46" y={y} width="302" height="64" rx="8" className={i === 5 ? 'chain-final' : 'chain-node'} />
             <text x="62" y={y + 25} className={i === 5 ? 'chain-number final-ink' : 'chain-number'}>{`0${i + 1}`}</text>
             <text x="100" y={y + 25} className={i === 5 ? 'chain-name final-ink' : 'chain-name'}>{name}<tspan x="328" textAnchor="end">↗</tspan></text>
             <text x="62" y={y + 50} className={i === 5 ? 'chain-label final-ink' : 'chain-label'}>{labels[i]}</text>
-          </a>
+          </g>
         </g>;
       })}
       <path d="M46 390 H18 V74 H42" className="chain-line loop-line" markerEnd="url(#chain-arrow)" />

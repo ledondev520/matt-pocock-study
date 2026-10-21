@@ -23,3 +23,5 @@ check.png
 
 # Generated downloadable figure fallbacks
 public/figures/
+public/figures.json
+public/og/

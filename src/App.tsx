@@ -1,20 +1,42 @@
 import { useEffect, useState } from 'react'
 import { Site } from './Site'
-import type { Model } from './lib/content'
+import type { Model, Page } from './lib/content'
 import { metadata } from './lib/metadata'
-import { pickLang } from './lib/lang'
+import { pickLang, routeInfo } from './lib/lang'
 import { savePreference, storedPreference } from './lib/preferences'
 
-export function App({ model }: { model: Model }) {
+export function App({ model: initialModel }: { model: Model }) {
+  const [model, setModel] = useState(initialModel)
   const [path, setPath] = useState(window.location.pathname)
   const [dark, setDark] = useState(false)
   useEffect(() => {
     setDark(document.documentElement.classList.contains('dark'))
+    let navigation = 0
+    async function navigate(target: string, push = false) {
+      const version = ++navigation
+      const url = new URL(target, location.href)
+      const { lang, slug, home } = routeInfo(url.pathname)
+      try {
+        let next: Model
+        if (import.meta.env.DEV) {
+          const pages: Page[] = await (await fetch('/content.json')).json()
+          next = { ...initialModel, pages, currentPage: pages.find(p => p.lang === lang && p.slug === slug) }
+        } else {
+          const response = await fetch(home ? `/${lang}/index.json` : `/${lang}/${slug}.json`)
+          if (!response.ok) throw new Error('Page data unavailable')
+          next = await response.json()
+        }
+        if (version !== navigation) return
+        if (push) history.pushState(null, '', url.pathname + url.hash)
+        setModel(next); setPath(url.pathname)
+        requestAnimationFrame(() => { if (url.hash) document.getElementById(url.hash.slice(1))?.scrollIntoView(); else window.scrollTo(0, 0) })
+      } catch { if (version === navigation) location.assign(url.href) }
+    }
     if (window.location.pathname === '/') {
       const target = `/${pickLang(storedPreference('lang'), navigator.language)}`
-      history.replaceState(null, '', target); setPath(target)
+      history.replaceState(null, '', target); void navigate(target)
     }
-    const pop = () => setPath(window.location.pathname)
+    const pop = () => { void navigate(window.location.pathname) }
     const click = (event: MouseEvent) => {
       if (event.defaultPrevented || event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return
       const target = event.target instanceof Element ? event.target.closest('a') : null
@@ -24,8 +46,7 @@ export function App({ model }: { model: Model }) {
       const url = new URL(href, location.href)
       if (url.origin !== location.origin || !/^\/(zh|en)(\/[-a-z0-9]+)?\/?$/.test(url.pathname)) return
       if (url.pathname === location.pathname && url.hash) return
-      event.preventDefault(); history.pushState(null, '', url.pathname + url.hash); setPath(url.pathname)
-      requestAnimationFrame(() => { if (url.hash) document.getElementById(url.hash.slice(1))?.scrollIntoView(); else window.scrollTo(0, 0) })
+      event.preventDefault(); void navigate(url.pathname + url.hash, true)
     }
     const copy = async (event: MouseEvent) => {
       const button = event.target instanceof Element ? event.target.closest<HTMLButtonElement>('[data-copy]') : null
@@ -34,8 +55,8 @@ export function App({ model }: { model: Model }) {
       catch { button.textContent = document.documentElement.lang === 'zh' ? '请手动选择复制' : 'Select text to copy' }
     }
     window.addEventListener('popstate', pop); document.addEventListener('click', click); document.addEventListener('click', copy)
-    return () => { window.removeEventListener('popstate', pop); document.removeEventListener('click', click); document.removeEventListener('click', copy) }
-  }, [])
+    return () => { navigation++; window.removeEventListener('popstate', pop); document.removeEventListener('click', click); document.removeEventListener('click', copy) }
+  }, [initialModel])
   useEffect(() => {
     const m = metadata(model, path)
     document.documentElement.lang = m.lang; document.title = m.title

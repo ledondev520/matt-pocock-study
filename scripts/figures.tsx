@@ -8,12 +8,16 @@ import type { Figures } from '../src/lib/content'
 import { validateSvg } from './import-art.mjs'
 
 export const escapeHtml = (value: string) => value.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!)
+// Hand-written fallbacks pass through the same SVG boundary as imported diagrams.
+function validatedMarkup(html: string) {
+  return html.replace(/<svg[\s\S]*?<\/svg>/g, svg => validateSvg(svg.replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" ')))
+}
 export const figureById = (id: string) => registry.figures.find(f => f.id === id)
 async function exists(file: string) { try { await access(file); return true } catch { return false } }
 export async function figureHtml(id: string, lang: Lang, assetRoot = 'public'): Promise<string> {
   const f = figureById(id)
   if (!f) throw new Error(`Unknown figure id: ${id}`)
-  if (id === 'home-hero') return renderToStaticMarkup(<ChainFigure lang={lang} />)
+  if (id === 'home-hero') return validatedMarkup(renderToStaticMarkup(<ChainFigure lang={lang} />))
   const alt = `${f.alt.zh} / ${f.alt.en}`
   const caption = escapeHtml(f.caption[lang])
   const path = `/${f.owner === 'diagram' ? 'diagrams' : 'art'}/${id}.${lang}.svg`
@@ -26,7 +30,7 @@ export async function figureHtml(id: string, lang: Lang, assetRoot = 'public'): 
     const dark = await exists(`${assetRoot}${darkPath}`) ? darkPath : path
     return `<figure class="registry-figure" data-figure="${id}"><img class="art-light" src="${path}" alt="${escapeHtml(alt)}"><img class="art-dark" src="${dark}" alt="${escapeHtml(alt)}"><figcaption>${caption}</figcaption></figure>`
   }
-  if (id === 's06-tracer') return renderToStaticMarkup(<TracerFigure lang={lang} />)
+  if (id === 's06-tracer') return validatedMarkup(renderToStaticMarkup(<TracerFigure lang={lang} />))
   const [, , width, height] = f.viewBox.split(/\s+/).map(Number)
   return `<figure class="registry-figure placeholder-figure" data-figure="${id}"><div class="figure-placeholder" role="img" aria-label="${escapeHtml(alt)}" style="aspect-ratio:${width}/${height}"><span>${id} · ${width}×${height}</span><p>${caption}</p></div><figcaption>${caption}</figcaption></figure>`
 }
@@ -36,7 +40,7 @@ export async function buildFigures(outputDir?: string): Promise<Figures> {
     result[lang][f.id] = await figureHtml(f.id, lang)
     if (outputDir) {
       await mkdir(`${outputDir}/figures`, { recursive: true })
-      await writeFile(`${outputDir}/figures/${f.id}.${lang}.svg`, await downloadableFigure(f.id, lang))
+      await writeFile(`${outputDir}/figures/${f.id}.${lang}.svg`, validateSvg(await downloadableFigure(f.id, lang)))
     }
   }
   return result

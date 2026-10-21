@@ -3,7 +3,7 @@ import { join } from 'node:path'
 import { Hono } from 'hono'
 import { serveStatic } from '@hono/node-server/serve-static'
 import type Database from 'better-sqlite3'
-import { acceptLanguageHint, pickLang } from '../src/lib/lang'
+import { acceptLanguageHint, pickLang, routeInfo } from '../src/lib/lang'
 import { listPages, searchPages } from './db'
 import { loadCorpus, queryCorpus, importCorpus, corpusTags, type CorpusRecord } from './corpus'
 
@@ -23,7 +23,7 @@ export function createApp(db: Database.Database, staticRoot?: string, corpus: Co
   app.get('/api/pages', (c) => c.json(listPages(db, pickLang(c.req.query('lang') ?? null, undefined))))
   app.get('/api/search', (c) => {
     const query = c.req.query('q') ?? ''
-    if (query.length > 200) return c.json({ error: 'Search query is too long' }, 400)
+    if (query.length > 200 || /[\p{Cc}]/u.test(query)) return c.json({ error: 'Search query is too long' }, 400)
     return c.json(searchPages(db, pickLang(c.req.query('lang') ?? null, undefined), query))
   })
   app.get('/api/corpus', (c) => {
@@ -35,17 +35,17 @@ export function createApp(db: Database.Database, staticRoot?: string, corpus: Co
     const tag = c.req.query('tag') ?? ''
     const from = c.req.query('from'), to = c.req.query('to')
     const validDate = (value: string | undefined) => !value || (/^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(value)) && new Date(value).toISOString().slice(0, 10) === value)
-    if (q.length > 200 || tag.length > 100 || !validDate(from) || !validDate(to) || (from && to && from > to)) return c.json({ error: 'Invalid search or date range' }, 400)
+    if (q.length > 200 || /[\p{Cc}]/u.test(q) || tag.length > 100 || !validDate(from) || !validDate(to) || (from && to && from > to)) return c.json({ error: 'Invalid search or date range' }, 400)
     const limit = Number(c.req.query('limit') ?? 50)
     const offset = Number(c.req.query('offset') ?? 0)
-    if (!Number.isInteger(limit) || limit < 1 || limit > 200 || !Number.isInteger(offset) || offset < 0) return c.json({ error: 'Bad paging' }, 400)
+    if (!Number.isSafeInteger(limit) || limit < 1 || limit > 200 || !Number.isSafeInteger(offset) || offset < 0 || offset > 100000) return c.json({ error: 'Bad paging' }, 400)
     return c.json(queryCorpus(db, { q: c.req.query('q'), type, tag: c.req.query('tag'), from: c.req.query('from'), to: c.req.query('to'), sort, limit, offset }))
   })
   app.all('/api/*', (c) => c.json({ error: 'Not found' }, 404))
   if (staticRoot) {
     app.use('*', serveStatic({ root: staticRoot }))
     app.get('*', (c) => {
-      const html = readFileSync(join(staticRoot, c.req.path.startsWith('/zh/') ? 'zh/404.html' : c.req.path.startsWith('/en/') ? 'en/404.html' : '404.html'), 'utf8')
+      const html = readFileSync(join(staticRoot, `${routeInfo(c.req.path).lang}/404.html`), 'utf8')
       return c.html(html, 404)
     })
   }

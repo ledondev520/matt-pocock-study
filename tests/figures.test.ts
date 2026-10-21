@@ -30,3 +30,19 @@ it('inlines themeable diagram SVGs and swaps illustrated artwork with a light fa
     expect(await figureHtml('s06-tracer', 'zh', root)).toContain('tracer-panels')
   } finally { await rm(root, { recursive: true, force: true }) }
 })
+
+it.each([
+  '<set attributeName="href" to="javascript:alert(1)"/>',
+  '<animate attributeName="href" values="javascript:alert(1)"/>',
+  '<style><![CDATA[</style><img src="x" onerror="alert(1)">]]></style>',
+  '<path xmlns="http://www.w3.org/1999/xhtml"/>',
+  '<use href="data:image/svg+xml;base64,PHN2Zy8+"/>',
+  '<use href="relative.svg"/>', '<?xml-stylesheet href="x.css"?>',
+])('rejects unsafe SVG at the actual inline diagram boundary: %s', async inner => {
+  const root = await mkdtemp(join(tmpdir(), 'unsafe-diagram-'))
+  try {
+    await mkdir(join(root, 'diagrams'))
+    await writeFile(join(root, 'diagrams/home-corpus.en.svg'), `<svg xmlns="http://www.w3.org/2000/svg">${inner}</svg>`)
+    await expect(figureHtml('home-corpus', 'en', root)).rejects.toThrow()
+  } finally { await rm(root, { recursive: true, force: true }) }
+})

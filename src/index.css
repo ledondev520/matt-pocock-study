@@ -459,3 +459,11 @@ code { font-family: 'JetBrains Mono', monospace; font-size: .88em; }p code, li c
 .corpus-enter svg { flex-shrink: 0; }.corpus-enter svg:last-child { margin-left: auto; }
 .full-article .key-card { margin: 0; }
 @media (max-width: 480px) { .topic-card h3 { padding-left: 0; } }
+@media (max-width: 360px) {
+  .header-inner { gap: 8px; }
+  .brand { flex-shrink: 1; min-width: 0; gap: 6px; }
+  .brand strong { font-size: 16px; white-space: nowrap; }
+  .brand-sub { letter-spacing: 0; font-size: 7px; }
+  .brand-icon { width: 28px; height: 32px; flex-shrink: 0; }
+  .header-tools { gap: 4px; flex-shrink: 0; }
+}
