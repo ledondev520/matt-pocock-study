@@ -719,6 +719,129 @@
         "zh": "从首页或语料库重新开始。",
         "en": "Restart from the home page, learning paths or the corpus."
       }
+    },
+    {
+      "id": "spot-entry-workflow",
+      "owner": "art",
+      "placement": "`src/Site.tsx` 第 52 行：「从你现在的卡点开始 / Start where you are stuck」小节的 `.topic-card`，第 1 张卡（routes[0] = `ai-coding-workflow`，第 45 行），放在 `<a>` 里、`<span className=\"eyebrow\">` 之前",
+      "kind": "decorative",
+      "viewBox": "0 0 480 340",
+      "alt": {
+        "zh": "剪纸风小插画：三张纸片一级级往前推进，一条虚线回环把反馈带回一张规范卡。",
+        "en": "Cut-paper spot: three paper slips step forward, and a dashed loop carries feedback back to a rule card."
+      },
+      "caption": {
+        "zh": "剪纸风小插画：三张纸片一级级往前推进，一条虚线回环把反馈带回一张规范卡。",
+        "en": "Cut-paper spot: three paper slips step forward, and a dashed loop carries feedback back to a rule card."
+      },
+      "decorative": true
+    },
+    {
+      "id": "spot-entry-typescript",
+      "owner": "art",
+      "placement": "同上，第 2 张卡（routes[1] = `typescript-foundations`，第 46 行）",
+      "kind": "decorative",
+      "viewBox": "0 0 480 340",
+      "alt": {
+        "zh": "剪纸风小插画：一堆形状不一的纸片穿过一道门框，另一侧变成整齐的方块。",
+        "en": "Cut-paper spot: a pile of odd paper shapes passes through a gate and comes out as tidy, uniform blocks."
+      },
+      "caption": {
+        "zh": "剪纸风小插画：一堆形状不一的纸片穿过一道门框，另一侧变成整齐的方块。",
+        "en": "Cut-paper spot: a pile of odd paper shapes passes through a gate and comes out as tidy, uniform blocks."
+      },
+      "decorative": true
+    },
+    {
+      "id": "spot-entry-writing",
+      "owner": "art",
+      "placement": "同上，第 3 张卡（routes[2] = `writing-to-teach`，第 47 行）",
+      "kind": "decorative",
+      "viewBox": "0 0 480 340",
+      "alt": {
+        "zh": "剪纸风小插画：一个纸剪的问号，沿虚线走向一本打开的讲义，讲义上是分步骤的要点。",
+        "en": "Cut-paper spot: a paper question mark follows a dashed path to an open handout laid out in steps."
+      },
+      "caption": {
+        "zh": "剪纸风小插画：一个纸剪的问号，沿虚线走向一本打开的讲义，讲义上是分步骤的要点。",
+        "en": "Cut-paper spot: a paper question mark follows a dashed path to an open handout laid out in steps."
+      },
+      "decorative": true
+    },
+    {
+      "id": "s05-vague-to-goal",
+      "owner": "art",
+      "placement": "`content/zh/alignment-and-prototypes.md` 「## 「做得更好用」还不是可实现的行为」的第 2 段之后（小节末尾）；`content/en/alignment-and-prototypes.md` 「## “Make it easier to use” leaves choices open」的同一位置",
+      "kind": "前后对比",
+      "viewBox": "0 0 800 500",
+      "alt": {
+        "zh": "左：用户说搜索结果不好用，直接实现高亮、筛选、排序或布局，猜测变成代码、测试和返工。右：先问谁在什么场景下找什么、现在卡在哪里、什么变化能说明问题缓解，再比较方案。",
+        "en": "Left: someone finds the search results awkward; implementing highlighting, filters, sorting or a new layout right away turns a guess into code, tests and rework. Right: first establish who is searching for what, where they get stuck and what would count as an improvement, then compare solutions."
+      },
+      "caption": {
+        "zh": "左：用户说搜索结果不好用，直接实现高亮、筛选、排序或布局，猜测变成代码、测试和返工。右：先问谁在什么场景下找什么、现在卡在哪里、什么变化能说明问题缓解，再比较方案。",
+        "en": "Left: someone finds the search results awkward; implementing highlighting, filters, sorting or a new layout right away turns a guess into code, tests and rework. Right: first establish who is searching for what, where they get stuck and what would count as an improvement, then compare solutions."
+      }
+    },
+    {
+      "id": "s06-chat-vs-spec",
+      "owner": "art",
+      "placement": "`content/zh/specs-and-tickets.md` 「## 聊天里的决定，下一次还能找到吗？」的第 1 段之后；`content/en/specs-and-tickets.md` 「## Can the next session find yesterday's decisions?」的第 1 段之后",
+      "kind": "前后对比",
+      "viewBox": "0 0 800 500",
+      "alt": {
+        "zh": "左：「保存失败时保留输入」的决定只留在昨天的聊天里，换了会话，agent 把表单清空。右：同一决定写进规格的「行为」一栏，新会话能直接找到。",
+        "en": "Left: the decision to preserve form input after a failed save stays in yesterday's chat, so a fresh session clears the form. Right: the same decision sits in the spec's Behaviour row, where a new session can find it."
+      },
+      "caption": {
+        "zh": "左：「保存失败时保留输入」的决定只留在昨天的聊天里，换了会话，agent 把表单清空。右：同一决定写进规格的「行为」一栏，新会话能直接找到。",
+        "en": "Left: the decision to preserve form input after a failed save stays in yesterday's chat, so a fresh session clears the form. Right: the same decision sits in the spec's Behaviour row, where a new session can find it."
+      }
+    },
+    {
+      "id": "s07-done-vs-run",
+      "owner": "art",
+      "placement": "`content/zh/implementation-and-feedback.md` 「## 「已经完成」之后，表单真的能用吗？」的唯一一段之后；`content/en/implementation-and-feedback.md` 「## The agent says the form is finished」的同一位置",
+      "kind": "前后对比",
+      "viewBox": "0 0 800 500",
+      "alt": {
+        "zh": "左：agent 修改了代码并宣布完成，却没启动应用；你提交一次表单才发现缺少服务配置时界面仍显示成功。右：启动应用、提交一次表单，运行环境让这个错误在工作中及时暴露。",
+        "en": "Left: the code changed and the agent says it is finished, but nobody started the application; your first submission reveals that a missing service address still produces a success message. Right: start the application and submit the form once, so the environment makes the failure visible while the work is happening."
+      },
+      "caption": {
+        "zh": "左：agent 修改了代码并宣布完成，却没启动应用；你提交一次表单才发现缺少服务配置时界面仍显示成功。右：启动应用、提交一次表单，运行环境让这个错误在工作中及时暴露。",
+        "en": "Left: the code changed and the agent says it is finished, but nobody started the application; your first submission reveals that a missing service address still produces a success message. Right: start the application and submit the form once, so the environment makes the failure visible while the work is happening."
+      }
+    },
+    {
+      "id": "s15-boundary-check",
+      "owner": "art",
+      "placement": "`content/zh/state-and-module-boundaries.md` 「## 再检查依赖边界」的第 1 段之后、` ```note ` 之前；`content/en/state-and-module-boundaries.md` 「## Enforce dependency boundaries」的同一位置",
+      "kind": "前后对比",
+      "viewBox": "0 0 800 500",
+      "alt": {
+        "zh": "一个反复出错的边界写明允许的输入、输出与失败；领域错误建模为明确的类型；越层导入由工具阻止。下方是本站建议的三步：找一个反复出错的边界，写明输入、输出与失败，再选择类型或检查工具。",
+        "en": "One boundary with recurring failures defines its inputs, outputs and failure behaviour; domain failures are explicit types; tools reject imports that cross the boundary. Below, our suggested three steps: choose one failing boundary, define inputs, outputs and failures, then select a type or check that enforces it."
+      },
+      "caption": {
+        "zh": "一个反复出错的边界写明允许的输入、输出与失败；领域错误建模为明确的类型；越层导入由工具阻止。下方是本站建议的三步：找一个反复出错的边界，写明输入、输出与失败，再选择类型或检查工具。",
+        "en": "One boundary with recurring failures defines its inputs, outputs and failure behaviour; domain failures are explicit types; tools reject imports that cross the boundary. Below, our suggested three steps: choose one failing boundary, define inputs, outputs and failures, then select a type or check that enforces it."
+      }
+    },
+    {
+      "id": "s17-where-it-stalls",
+      "owner": "art",
+      "placement": "`content/zh/feedback-and-attribution.md` 「## 收到批评，先停在哪一步」的唯一一段之后；`content/en/feedback-and-attribution.md` 「## Where criticism can stall」的同一位置",
+      "kind": "前后对比",
+      "viewBox": "0 0 800 500",
+      "alt": {
+        "zh": "两种情境：有人说规则没用，卡住的反应是先解释自己没错，继续学习的做法是先问哪一步没有产生预期结果；有人分享好方法，卡住的做法是转述时只剩自己的名字，继续学习的做法是保留作者与原始链接。",
+        "en": "Two situations: someone says a rule does not work; stalling means defending it right away, learning means asking which step failed to produce the expected result. Someone shares a useful method; stalling means a retelling that drops their name, learning means keeping the author and original link."
+      },
+      "caption": {
+        "zh": "两种情境：有人说规则没用，卡住的反应是先解释自己没错，继续学习的做法是先问哪一步没有产生预期结果；有人分享好方法，卡住的做法是转述时只剩自己的名字，继续学习的做法是保留作者与原始链接。",
+        "en": "Two situations: someone says a rule does not work; stalling means defending it right away, learning means asking which step failed to produce the expected result. Someone shares a useful method; stalling means a retelling that drops their name, learning means keeping the author and original link."
+      }
     }
   ],
   "pageHeads": {

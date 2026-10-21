@@ -61,6 +61,10 @@ John Ousterhout's deep-module concept concerns a simple interface that hides use
 
 Tools can reject imports that cross an architectural boundary. Types can describe domain failures explicitly. Effect is one of Matt's public preferences and a possible further study topic. This lesson does not cover it or recommend a universal migration.
 
+```figure
+id: s15-boundary-check
+```
+
 ```note
 kind: inference
 Our suggestion: choose one boundary with recurring failures. Define its inputs, outputs and failure behaviour, then select a type or check that enforces the agreement.

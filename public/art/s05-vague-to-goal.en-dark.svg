@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500" role="img" aria-labelledby="s05-vague-to-goal-title s05-vague-to-goal-desc" class="svg-0c9db90d-09c4-4bbf-b4f6-81c8732134b6">
+  <title id="s05-vague-to-goal-title">Define the goal before comparing solutions</title>
+  <desc id="s05-vague-to-goal-desc">Left: someone finds the search results awkward; implementing highlighting, filters, sorting or a new layout right away turns a guess into code, tests and rework. Right: first establish who is searching for what, where they get stuck and what would count as an improvement, then compare solutions.</desc>
+  <g id="shapes">
+    <rect id="bg" x="0" y="0" width="800" height="500" fill="#0E0A1F" class="f-bg"/>
+    <rect x="24" y="24" width="356" height="452" rx="14" fill="#171128" stroke="#352A48" stroke-width="1.5" class="f-card s-border"/>
+    <rect x="42" y="42" width="320" height="44" rx="10" fill="#3A1A33" class="f-pink-tint"/>
+    <rect x="420" y="24" width="356" height="452" rx="14" fill="#171128" stroke="#352A48" stroke-width="1.5" class="f-card s-border"/>
+    <rect x="438" y="42" width="320" height="44" rx="10" fill="#241B38" class="f-muted"/>
+    <path d="M332 58 L344 70 M344 58 L332 70" fill="none" stroke="#F25CAC" stroke-width="3" class="s-pink" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M727 64 L731.7 68.9 L741 58.4" fill="none" stroke="#9C8BD9" stroke-width="3" class="s-block" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="48" y="106" width="308" height="46" rx="14" fill="#9C8BD9" class="f-block"/>
+    <rect x="444" y="106" width="308" height="46" rx="14" fill="#9C8BD9" class="f-block"/>
+    <rect x="48" y="194" width="148" height="40" rx="20" fill="#241B38" class="f-muted"/>
+    <rect x="208" y="194" width="148" height="40" rx="20" fill="#241B38" class="f-muted"/>
+    <rect x="48" y="248" width="148" height="40" rx="20" fill="#241B38" class="f-muted"/>
+    <rect x="208" y="248" width="148" height="40" rx="20" fill="#241B38" class="f-muted"/>
+    <path d="M202 152 L122 190" fill="none" stroke="#AEA4C0" stroke-width="1.5" stroke-dasharray="4 4" class="s-fg2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M126.4 184.5 L122 190 L129.0 190.0" fill="none" stroke="#AEA4C0" stroke-width="1.5" class="s-fg2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M202 152 L282 190" fill="none" stroke="#AEA4C0" stroke-width="1.5" stroke-dasharray="4 4" class="s-fg2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M275.0 190.0 L282 190 L277.6 184.5" fill="none" stroke="#AEA4C0" stroke-width="1.5" class="s-fg2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M202 292 L202 318" fill="none" stroke="#F25CAC" stroke-width="2" class="s-pink" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M198.1 309.9 L202 318 L205.9 309.9" fill="none" stroke="#F25CAC" stroke-width="2" class="s-pink" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="48" y="322" width="308" height="86" rx="12" fill="#3A1A33" stroke="#F25CAC" stroke-width="1.5" stroke-dasharray="5 4" class="f-pink-tint s-pink"/>
+    <circle cx="462" cy="192" r="13" fill="#B4A3EC" class="f-accent"/>
+    <rect x="486" y="168" width="266" height="48" rx="10" fill="#211932" stroke="#352A48" stroke-width="1.5" class="f-inner s-border"/>
+    <circle cx="462" cy="248" r="13" fill="#B4A3EC" class="f-accent"/>
+    <rect x="486" y="224" width="266" height="48" rx="10" fill="#211932" stroke="#352A48" stroke-width="1.5" class="f-inner s-border"/>
+    <circle cx="462" cy="304" r="13" fill="#B4A3EC" class="f-accent"/>
+    <rect x="486" y="280" width="266" height="48" rx="10" fill="#211932" stroke="#352A48" stroke-width="1.5" class="f-inner s-border"/>
+    <path d="M598 336 L598 368" fill="none" stroke="#9C8BD9" stroke-width="2" class="s-block" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M594.1 359.9 L598 368 L601.9 359.9" fill="none" stroke="#9C8BD9" stroke-width="2" class="s-block" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="444" y="372" width="308" height="50" rx="8" fill="#2A2142" stroke="#B4A3EC" stroke-width="1.5" class="f-hl s-accent"/>
+    <rect x="450" y="380" width="5" height="34" rx="2.5" fill="#C6F432" class="f-lime"/>
+  </g>
+  <g id="text">
+    <text x="60" y="70.3" font-family="'Space Grotesk',Inter,'Helvetica Neue',Arial,sans-serif" font-size="18" font-weight="700" fill="#EAE5F4" class="f-fg">Implement right away</text>
+    <text x="456" y="70.3" font-family="'Space Grotesk',Inter,'Helvetica Neue',Arial,sans-serif" font-size="18" font-weight="700" fill="#EAE5F4" class="f-fg">Define the goal first</text>
+    <text x="202" y="134.2" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="700" fill="#140C28" class="f-on-block" text-anchor="middle">“Search results are awkward”</text>
+    <text x="598" y="134.2" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="700" fill="#140C28" class="f-on-block" text-anchor="middle">“Search results are awkward”</text>
+    <text x="122.0" y="219.2" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="600" fill="#EAE5F4" class="f-fg" text-anchor="middle">Highlighting</text>
+    <text x="282.0" y="219.2" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="600" fill="#EAE5F4" class="f-fg" text-anchor="middle">Filters</text>
+    <text x="122.0" y="273.2" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="600" fill="#EAE5F4" class="f-fg" text-anchor="middle">Sorting</text>
+    <text x="282.0" y="273.2" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="600" fill="#EAE5F4" class="f-fg" text-anchor="middle">Layout</text>
+    <text x="68" y="360.1" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="600" fill="#EAE5F4" class="f-fg"><tspan x="68" dy="0">A guess turns into code,</tspan><tspan x="68" dy="20.2">tests and rework</tspan></text>
+    <text x="48" y="448" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="400" fill="#AEA4C0" class="f-fg2">Each change solves a different problem</text>
+    <text x="462" y="196.9" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="700" fill="#140C28" class="f-on-block" text-anchor="middle">1</text>
+    <text x="500" y="187.5" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="600" fill="#EAE5F4" class="f-fg"><tspan x="500" dy="0">Who is searching,</tspan><tspan x="500" dy="18.9">for what?</tspan></text>
+    <text x="462" y="252.9" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="700" fill="#140C28" class="f-on-block" text-anchor="middle">2</text>
+    <text x="500" y="252.9" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="600" fill="#EAE5F4" class="f-fg">Where do they get stuck?</text>
+    <text x="462" y="308.9" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="700" fill="#140C28" class="f-on-block" text-anchor="middle">3</text>
+    <text x="500" y="299.4" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="600" fill="#EAE5F4" class="f-fg"><tspan x="500" dy="0">What would count as</tspan><tspan x="500" dy="18.9">an improvement?</tspan></text>
+    <text x="464" y="402.2" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="700" fill="#EAE5F4" class="f-fg">Then compare solutions</text>
+    <text x="444" y="448" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="400" fill="#AEA4C0" class="f-fg2">The goal decides what to compare</text>
+  </g>
+</svg>

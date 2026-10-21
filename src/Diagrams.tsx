@@ -1,3 +1,5 @@
+import { ArrowText, SvgArrowText } from './Arrow'
+
 export type Language = 'zh' | 'en';
 type Props = { lang: Language; pageHref?: string; links?: Record<string, string> };
 
@@ -18,7 +20,7 @@ export function ChainFigure({ lang }: Props) {
           <a href={`/${lang}/${i === 0 ? 'learn-from-matt' : 'specs-and-tickets'}`}>
             <rect x="46" y={y} width="302" height="64" rx="8" className={i === 5 ? 'chain-final' : 'chain-node'} />
             <text x="62" y={y + 25} className={i === 5 ? 'chain-number final-ink' : 'chain-number'}>{`0${i + 1}`}</text>
-            <text x="100" y={y + 25} className={i === 5 ? 'chain-name final-ink' : 'chain-name'}>{name}<tspan x="328" textAnchor="end">↗</tspan></text>
+            <text x="100" y={y + 25} className={i === 5 ? 'chain-name final-ink' : 'chain-name'}>{name}<tspan x="328" textAnchor="end" fontFamily="system-ui, sans-serif" aria-hidden="true">↗</tspan></text>
             <text x="62" y={y + 50} className={i === 5 ? 'chain-label final-ink' : 'chain-label'}>{labels[i]}</text>
           </a>
         </g>;
@@ -27,9 +29,9 @@ export function ChainFigure({ lang }: Props) {
       <circle cx="18" cy="390" r="5" fill="var(--pink)" />
       <path d="M18 390 V561 H46" className="chain-line loop-line" />
       <rect x="46" y="547" width="302" height="81" rx="8" className="loop-box" />
-      <text x="60" y="572" className="chain-name">{zh ? '↺ 规范与反馈' : '↺ Standards & feedback'}</text>
-      <text x="60" y="596" className="chain-label">{zh ? '犯错 → 记一条规范' : 'Mistake → add a rule'}</text>
-      <text x="60" y="618" className="chain-label">{zh ? '→ 下次评审拦住' : '→ caught next review'}</text>
+      <text x="60" y="572" className="chain-name"><tspan fontFamily="system-ui, sans-serif">↺</tspan>{zh ? ' 规范与反馈' : ' Standards & feedback'}</text>
+      <text x="60" y="596" className="chain-label"><SvgArrowText>{zh ? '犯错 → 记一条规范' : 'Mistake → add a rule'}</SvgArrowText></text>
+      <text x="60" y="618" className="chain-label"><SvgArrowText>{zh ? '→ 下次评审拦住' : '→ caught next review'}</SvgArrowText></text>
     </svg>
     <figcaption>{zh ? '先对齐，再交付；把评审中发现的问题变成下一次的规范。' : 'Align, build, verify. Turn review findings into rules for the next pass.'}</figcaption>
   </figure>;
@@ -53,7 +55,7 @@ export function TracerFigure({ lang }: Props) {
           <text x={102 + i * 81} y={115 + i * 57} textAnchor="middle" className="layer-ink">{zh ? '完成' : 'Done'}</text>
         </g>)}
         <path d="M62 270 H303" className="time-line" markerEnd="url(#time-arrow)" />
-        <text x="62" y="295" className="diagram-muted">{zh ? '时间 →' : 'Time →'}</text>
+        <text x="62" y="295" className="diagram-muted"><SvgArrowText>{zh ? '时间 →' : 'Time →'}</SvgArrowText></text>
         <path d="M305 245 V311 H287" className="risk-line" />
         <rect x="20" y="315" width="300" height="65" rx="6" className="risk-box" />
         <text x="34" y="341" className="risk-ink diagram-heading">{zh ? '⚠ 最后集成' : '⚠ Integration at the end'}</text>
@@ -76,12 +78,12 @@ export function TracerFigure({ lang }: Props) {
           <text x={100 + i * 83} y="243" textAnchor="middle" className={i === 0 ? 'slice-ink' : 'diagram-label'}>✓</text>
         </g>)}
         <path d="M62 270 H303" className="time-line" markerEnd="url(#time-arrow)" />
-        <text x="62" y="295" className="diagram-muted">{zh ? '时间 →' : 'Time →'}</text>
+        <text x="62" y="295" className="diagram-muted"><SvgArrowText>{zh ? '时间 →' : 'Time →'}</SvgArrowText></text>
         <rect x="20" y="315" width="300" height="65" rx="6" className="diagram-track" />
         <text x="34" y="341" className="diagram-heading">{zh ? '✓ 每张工单可独立验收' : '✓ Each ticket is verifiable'}</text>
-        <text x="34" y="365" className="diagram-label">{zh ? '输入 → 处理 → 输出，全程跑通' : 'on its own: input → output'}</text>
+        <text x="34" y="365" className="diagram-label"><SvgArrowText>{zh ? '输入 → 处理 → 输出，全程跑通' : 'on its own: input → output'}</SvgArrowText></text>
       </svg>
     </div>
-    <figcaption id="tracer-caption">{zh ? '分层把集成风险留到最后；纵向切片让第一张工单就跑通 UI → API → DB，尽早得到反馈。' : 'Layers defer integration risk; vertical slices connect UI → API → DB in the first ticket, so feedback arrives early.'}</figcaption>
+    <figcaption id="tracer-caption"><ArrowText>{zh ? '分层把集成风险留到最后；纵向切片让第一张工单就跑通 UI → API → DB，尽早得到反馈。' : 'Layers defer integration risk; vertical slices connect UI → API → DB in the first ticket, so feedback arrives early.'}</ArrowText></figcaption>
   </figure>;
 }

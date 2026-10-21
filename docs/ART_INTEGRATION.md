@@ -1,5 +1,22 @@
 # Art integration · 2026-10-21
 
+## Option B P0
+
+Imported 26 additional SVGs through `npm run import:art` after staging copies
+without the XML declaration and `lang` / `data-id` / `data-theme` attributes.
+The delivery remained read only; the SVG validator is unchanged.
+
+- `s05-vague-to-goal`, `s06-chat-vs-spec`, `s07-done-vs-run`,
+  `s15-boundary-check`, `s17-where-it-stalls`: 800×500, zh/en and light/dark.
+  Both content languages place them at the delivery README's specified paragraphs.
+  Registry alt and caption text use the README's bilingual descriptions.
+- `spot-entry-workflow`, `spot-entry-typescript`, `spot-entry-writing`: 480×340,
+  language-neutral light/dark assets before the eyebrow in each home entry card.
+  The registry marks these as decorative so the importer accepts their neutral
+  filenames. Images have empty alt text, are aria-hidden, and declare their dimensions.
+
+## Existing art
+
 Imported 100 SVGs: 25 art IDs, Chinese/English, light/dark. Every variant passed
 the unchanged strict art validator before any file was copied into `public/art/`.
 The delivery source was read only.

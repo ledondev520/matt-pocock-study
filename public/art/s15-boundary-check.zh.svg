@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500" role="img" aria-labelledby="s15-boundary-check-title s15-boundary-check-desc" class="svg-ab77139d-1885-4e81-8e0e-9e6b3f32ad2e">
+  <title id="s15-boundary-check-title">检查一个依赖边界：输入、输出与失败</title>
+  <desc id="s15-boundary-check-desc">一个反复出错的边界写明允许的输入、输出与失败；领域错误建模为明确的类型；越层导入由工具阻止。下方是本站建议的三步：找一个反复出错的边界，写明输入、输出与失败，再选择类型或检查工具。</desc>
+  <defs><clipPath id="s15-boundary-check-clip1"><rect x="210" y="96" width="340" height="200" rx="14"/></clipPath></defs>
+  <g id="shapes">
+    <rect id="bg" x="0" y="0" width="800" height="500" fill="#F8F7FC" class="f-bg"/>
+    <rect x="210" y="96" width="340" height="200" rx="14" fill="#FFFFFF" class="f-card"/>
+    <rect x="210" y="96" width="340" height="44" clip-path="url(#s15-boundary-check-clip1)" fill="#5B3FB8" class="f-violet"/>
+    <rect x="210" y="96" width="340" height="200" rx="14" fill="none" stroke="#5B3FB8" stroke-width="1.5" class="s-block"/>
+    <rect x="234" y="196" width="280" height="8" rx="4.0" fill="#EEEBF5" class="f-muted"/>
+    <rect x="234" y="214" width="196" height="8" rx="4.0" fill="#EEEBF5" class="f-muted"/>
+    <rect x="234" y="232" width="238" height="8" rx="4.0" fill="#EEEBF5" class="f-muted"/>
+    <rect x="234" y="250" width="168" height="8" rx="4.0" fill="#EEEBF5" class="f-muted"/>
+    <rect x="24" y="172" width="150" height="48" rx="24" fill="#EEEBF5" class="f-muted"/>
+    <path d="M174 196 L208 196" fill="none" stroke="#5B3FB8" stroke-width="2" class="s-block" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M199.9 199.9 L208 196 L199.9 192.1" fill="none" stroke="#5B3FB8" stroke-width="2" class="s-block" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M552 236 L590 236" fill="none" stroke="#5B3FB8" stroke-width="2" class="s-block" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M581.9 239.9 L590 236 L581.9 232.1" fill="none" stroke="#5B3FB8" stroke-width="2" class="s-block" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="594" y="212" width="182" height="48" rx="24" fill="#EEEBF5" class="f-muted"/>
+    <path d="M380 296 L380 326" fill="none" stroke="#F25CAC" stroke-width="2" class="s-pink" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M376.1 317.9 L380 326 L383.9 317.9" fill="none" stroke="#F25CAC" stroke-width="2" class="s-pink" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="262" y="330" width="236" height="48" rx="24" fill="#FCE7F2" stroke="#F25CAC" stroke-width="1.5" class="f-pink-tint s-pink"/>
+    <rect x="594" y="34" width="182" height="44" rx="10" fill="#F8F7FC" stroke="#DCD6E7" stroke-width="1.5" class="f-inner s-border"/>
+    <path d="M640 78 C640 120 600 150 520 176" fill="none" stroke="#F25CAC" stroke-width="2" stroke-dasharray="6 5" class="s-pink" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M619 121 L633 135 M633 121 L619 135" fill="none" stroke="#F25CAC" stroke-width="3" class="s-pink" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="24" y="424" width="232" height="56" rx="10" fill="#EFEBFA" class="f-hl"/>
+    <path d="M260 452 L276 452" fill="none" stroke="#5B3FB8" stroke-width="2" class="s-block" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M270.6 454.6 L276 452 L270.6 449.4" fill="none" stroke="#5B3FB8" stroke-width="2" class="s-block" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="280" y="424" width="232" height="56" rx="10" fill="#EFEBFA" class="f-hl"/>
+    <path d="M516 452 L532 452" fill="none" stroke="#5B3FB8" stroke-width="2" class="s-block" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M526.6 454.6 L532 452 L526.6 449.4" fill="none" stroke="#5B3FB8" stroke-width="2" class="s-block" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="536" y="424" width="232" height="56" rx="10" fill="#EFEBFA" class="f-hl"/>
+  </g>
+  <g id="text">
+    <text x="230" y="123.6" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="16" font-weight="700" fill="#FFFFFF" class="f-on-block">一个反复出错的边界</text>
+    <text x="234" y="172" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="14" font-weight="600" fill="#6B607B" class="f-fg2">内部实现</text>
+    <text x="99.0" y="201.2" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="600" fill="#241B35" class="f-fg" text-anchor="middle">允许的输入</text>
+    <text x="685.0" y="241.2" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="600" fill="#241B35" class="f-fg" text-anchor="middle">输出</text>
+    <text x="380.0" y="359.2" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="600" fill="#241B35" class="f-fg" text-anchor="middle">失败：明确的类型</text>
+    <text x="685.0" y="61.2" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="600" fill="#241B35" class="f-fg" text-anchor="middle">另一层的模块</text>
+    <text x="642" y="135.5" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="14" font-weight="600" fill="#6B607B" class="f-fg2"><tspan x="642" dy="0">越层导入：</tspan><tspan x="642" dy="18.9">工具阻止</tspan></text>
+    <text x="24" y="412" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="14" font-weight="700" fill="#6B607B" class="f-fg2">本站建议</text>
+    <text x="40" y="456.9" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="14" font-weight="600" fill="#241B35" class="f-fg">找一个反复出错的边界</text>
+    <text x="296" y="456.9" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="14" font-weight="600" fill="#241B35" class="f-fg">写明输入、输出与失败</text>
+    <text x="552" y="456.9" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="14" font-weight="600" fill="#241B35" class="f-fg">再选类型或检查工具</text>
+  </g>
+</svg>
