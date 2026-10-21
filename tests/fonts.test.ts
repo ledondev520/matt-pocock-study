@@ -2,7 +2,7 @@ import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import { buildFonts, checkCoverage, checkDist, checkFonts, collectCharacters, fontWeights } from '../scripts/fonts.mjs'
+import { buildFonts, checkCoverage, checkDist, checkFonts, collectCharacters, fontWeights, notoCharacter } from '../scripts/fonts.mjs'
 
 let temporary: string
 let output: string
@@ -96,5 +96,37 @@ describe('Noto Sans SC subsets', () => {
     while (characters.has(String.fromCodePoint(code))) code++
     await writeFile(join(dist, 'zh', 'extra.json'), JSON.stringify({ title: String.fromCodePoint(code) }))
     await expect(checkDist(dist, output)).rejects.toThrow(`U+${code.toString(16).toUpperCase()}`)
+  })
+
+  it('treats kana marks that are Script=Common but Hiragana/Katakana by extension as Noto characters', () => {
+    // Covered by the previous Fontsource unicode-range; Script=Katakana alone misses them.
+    for (const mark of ['ー', '\u3099', '゛']) expect(notoCharacter(mark)).toBe(true)
+    for (const latin of ['A', '—', '→']) expect(notoCharacter(latin)).toBe(false)
+  })
+
+  it('fails the post-build check for an out-of-subset character in every shipped encoding (mutation)', async () => {
+    const characters = await collectCharacters()
+    let code = 0x4e00
+    while (characters.has(String.fromCodePoint(code))) code++
+    const hex = code.toString(16)
+    const spellings: Record<string, string> = {
+      'page.html': `<p>&#x${hex};</p>`,
+      'decimal.html': `<p>&#${code};</p>`,
+      'figure.svg': `<svg xmlns="http://www.w3.org/2000/svg"><text>&#x${hex};</text></svg>`,
+      'data.json': `{"title":"\\u${hex}"}`,
+      'app.js': `const label = "\\u{${hex}}"`,
+      'style.css': `.x::after { content: "\\${hex}"; }`,
+    }
+    for (const [name, content] of Object.entries(spellings)) {
+      const dist = join(temporary, `encoded-${name}`)
+      await mkdir(dist, { recursive: true })
+      await writeFile(join(dist, name), content)
+      await expect(checkDist(dist, output), name).rejects.toThrow(`U+${hex.toUpperCase()}`)
+    }
+    // Code-point ranges in bundled regexes (or regex source strings) are not displayed text.
+    const regexes = join(temporary, 'encoded-regex')
+    await mkdir(regexes, { recursive: true })
+    await writeFile(join(regexes, 'lib.js'), 'const a = /[\\u4e00-\\u9fff\\uf900]/u; const b = new RegExp("[\\\\uF900-\\\\uFDCF]")')
+    await expect(checkDist(regexes, output)).resolves.toBe(0)
   })
 })

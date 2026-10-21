@@ -17,8 +17,36 @@ const extensions = new Set(['.md', '.json', '.ts', '.tsx', '.js', '.jsx', '.mjs'
 
 // Latin, shared punctuation and symbols continue to use the preceding Latin
 // families/system fallback. Only CJK text is eligible to trigger Noto downloads.
+// Script_Extensions, not Script: marks shared by kana (U+30FC ー, U+3099 ゙, U+309B ゛) are
+// Script=Common but are Hiragana/Katakana by extension, and Noto covered them before.
 export function notoCharacter(character) {
-  return /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}\u3000-\u303f\uff00-\uffef]/u.test(character)
+  return /[\p{Script_Extensions=Han}\p{Script_Extensions=Hiragana}\p{Script_Extensions=Katakana}\p{Script_Extensions=Hangul}\p{Script_Extensions=Bopomofo}\u3000-\u303f\uff00-\uffef]/u.test(character)
+}
+
+// Every way shipped text can spell a character: literal, HTML/SVG numeric entity,
+// JSON/JS escape (\uXXXX, \u{X}, surrogate pairs) and CSS escape (\XXXXXX).
+// Decoding is deliberately applied to every file type; over-collecting only adds glyphs.
+export function decodedTexts(text) {
+  const code = value => { const n = parseInt(value, 16); return n > 0x10ffff ? '' : String.fromCodePoint(n) }
+  return [
+    text,
+    text.replace(/&#(x[\da-f]+|\d+);?/gi, (_, c) => c[0].toLowerCase() === 'x' ? code(c.slice(1)) : code(Number(c).toString(16))),
+    text.replace(/\\u\{([\da-f]+)\}/gi, (_, c) => code(c)).replace(/\\u([\da-f]{4})/gi, (_, c) => String.fromCharCode(parseInt(c, 16))),
+    text.replace(/\\([\da-f]{1,6})\s?/gi, (_, c) => code(c)),
+  ]
+}
+
+// String, template and JSX text values of a JS/TS file, with escapes decoded by the parser.
+// Regex literals are not strings, so code-point ranges such as /[\u4e00-\u9fff]/ are ignored.
+export function scriptStrings(file, text) {
+  const values = []
+  const source = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true)
+  function visit(node) {
+    if (ts.isStringLiteralLike(node) || ts.isTemplateHead(node) || ts.isTemplateMiddleOrTemplateTail(node) || ts.isJsxText(node)) values.push(node.text)
+    ts.forEachChild(node, visit)
+  }
+  visit(source)
+  return values
 }
 
 export async function collectCharacters(root = '.') {
@@ -32,20 +60,14 @@ export async function collectCharacters(root = '.') {
       if (entry.isDirectory()) await walk(file)
       else if (entry.isFile() && extensions.has(extname(file))) {
         const text = await readFile(file, 'utf8')
-        // Conservative scan includes frontmatter, code examples and CSS content.
-        add(text)
-        add(text.replace(/&#(x[\da-f]+|\d+);/gi, (_, code) => String.fromCodePoint(
-          code[0].toLowerCase() === 'x' ? parseInt(code.slice(1), 16) : Number(code),
-        )))
+        // Conservative scan includes frontmatter, code examples and CSS content. Code files are
+        // decoded through the TypeScript AST below instead, so regex ranges are not collected.
+        if (/\.[cm]?[jt]sx?$/.test(file)) add(text)
+        else for (const decoded of decodedTexts(text)) add(decoded)
         if (extname(file) === '.json') {
           add(JSON.stringify(JSON.parse(text))) // Decode escaped JSON (including corpus summaries).
         } else if (/\.[cm]?[jt]sx?$/.test(file)) {
-          const source = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true)
-          function visit(node) {
-            if (ts.isStringLiteralLike(node) || ts.isTemplateHead(node) || ts.isTemplateMiddleOrTemplateTail(node) || ts.isJsxText(node)) add(node.text)
-            ts.forEachChild(node, visit)
-          }
-          visit(source)
+          for (const value of scriptStrings(file, text)) add(value)
         } else if (extname(file) === '.svg') {
           const parser = new SaxesParser()
           parser.on('text', add)
@@ -83,7 +105,12 @@ export async function checkDist(dist = 'dist', output = 'generated/fonts') {
     for (const entry of await readdir(directory, { withFileTypes: true })) {
       const file = outputPath(directory, entry.name)
       if (entry.isDirectory()) await walk(file)
-      else if (/\.(html|json|svg|js|txt)$/.test(entry.name)) for (const character of await readFile(file, 'utf8')) if (notoCharacter(character)) characters.add(character)
+      else if (/\.(html|json|svg|js|mjs|css|txt|xml|webmanifest)$/.test(entry.name)) {
+        const text = await readFile(file, 'utf8')
+        // Bundles: literal text plus parsed string values (esbuild may emit \uXXXX escapes).
+        const texts = /\.m?js$/.test(entry.name) ? [text, ...scriptStrings(file, text)] : decodedTexts(text)
+        for (const value of texts) for (const character of value) if (notoCharacter(character)) characters.add(character)
+      }
     }
   }
   await walk(dist)
