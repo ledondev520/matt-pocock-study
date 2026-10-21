@@ -13,13 +13,24 @@ import { licenceBlock, embedsArchify, archifyAppendix } from './licences.mjs'
 const languages = ['en', 'zh'] as const
 const componentNames = ['cards', 'quote', 'exercise', 'figure', 'note', 'licence']
 const fields = (text: string) => Object.fromEntries([...text.matchAll(/^([a-z]+):\s*(.*)$/gm)].map(([, key, value]) => [key, value]))
-const inline = (text: string) => marked.parseInline(text) as string
-const md = (text: string) => marked.parse(text, { async: false })
+// Inline code: escape the text first, then only add markup around it, so no text from the source
+// is ever emitted as HTML. A <wbr> after each "/" that sits between path segments lets a long path
+// wrap at a segment boundary instead of pushing its trailing punctuation onto a line of its own;
+// spaces before a closing bracket are kept with it (span.code-keep, white-space: nowrap), so "}"
+// never starts a line. Escaped text never contains "/", and neither <wbr> nor the span adds text,
+// so copied text is unchanged; the .md and llms-full exports come from the Markdown source.
+export const codespanHtml = (text: string) => `<code>${escapeHtml(text)
+  .replace(/(?<=[^/])\/(?=[^/])/g, '/<wbr>')
+  .replace(/ +[)\]}]+/g, keep => `<span class="code-keep">${keep}</span>`)}</code>`
+const articleRenderer = () => Object.assign(new marked.Renderer(), { codespan: ({ text }: Tokens.Codespan) => codespanHtml(text) })
+const componentRenderer = articleRenderer()
+const inline = (text: string) => marked.parseInline(text, { renderer: componentRenderer }) as string
+const md = (text: string) => marked.parse(text, { async: false, renderer: componentRenderer })
 const headingId = (text: string) => text.toLowerCase().replace(/<[^>]*>/g, '').replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-|-$/g, '') || 'section'
 
 export async function renderMarkdown(source: string, lang: Lang) {
   const toc: Page['toc'] = []
-  const renderer = new marked.Renderer()
+  const renderer = articleRenderer()
   const seen = new Map<string, number>()
   renderer.heading = ({ depth, text }: Tokens.Heading) => {
     if (depth === 1) throw new Error('H1 belongs in front matter')
