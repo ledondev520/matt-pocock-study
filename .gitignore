@@ -26,6 +26,9 @@ public/figures/
 public/figures.json
 public/og/
 
+# License shipped alongside the generated Noto subsets
+public/fonts/
+
 # Archify HTML, browser profiles and delivery receipts
 .archify/
 
