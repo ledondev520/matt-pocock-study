@@ -10,6 +10,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run && node --test test/corpus/ && npm run contrast",
+    "test:layout": "playwright test",
     "build:content": "tsx scripts/build-content.ts",
     "build": "npm run build:content && npm run og && vite build && tsx scripts/static.tsx",
     "start": "tsx server/index.ts",
