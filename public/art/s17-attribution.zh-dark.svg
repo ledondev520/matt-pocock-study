@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500" role="img" aria-labelledby="s17-attribution-title s17-attribution-desc">
+  <title id="s17-attribution-title">改编说明分两栏写</title>
+  <desc id="s17-attribution-desc">本站署名示例:原作者提供交接结构,本站增加失败重现栏与中文解释。列出作者、来源、许可;MIT 复用需准确版权行与许可全文。</desc>
+  <defs><clipPath id="s17-attribution-clip1"><rect x="40" y="28" width="720" height="340" rx="16"/></clipPath></defs>
+  <g id="shapes">
+    <rect id="bg" x="0" y="0" width="800" height="500" fill="#0E0A1F" class="f-bg"/>
+    <rect x="40" y="28" width="720" height="340" rx="16" fill="#171128" class="f-card"/>
+    <rect x="40" y="28" width="720" height="56" clip-path="url(#s17-attribution-clip1)" fill="#A083F4" class="f-violet"/>
+    <rect x="40" y="28" width="720" height="340" rx="16" fill="none" stroke="#352A48" stroke-width="1.5" class="s-border"/>
+    <rect x="56" y="100" width="336" height="252" rx="12" fill="#211932" stroke="#352A48" stroke-width="1" class="f-inner s-border"/>
+    <rect x="408" y="100" width="336" height="252" rx="12" fill="#211932" stroke="#352A48" stroke-width="1" class="f-inner s-border"/>
+    <rect x="76" y="154" width="296" height="38" rx="8" fill="#171128" stroke="#352A48" stroke-width="1" class="f-card s-border"/>
+    <rect x="76" y="198" width="296" height="38" rx="8" fill="#171128" stroke="#352A48" stroke-width="1" class="f-card s-border"/>
+    <rect x="76" y="242" width="296" height="38" rx="8" fill="#171128" stroke="#352A48" stroke-width="1" class="f-card s-border"/>
+    <rect x="76" y="286" width="296" height="38" rx="8" fill="#171128" stroke="#352A48" stroke-width="1" class="f-card s-border"/>
+    <rect x="428" y="154" width="296" height="60" rx="8" fill="#171128" stroke="#352A48" stroke-width="1" class="f-card s-border"/>
+    <rect x="444" y="174" width="20" height="20" rx="4" fill="#C6F432" class="f-lime"/>
+    <path d="M449 184 L452.3 187.5 L459 180.0" fill="none" stroke="#1A2110" stroke-width="3" class="s-on-lime" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="428" y="226" width="296" height="60" rx="8" fill="#171128" stroke="#352A48" stroke-width="1" class="f-card s-border"/>
+    <rect x="444" y="246" width="20" height="20" rx="4" fill="#C6F432" class="f-lime"/>
+    <path d="M449 256 L452.3 259.5 L459 252.0" fill="none" stroke="#1A2110" stroke-width="3" class="s-on-lime" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="292" y="396" width="216" height="40" rx="20" fill="#3A1A33" stroke="#F25CAC" stroke-width="1.5" stroke-dasharray="5 4" class="f-pink-tint s-pink"/>
+    <path d="M308 410 L320 422 M320 410 L308 422" fill="none" stroke="#F25CAC" stroke-width="3" class="s-pink" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g id="text">
+    <text x="64" y="62.6" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="19" font-weight="700" fill="#140C28" class="f-on-block">改编说明</text>
+    <text x="76" y="134" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="17" font-weight="700" fill="#EAE5F4" class="f-fg">原作者贡献</text>
+    <text x="428" y="134" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="17" font-weight="700" fill="#EAE5F4" class="f-fg">本站改动</text>
+    <text x="92" y="177.9" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="14" font-weight="500" fill="#EAE5F4" class="f-fg">作者:Matt Pocock</text>
+    <text x="92" y="221.9" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="14" font-weight="500" fill="#EAE5F4" class="f-fg">github.com/mattpocock/skills</text>
+    <text x="92" y="265.9" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="14" font-weight="500" fill="#EAE5F4" class="f-fg">许可:MIT · 完整声明见版权页</text>
+    <text x="92" y="309.9" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="14" font-weight="500" fill="#EAE5F4" class="f-fg">贡献:交接结构</text>
+    <text x="476" y="189.2" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="500" fill="#EAE5F4" class="f-fg">增加失败重现栏</text>
+    <text x="476" y="261.2" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="500" fill="#EAE5F4" class="f-fg">增加中文解释</text>
+    <text x="444" y="326.9" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="14" font-weight="400" fill="#AEA4C0" class="f-fg2">本站原创署名示例</text>
+    <text x="332" y="421.6" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="16" font-weight="600" fill="#EAE5F4" class="f-fg">只写一个感谢名单</text>
+    <path class="strike s-pink" d="M329.0 416.5 H463.0" stroke="#F25CAC" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+    <text x="400" y="470" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="400" fill="#AEA4C0" class="f-fg2" text-anchor="middle">MIT 复用:准确版权行 + 许可全文</text>
+  </g>
+</svg>

@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500" role="img" aria-labelledby="s08-pr-blocks-title s08-pr-blocks-desc">
+  <title id="s08-pr-blocks-title">PR 描述三块</title>
+  <desc id="s08-pr-blocks-desc">变化概览、前后证据、合并风险(是否容易回滚、影响范围、剩余不确定性);模型说没问题不等于证据。</desc>
+  <defs><clipPath id="s08-pr-blocks-clip1"><rect x="40" y="28" width="440" height="444" rx="16"/></clipPath></defs>
+  <g id="shapes">
+    <rect id="bg" x="0" y="0" width="800" height="500" fill="#F8F7FC" class="f-bg"/>
+    <rect x="40" y="28" width="440" height="444" rx="16" fill="#FFFFFF" class="f-card"/>
+    <rect x="40" y="28" width="440" height="56" clip-path="url(#s08-pr-blocks-clip1)" fill="#43209E" class="f-violet"/>
+    <rect x="40" y="28" width="440" height="444" rx="16" fill="none" stroke="#DCD6E7" stroke-width="1.5" class="s-border"/>
+    <rect x="56" y="100" width="408" height="80" rx="10" fill="#F8F7FC" stroke="#DCD6E7" stroke-width="1" class="f-inner s-border"/>
+    <rect x="76" y="146" width="300" height="8" rx="4.0" fill="#DCD6E7" class="f-border"/>
+    <rect x="76" y="160" width="210" height="8" rx="4.0" fill="#DCD6E7" class="f-border"/>
+    <rect x="56" y="192" width="408" height="100" rx="10" fill="#F8F7FC" stroke="#DCD6E7" stroke-width="1" class="f-inner s-border"/>
+    <rect x="76" y="236" width="120" height="40" rx="8" fill="#FFFFFF" stroke="#DCD6E7" stroke-width="1.5" class="f-card s-border"/>
+    <rect x="226" y="236" width="120" height="40" rx="8" fill="#C6F432" class="f-lime"/>
+    <path d="M200 256 L222 256" fill="none" stroke="#241B35" stroke-width="2" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M215.7 259.0 L222 256 L215.7 253.0" fill="none" stroke="#241B35" stroke-width="2" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="56" y="304" width="408" height="152" rx="10" fill="#F8F7FC" stroke="#DCD6E7" stroke-width="1" class="f-inner s-border"/>
+    <circle cx="84" cy="364" r="4" fill="#7445EB" class="f-accent"/>
+    <circle cx="84" cy="394" r="4" fill="#7445EB" class="f-accent"/>
+    <circle cx="84" cy="424" r="4" fill="#7445EB" class="f-accent"/>
+    <rect x="520" y="190" width="246" height="40" rx="20" fill="#FCE7F2" stroke="#F25CAC" stroke-width="1.5" stroke-dasharray="5 4" class="f-pink-tint s-pink"/>
+    <path d="M536 204 L548 216 M548 204 L536 216" fill="none" stroke="#F25CAC" stroke-width="3" class="s-pink" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M512 250 L468 250" fill="none" stroke="#F25CAC" stroke-width="2" stroke-dasharray="5 4" class="s-pink" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M476.1 246.1 L468 250 L476.1 253.9" fill="none" stroke="#F25CAC" stroke-width="2" class="s-pink" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g id="text">
+    <text x="64" y="62.6" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="19" font-weight="700" fill="#FFFFFF" class="f-on-block">PR 描述</text>
+    <text x="76" y="128" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="16" font-weight="700" fill="#241B35" class="f-fg">① 变化概览</text>
+    <text x="76" y="220" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="16" font-weight="700" fill="#241B35" class="f-fg">② 前后证据</text>
+    <text x="136.0" y="261.2" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="600" fill="#241B35" class="f-fg" text-anchor="middle">改前</text>
+    <text x="286.0" y="261.2" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="600" fill="#1A2110" class="f-on-lime" text-anchor="middle">改后</text>
+    <text x="76" y="332" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="16" font-weight="700" fill="#241B35" class="f-fg">③ 合并风险</text>
+    <text x="98" y="369.2" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="400" fill="#241B35" class="f-fg">回滚条件</text>
+    <text x="98" y="399.2" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="400" fill="#241B35" class="f-fg">影响范围</text>
+    <text x="98" y="429.2" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="400" fill="#241B35" class="f-fg">剩余不确定性</text>
+    <text x="560" y="215.2" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="600" fill="#241B35" class="f-fg">模型说没问题</text>
+    <path class="strike s-pink" d="M557.0 210.4 H653.0" stroke="#F25CAC" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+    <text x="520" y="270.3" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="18" font-weight="700" fill="#241B35" class="f-fg">不等于证据</text>
+  </g>
+</svg>

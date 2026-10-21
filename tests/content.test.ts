@@ -1,7 +1,7 @@
 import { mkdtemp, readFile, rm, writeFile, mkdir, readdir } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { expect, it, describe } from 'vitest'
+import { expect, it, describe, beforeAll, afterAll } from 'vitest'
 import { createElement } from 'react'
 import { renderToString } from 'react-dom/server'
 import { JSDOM } from 'jsdom'
@@ -10,34 +10,52 @@ import { marked } from 'marked'
 import { buildContent, readPages, renderMarkdown } from '../scripts/content'
 import registry from '../data/figures.json'
 import { siteUrl } from '../src/lib/site'
+import type { Page } from '../src/lib/content'
+
+// One content build is shared by every test in this file that reads the real pages; building is
+// the slow part, so it runs once. Hooks keep Vitest's default timeout.
+let output = ''
+let pages: Page[] = []
+beforeAll(async () => {
+  output = await mkdtemp(join(tmpdir(), 'study-content-'))
+  pages = await buildContent('content', output)
+})
+afterAll(async () => { if (output) await rm(output, { recursive: true, force: true }) })
+
+// The page export test reads headings from a full jsdom document, exactly as before. These cases
+// come from review: a parse5 tree walk missed a second h1 inside <noscript> (parse5 defaults to
+// scripting enabled, jsdom does not) and dropped text inside an SVG <template>.
+const pageDocument = (html: string) => new JSDOM(html).window.document
+it('page heading check counts an h1 inside <noscript>', () => {
+  expect(pageDocument('<h1>T</h1><noscript><h1>X</h1></noscript>').querySelectorAll('h1')).toHaveLength(2)
+})
+it('page heading check keeps text inside an SVG <template>', () => {
+  expect(pageDocument('<h1>T<svg><template>X</template></svg></h1>').querySelector('h1')!.textContent).toBe('TX')
+})
 
 it('exports every present page with absolute indexes and readable components', async () => {
-  const output = await mkdtemp(join(tmpdir(), 'study-content-'))
-  try {
-    const pages = await buildContent('content', output)
-    expect(pages).toHaveLength(44)
-    expect(JSON.parse(await readFile(join(output, 'content.json'), 'utf8'))).toEqual(pages)
-    for (const lang of ['en', 'zh']) {
-      const base = lang === 'en' ? output : join(output, lang)
-      const index = await readFile(join(base, 'llms.txt'), 'utf8')
-      const full = await readFile(join(base, 'llms-full.txt'), 'utf8')
-      expect(index).toContain('\n## ')
-      expect(index).toMatch(/^# .+\n\n> /)
-      for (const page of pages.filter(item => item.lang === lang)) {
-        expect(index).toContain(`${siteUrl()}/${lang}/${page.slug}.md`)
-        expect(index).toContain(page.summary)
-        expect(full).toContain(page.markdown)
-        const markdown = await readFile(join(output, lang, `${page.slug}.md`), 'utf8')
-        expect(markdown).toBe(`# ${page.title}\n\n${page.summary}\n\n${page.markdown}`)
-        const model = { pages, currentPage: page, figures: { zh: {}, en: {} }, corpusCount: 0, corpusItems: [], corpusTags: [], siteUrl: siteUrl() }
-        const doc = new JSDOM(renderToString(createElement(Site, { model, path: `/${lang}/${page.slug}` }))).window.document
-        expect(doc.querySelectorAll('h1')).toHaveLength(1)
-        expect(doc.querySelector('h1')!.textContent).toBe(page.title)
-        expect(markdown).not.toContain('slug:')
-        expect(markdown).not.toMatch(/```(?:quote|cards|exercise|figure|note)/)
-      }
+  expect(pages).toHaveLength(44)
+  expect(JSON.parse(await readFile(join(output, 'content.json'), 'utf8'))).toEqual(pages)
+  for (const lang of ['en', 'zh']) {
+    const base = lang === 'en' ? output : join(output, lang)
+    const index = await readFile(join(base, 'llms.txt'), 'utf8')
+    const full = await readFile(join(base, 'llms-full.txt'), 'utf8')
+    expect(index).toContain('\n## ')
+    expect(index).toMatch(/^# .+\n\n> /)
+    for (const page of pages.filter(item => item.lang === lang)) {
+      expect(index).toContain(`${siteUrl()}/${lang}/${page.slug}.md`)
+      expect(index).toContain(page.summary)
+      expect(full).toContain(page.markdown)
+      const markdown = await readFile(join(output, lang, `${page.slug}.md`), 'utf8')
+      expect(markdown).toBe(`# ${page.title}\n\n${page.summary}\n\n${page.markdown}`)
+      const model = { pages, currentPage: page, figures: { zh: {}, en: {} }, corpusCount: 0, corpusItems: [], corpusTags: [], siteUrl: siteUrl() }
+      const doc = pageDocument(renderToString(createElement(Site, { model, path: `/${lang}/${page.slug}` })))
+      expect(doc.querySelectorAll('h1')).toHaveLength(1)
+      expect(doc.querySelector('h1')!.textContent).toBe(page.title)
+      expect(markdown).not.toContain('slug:')
+      expect(markdown).not.toMatch(/```(?:quote|cards|exercise|figure|note)/)
     }
-  } finally { await rm(output, { recursive: true, force: true }) }
+  }
 })
 
 describe('shared content contract', () => {
@@ -81,8 +99,8 @@ This is our inference.
 const x = 1;
 \`\`\`
 `, 'en')
-    for (const fragment of ['key-cards', '<th scope="row">', 'punch-quote', '<details>', 'tracer-figure', 'callout inference', 'code-window', 'data-copy']) expect(result.html).toContain(fragment)
-    for (const fragment of ['- **First**', '> One short sentence.', 'Author', 'https://example.org/source', '2026-01-01', 'Figure:', '/figures/s06-tracer.en.svg', 'Suggested approach', '**Our inference**']) expect(result.markdown).toContain(fragment)
+    for (const fragment of ['key-cards', '<th scope="row">', 'punch-quote', '<details>', 'data-figure="s06-tracer"', '/art/s06-tracer.en.svg', '/art/s06-tracer.en-dark.svg', 'callout inference', 'code-window', 'data-copy']) expect(result.html).toContain(fragment)
+    for (const fragment of ['- **First**', '> One short sentence.', 'Author', 'https://example.org/source', '2026-01-01', 'Figure:', '/art/s06-tracer.en.svg', 'Suggested approach', '**Our inference**']) expect(result.markdown).toContain(fragment)
     expect(result.toc).toEqual([{ id: 'a-section', title: 'A section' }])
   })
   it.each([
@@ -106,7 +124,6 @@ const x = 1;
     } finally { await rm(root, { recursive: true, force: true }) }
   })
   it('keeps bilingual slugs, short paragraphs and valid figures and quotes', async () => {
-    const pages = await readPages('content')
     expect(pages.filter(p => p.lang === 'zh').map(p => p.slug).sort()).toEqual(pages.filter(p => p.lang === 'en').map(p => p.slug).sort())
     const ids = registry.figures.map(f => f.id)
     expect(new Set(ids).size).toBe(ids.length)

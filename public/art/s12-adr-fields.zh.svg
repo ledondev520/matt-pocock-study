@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500" role="img" aria-labelledby="s12-adr-fields-title s12-adr-fields-desc">
+  <title id="s12-adr-fields-title">ADR 的五栏</title>
+  <desc id="s12-adr-fields-desc">ADR 记下背景、选择、理由、后果、状态;被替代时注明替代关系;临时计划另管。</desc>
+  <defs><clipPath id="s12-adr-fields-clip1"><rect x="40" y="28" width="380" height="420" rx="16"/></clipPath><clipPath id="s12-adr-fields-clip2"><rect x="548" y="300" width="212" height="150" rx="14"/></clipPath></defs>
+  <g id="shapes">
+    <rect id="bg" x="0" y="0" width="800" height="500" fill="#F8F7FC" class="f-bg"/>
+    <rect x="40" y="28" width="380" height="420" rx="16" fill="#FFFFFF" class="f-card"/>
+    <rect x="40" y="28" width="380" height="56" clip-path="url(#s12-adr-fields-clip1)" fill="#43209E" class="f-violet"/>
+    <rect x="40" y="28" width="380" height="420" rx="16" fill="none" stroke="#DCD6E7" stroke-width="1.5" class="s-border"/>
+    <rect x="56" y="100" width="348" height="56" rx="10" fill="#F8F7FC" stroke="#DCD6E7" stroke-width="1" class="f-inner s-border"/>
+    <rect x="210" y="120" width="170" height="8" rx="4.0" fill="#DCD6E7" class="f-border"/>
+    <rect x="210" y="134" width="119" height="8" rx="4.0" fill="#DCD6E7" class="f-border"/>
+    <rect x="56" y="168" width="348" height="56" rx="10" fill="#F8F7FC" stroke="#DCD6E7" stroke-width="1" class="f-inner s-border"/>
+    <rect x="210" y="188" width="170" height="8" rx="4.0" fill="#DCD6E7" class="f-border"/>
+    <rect x="210" y="202" width="119" height="8" rx="4.0" fill="#DCD6E7" class="f-border"/>
+    <rect x="56" y="236" width="348" height="56" rx="10" fill="#F8F7FC" stroke="#DCD6E7" stroke-width="1" class="f-inner s-border"/>
+    <rect x="210" y="256" width="170" height="8" rx="4.0" fill="#DCD6E7" class="f-border"/>
+    <rect x="210" y="270" width="119" height="8" rx="4.0" fill="#DCD6E7" class="f-border"/>
+    <rect x="56" y="304" width="348" height="56" rx="10" fill="#F8F7FC" stroke="#DCD6E7" stroke-width="1" class="f-inner s-border"/>
+    <rect x="210" y="324" width="170" height="8" rx="4.0" fill="#DCD6E7" class="f-border"/>
+    <rect x="210" y="338" width="119" height="8" rx="4.0" fill="#DCD6E7" class="f-border"/>
+    <rect x="56" y="372" width="348" height="56" rx="10" fill="#F8F7FC" stroke="#DCD6E7" stroke-width="1" class="f-inner s-border"/>
+    <rect x="210" y="384" width="150" height="32" rx="16" fill="#EEEBF5" class="f-muted"/>
+    <rect x="548" y="300" width="212" height="150" rx="14" fill="#FFFFFF" class="f-card"/>
+    <rect x="548" y="300" width="212" height="48" clip-path="url(#s12-adr-fields-clip2)" fill="#5129C5" class="f-block"/>
+    <rect x="548" y="300" width="212" height="150" rx="14" fill="none" stroke="#DCD6E7" stroke-width="1.5" class="s-border"/>
+    <rect x="568" y="398" width="120" height="32" rx="16" fill="#C6F432" class="f-lime"/>
+    <path d="M390 400 L500 400 L500 375 L544 375" fill="none" stroke="#7445EB" stroke-width="2.5" class="s-accent" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M535.9 378.9 L544 375 L535.9 371.1" fill="none" stroke="#7445EB" stroke-width="2.5" class="s-accent" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="548" y="56" width="212" height="100" rx="6" fill="#EEEBF5" stroke="#DCD6E7" stroke-width="1" class="f-muted s-border"/>
+    <path d="M732 56 L760 56 L760 84 Z" fill="#DCD6E7" class="f-border" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M456 106 L540 106" fill="none" stroke="#6B607B" stroke-width="2" stroke-dasharray="4 5" class="s-fg2" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g id="text">
+    <text x="64" y="62.3" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="18" font-weight="700" fill="#FFFFFF" class="f-on-block">原 ADR</text>
+    <text x="74" y="133.6" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="16" font-weight="700" fill="#241B35" class="f-fg">背景</text>
+    <text x="74" y="201.6" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="16" font-weight="700" fill="#241B35" class="f-fg">选择</text>
+    <text x="74" y="269.6" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="16" font-weight="700" fill="#241B35" class="f-fg">理由</text>
+    <text x="74" y="337.6" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="16" font-weight="700" fill="#241B35" class="f-fg">后果</text>
+    <text x="74" y="405.6" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="16" font-weight="700" fill="#241B35" class="f-fg">状态</text>
+    <text x="285.0" y="405.2" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="600" fill="#241B35" class="f-fg" text-anchor="middle">已被替代</text>
+    <text x="568" y="329.9" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="17" font-weight="700" fill="#FFFFFF" class="f-on-block">替代 ADR</text>
+    <text x="568" y="382" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="600" fill="#6B607B" class="f-fg2">状态</text>
+    <text x="628.0" y="419.2" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="600" fill="#1A2110" class="f-on-lime" text-anchor="middle">生效</text>
+    <text x="654.0" y="259.1" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="600" fill="#241B35" class="f-fg" text-anchor="middle"><tspan x="654.0" dy="0">被替代时</tspan><tspan x="654.0" dy="20.2">注明替代关系</tspan></text>
+    <text x="568" y="100.8" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="16" font-weight="600" fill="#241B35" class="f-fg"><tspan x="568" dy="0">临时计划</tspan><tspan x="568" dy="21.6">另管</tspan></text>
+    <text x="456" y="96" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="20" font-weight="700" fill="#6B607B" class="f-fg2">≠</text>
+    <text x="400" y="478" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="14" font-weight="400" fill="#6B607B" class="f-fg2" text-anchor="middle">字段清单由本站编写</text>
+  </g>
+</svg>

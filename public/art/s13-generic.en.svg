@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500" role="img" aria-labelledby="s13-generic-title s13-generic-desc">
+  <title id="s13-generic-title">Generics preserve input and output type relationships</title>
+  <desc id="s13-generic-desc">Left: echoWide(12) returns string | number and loses the specific type. Right: echo(12) retains type 12. This example is an identity function.</desc>
+  <g id="shapes">
+    <rect id="bg" x="0" y="0" width="800" height="500" fill="#F8F7FC" class="f-bg"/>
+    <rect x="24" y="24" width="368" height="452" rx="16" fill="#FFFFFF" stroke="#DCD6E7" stroke-width="1.5" class="f-card s-border"/>
+    <rect x="408" y="24" width="368" height="452" rx="16" fill="#FFFFFF" stroke="#DCD6E7" stroke-width="1.5" class="f-card s-border"/>
+    <rect x="70" y="96" width="180" height="56" rx="12" fill="#F8F7FC" stroke="#DCD6E7" stroke-width="1.5" class="f-inner s-border"/>
+    <path d="M160 156 L160 186" fill="none" stroke="#241B35" stroke-width="2" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M156.1 177.9 L160 186 L163.9 177.9" fill="none" stroke="#241B35" stroke-width="2" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="70" y="190" width="180" height="56" rx="12" fill="#5129C5" class="f-block"/>
+    <path d="M160 250 L160 280" fill="none" stroke="#241B35" stroke-width="2" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M156.1 271.9 L160 280 L163.9 271.9" fill="none" stroke="#241B35" stroke-width="2" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="70" y="284" width="180" height="56" rx="12" fill="#F8F7FC" stroke="#DCD6E7" stroke-width="1.5" class="f-inner s-border"/>
+    <path d="M254 124 C330 124 330 312 254 312" fill="none" stroke="#F25CAC" stroke-width="2.5" stroke-dasharray="6 5" class="s-pink" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M304 210 L320 226 M320 210 L304 226" fill="none" stroke="#F25CAC" stroke-width="3.5" class="s-pink" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="48" y="368" width="320" height="76" rx="12" fill="#FCE7F2" stroke="#F25CAC" stroke-width="1.5" class="f-pink-tint s-pink"/>
+    <rect x="454" y="96" width="180" height="56" rx="12" fill="#F8F7FC" stroke="#DCD6E7" stroke-width="1.5" class="f-inner s-border"/>
+    <path d="M544 156 L544 186" fill="none" stroke="#241B35" stroke-width="2" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M540.1 177.9 L544 186 L547.9 177.9" fill="none" stroke="#241B35" stroke-width="2" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="444" y="190" width="200" height="56" rx="12" fill="#5129C5" class="f-block"/>
+    <path d="M544 250 L544 280" fill="none" stroke="#241B35" stroke-width="2" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M540.1 271.9 L544 280 L547.9 271.9" fill="none" stroke="#241B35" stroke-width="2" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="454" y="284" width="180" height="56" rx="12" fill="#F8F7FC" stroke="#DCD6E7" stroke-width="1.5" class="f-inner s-border"/>
+    <path d="M638 124 C720 124 720 312 638 312" fill="none" stroke="#7445EB" stroke-width="3.5" class="s-accent" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M646.4 308.7 L638 312 L645.8 316.5" fill="none" stroke="#7445EB" stroke-width="3.5" class="s-accent" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="432" y="368" width="320" height="76" rx="12" fill="#C6F432" class="f-lime"/>
+    <path d="M451 406 L455.7 410.9 L465 400.4" fill="none" stroke="#1A2110" stroke-width="3" class="s-on-lime" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g id="text">
+    <text x="48" y="62" font-family="'Space Grotesk',Inter,'Helvetica Neue',Arial,sans-serif" font-size="19" font-weight="700" fill="#241B35" class="f-fg">Union return type</text>
+    <text x="432" y="62" font-family="'Space Grotesk',Inter,'Helvetica Neue',Arial,sans-serif" font-size="19" font-weight="700" fill="#241B35" class="f-fg">Generic</text>
+    <text x="160.0" y="129.6" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="16" font-weight="600" fill="#241B35" class="f-fg" text-anchor="middle">12</text>
+    <text x="160.0" y="223.9" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="17" font-weight="700" fill="#FFFFFF" class="f-on-block" text-anchor="middle">echoWide(12)</text>
+    <text x="160.0" y="317.6" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="16" font-weight="600" fill="#241B35" class="f-fg" text-anchor="middle">string | number</text>
+    <text x="72" y="401.1" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="600" fill="#241B35" class="f-fg"><tspan x="72" dy="0">Link lost: the caller</tspan><tspan x="72" dy="20.2">can’t get the type back</tspan></text>
+    <text x="544.0" y="131.0" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="20" font-weight="700" fill="#241B35" class="f-fg" text-anchor="middle">T</text>
+    <text x="544.0" y="223.6" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="16" font-weight="700" fill="#FFFFFF" class="f-on-block" text-anchor="middle">echo&lt;T&gt;(value: T)</text>
+    <text x="544.0" y="319.0" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="20" font-weight="700" fill="#241B35" class="f-fg" text-anchor="middle">T</text>
+    <text x="478" y="401.1" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="600" fill="#1A2110" class="f-on-lime"><tspan x="478" dy="0">Type link kept:</tspan><tspan x="478" dy="20.2">echo(12) has type 12</tspan></text>
+  </g>
+</svg>

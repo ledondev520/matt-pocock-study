@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500" role="img" aria-labelledby="s02-silent-success-title s02-silent-success-desc">
+  <title id="s02-silent-success-title">把假成功变成可见失败</title>
+  <desc id="s02-silent-success-desc">缺服务地址却显示已发送:复现假成功、拒绝无效配置、检查异常与合法路径、评审两种配置下的证据。</desc>
+  <defs><clipPath id="s02-silent-success-clip1"><rect x="26" y="134" width="160" height="232" rx="14"/></clipPath><clipPath id="s02-silent-success-clip2"><rect x="222" y="134" width="160" height="232" rx="14"/></clipPath><clipPath id="s02-silent-success-clip3"><rect x="418" y="134" width="160" height="232" rx="14"/></clipPath><clipPath id="s02-silent-success-clip4"><rect x="614" y="134" width="160" height="232" rx="14"/></clipPath></defs>
+  <g id="shapes">
+    <rect id="bg" x="0" y="0" width="800" height="500" fill="#0E0A1F" class="f-bg"/>
+    <rect x="26" y="38" width="301" height="42" rx="21" fill="#3A1A33" stroke="#F25CAC" stroke-width="1.5" class="f-pink-tint s-pink"/>
+    <path d="M44 53 L56 65 M56 53 L44 65" fill="none" stroke="#F25CAC" stroke-width="3" class="s-pink" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M106 80 L106 130" fill="none" stroke="#F25CAC" stroke-width="2" stroke-dasharray="5 5" class="s-pink" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M102.1 121.9 L106 130 L109.9 121.9" fill="none" stroke="#F25CAC" stroke-width="2" class="s-pink" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="26" y="134" width="160" height="232" rx="14" fill="#171128" class="f-card"/>
+    <rect x="26" y="134" width="160" height="104" clip-path="url(#s02-silent-success-clip1)" fill="#A083F4" class="f-block"/>
+    <rect x="26" y="134" width="160" height="232" rx="14" fill="none" stroke="#352A48" stroke-width="1.5" class="s-border"/>
+    <path d="M192 186.0 L216 186.0" fill="none" stroke="#EAE5F4" stroke-width="2" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M207.9 189.9 L216 186.0 L207.9 182.1" fill="none" stroke="#EAE5F4" stroke-width="2" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="222" y="134" width="160" height="232" rx="14" fill="#171128" class="f-card"/>
+    <rect x="222" y="134" width="160" height="104" clip-path="url(#s02-silent-success-clip2)" fill="#A083F4" class="f-block"/>
+    <rect x="222" y="134" width="160" height="232" rx="14" fill="none" stroke="#352A48" stroke-width="1.5" class="s-border"/>
+    <path d="M388 186.0 L412 186.0" fill="none" stroke="#EAE5F4" stroke-width="2" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M403.9 189.9 L412 186.0 L403.9 182.1" fill="none" stroke="#EAE5F4" stroke-width="2" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="418" y="134" width="160" height="232" rx="14" fill="#171128" class="f-card"/>
+    <rect x="418" y="134" width="160" height="104" clip-path="url(#s02-silent-success-clip3)" fill="#A083F4" class="f-block"/>
+    <rect x="418" y="134" width="160" height="232" rx="14" fill="none" stroke="#352A48" stroke-width="1.5" class="s-border"/>
+    <path d="M584 186.0 L608 186.0" fill="none" stroke="#EAE5F4" stroke-width="2" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M599.9 189.9 L608 186.0 L599.9 182.1" fill="none" stroke="#EAE5F4" stroke-width="2" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="614" y="134" width="160" height="232" rx="14" fill="#171128" class="f-card"/>
+    <rect x="614" y="134" width="160" height="104" clip-path="url(#s02-silent-success-clip4)" fill="#A083F4" class="f-block"/>
+    <rect x="614" y="134" width="160" height="232" rx="14" fill="none" stroke="#352A48" stroke-width="1.5" class="s-border"/>
+    <rect x="26" y="398" width="748" height="64" rx="14" fill="#C6F432" class="f-lime"/>
+  </g>
+  <g id="text">
+    <text x="68" y="64.2" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="600" fill="#EAE5F4" class="f-fg">缺配置 → 显示成功</text>
+    <text x="42" y="164" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="14" font-weight="500" fill="#140C28" class="f-on-block2">01</text>
+    <text x="42" y="209.9" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="17" font-weight="700" fill="#140C28" class="f-on-block">复现假成功</text>
+    <text x="42" y="272" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="14" font-weight="400" fill="#AEA4C0" class="f-fg2">这一层要做</text>
+    <text x="42" y="304" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="16" font-weight="500" fill="#EAE5F4" class="f-fg"><tspan x="42" dy="0">缺地址仍</tspan><tspan x="42" dy="21.6">显示已发送</tspan></text>
+    <text x="238" y="164" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="14" font-weight="500" fill="#140C28" class="f-on-block2">02</text>
+    <text x="238" y="209.9" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="17" font-weight="700" fill="#140C28" class="f-on-block">拒绝无效配置</text>
+    <text x="238" y="272" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="14" font-weight="400" fill="#AEA4C0" class="f-fg2">这一层要做</text>
+    <text x="238" y="304" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="16" font-weight="500" fill="#EAE5F4" class="f-fg"><tspan x="238" dy="0">停止发送,</tspan><tspan x="238" dy="21.6">界面显示失败</tspan></text>
+    <text x="434" y="164" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="14" font-weight="500" fill="#140C28" class="f-on-block2">03</text>
+    <text x="434" y="209.9" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="17" font-weight="700" fill="#140C28" class="f-on-block">检查两种路径</text>
+    <text x="434" y="272" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="14" font-weight="400" fill="#AEA4C0" class="f-fg2">这一层要做</text>
+    <text x="434" y="304" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="16" font-weight="500" fill="#EAE5F4" class="f-fg"><tspan x="434" dy="0">缺配置报错,</tspan><tspan x="434" dy="21.6">有效配置能发</tspan></text>
+    <text x="630" y="164" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="14" font-weight="500" fill="#140C28" class="f-on-block2">04</text>
+    <text x="630" y="209.9" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="17" font-weight="700" fill="#140C28" class="f-on-block">评审证据</text>
+    <text x="630" y="272" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="14" font-weight="400" fill="#AEA4C0" class="f-fg2">这一层要做</text>
+    <text x="630" y="304" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="16" font-weight="500" fill="#EAE5F4" class="f-fg"><tspan x="630" dy="0">两种配置的</tspan><tspan x="630" dy="21.6">操作、日志、界面</tspan></text>
+    <text x="50" y="435.2" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="700" fill="#1A2110" class="f-on-lime">完成标准</text>
+    <text x="160" y="435.6" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="16" font-weight="500" fill="#1A2110" class="f-on-lime">能指出是哪一层阻止了同类错误</text>
+  </g>
+</svg>

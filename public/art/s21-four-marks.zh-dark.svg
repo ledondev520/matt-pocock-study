@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500" role="img" aria-labelledby="s21-four-marks-title s21-four-marks-desc">
+  <title id="s21-four-marks-title">页面上的四种标记</title>
+  <desc id="s21-four-marks-desc">原话附可见来源和日期,译意解释该引文;保存失败的建议标为本站推论,交接字段标为 MIT 改编示例。</desc>
+  <g id="shapes">
+    <rect id="bg" x="0" y="0" width="800" height="500" fill="#0E0A1F" class="f-bg"/>
+    <rect x="24" y="60" width="752" height="92" rx="14" fill="#171128" stroke="#352A48" stroke-width="1.5" class="f-card s-border"/>
+    <rect x="40" y="68" width="360" height="76" rx="8" fill="#241B38" class="f-muted"/>
+    <rect x="40" y="68" width="5" height="76" rx="2" fill="#F25CAC" class="f-pink"/>
+    <path d="M408 78 L408 134" fill="none" stroke="#352A48" stroke-width="1.5" class="s-border" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="24" y="164" width="752" height="92" rx="14" fill="#171128" stroke="#352A48" stroke-width="1.5" class="f-card s-border"/>
+    <rect x="40" y="194" width="133" height="32" rx="16" fill="#241B38" class="f-muted"/>
+    <path d="M408 182 L408 238" fill="none" stroke="#352A48" stroke-width="1.5" class="s-border" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="24" y="268" width="752" height="92" rx="14" fill="#171128" stroke="#352A48" stroke-width="1.5" class="f-card s-border"/>
+    <rect x="40" y="298" width="125" height="32" rx="16" fill="#171128" stroke="#A083F4" stroke-width="1.5" class="f-card s-accent"/>
+    <path d="M408 286 L408 342" fill="none" stroke="#352A48" stroke-width="1.5" class="s-border" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="24" y="372" width="752" height="92" rx="14" fill="#171128" stroke="#352A48" stroke-width="1.5" class="f-card s-border"/>
+    <rect x="40" y="402" width="135" height="32" rx="16" fill="#C6F432" class="f-lime"/>
+    <path d="M408 390 L408 446" fill="none" stroke="#352A48" stroke-width="1.5" class="s-border" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g id="text">
+    <text x="40" y="44" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="600" fill="#AEA4C0" class="f-fg2">页面上的样子</text>
+    <text x="424" y="44" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="600" fill="#AEA4C0" class="f-fg2">含义</text>
+    <text x="424" y="101.2" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="500" fill="#EAE5F4" class="f-fg"><tspan x="424" dy="0">带链接的短引文:Matt Pocock 的</tspan><tspan x="424" dy="20.2">原话,附 URL 和日期</tspan></text>
+    <text x="56" y="89" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="16" font-weight="600" fill="#EAE5F4" class="f-fg">All code is debt.</text>
+    <text x="56" y="110" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="14" font-weight="400" fill="#AEA4C0" class="f-fg2">— Matt Pocock · 2026-05-01</text>
+    <text x="56" y="131" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="14" font-weight="400" fill="#AEA4C0" class="f-fg2">x.com/…/status/2050173149170282674</text>
+    <text x="424" y="205.2" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="500" fill="#EAE5F4" class="f-fg"><tspan x="424" dy="0">本站译意:紧邻引文的中文释义,</tspan><tspan x="424" dy="20.2">不是另一句原话</tspan></text>
+    <text x="106.5" y="214.9" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="14" font-weight="600" fill="#EAE5F4" class="f-fg" text-anchor="middle">本站译意</text>
+    <text x="185" y="215.2" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="400" fill="#EAE5F4" class="f-fg">代码带着未来负担</text>
+    <text x="424" y="319.2" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="500" fill="#EAE5F4" class="f-fg">本站推论:我们的判断</text>
+    <text x="102.5" y="318.9" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="14" font-weight="600" fill="#EAE5F4" class="f-fg" text-anchor="middle">本站推论</text>
+    <text x="177" y="309.1" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="400" fill="#EAE5F4" class="f-fg"><tspan x="177" dy="0">先复现保存失败</tspan><tspan x="177" dy="20.2">再选择检查</tspan></text>
+    <text x="424" y="413.1" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="500" fill="#EAE5F4" class="f-fg"><tspan x="424" dy="0">MIT 改编:根据 skills 仓库改编,</tspan><tspan x="424" dy="20.2">附版权与许可</tspan></text>
+    <text x="107.5" y="422.9" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="14" font-weight="700" fill="#1A2110" class="f-on-lime" text-anchor="middle">MIT 改编</text>
+    <text x="187" y="413.1" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="400" fill="#EAE5F4" class="f-fg"><tspan x="187" dy="0">交接字段示例</tspan><tspan x="187" dy="20.2">源文件、改动与许可</tspan></text>
+    <text x="400" y="484" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="14" font-weight="400" fill="#AEA4C0" class="f-fg2" text-anchor="middle">首行为原话,其余为本站释义与示例;来源以可见文字标注</text>
+  </g>
+</svg>

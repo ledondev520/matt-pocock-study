@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500" role="img" aria-labelledby="s13-unknown-title s13-unknown-desc">
+  <title id="s13-unknown-title">Treat outside data as unknown first</title>
+  <desc id="s13-unknown-desc">Top: an 'as' assertion trusts the data and unverified values flow into the app. Bottom: start from unknown; checking and narrowing gives a reliable type.</desc>
+  <g id="shapes">
+    <rect id="bg" x="0" y="0" width="800" height="500" fill="#F8F7FC" class="f-bg"/>
+    <rect x="24" y="40" width="752" height="188" rx="16" fill="#FFFFFF" stroke="#DCD6E7" stroke-width="1.5" class="f-card s-border"/>
+    <rect x="24" y="262" width="752" height="188" rx="16" fill="#FFFFFF" stroke="#DCD6E7" stroke-width="1.5" class="f-card s-border"/>
+    <rect x="48" y="104" width="140" height="76" rx="12" fill="#F8F7FC" stroke="#DCD6E7" stroke-width="1.5" class="f-inner s-border"/>
+    <path d="M192 142 L230 142" fill="none" stroke="#241B35" stroke-width="2" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M221.9 145.9 L230 142 L221.9 138.1" fill="none" stroke="#241B35" stroke-width="2" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="234" y="104" width="236" height="76" rx="12" fill="#FFFFFF" stroke="#DCD6E7" stroke-width="1.5" class="f-card s-border"/>
+    <path d="M474 142 L512 142" fill="none" stroke="#F25CAC" stroke-width="2" stroke-dasharray="5 4" class="s-pink" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M503.9 145.9 L512 142 L503.9 138.1" fill="none" stroke="#F25CAC" stroke-width="2" class="s-pink" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="516" y="104" width="236" height="76" rx="12" fill="#FCE7F2" stroke="#F25CAC" stroke-width="1.5" class="f-pink-tint s-pink"/>
+    <path d="M535 135 L549 149 M549 135 L535 149" fill="none" stroke="#F25CAC" stroke-width="3" class="s-pink" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="48" y="326" width="140" height="76" rx="12" fill="#F8F7FC" stroke="#DCD6E7" stroke-width="1.5" class="f-inner s-border"/>
+    <path d="M192 364 L226 364" fill="none" stroke="#241B35" stroke-width="2" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M217.9 367.9 L226 364 L217.9 360.1" fill="none" stroke="#241B35" stroke-width="2" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="230" y="326" width="130" height="76" rx="12" fill="#EEEBF5" class="f-muted"/>
+    <path d="M364 364 L398 364" fill="none" stroke="#241B35" stroke-width="2" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M389.9 367.9 L398 364 L389.9 360.1" fill="none" stroke="#241B35" stroke-width="2" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="402" y="316" width="14" height="96" rx="4" fill="#5129C5" class="f-block"/>
+    <rect x="564" y="316" width="14" height="96" rx="4" fill="#5129C5" class="f-block"/>
+    <rect x="402" y="316" width="176" height="14" rx="4" fill="#5129C5" class="f-block"/>
+    <path d="M584 364 L616 364" fill="none" stroke="#241B35" stroke-width="2" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M607.9 367.9 L616 364 L607.9 360.1" fill="none" stroke="#241B35" stroke-width="2" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="620" y="326" width="132" height="76" rx="12" fill="#5129C5" class="f-block"/>
+  </g>
+  <g id="text">
+    <text x="48" y="78" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="18" font-weight="700" fill="#241B35" class="f-fg">as assertion</text>
+    <text x="48" y="300" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="18" font-weight="700" fill="#241B35" class="f-fg">unknown</text>
+    <text x="118.0" y="147.6" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="16" font-weight="600" fill="#241B35" class="f-fg" text-anchor="middle">API response</text>
+    <text x="352.0" y="136.8" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="16" font-weight="600" fill="#241B35" class="f-fg" text-anchor="middle"><tspan x="352.0" dy="0">Assumed to have</tspan><tspan x="352.0" dy="21.6">the expected type</tspan></text>
+    <text x="562" y="136.8" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="16" font-weight="600" fill="#241B35" class="f-fg"><tspan x="562" dy="0">Unverified data</tspan><tspan x="562" dy="21.6">flows into the app</tspan></text>
+    <text x="118.0" y="369.6" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="16" font-weight="600" fill="#241B35" class="f-fg" text-anchor="middle">API response</text>
+    <text x="295.0" y="369.9" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="17" font-weight="700" fill="#241B35" class="f-fg" text-anchor="middle">unknown</text>
+    <text x="490" y="366.8" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="16" font-weight="600" fill="#241B35" class="f-fg" text-anchor="middle"><tspan x="490" dy="0">Check and</tspan><tspan x="490" dy="21.6">narrow</tspan></text>
+    <text x="686" y="358.8" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="16" font-weight="700" fill="#FFFFFF" class="f-on-block" text-anchor="middle"><tspan x="686" dy="0">Reliable</tspan><tspan x="686" dy="21.6">type ✓</tspan></text>
+    <text x="400" y="478" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="400" fill="#6B607B" class="f-fg2" text-anchor="middle">A type assertion is not runtime validation</text>
+  </g>
+</svg>

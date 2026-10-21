@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "diagram_type": "explainer",
+  "meta": {
+    "id": "d19-rule-placement",
+    "title": "Where a rule belongs",
+    "locale": "en",
+    "output": "d19-rule-placement.en.html",
+    "quality_profile": "showcase"
+  },
+  "answer": {
+    "summary": "Place each rule according to its purpose."
+  },
+  "panels": [
+    {
+      "id": "placement",
+      "title": "Rule purpose and destination",
+      "blocks": [
+        {
+          "id": "rules",
+          "type": "comparison",
+          "labelColumn": "What it is",
+          "columns": [
+            "Where it goes"
+          ],
+          "rows": [
+            {
+              "id": "navigation",
+              "label": "Navigation",
+              "cells": [
+                {
+                  "text": "AGENTS.md"
+                }
+              ]
+            },
+            {
+              "id": "judgment",
+              "label": "Rules requiring judgment",
+              "cells": [
+                {
+                  "text": "CODING_STANDARDS"
+                }
+              ]
+            },
+            {
+              "id": "mechanical",
+              "label": "Mechanically enforceable rules",
+              "cells": [
+                {
+                  "text": "lint / hook / CI"
+                }
+              ]
+            },
+            {
+              "id": "reason",
+              "label": "Long-term rationale",
+              "cells": [
+                {
+                  "text": "ADR"
+                }
+              ]
+            },
+            {
+              "id": "language",
+              "label": "Domain language",
+              "cells": [
+                {
+                  "text": "GLOSSARY"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sources": []
+}

@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500" role="img" aria-labelledby="spot-404-title spot-404-desc">
+  <title id="spot-404-title">Page not found</title>
+  <desc id="spot-404-desc">There is no page at this address; start again from the three ways in on the home page, the learning path, or the corpus.</desc>
+  <defs><clipPath id="spot-404-clip1"><rect x="40" y="284" width="224" height="172" rx="12"/></clipPath><clipPath id="spot-404-clip2"><rect x="288" y="284" width="224" height="172" rx="12"/></clipPath><clipPath id="spot-404-clip3"><rect x="536" y="284" width="224" height="172" rx="12"/></clipPath></defs>
+  <g id="shapes">
+    <rect id="bg" x="0" y="0" width="800" height="500" fill="#0E0A1F" class="f-bg"/>
+    <rect x="180" y="32" width="440" height="180" rx="20" fill="#A083F4" class="f-violet"/>
+    <rect x="40" y="284" width="224" height="172" rx="12" fill="#171128" class="f-card"/>
+    <rect x="40" y="284" width="224" height="6" clip-path="url(#spot-404-clip1)" fill="#C6F432" class="f-lime"/>
+    <rect x="40" y="284" width="224" height="172" rx="12" fill="none" stroke="#352A48" stroke-width="1.5" class="s-border"/>
+    <rect x="288" y="284" width="224" height="172" rx="12" fill="#171128" class="f-card"/>
+    <rect x="288" y="284" width="224" height="6" clip-path="url(#spot-404-clip2)" fill="#F25CAC" class="f-pink"/>
+    <rect x="288" y="284" width="224" height="172" rx="12" fill="none" stroke="#352A48" stroke-width="1.5" class="s-border"/>
+    <rect x="536" y="284" width="224" height="172" rx="12" fill="#171128" class="f-card"/>
+    <rect x="536" y="284" width="224" height="6" clip-path="url(#spot-404-clip3)" fill="#A083F4" class="f-accent"/>
+    <rect x="536" y="284" width="224" height="172" rx="12" fill="none" stroke="#352A48" stroke-width="1.5" class="s-border"/>
+  </g>
+  <g id="text">
+    <text x="400" y="116" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="64" font-weight="700" fill="#140C28" class="f-on-block" text-anchor="middle">404</text>
+    <text x="400" y="170" font-family="'Space Grotesk',Inter,'Helvetica Neue',Arial,sans-serif" font-size="22" font-weight="700" fill="#140C28" class="f-on-block2" text-anchor="middle">Page not found</text>
+    <text x="400" y="256" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="16" font-weight="600" fill="#AEA4C0" class="f-fg2" text-anchor="middle">Start again from here</text>
+    <text x="62" y="324" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="500" fill="#AEA4C0" class="f-fg2">Page 01</text>
+    <text x="62" y="367.5" font-family="'Space Grotesk',Inter,'Helvetica Neue',Arial,sans-serif" font-size="20" font-weight="700" fill="#EAE5F4" class="f-fg"><tspan x="62" dy="0">Home: three</tspan><tspan x="62" dy="27.0">ways in</tspan></text>
+    <text x="62" y="430" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="600" fill="#A083F4" class="f-accent">Go →</text>
+    <text x="310" y="324" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="500" fill="#AEA4C0" class="f-fg2">Page 20</text>
+    <text x="310" y="381.0" font-family="'Space Grotesk',Inter,'Helvetica Neue',Arial,sans-serif" font-size="20" font-weight="700" fill="#EAE5F4" class="f-fg">Learning path</text>
+    <text x="310" y="430" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="600" fill="#A083F4" class="f-accent">Go →</text>
+    <text x="558" y="324" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="500" fill="#AEA4C0" class="f-fg2">Source index</text>
+    <text x="558" y="381.0" font-family="'Space Grotesk',Inter,'Helvetica Neue',Arial,sans-serif" font-size="20" font-weight="700" fill="#EAE5F4" class="f-fg">Corpus</text>
+    <text x="558" y="430" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="600" fill="#A083F4" class="f-accent">Go →</text>
+  </g>
+</svg>

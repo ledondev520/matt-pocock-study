@@ -40,6 +40,8 @@ id: d21-source-scope
 id: s21-four-marks
 ```
 
+图中示例引文「All code is debt.」出自 [Matt Pocock · 2026-05-01](https://x.com/mattpocockuk/status/2050173149170282674)。
+
 ```quote
 text: Could I get some attribution on /grill-me and /teach?
 author: Matt Pocock

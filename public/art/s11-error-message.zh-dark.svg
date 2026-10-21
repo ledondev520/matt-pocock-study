@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500" role="img" aria-labelledby="s11-error-message-title s11-error-message-desc">
+  <title id="s11-error-message-title">好的失败提示说清怎么修</title>
+  <desc id="s11-error-message-desc">左:只报导入方向违规;右:指出源文件、导入路径、规则、原因与修复入口;验收看一次正确拦截和一次合法通过。</desc>
+  <g id="shapes">
+    <rect id="bg" x="0" y="0" width="800" height="500" fill="#0E0A1F" class="f-bg"/>
+    <rect x="24" y="60" width="368" height="300" rx="16" fill="#171128" stroke="#352A48" stroke-width="1.5" class="f-card s-border"/>
+    <rect x="44" y="118" width="328" height="150" rx="10" fill="#211932" class="f-term"/>
+    <circle cx="62" cy="134" r="4.5" fill="#F25CAC" class="f-pink"/>
+    <circle cx="78" cy="134" r="4.5" fill="#C6F432" class="f-lime"/>
+    <circle cx="94" cy="134" r="4.5" fill="#352A48" class="f-border"/>
+    <rect x="408" y="60" width="368" height="300" rx="16" fill="#171128" stroke="#352A48" stroke-width="1.5" class="f-card s-border"/>
+    <rect x="428" y="118" width="328" height="150" rx="10" fill="#211932" class="f-term"/>
+    <circle cx="446" cy="134" r="4.5" fill="#F25CAC" class="f-pink"/>
+    <circle cx="462" cy="134" r="4.5" fill="#C6F432" class="f-lime"/>
+    <circle cx="478" cy="134" r="4.5" fill="#352A48" class="f-border"/>
+    <rect x="44" y="284" width="328" height="60" rx="10" fill="#3A1A33" stroke="#F25CAC" stroke-width="1.5" class="f-pink-tint s-pink"/>
+    <path d="M62 308 L74 320 M74 308 L62 320" fill="none" stroke="#F25CAC" stroke-width="3" class="s-pink" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M736 92 L741.3 97.6 L752 85.6" fill="none" stroke="#A083F4" stroke-width="3" class="s-block" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="428" y="284" width="328" height="60" rx="10" fill="#241B38" class="f-muted"/>
+    <path d="M446 314 L450.0 318.2 L458 309.2" fill="none" stroke="#A083F4" stroke-width="3" class="s-block" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="207" y="414" width="183" height="48" rx="24" fill="#C6F432" class="f-lime"/>
+    <rect x="410" y="414" width="183" height="48" rx="24" fill="#C6F432" class="f-lime"/>
+  </g>
+  <g id="text">
+    <text x="400" y="40" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="500" fill="#AEA4C0" class="f-fg2" text-anchor="middle">练习规则:「请注意导入方向」</text>
+    <text x="48" y="98" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="19" font-weight="700" fill="#EAE5F4" class="f-fg">只拦截</text>
+    <text x="432" y="98" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="19" font-weight="700" fill="#EAE5F4" class="f-fg">可读失败提示</text>
+    <text x="60" y="182" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="16" font-weight="400" fill="#EAE5F4" class="f-on-term">error: 导入方向违规</text>
+    <text x="86" y="319.2" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="600" fill="#EAE5F4" class="f-fg">agent 不知道怎么改</text>
+    <text x="444" y="156" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="14" font-weight="400" fill="#EAE5F4" class="f-on-term">src/domain/price.ts</text>
+    <text x="444" y="179" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="14" font-weight="400" fill="#EAE5F4" class="f-on-term">→ src/ui/PriceTag</text>
+    <text x="444" y="202" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="14" font-weight="400" fill="#EAE5F4" class="f-on-term">规则:domain 不得导入 ui</text>
+    <text x="444" y="225" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="14" font-weight="400" fill="#EAE5F4" class="f-on-term">原因:领域层独立</text>
+    <text x="444" y="248" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="14" font-weight="400" fill="#EAE5F4" class="f-on-term">修复:共享契约移到共同依赖</text>
+    <text x="470" y="319.2" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="600" fill="#EAE5F4" class="f-fg">agent 能照着修</text>
+    <text x="400" y="398" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="600" fill="#AEA4C0" class="f-fg2" text-anchor="middle">验收</text>
+    <text x="298.5" y="443.6" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="16" font-weight="700" fill="#1A2110" class="f-on-lime" text-anchor="middle">一次正确拦截</text>
+    <text x="501.5" y="443.6" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="16" font-weight="700" fill="#1A2110" class="f-on-lime" text-anchor="middle">一次合法通过</text>
+  </g>
+</svg>

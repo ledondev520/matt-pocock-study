@@ -1,0 +1,182 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Improve from retrospective evidence",
+    "locale": "en",
+    "output": ".archify/d12-retro-flow.en.html",
+    "quality_profile": "showcase"
+  },
+  "lanes": [
+    {
+      "id": "inputs",
+      "label": "Inputs"
+    },
+    {
+      "id": "evidence",
+      "label": "Collect evidence"
+    },
+    {
+      "id": "review",
+      "label": "Propose and verify"
+    },
+    {
+      "id": "decision",
+      "label": "Apply after confirmation"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "session",
+      "label": "Real session",
+      "lane": "inputs",
+      "col": 0,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "feedback",
+      "label": "Review feedback",
+      "lane": "inputs",
+      "col": 1,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "detours",
+      "label": "Find detours",
+      "lane": "evidence",
+      "col": 1,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "observed",
+      "label": "Observed evidence",
+      "lane": "evidence",
+      "col": 2,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "change",
+      "label": "Smallest change",
+      "lane": "review",
+      "col": 2,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "verify",
+      "label": "Verification",
+      "lane": "review",
+      "col": 1,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "confirm",
+      "label": "Human confirms?",
+      "lane": "review",
+      "col": 0,
+      "type": "security",
+      "icon": "decision"
+    },
+    {
+      "id": "apply",
+      "label": "✓ Improve navigation + checks",
+      "lane": "decision",
+      "col": 0,
+      "type": "backend",
+      "icon": "none",
+      "sublabel": "Prefer deterministic checks"
+    },
+    {
+      "id": "stop",
+      "label": "Stop",
+      "lane": "decision",
+      "col": 1,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "wrong",
+      "label": "× Agent adds rules",
+      "lane": "decision",
+      "col": 2,
+      "type": "backend",
+      "icon": "none"
+    }
+  ],
+  "edges": [
+    {
+      "id": "session-detours",
+      "from": "session",
+      "to": "detours",
+      "variant": "emphasis"
+    },
+    {
+      "id": "feedback-detours",
+      "from": "feedback",
+      "to": "detours",
+      "variant": "emphasis"
+    },
+    {
+      "id": "detours-observed",
+      "from": "detours",
+      "to": "observed",
+      "variant": "emphasis"
+    },
+    {
+      "id": "observed-change",
+      "from": "observed",
+      "to": "change",
+      "variant": "emphasis"
+    },
+    {
+      "id": "change-verify",
+      "from": "change",
+      "to": "verify",
+      "variant": "emphasis"
+    },
+    {
+      "id": "verify-confirm",
+      "from": "verify",
+      "to": "confirm",
+      "variant": "emphasis"
+    },
+    {
+      "id": "confirm-apply",
+      "from": "confirm",
+      "to": "apply",
+      "variant": "emphasis",
+      "label": "Yes"
+    },
+    {
+      "id": "confirm-stop",
+      "from": "confirm",
+      "to": "stop",
+      "variant": "default",
+      "label": "No"
+    },
+    {
+      "id": "change-wrong",
+      "from": "change",
+      "to": "wrong",
+      "variant": "dashed",
+      "role": "error",
+      "label": "Avoid"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "violet",
+      "title": "Find detours",
+      "items": [
+        "Slow information lookup",
+        "Stale documents",
+        "Missing tools or checks"
+      ]
+    }
+  ]
+}

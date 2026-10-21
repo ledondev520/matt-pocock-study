@@ -1,0 +1,16 @@
+{
+  "zh": {
+    "navigation": "/zh/agent-documents",
+    "judgment": "/zh/standards-and-checks",
+    "mechanical": "/zh/standards-and-checks",
+    "reason": "/zh/decisions-and-retrospectives",
+    "language": "/zh/agent-documents"
+  },
+  "en": {
+    "navigation": "/en/agent-documents",
+    "judgment": "/en/standards-and-checks",
+    "mechanical": "/en/standards-and-checks",
+    "reason": "/en/decisions-and-retrospectives",
+    "language": "/en/agent-documents"
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "diagram_type": "tree",
+  "meta": {
+    "title": "一条说明该放在哪里？",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "output": ".archify/d10-what-stays.zh/diagram.html"
+  },
+  "layout": {
+    "direction": "right",
+    "gapX": 45,
+    "gapY": 30,
+    "nodeW": 160,
+    "nodeMaxW": 230
+  },
+  "nodes": [
+    {
+      "id": "root",
+      "label": "这条说明"
+    },
+    {
+      "id": "broad",
+      "label": "广泛相关且难从环境发现",
+      "parent": "root"
+    },
+    {
+      "id": "keep",
+      "label": "留在根文件",
+      "parent": "broad"
+    },
+    {
+      "id": "config",
+      "label": "能从真实配置读到",
+      "parent": "root"
+    },
+    {
+      "id": "remove",
+      "label": "删掉，让 agent 读配置",
+      "parent": "config"
+    },
+    {
+      "id": "rare",
+      "label": "低频",
+      "parent": "root"
+    },
+    {
+      "id": "move",
+      "label": "移到主题旁，写触发条件",
+      "parent": "rare"
+    },
+    {
+      "id": "stale",
+      "label": "空泛、失效、重复",
+      "parent": "root"
+    },
+    {
+      "id": "observe",
+      "label": "确认行为影响后删除或合并",
+      "parent": "stale"
+    },
+    {
+      "id": "platform",
+      "label": "平台硬性要求",
+      "parent": "root"
+    },
+    {
+      "id": "obey",
+      "label": "继续遵守",
+      "parent": "platform"
+    }
+  ],
+  "cards": []
+}

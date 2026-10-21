@@ -1,0 +1,311 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "四条学习路线",
+    "locale": "zh-CN",
+    "output": ".archify/d20-routes.zh.html",
+    "quality_profile": "showcase"
+  },
+  "lanes": [
+    {
+      "id": "beginner",
+      "label": "入门"
+    },
+    {
+      "id": "practice",
+      "label": "实践"
+    },
+    {
+      "id": "advanced",
+      "label": "进阶"
+    },
+    {
+      "id": "teach",
+      "label": "讲解"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "beginner-0",
+      "label": "TS 基础",
+      "lane": "beginner",
+      "col": 0,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "beginner-1",
+      "label": "类型工具",
+      "lane": "beginner",
+      "col": 1,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "beginner-2",
+      "label": "实现与反馈",
+      "lane": "beginner",
+      "col": 2,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "beginner-task",
+      "label": "✓ 交付任务",
+      "lane": "beginner",
+      "col": 3,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "practice-0",
+      "label": "核心理念",
+      "lane": "practice",
+      "col": 0,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "practice-1",
+      "label": "工作流",
+      "lane": "practice",
+      "col": 1,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "practice-2",
+      "label": "对齐与原型",
+      "lane": "practice",
+      "col": 2,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "practice-3",
+      "label": "规格与工单",
+      "lane": "practice",
+      "col": 3,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "practice-4",
+      "label": "评审与 PR",
+      "lane": "practice",
+      "col": 4,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "practice-task",
+      "label": "✓ 交付任务",
+      "lane": "practice",
+      "col": 5,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "advanced-0",
+      "label": "上下文与交接",
+      "lane": "advanced",
+      "col": 0,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "advanced-1",
+      "label": "Agent 文档",
+      "lane": "advanced",
+      "col": 1,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "advanced-2",
+      "label": "规范与检查",
+      "lane": "advanced",
+      "col": 2,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "advanced-3",
+      "label": "状态与边界",
+      "lane": "advanced",
+      "col": 3,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "advanced-4",
+      "label": "决策与复盘",
+      "lane": "advanced",
+      "col": 4,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "advanced-task",
+      "label": "✓ 交付任务",
+      "lane": "advanced",
+      "col": 5,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "teach-0",
+      "label": "写作与教学",
+      "lane": "teach",
+      "col": 0,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "teach-1",
+      "label": "反馈与署名",
+      "lane": "teach",
+      "col": 1,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "teach-task",
+      "label": "✓ 交付任务",
+      "lane": "teach",
+      "col": 2,
+      "type": "backend",
+      "icon": "none"
+    }
+  ],
+  "edges": [
+    {
+      "id": "beginner-0-beginner-1",
+      "from": "beginner-0",
+      "to": "beginner-1",
+      "variant": "emphasis"
+    },
+    {
+      "id": "beginner-1-beginner-2",
+      "from": "beginner-1",
+      "to": "beginner-2",
+      "variant": "emphasis"
+    },
+    {
+      "id": "beginner-2-beginner-task",
+      "from": "beginner-2",
+      "to": "beginner-task",
+      "variant": "emphasis"
+    },
+    {
+      "id": "practice-0-practice-1",
+      "from": "practice-0",
+      "to": "practice-1",
+      "variant": "emphasis"
+    },
+    {
+      "id": "practice-1-practice-2",
+      "from": "practice-1",
+      "to": "practice-2",
+      "variant": "emphasis"
+    },
+    {
+      "id": "practice-2-practice-3",
+      "from": "practice-2",
+      "to": "practice-3",
+      "variant": "emphasis"
+    },
+    {
+      "id": "practice-3-practice-4",
+      "from": "practice-3",
+      "to": "practice-4",
+      "variant": "emphasis"
+    },
+    {
+      "id": "practice-4-practice-task",
+      "from": "practice-4",
+      "to": "practice-task",
+      "variant": "emphasis"
+    },
+    {
+      "id": "advanced-0-advanced-1",
+      "from": "advanced-0",
+      "to": "advanced-1",
+      "variant": "emphasis"
+    },
+    {
+      "id": "advanced-1-advanced-2",
+      "from": "advanced-1",
+      "to": "advanced-2",
+      "variant": "emphasis"
+    },
+    {
+      "id": "advanced-2-advanced-3",
+      "from": "advanced-2",
+      "to": "advanced-3",
+      "variant": "emphasis"
+    },
+    {
+      "id": "advanced-3-advanced-4",
+      "from": "advanced-3",
+      "to": "advanced-4",
+      "variant": "emphasis"
+    },
+    {
+      "id": "advanced-4-advanced-task",
+      "from": "advanced-4",
+      "to": "advanced-task",
+      "variant": "emphasis"
+    },
+    {
+      "id": "teach-0-teach-1",
+      "from": "teach-0",
+      "to": "teach-1",
+      "variant": "emphasis"
+    },
+    {
+      "id": "teach-1-teach-task",
+      "from": "teach-1",
+      "to": "teach-task",
+      "variant": "emphasis"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "violet",
+      "title": "入门",
+      "items": [
+        "处理 unknown JSON；展示有效与无效输入结果。"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "实践",
+      "items": [
+        "交小工单、行为证据与可评审说明。"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "进阶",
+      "items": [
+        "让另一会话接手；落地一个有效检查。"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "讲解",
+      "items": [
+        "写小课：问题、方法、验证与来源齐全。"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "路线说明",
+      "items": [
+        "顺序为本站设计，不是官方课程路径。"
+      ]
+    }
+  ]
+}

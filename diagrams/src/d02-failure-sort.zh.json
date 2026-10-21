@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "diagram_type": "tree",
+  "meta": {
+    "title": "先定位失败，再改善环境",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "output": ".archify/d02-failure-sort.zh/diagram.html"
+  },
+  "layout": {
+    "direction": "right",
+    "gapX": 45,
+    "gapY": 30,
+    "nodeW": 160,
+    "nodeMaxW": 230
+  },
+  "nodes": [
+    {
+      "id": "root",
+      "label": "agent 这次失败了"
+    },
+    {
+      "id": "goal",
+      "label": "目标错误",
+      "parent": "root"
+    },
+    {
+      "id": "align",
+      "label": "回到对齐",
+      "parent": "goal"
+    },
+    {
+      "id": "info",
+      "label": "信息缺失",
+      "parent": "root"
+    },
+    {
+      "id": "docs",
+      "label": "补导航与领域语言",
+      "parent": "info"
+    },
+    {
+      "id": "verify",
+      "label": "验证缺口",
+      "parent": "root"
+    },
+    {
+      "id": "checks",
+      "label": "补自动检查",
+      "parent": "verify"
+    },
+    {
+      "id": "design",
+      "label": "设计缺陷",
+      "parent": "root"
+    },
+    {
+      "id": "model",
+      "label": "改接口与状态模型",
+      "parent": "design"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "本站归纳",
+      "items": [
+        "× 不把所有失败归为“模型不行”。"
+      ]
+    }
+  ]
+}

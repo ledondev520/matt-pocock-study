@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500" role="img" aria-labelledby="s15-booleans-title s15-booleans-desc">
+  <title id="s15-booleans-title">布尔开关 vs 一个状态字段</title>
+  <desc id="s15-booleans-desc">左:加载中、成功、失败三个开关组合出 8 种状态,其中 4 种自相矛盾;右:一个 status 字段只允许合法取值。</desc>
+  <g id="shapes">
+    <rect id="bg" x="0" y="0" width="800" height="500" fill="#F8F7FC" class="f-bg"/>
+    <rect x="24" y="24" width="440" height="452" rx="16" fill="#FFFFFF" stroke="#DCD6E7" stroke-width="1.5" class="f-card s-border"/>
+    <rect x="48" y="84" width="40" height="22" rx="11" fill="#EEEBF5" stroke="#DCD6E7" stroke-width="1" class="f-muted s-border"/>
+    <circle cx="77" cy="95" r="8" fill="#5129C5" class="f-block"/>
+    <rect x="184" y="84" width="40" height="22" rx="11" fill="#EEEBF5" stroke="#DCD6E7" stroke-width="1" class="f-muted s-border"/>
+    <circle cx="213" cy="95" r="8" fill="#5129C5" class="f-block"/>
+    <rect x="320" y="84" width="40" height="22" rx="11" fill="#EEEBF5" stroke="#DCD6E7" stroke-width="1" class="f-muted s-border"/>
+    <circle cx="349" cy="95" r="8" fill="#5129C5" class="f-block"/>
+    <rect x="48" y="134" width="88" height="80" rx="10" fill="#F8F7FC" stroke="#DCD6E7" stroke-width="1" class="f-inner s-border"/>
+    <circle cx="70" cy="160" r="7" fill="#FFFFFF" stroke="#DCD6E7" stroke-width="1.5"/>
+    <circle cx="92" cy="160" r="7" fill="#FFFFFF" stroke="#DCD6E7" stroke-width="1.5"/>
+    <circle cx="114" cy="160" r="7" fill="#FFFFFF" stroke="#DCD6E7" stroke-width="1.5"/>
+    <path d="M86 190 L90.0 194.2 L98 185.2" fill="none" stroke="#6B607B" stroke-width="2.5" class="s-fg2" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="148" y="134" width="88" height="80" rx="10" fill="#F8F7FC" stroke="#DCD6E7" stroke-width="1" class="f-inner s-border"/>
+    <circle cx="170" cy="160" r="7" fill="#FFFFFF" stroke="#DCD6E7" stroke-width="1.5"/>
+    <circle cx="192" cy="160" r="7" fill="#FFFFFF" stroke="#DCD6E7" stroke-width="1.5"/>
+    <circle cx="214" cy="160" r="7" fill="#5129C5" stroke="#5129C5" stroke-width="1.5"/>
+    <path d="M186 190 L190.0 194.2 L198 185.2" fill="none" stroke="#6B607B" stroke-width="2.5" class="s-fg2" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="248" y="134" width="88" height="80" rx="10" fill="#F8F7FC" stroke="#DCD6E7" stroke-width="1" class="f-inner s-border"/>
+    <circle cx="270" cy="160" r="7" fill="#FFFFFF" stroke="#DCD6E7" stroke-width="1.5"/>
+    <circle cx="292" cy="160" r="7" fill="#5129C5" stroke="#5129C5" stroke-width="1.5"/>
+    <circle cx="314" cy="160" r="7" fill="#FFFFFF" stroke="#DCD6E7" stroke-width="1.5"/>
+    <path d="M286 190 L290.0 194.2 L298 185.2" fill="none" stroke="#6B607B" stroke-width="2.5" class="s-fg2" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="348" y="134" width="88" height="80" rx="10" fill="#FCE7F2" stroke="#F25CAC" stroke-width="2" class="f-pink-tint s-pink"/>
+    <circle cx="370" cy="160" r="7" fill="#FFFFFF" stroke="#DCD6E7" stroke-width="1.5"/>
+    <circle cx="392" cy="160" r="7" fill="#5129C5" stroke="#5129C5" stroke-width="1.5"/>
+    <circle cx="414" cy="160" r="7" fill="#5129C5" stroke="#5129C5" stroke-width="1.5"/>
+    <path d="M386 184 L398 196 M398 184 L386 196" fill="none" stroke="#F25CAC" stroke-width="3" class="s-pink" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="48" y="230" width="88" height="80" rx="10" fill="#F8F7FC" stroke="#DCD6E7" stroke-width="1" class="f-inner s-border"/>
+    <circle cx="70" cy="256" r="7" fill="#5129C5" stroke="#5129C5" stroke-width="1.5"/>
+    <circle cx="92" cy="256" r="7" fill="#FFFFFF" stroke="#DCD6E7" stroke-width="1.5"/>
+    <circle cx="114" cy="256" r="7" fill="#FFFFFF" stroke="#DCD6E7" stroke-width="1.5"/>
+    <path d="M86 286 L90.0 290.2 L98 281.2" fill="none" stroke="#6B607B" stroke-width="2.5" class="s-fg2" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="148" y="230" width="88" height="80" rx="10" fill="#FCE7F2" stroke="#F25CAC" stroke-width="2" class="f-pink-tint s-pink"/>
+    <circle cx="170" cy="256" r="7" fill="#5129C5" stroke="#5129C5" stroke-width="1.5"/>
+    <circle cx="192" cy="256" r="7" fill="#FFFFFF" stroke="#DCD6E7" stroke-width="1.5"/>
+    <circle cx="214" cy="256" r="7" fill="#5129C5" stroke="#5129C5" stroke-width="1.5"/>
+    <path d="M186 280 L198 292 M198 280 L186 292" fill="none" stroke="#F25CAC" stroke-width="3" class="s-pink" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="248" y="230" width="88" height="80" rx="10" fill="#FCE7F2" stroke="#F25CAC" stroke-width="2" class="f-pink-tint s-pink"/>
+    <circle cx="270" cy="256" r="7" fill="#5129C5" stroke="#5129C5" stroke-width="1.5"/>
+    <circle cx="292" cy="256" r="7" fill="#5129C5" stroke="#5129C5" stroke-width="1.5"/>
+    <circle cx="314" cy="256" r="7" fill="#FFFFFF" stroke="#DCD6E7" stroke-width="1.5"/>
+    <path d="M286 280 L298 292 M298 280 L286 292" fill="none" stroke="#F25CAC" stroke-width="3" class="s-pink" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="348" y="230" width="88" height="80" rx="10" fill="#FCE7F2" stroke="#F25CAC" stroke-width="2" class="f-pink-tint s-pink"/>
+    <circle cx="370" cy="256" r="7" fill="#5129C5" stroke="#5129C5" stroke-width="1.5"/>
+    <circle cx="392" cy="256" r="7" fill="#5129C5" stroke="#5129C5" stroke-width="1.5"/>
+    <circle cx="414" cy="256" r="7" fill="#5129C5" stroke="#5129C5" stroke-width="1.5"/>
+    <path d="M386 280 L398 292 M398 280 L386 292" fill="none" stroke="#F25CAC" stroke-width="3" class="s-pink" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="48" y="380" width="392" height="72" rx="12" fill="#FCE7F2" class="f-pink-tint"/>
+    <rect x="480" y="24" width="296" height="452" rx="16" fill="#FFFFFF" stroke="#DCD6E7" stroke-width="1.5" class="f-card s-border"/>
+    <rect x="504" y="112" width="248" height="56" rx="10" fill="#F8F7FC" stroke="#DCD6E7" stroke-width="1" class="f-inner s-border"/>
+    <rect x="504" y="182" width="248" height="56" rx="10" fill="#F8F7FC" stroke="#DCD6E7" stroke-width="1" class="f-inner s-border"/>
+    <rect x="504" y="252" width="248" height="56" rx="10" fill="#5129C5" class="f-block"/>
+    <rect x="504" y="322" width="248" height="56" rx="10" fill="#F8F7FC" stroke="#DCD6E7" stroke-width="1" class="f-inner s-border"/>
+    <rect x="504" y="400" width="248" height="52" rx="12" fill="#C6F432" class="f-lime"/>
+    <path d="M522 426 L526.0 430.2 L534 421.2" fill="none" stroke="#1A2110" stroke-width="3" class="s-on-lime" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g id="text">
+    <text x="48" y="62" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="19" font-weight="700" fill="#241B35" class="f-fg">三个布尔开关</text>
+    <text x="98" y="100.2" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="600" fill="#241B35" class="f-fg">加载中</text>
+    <text x="234" y="100.2" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="600" fill="#241B35" class="f-fg">成功</text>
+    <text x="370" y="100.2" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="600" fill="#241B35" class="f-fg">失败</text>
+    <text x="48" y="360" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="14" font-weight="400" fill="#6B607B" class="f-fg2">● = 开,顺序:加载中 · 成功 · 失败</text>
+    <text x="72" y="411.1" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="600" fill="#241B35" class="f-fg"><tspan x="72" dy="0">8 种组合,4 种自相矛盾</tspan><tspan x="72" dy="20.2">(比如同时加载、成功、失败)</tspan></text>
+    <text x="504" y="62" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="19" font-weight="700" fill="#241B35" class="f-fg">一个状态字段</text>
+    <text x="504" y="92" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="16" font-weight="600" fill="#6B607B" class="f-fg2">status</text>
+    <text x="524" y="145.2" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="15" font-weight="600" fill="#241B35" class="f-fg">"idle"</text>
+    <text x="732" y="145.2" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="400" fill="#6B607B" class="f-fg2" text-anchor="end">空闲</text>
+    <text x="524" y="215.2" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="15" font-weight="600" fill="#241B35" class="f-fg">"loading"</text>
+    <text x="732" y="215.2" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="400" fill="#6B607B" class="f-fg2" text-anchor="end">加载中</text>
+    <text x="524" y="285.2" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="15" font-weight="600" fill="#FFFFFF" class="f-on-block">"success"</text>
+    <text x="732" y="285.2" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="400" fill="#E4DAFB" class="f-on-block2" text-anchor="end">成功</text>
+    <text x="524" y="355.2" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="15" font-weight="600" fill="#241B35" class="f-fg">"error"</text>
+    <text x="732" y="355.2" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="400" fill="#6B607B" class="f-fg2" text-anchor="end">失败</text>
+    <text x="546" y="431.2" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="600" fill="#1A2110" class="f-on-lime">一次只有一个合法值</text>
+  </g>
+</svg>

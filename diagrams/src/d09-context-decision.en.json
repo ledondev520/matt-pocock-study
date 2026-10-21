@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "diagram_type": "tree",
+  "meta": {
+    "title": "Will you need this context later?",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "output": ".archify/d09-context-decision.en/diagram.html"
+  },
+  "layout": {
+    "direction": "right",
+    "gapX": 45,
+    "gapY": 30,
+    "nodeW": 160,
+    "nodeMaxW": 230
+  },
+  "nodes": [
+    {
+      "id": "root",
+      "label": "Need this context later?"
+    },
+    {
+      "id": "keep",
+      "label": "The same small loop still needs current details",
+      "parent": "root"
+    },
+    {
+      "id": "continue",
+      "label": "Continue",
+      "parent": "keep"
+    },
+    {
+      "id": "reset",
+      "label": "The goal is unchanged but unrelated material has accumulated",
+      "parent": "root"
+    },
+    {
+      "id": "clear",
+      "label": "Clean up",
+      "parent": "reset"
+    },
+    {
+      "id": "transfer",
+      "label": "An acceptance boundary is reached and a new session will take over",
+      "parent": "root"
+    },
+    {
+      "id": "handoff",
+      "label": "Hand off",
+      "parent": "transfer"
+    },
+    {
+      "id": "bounded",
+      "label": "A side task has its own acceptance criteria",
+      "parent": "root"
+    },
+    {
+      "id": "subtask",
+      "label": "Separate subtask",
+      "parent": "bounded"
+    },
+    {
+      "id": "long",
+      "label": "The same task must continue but its history is scattered",
+      "parent": "root"
+    },
+    {
+      "id": "compact",
+      "label": "Compress",
+      "parent": "long"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "violet",
+      "title": "Our decision table",
+      "items": [
+        "Our synthesis based on work needs, not a reproduction of a source image.",
+        "Preserve useful evidence and open questions before cleaning up or compressing."
+      ]
+    }
+  ]
+}

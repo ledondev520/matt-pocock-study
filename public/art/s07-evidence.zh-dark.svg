@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500" role="img" aria-labelledby="s07-evidence-title s07-evidence-desc">
+  <title id="s07-evidence-title">修复要有两份证据</title>
+  <desc id="s07-evidence-desc">失败证据 → 修复 → 通过证据;两份证据都要能重复运行,结果可判定。</desc>
+  <g id="shapes">
+    <rect id="bg" x="0" y="0" width="800" height="500" fill="#0E0A1F" class="f-bg"/>
+    <rect x="24" y="48" width="250" height="280" rx="16" fill="#171128" stroke="#352A48" stroke-width="1.5" class="f-card s-border"/>
+    <rect x="42" y="108" width="214" height="196" rx="10" fill="#211932" class="f-term"/>
+    <circle cx="60" cy="124" r="4.5" fill="#F25CAC" class="f-pink"/>
+    <circle cx="76" cy="124" r="4.5" fill="#C6F432" class="f-lime"/>
+    <circle cx="92" cy="124" r="4.5" fill="#352A48" class="f-border"/>
+    <circle cx="149" cy="262" r="20" fill="#F25CAC" class="f-pink"/>
+    <path d="M142 255 L156 269 M156 255 L142 269" fill="none" stroke="#211932" stroke-width="3" class="s-term" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="526" y="48" width="250" height="280" rx="16" fill="#171128" stroke="#352A48" stroke-width="1.5" class="f-card s-border"/>
+    <rect x="544" y="108" width="214" height="196" rx="10" fill="#211932" class="f-term"/>
+    <circle cx="562" cy="124" r="4.5" fill="#F25CAC" class="f-pink"/>
+    <circle cx="578" cy="124" r="4.5" fill="#C6F432" class="f-lime"/>
+    <circle cx="594" cy="124" r="4.5" fill="#352A48" class="f-border"/>
+    <circle cx="651" cy="262" r="20" fill="#A083F4" class="f-block"/>
+    <path d="M643 262 L648.3 267.6 L659 255.6" fill="none" stroke="#140C28" stroke-width="3" class="s-on-block" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="318" y="140" width="164" height="96" rx="16" fill="#A083F4" class="f-block"/>
+    <path d="M278 188 L312 188" fill="none" stroke="#EAE5F4" stroke-width="2.5" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M303.9 191.9 L312 188 L303.9 184.1" fill="none" stroke="#EAE5F4" stroke-width="2.5" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M486 188 L520 188" fill="none" stroke="#EAE5F4" stroke-width="2.5" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M511.9 191.9 L520 188 L511.9 184.1" fill="none" stroke="#EAE5F4" stroke-width="2.5" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="190" y="372" width="198" height="52" rx="26" fill="#C6F432" class="f-lime"/>
+    <path d="M212 398 L216.0 402.2 L224 393.2" fill="none" stroke="#1A2110" stroke-width="2.5" class="s-on-lime" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="412" y="372" width="198" height="52" rx="26" fill="#C6F432" class="f-lime"/>
+    <path d="M434 398 L438.0 402.2 L446 393.2" fill="none" stroke="#1A2110" stroke-width="2.5" class="s-on-lime" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g id="text">
+    <text x="46" y="86" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="18" font-weight="700" fill="#EAE5F4" class="f-fg">失败证据</text>
+    <text x="58" y="166" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="16" font-weight="400" fill="#EAE5F4" class="f-on-term">$ 提交表单</text>
+    <text x="58" y="201.5" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="14" font-weight="400" fill="#AEA4C0" class="f-term-dim"><tspan x="58" dy="0">缺服务地址</tspan><tspan x="58" dy="18.9">却显示已发送</tspan></text>
+    <text x="548" y="86" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="18" font-weight="700" fill="#EAE5F4" class="f-fg">通过证据</text>
+    <text x="560" y="166" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="16" font-weight="400" fill="#EAE5F4" class="f-on-term">$ 提交表单</text>
+    <text x="560" y="201.5" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="14" font-weight="400" fill="#AEA4C0" class="f-term-dim"><tspan x="560" dy="0">缺配置 → 错误</tspan><tspan x="560" dy="18.9">有效配置 → 已发送</tspan></text>
+    <text x="400.0" y="195.0" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="20" font-weight="700" fill="#140C28" class="f-on-block" text-anchor="middle">修复</text>
+    <text x="236" y="403.6" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="16" font-weight="700" fill="#1A2110" class="f-on-lime">可重复运行</text>
+    <text x="458" y="403.6" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="16" font-weight="700" fill="#1A2110" class="f-on-lime">结果可判定</text>
+    <text x="400" y="460" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="400" fill="#AEA4C0" class="f-fg2" text-anchor="middle">两份证据都满足,才算完成</text>
+  </g>
+</svg>

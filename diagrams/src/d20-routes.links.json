@@ -1,0 +1,36 @@
+{
+  "zh": {
+    "beginner-0": "/zh/typescript-foundations",
+    "beginner-1": "/zh/practical-type-tools",
+    "beginner-2": "/zh/implementation-and-feedback",
+    "practice-0": "/zh/core-principles",
+    "practice-1": "/zh/ai-coding-workflow",
+    "practice-2": "/zh/alignment-and-prototypes",
+    "practice-3": "/zh/specs-and-tickets",
+    "practice-4": "/zh/review-and-pr",
+    "advanced-0": "/zh/context-and-handoff",
+    "advanced-1": "/zh/agent-documents",
+    "advanced-2": "/zh/standards-and-checks",
+    "advanced-3": "/zh/state-and-module-boundaries",
+    "advanced-4": "/zh/decisions-and-retrospectives",
+    "teach-0": "/zh/writing-to-teach",
+    "teach-1": "/zh/feedback-and-attribution"
+  },
+  "en": {
+    "beginner-0": "/en/typescript-foundations",
+    "beginner-1": "/en/practical-type-tools",
+    "beginner-2": "/en/implementation-and-feedback",
+    "practice-0": "/en/core-principles",
+    "practice-1": "/en/ai-coding-workflow",
+    "practice-2": "/en/alignment-and-prototypes",
+    "practice-3": "/en/specs-and-tickets",
+    "practice-4": "/en/review-and-pr",
+    "advanced-0": "/en/context-and-handoff",
+    "advanced-1": "/en/agent-documents",
+    "advanced-2": "/en/standards-and-checks",
+    "advanced-3": "/en/state-and-module-boundaries",
+    "advanced-4": "/en/decisions-and-retrospectives",
+    "teach-0": "/en/writing-to-teach",
+    "teach-1": "/en/feedback-and-attribution"
+  }
+}

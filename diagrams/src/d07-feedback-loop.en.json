@@ -1,0 +1,131 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Passing checks produce behavior evidence",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "output": ".archify/d07-feedback-loop.en/diagram.html"
+  },
+  "lanes": [
+    {
+      "id": "l0",
+      "label": "Define expected behavior"
+    },
+    {
+      "id": "l1",
+      "label": "Implement + check"
+    },
+    {
+      "id": "l2",
+      "label": "Feedback loop"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "ticket",
+      "label": "Scoped ticket",
+      "lane": "l0",
+      "col": 0,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "expect",
+      "label": "Reproduce / set expectations",
+      "lane": "l0",
+      "col": 1,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "implement",
+      "label": "Implement",
+      "lane": "l1",
+      "col": 1,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "check",
+      "label": "Check",
+      "lane": "l1",
+      "col": 2,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "pass",
+      "label": "Pass?",
+      "lane": "l2",
+      "col": 2,
+      "type": "security",
+      "icon": "none"
+    },
+    {
+      "id": "evidence",
+      "label": "✓ Behavior evidence",
+      "lane": "l2",
+      "col": 1,
+      "type": "backend",
+      "icon": "none"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e0",
+      "from": "ticket",
+      "to": "expect",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e1",
+      "from": "expect",
+      "to": "implement",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e2",
+      "from": "implement",
+      "to": "check",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e3",
+      "from": "check",
+      "to": "pass",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e4",
+      "from": "pass",
+      "to": "evidence",
+      "variant": "emphasis",
+      "label": "Yes"
+    },
+    {
+      "id": "e5",
+      "from": "pass",
+      "to": "implement",
+      "variant": "emphasis",
+      "label": "No: fix"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "violet",
+      "title": "TypeScript projects",
+      "items": [
+        "Typecheck, relevant tests, formatting and lint."
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "Interactive behavior",
+      "items": [
+        "Dev server, readable logs and smoke CLI.",
+        "Checks must catch meaningful errors."
+      ]
+    }
+  ]
+}

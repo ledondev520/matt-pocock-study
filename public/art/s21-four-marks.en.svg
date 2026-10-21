@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500" role="img" aria-labelledby="s21-four-marks-title s21-four-marks-desc">
+  <title id="s21-four-marks-title">The four marks on a page</title>
+  <desc id="s21-four-marks-desc">The quote has a visible source and date, followed by our rendering. Failed-save advice is our inference; handoff fields illustrate MIT adaptation.</desc>
+  <g id="shapes">
+    <rect id="bg" x="0" y="0" width="800" height="500" fill="#F8F7FC" class="f-bg"/>
+    <rect x="24" y="60" width="752" height="92" rx="14" fill="#FFFFFF" stroke="#DCD6E7" stroke-width="1.5" class="f-card s-border"/>
+    <rect x="40" y="68" width="360" height="76" rx="8" fill="#EEEBF5" class="f-muted"/>
+    <rect x="40" y="68" width="5" height="76" rx="2" fill="#F25CAC" class="f-pink"/>
+    <path d="M408 78 L408 134" fill="none" stroke="#DCD6E7" stroke-width="1.5" class="s-border" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="24" y="164" width="752" height="92" rx="14" fill="#FFFFFF" stroke="#DCD6E7" stroke-width="1.5" class="f-card s-border"/>
+    <rect x="40" y="194" width="133" height="32" rx="16" fill="#EEEBF5" class="f-muted"/>
+    <path d="M408 182 L408 238" fill="none" stroke="#DCD6E7" stroke-width="1.5" class="s-border" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="24" y="268" width="752" height="92" rx="14" fill="#FFFFFF" stroke="#DCD6E7" stroke-width="1.5" class="f-card s-border"/>
+    <rect x="40" y="298" width="125" height="32" rx="16" fill="#FFFFFF" stroke="#7445EB" stroke-width="1.5" class="f-card s-accent"/>
+    <path d="M408 286 L408 342" fill="none" stroke="#DCD6E7" stroke-width="1.5" class="s-border" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="24" y="372" width="752" height="92" rx="14" fill="#FFFFFF" stroke="#DCD6E7" stroke-width="1.5" class="f-card s-border"/>
+    <rect x="40" y="402" width="135" height="32" rx="16" fill="#C6F432" class="f-lime"/>
+    <path d="M408 390 L408 446" fill="none" stroke="#DCD6E7" stroke-width="1.5" class="s-border" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g id="text">
+    <text x="40" y="44" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="600" fill="#6B607B" class="f-fg2">On the page</text>
+    <text x="424" y="44" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="600" fill="#6B607B" class="f-fg2">What it means</text>
+    <text x="424" y="101.2" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="500" fill="#241B35" class="f-fg"><tspan x="424" dy="0">Linked short quote: Matt Pocock’s</tspan><tspan x="424" dy="20.2">own words, with URL and date</tspan></text>
+    <text x="56" y="89" font-family="'Space Grotesk',Inter,'Helvetica Neue',Arial,sans-serif" font-size="16" font-weight="600" fill="#241B35" class="f-fg">All code is debt.</text>
+    <text x="56" y="110" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="400" fill="#6B607B" class="f-fg2">— Matt Pocock · 2026-05-01</text>
+    <text x="56" y="131" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="400" fill="#6B607B" class="f-fg2">x.com/…/status/2050173149170282674</text>
+    <text x="424" y="205.2" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="500" fill="#241B35" class="f-fg"><tspan x="424" dy="0">Our translation: our rendering,</tspan><tspan x="424" dy="20.2">not another original statement</tspan></text>
+    <text x="106.5" y="214.9" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="600" fill="#241B35" class="f-fg" text-anchor="middle">Our translation</text>
+    <text x="185" y="205.2" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="400" fill="#241B35" class="f-fg"><tspan x="185" dy="0">Our rendering:</tspan><tspan x="185" dy="20.2">code brings future upkeep</tspan></text>
+    <text x="424" y="319.2" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="500" fill="#241B35" class="f-fg">Our inference: our own judgment</text>
+    <text x="102.5" y="318.9" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="600" fill="#241B35" class="f-fg" text-anchor="middle">Our inference</text>
+    <text x="177" y="309.1" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="400" fill="#241B35" class="f-fg"><tspan x="177" dy="0">Reproduce a failed save</tspan><tspan x="177" dy="20.2">before choosing a check</tspan></text>
+    <text x="424" y="413.1" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="500" fill="#241B35" class="f-fg"><tspan x="424" dy="0">MIT adaptation: adapted from the</tspan><tspan x="424" dy="20.2">skills repo, with copyright and license</tspan></text>
+    <text x="107.5" y="422.9" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="700" fill="#1A2110" class="f-on-lime" text-anchor="middle">MIT adaptation</text>
+    <text x="187" y="413.1" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="400" fill="#241B35" class="f-fg"><tspan x="187" dy="0">Handoff fields: source</tspan><tspan x="187" dy="20.2">file, changes, licence</tspan></text>
+    <text x="400" y="484" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="400" fill="#6B607B" class="f-fg2" text-anchor="middle">First row: original quote. Other rows: our rendering and examples. Source shown as text.</text>
+  </g>
+</svg>

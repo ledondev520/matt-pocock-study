@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500" role="img" aria-labelledby="s03-card-anatomy-title s03-card-anatomy-desc">
+  <title id="s03-card-anatomy-title">The five layers of a quote card</title>
+  <desc id="s03-card-anatomy-desc">Top to bottom: original quote, our translation, what it solves, when it applies, next step. Slogans leave out the last two.</desc>
+  <g id="shapes">
+    <rect id="bg" x="0" y="0" width="800" height="500" fill="#F8F7FC" class="f-bg"/>
+    <rect x="88" y="24" width="400" height="452" rx="18" fill="#FFFFFF" stroke="#DCD6E7" stroke-width="1.5" class="f-card s-border"/>
+    <rect x="104" y="40" width="368" height="96" rx="12" fill="#43209E" class="f-violet"/>
+    <rect x="104" y="146" width="368" height="70" rx="12" fill="#F8F7FC" stroke="#DCD6E7" stroke-width="1" class="f-inner s-border"/>
+    <rect x="104" y="226" width="368" height="70" rx="12" fill="#F8F7FC" stroke="#DCD6E7" stroke-width="1" class="f-inner s-border"/>
+    <rect x="104" y="306" width="368" height="70" rx="12" fill="#C6F432" class="f-lime"/>
+    <rect x="104" y="386" width="368" height="70" rx="12" fill="#C6F432" class="f-lime"/>
+    <path d="M504 306 Q516 306 516 318 V369 L526 381 L516 393 V444 Q516 456 504 456" fill="none" stroke="#F25CAC" stroke-width="2.5" class="s-pink" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g id="text">
+    <text x="126" y="80.2" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="15" font-weight="500" fill="#E4DAFB" class="f-on-block2">01</text>
+    <text x="168" y="81.7" font-family="'Space Grotesk',Inter,'Helvetica Neue',Arial,sans-serif" font-size="19" font-weight="700" fill="#FFFFFF" class="f-on-block">Original quote</text>
+    <text x="168" y="111.2" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="400" fill="#E4DAFB" class="f-on-block2">English · author · link · date</text>
+    <text x="448" y="102" font-family="'Space Grotesk',Inter,'Helvetica Neue',Arial,sans-serif" font-size="48" font-weight="700" fill="#C6F432" class="f-deco" text-anchor="end">“</text>
+    <text x="126" y="186.2" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="15" font-weight="500" fill="#6B607B" class="f-fg2">02</text>
+    <text x="168" y="187.3" font-family="'Space Grotesk',Inter,'Helvetica Neue',Arial,sans-serif" font-size="18" font-weight="600" fill="#241B35" class="f-fg">Our translation</text>
+    <text x="126" y="266.2" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="15" font-weight="500" fill="#6B607B" class="f-fg2">03</text>
+    <text x="168" y="267.3" font-family="'Space Grotesk',Inter,'Helvetica Neue',Arial,sans-serif" font-size="18" font-weight="600" fill="#241B35" class="f-fg">What it solves</text>
+    <text x="126" y="346.2" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="15" font-weight="500" fill="#1A2110" class="f-on-lime">04</text>
+    <text x="168" y="347.3" font-family="'Space Grotesk',Inter,'Helvetica Neue',Arial,sans-serif" font-size="18" font-weight="600" fill="#1A2110" class="f-on-lime">When it applies</text>
+    <text x="126" y="426.2" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="15" font-weight="500" fill="#1A2110" class="f-on-lime">05</text>
+    <text x="168" y="427.3" font-family="'Space Grotesk',Inter,'Helvetica Neue',Arial,sans-serif" font-size="18" font-weight="600" fill="#1A2110" class="f-on-lime">Next step</text>
+    <text x="540" y="374.8" font-family="'Space Grotesk',Inter,'Helvetica Neue',Arial,sans-serif" font-size="19" font-weight="700" fill="#241B35" class="f-fg"><tspan x="540" dy="0">What slogans</tspan><tspan x="540" dy="25.7">leave out</tspan></text>
+  </g>
+</svg>

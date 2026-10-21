@@ -1,0 +1,100 @@
+{
+  "schema_version": 3,
+  "diagram_type": "lifecycle",
+  "meta": {
+    "title": "请求状态与合法转换",
+    "locale": "zh-CN",
+    "output": ".archify/d15-states.zh.html",
+    "quality_profile": "showcase"
+  },
+  "mainPath": [
+    "idle",
+    "loading",
+    "success"
+  ],
+  "states": [
+    {
+      "id": "idle",
+      "type": "start",
+      "label": "idle"
+    },
+    {
+      "id": "loading",
+      "type": "active",
+      "label": "loading"
+    },
+    {
+      "id": "success",
+      "type": "success",
+      "label": "success"
+    },
+    {
+      "id": "error",
+      "type": "failure",
+      "label": "error"
+    }
+  ],
+  "transitions": [
+    {
+      "id": "idle-loading",
+      "from": "idle",
+      "to": "loading",
+      "variant": "emphasis",
+      "label": "submit"
+    },
+    {
+      "id": "loading-success",
+      "from": "loading",
+      "to": "success",
+      "variant": "emphasis",
+      "label": "resolve"
+    },
+    {
+      "id": "loading-error",
+      "from": "loading",
+      "to": "error",
+      "variant": "emphasis",
+      "label": "reject"
+    },
+    {
+      "id": "error-loading",
+      "from": "error",
+      "to": "loading",
+      "variant": "emphasis",
+      "label": "retry"
+    },
+    {
+      "id": "success-idle",
+      "from": "success",
+      "to": "idle",
+      "variant": "emphasis",
+      "label": "reset"
+    },
+    {
+      "id": "idle-success",
+      "from": "idle",
+      "to": "success",
+      "variant": "dashed",
+      "note": "忽略事件，保持 idle；测试须拦住提前成功。",
+      "label": "× resolve：非法转换"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "violet",
+      "title": "表达方式",
+      "items": [
+        "可用 discriminated union、reducer 或状态机。",
+        "简单场景保持简单。"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "原创示例",
+      "items": [
+        "本站原创请求状态表；表外事件均不转换。",
+        "success 才携带结果，error 才携带错误。"
+      ]
+    }
+  ]
+}

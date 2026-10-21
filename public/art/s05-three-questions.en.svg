@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500" role="img" aria-labelledby="s05-three-questions-title s05-three-questions-desc">
+  <title id="s05-three-questions-title">Three kinds of question, three ways to answer</title>
+  <desc id="s05-three-questions-desc">Facts: the agent looks them up. Trade-offs: the user decides. Experience questions: a person picks after seeing prototypes.</desc>
+  <g id="shapes">
+    <rect id="bg" x="0" y="0" width="800" height="500" fill="#F8F7FC" class="f-bg"/>
+    <rect x="170" y="40" width="194" height="72" rx="12" fill="#5129C5" class="f-block"/>
+    <rect x="170" y="124" width="194" height="96" rx="12" fill="#FFFFFF" stroke="#DCD6E7" stroke-width="1.5" class="f-card s-border"/>
+    <rect x="170" y="232" width="194" height="96" rx="12" fill="#F8F7FC" stroke="#DCD6E7" stroke-width="1.5" class="f-inner s-border"/>
+    <rect x="372" y="40" width="194" height="72" rx="12" fill="#5129C5" class="f-block"/>
+    <rect x="372" y="124" width="194" height="96" rx="12" fill="#FFFFFF" stroke="#DCD6E7" stroke-width="1.5" class="f-card s-border"/>
+    <rect x="372" y="232" width="194" height="96" rx="12" fill="#F8F7FC" stroke="#DCD6E7" stroke-width="1.5" class="f-inner s-border"/>
+    <rect x="574" y="40" width="194" height="72" rx="12" fill="#43209E" class="f-violet"/>
+    <rect x="574" y="124" width="194" height="96" rx="12" fill="#FFFFFF" stroke="#DCD6E7" stroke-width="1.5" class="f-card s-border"/>
+    <rect x="574" y="232" width="194" height="96" rx="12" fill="#F8F7FC" stroke="#DCD6E7" stroke-width="1.5" class="f-inner s-border"/>
+    <rect x="24" y="356" width="752" height="56" rx="14" fill="#C6F432" class="f-lime"/>
+  </g>
+  <g id="text">
+    <text x="24" y="81.2" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="600" fill="#6B607B" class="f-fg2">Question</text>
+    <text x="24" y="177.2" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="600" fill="#6B607B" class="f-fg2">Who answers</text>
+    <text x="24" y="275.1" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="600" fill="#6B607B" class="f-fg2"><tspan x="24" dy="0">Example:</tspan><tspan x="24" dy="20.2">search page</tspan></text>
+    <text x="267.0" y="82.0" font-family="'Space Grotesk',Inter,'Helvetica Neue',Arial,sans-serif" font-size="17" font-weight="700" fill="#FFFFFF" class="f-on-block" text-anchor="middle">Fact questions</text>
+    <text x="267.0" y="166.8" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="16" font-weight="600" fill="#241B35" class="f-fg" text-anchor="middle"><tspan x="267.0" dy="0">The agent checks</tspan><tspan x="267.0" dy="21.6">interface and code</tspan></text>
+    <text x="267.0" y="275.1" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="400" fill="#241B35" class="f-fg" text-anchor="middle"><tspan x="267.0" dy="0">Does the response</tspan><tspan x="267.0" dy="20.2">include tags?</tspan></text>
+    <text x="469.0" y="82.0" font-family="'Space Grotesk',Inter,'Helvetica Neue',Arial,sans-serif" font-size="17" font-weight="700" fill="#FFFFFF" class="f-on-block" text-anchor="middle">Trade-off questions</text>
+    <text x="469.0" y="156.0" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="16" font-weight="600" fill="#241B35" class="f-fg" text-anchor="middle"><tspan x="469.0" dy="0">The user decides</tspan><tspan x="469.0" dy="21.6">with a reasoned</tspan><tspan x="469.0" dy="21.6">recommendation</tspan></text>
+    <text x="469.0" y="275.1" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="400" fill="#241B35" class="f-fg" text-anchor="middle"><tspan x="469.0" dy="0">Default to relevance</tspan><tspan x="469.0" dy="20.2">or date?</tspan></text>
+    <text x="671.0" y="70.5" font-family="'Space Grotesk',Inter,'Helvetica Neue',Arial,sans-serif" font-size="17" font-weight="700" fill="#FFFFFF" class="f-on-block" text-anchor="middle"><tspan x="671.0" dy="0">Experience</tspan><tspan x="671.0" dy="23.0">questions</tspan></text>
+    <text x="671.0" y="156.0" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="16" font-weight="600" fill="#241B35" class="f-fg" text-anchor="middle"><tspan x="671.0" dy="0">A person tries</tspan><tspan x="671.0" dy="21.6">prototypes and</tspan><tspan x="671.0" dy="21.6">chooses</tspan></text>
+    <text x="671.0" y="275.1" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="400" fill="#241B35" class="f-fg" text-anchor="middle"><tspan x="671.0" dy="0">Do filters crowd</tspan><tspan x="671.0" dy="20.2">the results?</tspan></text>
+    <text x="48" y="389.2" font-family="'Space Grotesk',Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="700" fill="#1A2110" class="f-on-lime">Done when</text>
+    <text x="151.765625" y="389.6" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="16" font-weight="500" fill="#1A2110" class="f-on-lime">acceptance behavior is clear and open items are listed</text>
+    <text x="400" y="448" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="400" fill="#6B607B" class="f-fg2" text-anchor="middle">Examples come from this site’s own search-page case</text>
+  </g>
+</svg>

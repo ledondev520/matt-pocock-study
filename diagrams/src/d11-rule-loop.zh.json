@@ -1,0 +1,145 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "把真实失败变成有效规则",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "output": ".archify/d11-rule-loop.zh/diagram.html"
+  },
+  "lanes": [
+    {
+      "id": "l0",
+      "label": "事实与检查"
+    },
+    {
+      "id": "l1",
+      "label": "评审与规范"
+    },
+    {
+      "id": "l2",
+      "label": "下一次验证"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "failure",
+      "label": "真实失败",
+      "lane": "l0",
+      "col": 0,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "mechanical",
+      "label": "可机械检查？",
+      "lane": "l0",
+      "col": 1,
+      "type": "security",
+      "icon": "none"
+    },
+    {
+      "id": "tools",
+      "label": "lint / hook / 类型 / CI",
+      "lane": "l0",
+      "col": 2,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "review",
+      "label": "交给评审",
+      "lane": "l1",
+      "col": 1,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "standard",
+      "label": "CODING_STANDARDS.md",
+      "lane": "l1",
+      "col": 2,
+      "type": "backend",
+      "icon": "none",
+      "sublabel": "标题直接写目标行为"
+    },
+    {
+      "id": "prevent",
+      "label": "✓ 下次拦住",
+      "lane": "l2",
+      "col": 2,
+      "type": "backend",
+      "icon": "none"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e0",
+      "from": "failure",
+      "to": "mechanical",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e1",
+      "from": "mechanical",
+      "to": "tools",
+      "variant": "emphasis",
+      "label": "是"
+    },
+    {
+      "id": "e2",
+      "from": "mechanical",
+      "to": "review",
+      "variant": "emphasis",
+      "label": "否"
+    },
+    {
+      "id": "e3",
+      "from": "tools",
+      "to": "standard",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e4",
+      "from": "review",
+      "to": "standard",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e5",
+      "from": "standard",
+      "to": "prevent",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e6",
+      "from": "prevent",
+      "to": "failure",
+      "variant": "emphasis",
+      "label": "继续观察"
+    }
+  ],
+  "mainPath": [
+    "failure",
+    "mechanical",
+    "tools",
+    "standard",
+    "prevent"
+  ],
+  "cards": [
+    {
+      "dot": "violet",
+      "title": "规范写清执行状态",
+      "items": [
+        "注明该规则是否已由工具执行。"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "职责分开",
+      "items": [
+        "AGENTS.md 只做导航。"
+      ]
+    }
+  ]
+}

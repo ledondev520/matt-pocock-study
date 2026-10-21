@@ -1,0 +1,152 @@
+{
+  "schema_version": 1,
+  "diagram_type": "explainer",
+  "meta": {
+    "id": "d13-error-read",
+    "title": "Read a type error",
+    "locale": "en",
+    "output": "d13-error-read.en.html",
+    "quality_profile": "showcase"
+  },
+  "answer": {
+    "summary": "Answer three questions, then reproduce the cause."
+  },
+  "panels": [
+    {
+      "id": "read",
+      "title": "From error to cause",
+      "blocks": [
+        {
+          "id": "error-flow",
+          "type": "diagram",
+          "diagramType": "workflow",
+          "spec": {
+            "schema_version": 2,
+            "diagram_type": "workflow",
+            "meta": {
+              "title": "Read the error in plain words",
+              "locale": "en",
+              "output": ".archify/d13-error-read.en.html",
+              "quality_profile": "showcase"
+            },
+            "lanes": [
+              {
+                "id": "input",
+                "label": "Input"
+              },
+              {
+                "id": "questions",
+                "label": "Three parallel questions"
+              },
+              {
+                "id": "result",
+                "label": "Locate"
+              }
+            ],
+            "nodes": [
+              {
+                "id": "error",
+                "label": "Type error",
+                "lane": "input",
+                "col": 0,
+                "type": "backend",
+                "icon": "none"
+              },
+              {
+                "id": "expected",
+                "label": "Expected type?",
+                "lane": "questions",
+                "col": 0,
+                "type": "backend",
+                "icon": "none"
+              },
+              {
+                "id": "actual",
+                "label": "Actual type?",
+                "lane": "questions",
+                "col": 1,
+                "type": "backend",
+                "icon": "none"
+              },
+              {
+                "id": "layer",
+                "label": "Mismatch layer?",
+                "lane": "questions",
+                "col": 2,
+                "type": "backend",
+                "icon": "none"
+              },
+              {
+                "id": "repro",
+                "label": "Minimal reproduction",
+                "lane": "result",
+                "col": 1,
+                "type": "backend",
+                "icon": "none"
+              },
+              {
+                "id": "cause",
+                "label": "Root cause",
+                "lane": "result",
+                "col": 2,
+                "type": "backend",
+                "icon": "none"
+              }
+            ],
+            "edges": [
+              {
+                "id": "error-expected",
+                "from": "error",
+                "to": "expected",
+                "variant": "emphasis"
+              },
+              {
+                "id": "error-actual",
+                "from": "error",
+                "to": "actual",
+                "variant": "emphasis"
+              },
+              {
+                "id": "error-layer",
+                "from": "error",
+                "to": "layer",
+                "variant": "emphasis"
+              },
+              {
+                "id": "expected-repro",
+                "from": "expected",
+                "to": "repro",
+                "variant": "emphasis"
+              },
+              {
+                "id": "actual-repro",
+                "from": "actual",
+                "to": "repro",
+                "variant": "emphasis"
+              },
+              {
+                "id": "layer-repro",
+                "from": "layer",
+                "to": "repro",
+                "variant": "emphasis"
+              },
+              {
+                "id": "repro-cause",
+                "from": "repro",
+                "to": "cause",
+                "variant": "emphasis"
+              }
+            ]
+          }
+        },
+        {
+          "id": "translator",
+          "type": "callout",
+          "level": "note",
+          "text": "Error translators assist; they cannot establish correctness."
+        }
+      ]
+    }
+  ],
+  "sources": []
+}

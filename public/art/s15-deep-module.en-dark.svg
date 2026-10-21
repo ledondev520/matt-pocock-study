@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500" role="img" aria-labelledby="s15-deep-module-title s15-deep-module-desc">
+  <title id="s15-deep-module-title">Deep module vs shallow module</title>
+  <desc id="s15-deep-module-desc">Deep module: a small, simple interface over a large hidden implementation, constrained by tests. Shallow module: the interface is as wide as the implementation.</desc>
+  <g id="shapes">
+    <rect id="bg" x="0" y="0" width="800" height="500" fill="#0E0A1F" class="f-bg"/>
+    <rect x="24" y="24" width="368" height="420" rx="16" fill="#171128" stroke="#352A48" stroke-width="1.5" class="f-card s-border"/>
+    <rect x="408" y="24" width="368" height="420" rx="16" fill="#171128" stroke="#352A48" stroke-width="1.5" class="f-card s-border"/>
+    <rect x="88" y="92" width="152" height="44" rx="8" fill="#C6F432" class="f-lime"/>
+    <rect x="54" y="144" width="220" height="230" rx="12" fill="#A083F4" class="f-block"/>
+    <path d="M244 114 L284 114" fill="none" stroke="#AEA4C0" stroke-width="1.5" stroke-dasharray="3 4" class="s-fg2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M278 300 L286 300" fill="none" stroke="#AEA4C0" stroke-width="1.5" class="s-fg2" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="438" y="92" width="300" height="44" rx="8" fill="#241B38" stroke="#352A48" stroke-width="1.5" class="f-muted s-border"/>
+    <rect x="438" y="144" width="300" height="70" rx="12" fill="#211932" stroke="#352A48" stroke-width="1.5" class="f-inner s-border"/>
+  </g>
+  <g id="text">
+    <text x="48" y="62" font-family="'Space Grotesk',Inter,'Helvetica Neue',Arial,sans-serif" font-size="19" font-weight="700" fill="#EAE5F4" class="f-fg">Deep module</text>
+    <text x="432" y="62" font-family="'Space Grotesk',Inter,'Helvetica Neue',Arial,sans-serif" font-size="19" font-weight="700" fill="#EAE5F4" class="f-fg">Shallow module</text>
+    <text x="164.0" y="119.6" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="16" font-weight="700" fill="#1A2110" class="f-on-lime" text-anchor="middle">Interface</text>
+    <text x="164" y="253.4" font-family="'Space Grotesk',Inter,'Helvetica Neue',Arial,sans-serif" font-size="17" font-weight="700" fill="#140C28" class="f-on-block" text-anchor="middle"><tspan x="164" dy="0">Hidden</tspan><tspan x="164" dy="23.0">implementation</tspan></text>
+    <text x="290" y="109.5" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="500" fill="#EAE5F4" class="f-fg"><tspan x="290" dy="0">What callers</tspan><tspan x="290" dy="18.9">rely on</tspan></text>
+    <text x="290" y="295.4" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="500" fill="#EAE5F4" class="f-fg"><tspan x="290" dy="0">Constrained</tspan><tspan x="290" dy="18.9">by tests</tspan></text>
+    <text x="54" y="410" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="600" fill="#EAE5F4" class="f-fg">Simple surface, complexity inside</text>
+    <text x="588.0" y="119.6" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="16" font-weight="700" fill="#EAE5F4" class="f-fg" text-anchor="middle">Interface</text>
+    <text x="588" y="184.6" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="16" font-weight="600" fill="#EAE5F4" class="f-fg" text-anchor="middle">Implementation</text>
+    <text x="438" y="410" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="600" fill="#EAE5F4" class="f-fg">Interface as wide as implementation</text>
+    <text x="400" y="476" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="400" fill="#AEA4C0" class="f-fg2" text-anchor="middle">Concept from John Ousterhout; not judged by file or line count</text>
+  </g>
+</svg>

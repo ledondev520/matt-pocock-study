@@ -1,0 +1,182 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "从证据到复盘改进",
+    "locale": "zh-CN",
+    "output": ".archify/d12-retro-flow.zh.html",
+    "quality_profile": "showcase"
+  },
+  "lanes": [
+    {
+      "id": "inputs",
+      "label": "输入材料"
+    },
+    {
+      "id": "evidence",
+      "label": "收集证据"
+    },
+    {
+      "id": "review",
+      "label": "提出与验证"
+    },
+    {
+      "id": "decision",
+      "label": "人确认后落地"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "session",
+      "label": "真实会话",
+      "lane": "inputs",
+      "col": 0,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "feedback",
+      "label": "评审反馈",
+      "lane": "inputs",
+      "col": 1,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "detours",
+      "label": "找绕路",
+      "lane": "evidence",
+      "col": 1,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "observed",
+      "label": "观察到的证据",
+      "lane": "evidence",
+      "col": 2,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "change",
+      "label": "最小改进",
+      "lane": "review",
+      "col": 2,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "verify",
+      "label": "验证方式",
+      "lane": "review",
+      "col": 1,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "confirm",
+      "label": "人确认?",
+      "lane": "review",
+      "col": 0,
+      "type": "security",
+      "icon": "decision"
+    },
+    {
+      "id": "apply",
+      "label": "✓ 改导航与检查",
+      "lane": "decision",
+      "col": 0,
+      "type": "backend",
+      "icon": "none",
+      "sublabel": "优先确定性检查"
+    },
+    {
+      "id": "stop",
+      "label": "停",
+      "lane": "decision",
+      "col": 1,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "wrong",
+      "label": "× 自己加规则",
+      "lane": "decision",
+      "col": 2,
+      "type": "backend",
+      "icon": "none"
+    }
+  ],
+  "edges": [
+    {
+      "id": "session-detours",
+      "from": "session",
+      "to": "detours",
+      "variant": "emphasis"
+    },
+    {
+      "id": "feedback-detours",
+      "from": "feedback",
+      "to": "detours",
+      "variant": "emphasis"
+    },
+    {
+      "id": "detours-observed",
+      "from": "detours",
+      "to": "observed",
+      "variant": "emphasis"
+    },
+    {
+      "id": "observed-change",
+      "from": "observed",
+      "to": "change",
+      "variant": "emphasis"
+    },
+    {
+      "id": "change-verify",
+      "from": "change",
+      "to": "verify",
+      "variant": "emphasis"
+    },
+    {
+      "id": "verify-confirm",
+      "from": "verify",
+      "to": "confirm",
+      "variant": "emphasis"
+    },
+    {
+      "id": "confirm-apply",
+      "from": "confirm",
+      "to": "apply",
+      "variant": "emphasis",
+      "label": "是"
+    },
+    {
+      "id": "confirm-stop",
+      "from": "confirm",
+      "to": "stop",
+      "variant": "default",
+      "label": "否"
+    },
+    {
+      "id": "change-wrong",
+      "from": "change",
+      "to": "wrong",
+      "variant": "dashed",
+      "role": "error",
+      "label": "不推荐"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "violet",
+      "title": "找绕路",
+      "items": [
+        "找资料慢",
+        "依赖过期文件",
+        "缺工具或检查"
+      ]
+    }
+  ]
+}

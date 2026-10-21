@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500" role="img" aria-labelledby="s06-tracer-title s06-tracer-desc">
+  <title id="s06-tracer-title">先打通一条 tracer bullet</title>
+  <desc id="s06-tracer-desc">左:输入、处理、输出各层分别做完,最后才发现接不上。右:一根细线先贯穿三层,验证端到端路径,再向两侧加粗。</desc>
+  <g id="shapes">
+    <rect id="bg" x="0" y="0" width="800" height="500" fill="#F8F7FC" class="f-bg"/>
+    <rect x="24" y="24" width="368" height="420" rx="12" fill="#FFFFFF" stroke="#DCD6E7" stroke-width="1.5" class="f-card s-border"/>
+    <rect x="128" y="116" width="240" height="38" rx="8" fill="#EEEBF5" class="f-muted"/>
+    <rect x="128" y="174" width="240" height="38" rx="8" fill="#EEEBF5" class="f-muted"/>
+    <rect x="128" y="232" width="240" height="38" rx="8" fill="#EEEBF5" class="f-muted"/>
+    <rect x="408" y="24" width="368" height="420" rx="12" fill="#FFFFFF" stroke="#DCD6E7" stroke-width="1.5" class="f-card s-border"/>
+    <rect x="512" y="116" width="240" height="38" rx="8" fill="#EEEBF5" class="f-muted"/>
+    <rect x="512" y="174" width="240" height="38" rx="8" fill="#EEEBF5" class="f-muted"/>
+    <rect x="512" y="232" width="240" height="38" rx="8" fill="#EEEBF5" class="f-muted"/>
+    <rect x="128" y="116" width="240" height="38" rx="8" fill="#5129C5" class="f-block"/>
+    <rect x="128" y="174" width="240" height="38" rx="8" fill="#5129C5" class="f-block"/>
+    <rect x="128" y="232" width="240" height="38" rx="8" fill="#5129C5" class="f-block"/>
+    <path d="M242 157 L254 169 M254 157 L242 169" fill="none" stroke="#F25CAC" stroke-width="3" class="s-pink" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M242 215 L254 227 M254 215 L242 227" fill="none" stroke="#F25CAC" stroke-width="3" class="s-pink" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="48" y="306" width="320" height="110" rx="12" fill="#FCE7F2" stroke="#F25CAC" stroke-width="1.5" class="f-pink-tint s-pink"/>
+    <path d="M67 331 L81 345 M81 331 L67 345" fill="none" stroke="#F25CAC" stroke-width="3" class="s-pink" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="610" y="108" width="44" height="186" rx="10" fill="#C6F432" class="f-lime"/>
+    <path d="M632 112 L632 286" fill="none" stroke="#5129C5" stroke-width="4" class="s-block" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M627.7 277.0 L632 286 L636.3 277.0" fill="none" stroke="#5129C5" stroke-width="4" class="s-block" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M602 274 L562 274" fill="none" stroke="#6B607B" stroke-width="2" class="s-fg2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M568.3 271.0 L562 274 L568.3 277.0" fill="none" stroke="#6B607B" stroke-width="2" class="s-fg2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M662 274 L702 274" fill="none" stroke="#6B607B" stroke-width="2" class="s-fg2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M695.7 277.0 L702 274 L695.7 271.0" fill="none" stroke="#6B607B" stroke-width="2" class="s-fg2" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="432" y="306" width="320" height="110" rx="12" fill="#EEEBF5" class="f-muted"/>
+    <path d="M451 338 L455.7 342.9 L465 332.4" fill="none" stroke="#5129C5" stroke-width="3" class="s-block" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g id="text">
+    <text x="48" y="62" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="19" font-weight="700" fill="#241B35" class="f-fg">分层做完再集成</text>
+    <text x="48" y="88" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="14" font-weight="400" fill="#6B607B" class="f-fg2">各层分别做完,最后再接</text>
+    <text x="48" y="140.2" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="500" fill="#241B35" class="f-fg">输入</text>
+    <text x="48" y="198.2" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="500" fill="#241B35" class="f-fg">处理</text>
+    <text x="48" y="256.2" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="500" fill="#241B35" class="f-fg">输出</text>
+    <text x="432" y="62" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="19" font-weight="700" fill="#241B35" class="f-fg">tracer bullet</text>
+    <text x="432" y="88" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="14" font-weight="400" fill="#6B607B" class="f-fg2">先跑通一条细线</text>
+    <text x="432" y="140.2" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="500" fill="#241B35" class="f-fg">输入</text>
+    <text x="432" y="198.2" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="500" fill="#241B35" class="f-fg">处理</text>
+    <text x="432" y="256.2" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="500" fill="#241B35" class="f-fg">输出</text>
+    <text x="94" y="343.9" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="17" font-weight="700" fill="#241B35" class="f-fg">最后才发现接不上</text>
+    <text x="72" y="389.2" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="400" fill="#241B35" class="f-fg">集成风险全部留到最后</text>
+    <text x="478" y="343.9" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="17" font-weight="700" fill="#241B35" class="f-fg">先验证端到端路径</text>
+    <text x="456" y="389.2" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="400" fill="#241B35" class="f-fg">再从细线向两侧加粗</text>
+    <text x="400" y="474" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="14" font-weight="400" fill="#6B607B" class="f-fg2" text-anchor="middle">tracer bullet 并非 Matt 原创术语</text>
+  </g>
+</svg>

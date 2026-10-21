@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "diagram_type": "tree",
+  "meta": {
+    "title": "先看许可，再谈复用",
+    "locale": "zh-CN",
+    "output": ".archify/d18-license-tree.zh.html",
+    "quality_profile": "showcase"
+  },
+  "layout": {
+    "direction": "right",
+    "nodeW": 144,
+    "nodeMaxW": 216,
+    "gapX": 44,
+    "gapY": 28
+  },
+  "nodes": [
+    {
+      "id": "reuse",
+      "label": "想复用仓库内容?"
+    },
+    {
+      "id": "mit",
+      "label": "根 MIT 且已登记",
+      "parent": "reuse"
+    },
+    {
+      "id": "allowed",
+      "label": "按登记改编",
+      "parent": "mit",
+      "sublabel": "保留准确版权行与 MIT 全文"
+    },
+    {
+      "id": "none",
+      "label": "无许可证",
+      "parent": "reuse"
+    },
+    {
+      "id": "interpret",
+      "label": "解读、短引、链接",
+      "parent": "none"
+    },
+    {
+      "id": "subdir",
+      "label": "仅子目录 MIT",
+      "parent": "reuse",
+      "sublabel": "如 translator"
+    },
+    {
+      "id": "scope",
+      "label": "不覆盖全仓库",
+      "parent": "subdir"
+    },
+    {
+      "id": "course",
+      "label": "课程相关",
+      "parent": "reuse",
+      "sublabel": "如 ai-hero-cli"
+    },
+    {
+      "id": "exclude",
+      "label": "不取代码与课程内容",
+      "parent": "course"
+    }
+  ]
+}

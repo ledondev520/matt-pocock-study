@@ -36,6 +36,8 @@ for (const [mode, selector] of [['Light', ':root'], ['Dark', '\\.dark']]) {
   check(mode, 'Diagram heading / panel', t.foreground, t.panel);
   check(mode, 'Diagram labels / track & slices', t.foreground, t['slice-bg']);
   check(mode, 'Diagram secondary / panel', t['muted-foreground'], t.panel);
+  check(mode, 'Inline diagram labels / card', t.foreground, t.card);
+  check(mode, 'Inline diagram details / card', t['muted-foreground'], t.card);
   check(mode, 'Diagram layer completion', t['layer-ink'], t['layer-fill']);
   check(mode, 'Diagram integration warning', t['risk-ink'], t['risk-bg']);
   check(mode, 'Diagram first slice / lime', t['accent-ink'], t.lime);

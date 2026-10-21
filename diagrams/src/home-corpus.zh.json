@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "diagram_type": "dataflow",
+  "meta": {
+    "title": "语料库：索引通向原文",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "output": ".archify/home-corpus.zh/diagram.html"
+  },
+  "stages": [
+    {
+      "label": "公开来源"
+    },
+    {
+      "label": "本站索引"
+    },
+    {
+      "label": "检索与阅读"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "public",
+      "type": "external",
+      "icon": "none",
+      "label": "公开内容",
+      "sublabel": "X / X Article",
+      "tag": "aihero.dev / GitHub",
+      "stage": 0,
+      "row": 0,
+      "width": 112
+    },
+    {
+      "id": "record",
+      "type": "database",
+      "icon": "none",
+      "label": "一条记录",
+      "sublabel": "链接 · 日期 · 类型",
+      "tag": "主题 · 互动 · 双语摘要",
+      "stage": 1,
+      "row": 0,
+      "width": 144
+    },
+    {
+      "id": "search",
+      "type": "frontend",
+      "icon": "none",
+      "label": "语料页",
+      "sublabel": "关键词 · 筛选 · 排序",
+      "stage": 2,
+      "row": 0,
+      "width": 112
+    },
+    {
+      "id": "original",
+      "type": "external",
+      "icon": "none",
+      "label": "原文",
+      "stage": 2,
+      "row": 2,
+      "width": 112
+    }
+  ],
+  "flows": [
+    {
+      "from": "public",
+      "to": "record",
+      "label": "仅索引",
+      "variant": "emphasis",
+      "labelDy": -30
+    },
+    {
+      "from": "record",
+      "to": "search",
+      "label": "自写摘要",
+      "variant": "emphasis",
+      "labelDy": -30
+    },
+    {
+      "from": "search",
+      "to": "original",
+      "label": "直达原文",
+      "variant": "emphasis",
+      "route": "straight",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelAt": [
+        566,
+        272
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "× 不收全文",
+      "items": [
+        "不收原文全文、评论原文和 Article 全文。"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "检索方式",
+      "items": [
+        "按类型、主题标签、日期筛选；按互动数或日期排序。"
+      ]
+    }
+  ]
+}

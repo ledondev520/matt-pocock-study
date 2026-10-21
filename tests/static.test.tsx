@@ -13,6 +13,7 @@ import type { Model } from '../src/lib/content'
 import { siteUrl } from '../src/lib/site'
 import { createApp } from '../server/app'
 import { createIndex } from '../server/db'
+import registry from '../data/figures.json'
 
 let model: Model
 const db = createIndex([])
@@ -85,6 +86,34 @@ it('resolves every internal href in generated and React-rendered HTML', async ()
     for (const node of doc.querySelectorAll('[href]')) await resolves(node.getAttribute('href')!, path)
   }
 }, 30000)
+it('inlines every placed diagram in the built pages in both languages', async () => {
+  const diagrams = new Set(registry.figures.filter(f => f.owner === 'diagram').map(f => f.id))
+  for (const lang of ['zh', 'en']) {
+    for (const page of model.pages.filter(p => p.lang === lang)) {
+      const source = await readFile(`content/${lang}/${page.slug}.md`, 'utf8')
+      const ids = [page.head, ...[...source.matchAll(/```figure\s*\nid:\s*([a-z0-9-]+)\s*\n```/g)].map(m => m[1])].filter(id => diagrams.has(id))
+      const window = new JSDOM(await readFile(`dist/${lang}/${page.slug}/index.html`, 'utf8')).window
+      try {
+        for (const id of ids) {
+          if (id === 'home-hero') expect(window.document.querySelector('.chain-figure svg'), `${lang}/${page.slug}`).not.toBeNull()
+          else {
+            const figures = window.document.querySelectorAll(`[data-figure="${id}"]`)
+            expect(figures.length, `${lang}/${page.slug}: ${id}`).toBeGreaterThan(0)
+            for (const figure of figures) {
+              expect(figure.querySelector(`svg.arch-${id}-${lang}`)).not.toBeNull()
+              expect(figure.querySelector('img, .figure-placeholder')).toBeNull()
+            }
+          }
+        }
+      } finally { window.close() }
+    }
+    const home = new JSDOM(await readFile(`dist/${lang}/index.html`, 'utf8')).window
+    try {
+      expect(home.document.querySelector('.chain-figure svg')).not.toBeNull()
+      expect(home.document.querySelector(`[data-figure="home-corpus"] svg.arch-home-corpus-${lang}`)).not.toBeNull()
+    } finally { home.close() }
+  }
+})
 it('serves static pages, downloads and assets and gives unknown paths a real 404', async () => {
   for (const path of ['/', '/zh', '/zh/specs-and-tickets', '/en/specs-and-tickets.md', '/llms.txt', '/zh/llms-full.txt', '/zh/corpus', '/og/zh/specs-and-tickets.png']) expect((await app.request(path)).status, path).toBe(200)
   for (const path of ['/zh/nope', '/en/nope', '/unknown', '/zh/not/a/page']) {

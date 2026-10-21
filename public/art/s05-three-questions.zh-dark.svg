@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500" role="img" aria-labelledby="s05-three-questions-title s05-three-questions-desc">
+  <title id="s05-three-questions-title">三种问题,三种回答方式</title>
+  <desc id="s05-three-questions-desc">事实问题由 agent 自己查,取舍问题由用户决定,体验问题要看原型后选;以搜索结果页为例。</desc>
+  <g id="shapes">
+    <rect id="bg" x="0" y="0" width="800" height="500" fill="#0E0A1F" class="f-bg"/>
+    <rect x="170" y="40" width="194" height="72" rx="12" fill="#A083F4" class="f-block"/>
+    <rect x="170" y="124" width="194" height="96" rx="12" fill="#171128" stroke="#352A48" stroke-width="1.5" class="f-card s-border"/>
+    <rect x="170" y="232" width="194" height="96" rx="12" fill="#211932" stroke="#352A48" stroke-width="1.5" class="f-inner s-border"/>
+    <rect x="372" y="40" width="194" height="72" rx="12" fill="#A083F4" class="f-block"/>
+    <rect x="372" y="124" width="194" height="96" rx="12" fill="#171128" stroke="#352A48" stroke-width="1.5" class="f-card s-border"/>
+    <rect x="372" y="232" width="194" height="96" rx="12" fill="#211932" stroke="#352A48" stroke-width="1.5" class="f-inner s-border"/>
+    <rect x="574" y="40" width="194" height="72" rx="12" fill="#A083F4" class="f-violet"/>
+    <rect x="574" y="124" width="194" height="96" rx="12" fill="#171128" stroke="#352A48" stroke-width="1.5" class="f-card s-border"/>
+    <rect x="574" y="232" width="194" height="96" rx="12" fill="#211932" stroke="#352A48" stroke-width="1.5" class="f-inner s-border"/>
+    <rect x="24" y="356" width="752" height="56" rx="14" fill="#C6F432" class="f-lime"/>
+  </g>
+  <g id="text">
+    <text x="24" y="81.2" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="600" fill="#AEA4C0" class="f-fg2">问题类型</text>
+    <text x="24" y="177.2" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="600" fill="#AEA4C0" class="f-fg2">谁来回答</text>
+    <text x="24" y="275.1" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="600" fill="#AEA4C0" class="f-fg2"><tspan x="24" dy="0">例:</tspan><tspan x="24" dy="20.2">搜索结果页</tspan></text>
+    <text x="267.0" y="82.0" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="17" font-weight="700" fill="#140C28" class="f-on-block" text-anchor="middle">事实问题</text>
+    <text x="267.0" y="166.8" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="16" font-weight="600" fill="#EAE5F4" class="f-fg" text-anchor="middle"><tspan x="267.0" dy="0">agent 查接口</tspan><tspan x="267.0" dy="21.6">与代码</tspan></text>
+    <text x="267.0" y="285.2" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="400" fill="#EAE5F4" class="f-fg" text-anchor="middle">接口是否返回标签？</text>
+    <text x="469.0" y="82.0" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="17" font-weight="700" fill="#140C28" class="f-on-block" text-anchor="middle">取舍问题</text>
+    <text x="469.0" y="166.8" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="16" font-weight="600" fill="#EAE5F4" class="f-fg" text-anchor="middle"><tspan x="469.0" dy="0">用户决定</tspan><tspan x="469.0" dy="21.6">附推荐理由</tspan></text>
+    <text x="469.0" y="275.1" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="400" fill="#EAE5F4" class="f-fg" text-anchor="middle"><tspan x="469.0" dy="0">默认按相关性</tspan><tspan x="469.0" dy="20.2">还是时间？</tspan></text>
+    <text x="671.0" y="82.0" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="17" font-weight="700" fill="#140C28" class="f-on-block" text-anchor="middle">体验问题</text>
+    <text x="671.0" y="166.8" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="16" font-weight="600" fill="#EAE5F4" class="f-fg" text-anchor="middle"><tspan x="671.0" dy="0">人操作原型</tspan><tspan x="671.0" dy="21.6">后选择</tspan></text>
+    <text x="671.0" y="275.1" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="400" fill="#EAE5F4" class="f-fg" text-anchor="middle"><tspan x="671.0" dy="0">筛选与结果同屏</tspan><tspan x="671.0" dy="20.2">是否拥挤？</tspan></text>
+    <text x="48" y="389.2" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="700" fill="#1A2110" class="f-on-lime">完成标准</text>
+    <text x="151.765625" y="389.6" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="16" font-weight="500" fill="#1A2110" class="f-on-lime">验收行为明确,并列出仍未解决的事项</text>
+    <text x="400" y="448" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="14" font-weight="400" fill="#AEA4C0" class="f-fg2" text-anchor="middle">例句为本站原创的「搜索结果页」案例</text>
+  </g>
+</svg>

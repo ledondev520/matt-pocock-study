@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500" role="img" aria-labelledby="s16-lesson-order-title s16-lesson-order-desc">
+  <title id="s16-lesson-order-title">讲解的四级台阶</title>
+  <desc id="s16-lesson-order-desc">问题 → 原因 → 方法 → 例子;第一句说明具体困惑或明确目标,一个概念配一个小场景。</desc>
+  <g id="shapes">
+    <rect id="bg" x="0" y="0" width="800" height="500" fill="#0E0A1F" class="f-bg"/>
+    <rect x="40" y="372" width="172" height="96" rx="12" fill="#A083F4" class="f-violet"/>
+    <rect x="222" y="302" width="172" height="166" rx="12" fill="#A083F4" class="f-block"/>
+    <rect x="404" y="232" width="172" height="236" rx="12" fill="#A083F4" class="f-accent"/>
+    <rect x="586" y="162" width="172" height="306" rx="12" fill="#C6F432" class="f-lime"/>
+    <rect x="40" y="200" width="340" height="84" rx="12" fill="#171128" stroke="#352A48" stroke-width="1.5" class="f-card s-border"/>
+    <path d="M110 286 L110 366" fill="none" stroke="#AEA4C0" stroke-width="1.5" stroke-dasharray="3 4" class="s-fg2" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="420" y="40" width="340" height="64" rx="12" fill="#171128" stroke="#352A48" stroke-width="1.5" class="f-card s-border"/>
+    <path d="M672 106 L672 156" fill="none" stroke="#AEA4C0" stroke-width="1.5" stroke-dasharray="3 4" class="s-fg2" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g id="text">
+    <text x="60" y="404" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="15" font-weight="500" fill="#140C28" class="f-on-block">01</text>
+    <text x="60" y="438" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="22" font-weight="700" fill="#140C28" class="f-on-block">问题</text>
+    <text x="242" y="334" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="15" font-weight="500" fill="#140C28" class="f-on-block">02</text>
+    <text x="242" y="368" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="22" font-weight="700" fill="#140C28" class="f-on-block">原因</text>
+    <text x="424" y="264" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="15" font-weight="500" fill="#140C28" class="f-on-block">03</text>
+    <text x="424" y="298" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="22" font-weight="700" fill="#140C28" class="f-on-block">方法</text>
+    <text x="606" y="194" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="15" font-weight="500" fill="#1A2110" class="f-on-lime">04</text>
+    <text x="606" y="228" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="22" font-weight="700" fill="#1A2110" class="f-on-lime">例子</text>
+    <text x="60" y="237.2" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="600" fill="#EAE5F4" class="f-fg"><tspan x="60" dy="0">第一句说明具体困惑</tspan><tspan x="60" dy="20.2">或明确目标</tspan></text>
+    <text x="440" y="77.2" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="600" fill="#EAE5F4" class="f-fg">一个概念配一个小场景</text>
+  </g>
+</svg>

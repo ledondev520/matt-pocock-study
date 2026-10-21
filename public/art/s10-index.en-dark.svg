@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500" role="img" aria-labelledby="s10-index-title s10-index-desc">
+  <title id="s10-index-title">AGENTS.md: an index, not a dump</title>
+  <desc id="s10-index-desc">Left: everything crammed into a long AGENTS.md. Right: a short AGENTS.md that says which file to read for which task; commands and deps come from real config.</desc>
+  <defs><clipPath id="s10-index-clip1"><rect x="64" y="84" width="280" height="262" rx="10"/></clipPath><clipPath id="s10-index-clip2"><rect x="420" y="84" width="212" height="170" rx="10"/></clipPath></defs>
+  <g id="shapes">
+    <rect id="bg" x="0" y="0" width="800" height="500" fill="#0E0A1F" class="f-bg"/>
+    <rect x="24" y="24" width="360" height="452" rx="16" fill="#171128" stroke="#352A48" stroke-width="1.5" class="f-card s-border"/>
+    <rect x="64" y="84" width="280" height="262" rx="10" fill="#171128" class="f-card"/>
+    <rect x="64" y="84" width="280" height="38" clip-path="url(#s10-index-clip1)" fill="#241B38" class="f-muted"/>
+    <rect x="64" y="84" width="280" height="262" rx="10" fill="none" stroke="#352A48" stroke-width="1.5" class="s-border"/>
+    <rect x="78" y="134" width="252" height="34" rx="7" fill="#211932" stroke="#352A48" stroke-width="1" class="f-inner s-border"/>
+    <rect x="78" y="176" width="252" height="34" rx="7" fill="#211932" stroke="#352A48" stroke-width="1" class="f-inner s-border"/>
+    <rect x="78" y="218" width="252" height="34" rx="7" fill="#211932" stroke="#352A48" stroke-width="1" class="f-inner s-border"/>
+    <rect x="78" y="260" width="252" height="34" rx="7" fill="#211932" stroke="#352A48" stroke-width="1" class="f-inner s-border"/>
+    <rect x="78" y="302" width="252" height="34" rx="7" fill="#211932" stroke="#352A48" stroke-width="1" class="f-inner s-border"/>
+    <rect x="48" y="362" width="312" height="96" rx="12" fill="#3A1A33" stroke="#F25CAC" stroke-width="1.5" class="f-pink-tint s-pink"/>
+    <path d="M66 384 L78 396 M78 384 L66 396" fill="none" stroke="#F25CAC" stroke-width="3" class="s-pink" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="400" y="24" width="376" height="452" rx="16" fill="#171128" stroke="#352A48" stroke-width="1.5" class="f-card s-border"/>
+    <path d="M744 56 L749.3 61.6 L760 49.6" fill="none" stroke="#A083F4" stroke-width="3" class="s-block" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="420" y="84" width="212" height="170" rx="10" fill="#171128" class="f-card"/>
+    <rect x="420" y="84" width="212" height="38" clip-path="url(#s10-index-clip2)" fill="#241B38" class="f-muted"/>
+    <rect x="420" y="84" width="212" height="170" rx="10" fill="none" stroke="#352A48" stroke-width="1.5" class="s-border"/>
+    <path d="M636 148 L668 148" fill="none" stroke="#A083F4" stroke-width="2" class="s-accent" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M661.7 151.0 L668 148 L661.7 145.0" fill="none" stroke="#A083F4" stroke-width="2" class="s-accent" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="672" y="133" width="84" height="30" rx="8" fill="#171128" stroke="#A083F4" stroke-width="1.5" class="f-card s-accent"/>
+    <path d="M636 184 L668 184" fill="none" stroke="#A083F4" stroke-width="2" class="s-accent" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M661.7 187.0 L668 184 L661.7 181.0" fill="none" stroke="#A083F4" stroke-width="2" class="s-accent" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="672" y="169" width="84" height="30" rx="8" fill="#171128" stroke="#A083F4" stroke-width="1.5" class="f-card s-accent"/>
+    <path d="M636 220 L668 220" fill="none" stroke="#A083F4" stroke-width="2" class="s-accent" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M661.7 223.0 L668 220 L661.7 217.0" fill="none" stroke="#A083F4" stroke-width="2" class="s-accent" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="672" y="205" width="84" height="30" rx="8" fill="#171128" stroke="#A083F4" stroke-width="1.5" class="f-card s-accent"/>
+    <path d="M460 258 L460 380" fill="none" stroke="#EAE5F4" stroke-width="2" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M456.1 371.9 L460 380 L463.9 371.9" fill="none" stroke="#EAE5F4" stroke-width="2" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="420" y="384" width="336" height="48" rx="10" fill="#C6F432" class="f-lime"/>
+  </g>
+  <g id="text">
+    <text x="48" y="62" font-family="'Space Grotesk',Inter,'Helvetica Neue',Arial,sans-serif" font-size="19" font-weight="700" fill="#EAE5F4" class="f-fg">Everything in one file</text>
+    <text x="80" y="108.2" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="15" font-weight="600" fill="#EAE5F4" class="f-fg">AGENTS.md</text>
+    <text x="92" y="156.2" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="500" fill="#EAE5F4" class="f-fg">Commands</text>
+    <text x="92" y="198.2" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="500" fill="#EAE5F4" class="f-fg">Dependencies</text>
+    <text x="92" y="240.2" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="500" fill="#EAE5F4" class="f-fg">Folders</text>
+    <text x="92" y="282.2" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="500" fill="#EAE5F4" class="f-fg">Rare rules</text>
+    <text x="92" y="324.2" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="500" fill="#EAE5F4" class="f-fg">Repeated reminders</text>
+    <text x="90" y="401.1" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="500" fill="#EAE5F4" class="f-fg"><tspan x="90" dy="0">Every task loads all of it;</tspan><tspan x="90" dy="20.2">duplicates go stale</tspan></text>
+    <text x="424" y="62" font-family="'Space Grotesk',Inter,'Helvetica Neue',Arial,sans-serif" font-size="19" font-weight="700" fill="#EAE5F4" class="f-fg">Navigation</text>
+    <text x="436" y="108.2" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="15" font-weight="600" fill="#EAE5F4" class="f-fg">AGENTS.md</text>
+    <text x="436" y="153.2" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="500" fill="#EAE5F4" class="f-fg">X task → read x.md</text>
+    <text x="714.0" y="153.2" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="15" font-weight="600" fill="#EAE5F4" class="f-fg" text-anchor="middle">x.md</text>
+    <text x="436" y="189.2" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="500" fill="#EAE5F4" class="f-fg">Y task → read y.md</text>
+    <text x="714.0" y="189.2" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="15" font-weight="600" fill="#EAE5F4" class="f-fg" text-anchor="middle">y.md</text>
+    <text x="436" y="225.2" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="500" fill="#EAE5F4" class="f-fg">Z task → read z.md</text>
+    <text x="714.0" y="225.2" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="15" font-weight="600" fill="#EAE5F4" class="f-fg" text-anchor="middle">z.md</text>
+    <text x="714" y="254" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="400" fill="#AEA4C0" class="f-fg2" text-anchor="middle"><tspan x="714" dy="0">next to its</tspan><tspan x="714" dy="18.9">topic</tspan></text>
+    <text x="476" y="315.1" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="600" fill="#EAE5F4" class="f-fg"><tspan x="476" dy="0">Commands, deps</tspan><tspan x="476" dy="20.2">→ read real config</tspan></text>
+    <text x="588.0" y="413.2" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="15" font-weight="600" fill="#1A2110" class="f-on-lime" text-anchor="middle">package.json · tsconfig.json</text>
+  </g>
+</svg>

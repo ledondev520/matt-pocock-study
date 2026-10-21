@@ -1,0 +1,16 @@
+{
+  "zh": {
+    "skills-repo": "/zh/agent-documents",
+    "reset-repo": "/zh/typescript-foundations",
+    "sandbox-repo": "/zh/implementation-and-feedback",
+    "eval-repo": "/zh/implementation-and-feedback",
+    "history-repo": "/zh/state-and-module-boundaries"
+  },
+  "en": {
+    "skills-repo": "/en/agent-documents",
+    "reset-repo": "/en/typescript-foundations",
+    "sandbox-repo": "/en/implementation-and-feedback",
+    "eval-repo": "/en/implementation-and-feedback",
+    "history-repo": "/en/state-and-module-boundaries"
+  }
+}

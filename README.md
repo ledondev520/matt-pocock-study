@@ -39,6 +39,30 @@ Set `SITE_URL` to the public HTTPS origin when building (default: `https://matt.
 
 内容必须按同名 slug 成对提供中英文，格式见共享契约。构建只显示已完成页面；后续内容与插图放入对应目录即可接入。生成文件（包括 figures.json、OG PNG）与数据库均不入库。
 
+## Diagrams
+
+Paired Chinese/English Archify candidates live in `diagrams/src/<id>.{zh,en}.json`.
+Install Archify separately, then run `ARCHIFY_HOME=… npm run diagrams` with Node 20
+and headless Chrome (`CHROME_BIN` defaults to `google-chrome`). An optional list
+of diagram IDs limits the build, for example `npm run diagrams -- home-corpus`.
+This maintainer command runs showcase finalization, then Chrome extracts static
+SVG nodes and styles into `public/diagrams/`. Wide layouts are reflowed into a
+390px reading column with wrapped labels of at least 14px; timeline exports use
+a proportional vertical time axis. Explainer comparisons
+become native SVG cards. Notes remain visible. These generated SVGs are committed;
+CI only validates them and does not run Archify. HTML, receipts, and the size/pass
+report stay in ignored `.archify/`; Chrome profiles stay in ignored `.cache/`.
+
+The figure loader validates and re-serializes SVGs before inlining them to inherit
+the page's light/dark color tokens. The diagram profile permits only same-language
+links to existing content pages (`/<lang>/<slug>`); art keeps the strict static
+profile without anchors. Each file
+has its own scoped class and IDs, so different diagrams or languages can share
+a page. Internal node links and source references that the Archify schema cannot
+store live in `<id>.links.json`; external source URLs remain in candidates or
+sidecars because exported SVGs cannot request external resources. Archify notices and its MIT license are
+in `THIRD_PARTY_NOTICES.md` and `third_party/archify/LICENSE`.
+
 ## Figures and OG images / 插图与分享图
 
 ```sh
@@ -47,6 +71,8 @@ npm run og
 ```
 
 Art filenames must be known art figure IDs: `<id>.zh.svg`, `<id>.en.svg`, `<id>.zh-dark.svg`, `<id>.en-dark.svg`. The importer validates the entire batch before copying into `public/art/`, rejecting scripts, event handlers, active embedded content, entities and external references. SVG support is deliberately limited: an element/attribute allowlist, static presentation declarations only, and functions limited to `var`, `rgb`, `rgba`, `hsl`, `hsla`, `calc` and unquoted `url(#local-id)`. Quotes are allowed only in font families. Every allowed attribute has its own value grammar (attributes without one are rejected); any attribute value containing `url(` other than a bare `url(#local-id)`, `image-set(`, `image(`, `cross-fade(`, `@import` or `expression(` is rejected, and `mask`, `clip-path` and `marker-*` accept only `none` or `url(#local-id)`. Stylesheet selectors must start at their own SVG root class or ID and are rewritten under a unique scope. At-rules (including media rules), CSS escapes, custom declarations, resource functions and page-wide selectors are rejected. XML declarations and metadata are dropped; other processing instructions are rejected. Art has no links. The separate diagram profile permits only `href="/<same-language>/<known-slug>"` anchors (or corpus), with no other anchor attributes. Rebuild after importing. Theme switches art immediately; missing dark art falls back to light.
+
+The delivered batch contains all 100 art variants. See [the integration report](docs/ART_INTEGRATION.md) for the original validation failures and the metadata removed from staging copies before strict import.
 
 插图导入先验证整批 SVG；未知 ID 和不安全引用会失败。语言由文件名切换，深色图缺失时回退到浅色图。重新构建后即可展示。
 

@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "diagram_type": "explainer",
+  "meta": {
+    "id": "d19-rule-placement",
+    "title": "一条规则放在哪",
+    "locale": "zh-CN",
+    "output": "d19-rule-placement.zh.html",
+    "quality_profile": "showcase"
+  },
+  "answer": {
+    "summary": "按规则的作用选择位置。"
+  },
+  "panels": [
+    {
+      "id": "placement",
+      "title": "规则作用与落点",
+      "blocks": [
+        {
+          "id": "rules",
+          "type": "comparison",
+          "labelColumn": "它是什么",
+          "columns": [
+            "放在哪"
+          ],
+          "rows": [
+            {
+              "id": "navigation",
+              "label": "导航",
+              "cells": [
+                {
+                  "text": "AGENTS.md"
+                }
+              ]
+            },
+            {
+              "id": "judgment",
+              "label": "需要判断的规范",
+              "cells": [
+                {
+                  "text": "CODING_STANDARDS"
+                }
+              ]
+            },
+            {
+              "id": "mechanical",
+              "label": "可机械执行的规则",
+              "cells": [
+                {
+                  "text": "lint / hook / CI"
+                }
+              ]
+            },
+            {
+              "id": "reason",
+              "label": "长期理由",
+              "cells": [
+                {
+                  "text": "ADR"
+                }
+              ]
+            },
+            {
+              "id": "language",
+              "label": "领域语言",
+              "cells": [
+                {
+                  "text": "GLOSSARY"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sources": []
+}

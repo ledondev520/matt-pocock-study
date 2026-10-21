@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "diagram_type": "tree",
+  "meta": {
+    "title": "Choose by risk and uncertainty",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "output": ".archify/d04-triage.en/diagram.html"
+  },
+  "layout": {
+    "direction": "right",
+    "gapX": 45,
+    "gapY": 30,
+    "nodeW": 160,
+    "nodeMaxW": 230
+  },
+  "nodes": [
+    {
+      "id": "root",
+      "label": "This change"
+    },
+    {
+      "id": "small",
+      "label": "Small and clear",
+      "parent": "root"
+    },
+    {
+      "id": "direct",
+      "label": "Implement + verify",
+      "parent": "small"
+    },
+    {
+      "id": "medium",
+      "label": "Medium or large",
+      "parent": "root"
+    },
+    {
+      "id": "docs",
+      "label": "/grill-with-docs",
+      "parent": "medium"
+    },
+    {
+      "id": "empty",
+      "label": "No codebase",
+      "parent": "root"
+    },
+    {
+      "id": "grill",
+      "label": "Consider /grill-me",
+      "parent": "empty"
+    },
+    {
+      "id": "complex",
+      "label": "Complex cross-session decisions",
+      "parent": "root"
+    },
+    {
+      "id": "wayfinder",
+      "label": "Use /wayfinder",
+      "parent": "complex"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "violet",
+      "title": "Decision basis",
+      "items": [
+        "Use expected change and uncertainty, not project size."
+      ]
+    }
+  ]
+}

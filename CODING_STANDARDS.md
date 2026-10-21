@@ -16,7 +16,7 @@ A review-time checklist; each rule targets a mistake that tends to repeat.
 4. 删除或写入文件前,相对和绝对路径都先 resolve 再做包含检查;判断越界用 `rel === '..'` 或以 `'..' + path.sep` 开头,不用 `startsWith('..')`。原因:只检查相对路径会让根外的别名路径通过,`startsWith('..')` 会误拒 `..valid` 这类合法名字。 (PR #1) (PR #1 r2)
 5. 不提交密钥、token、cookie、`.env`、服务器地址、本机绝对路径;凭据只从环境变量读,`.env.example` 只写变量名。原因:仓库公开,历史里的泄露无法撤回。
 6. 不提交构建产物、本地数据库、抓取的原始数据(`.corpus-raw/`)。新的产物类型出现时同步收紧 `.gitignore`。原因:原始语料受版权保护,构建产物会和源码不同步。 (PR #1)
-7. 内容只写我们自己的解读;引用原话一次一两句并附原文链接;复用代码或文字只从 MIT 仓库拿,放进 `third_party/` 并保留版权和许可声明。改动内容后跑 `node scripts/check-overlap.mjs`。原因:见 `LICENSE` 和 `THIRD_PARTY_NOTICES.md`。
+7. 内容只写我们自己的解读;引用原话一次一两句并附原文链接;复用代码或文字只从 MIT 仓库拿,放进 `third_party/` 并保留版权和许可声明。改动内容后跑 `node scripts/check-overlap.mjs`。原因:见 `LICENSE` 和 `THIRD_PARTY_NOTICES.md`。 图里出现的原话也要在所在页面给出完整原文链接。(PR #3)
 8. 中英文内容成对修改:`content/zh/<slug>.md` 和 `content/en/<slug>.md` 的 slug、栏目、顺序保持一致。原因:语言切换和 llms.txt 依赖一一对应。
 9. Lint 规则调整级别的同一 PR 里,同步更新 `eslint.config.js` 头注释和 README 的相关说明。原因:文档和实际配置不一致,下一次会按过时信息工作。
 
@@ -29,3 +29,4 @@ A review-time checklist; each rule targets a mistake that tends to repeat.
 - SVG presentation attributes are CSS too: every allowed attribute needs an explicit value grammar, resource syntax (`url(` non-local, `image-set(`, `image(`, `@import`, `expression(`) is rejected in every attribute, and reference attributes (mask, clip-path, marker-*) accept only `url(#local-id)`. Why: an attribute outside the CSS-property set skipped value checks and loaded resources. (PR #1 r3)
 16. 交互区域的 DOM 顺序必须与视觉顺序、键盘和读屏顺序一致；不用 CSS `order` 移动含可聚焦元素的区域，调整布局后实测 Tab 顺序。原因：截图正确时，焦点仍可能越过首屏主操作跳到页底。(PR #2)
 17. 中英文教学例子须核对依赖方向、允许 / 禁止和前后条件在两种语言里一致，不能只比对标题和组件结构。原因：结构配对通过时，仍可能把合法路径译成违规路径。(PR #2)
+18. 测试提速只能减少重复工作（共用构建结果、缓存），不能改变断言所查询的 DOM：仍用原来的 jsdom 整页文档断言；片段解析或自写树遍历会漏掉 template、noscript、SVG 等上下文差异。(PR #3)

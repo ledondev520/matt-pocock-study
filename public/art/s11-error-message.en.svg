@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500" role="img" aria-labelledby="s11-error-message-title s11-error-message-desc">
+  <title id="s11-error-message-title">A good failure message says how to fix it</title>
+  <desc id="s11-error-message-desc">Left: only an import-direction error. Right: source file, import path, rule, reason and route to a fix. Verify one correct rejection and one valid pass.</desc>
+  <g id="shapes">
+    <rect id="bg" x="0" y="0" width="800" height="500" fill="#F8F7FC" class="f-bg"/>
+    <rect x="24" y="60" width="368" height="300" rx="16" fill="#FFFFFF" stroke="#DCD6E7" stroke-width="1.5" class="f-card s-border"/>
+    <rect x="44" y="118" width="328" height="150" rx="10" fill="#241B35" class="f-term"/>
+    <circle cx="62" cy="134" r="4.5" fill="#F25CAC" class="f-pink"/>
+    <circle cx="78" cy="134" r="4.5" fill="#C6F432" class="f-lime"/>
+    <circle cx="94" cy="134" r="4.5" fill="#DCD6E7" class="f-border"/>
+    <rect x="408" y="60" width="368" height="300" rx="16" fill="#FFFFFF" stroke="#DCD6E7" stroke-width="1.5" class="f-card s-border"/>
+    <rect x="428" y="118" width="328" height="150" rx="10" fill="#241B35" class="f-term"/>
+    <circle cx="446" cy="134" r="4.5" fill="#F25CAC" class="f-pink"/>
+    <circle cx="462" cy="134" r="4.5" fill="#C6F432" class="f-lime"/>
+    <circle cx="478" cy="134" r="4.5" fill="#DCD6E7" class="f-border"/>
+    <rect x="44" y="284" width="328" height="60" rx="10" fill="#FCE7F2" stroke="#F25CAC" stroke-width="1.5" class="f-pink-tint s-pink"/>
+    <path d="M62 308 L74 320 M74 308 L62 320" fill="none" stroke="#F25CAC" stroke-width="3" class="s-pink" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M736 92 L741.3 97.6 L752 85.6" fill="none" stroke="#5129C5" stroke-width="3" class="s-block" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="428" y="284" width="328" height="60" rx="10" fill="#EEEBF5" class="f-muted"/>
+    <path d="M446 314 L450.0 318.2 L458 309.2" fill="none" stroke="#5129C5" stroke-width="3" class="s-block" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="207" y="414" width="183" height="48" rx="24" fill="#C6F432" class="f-lime"/>
+    <rect x="410" y="414" width="183" height="48" rx="24" fill="#C6F432" class="f-lime"/>
+  </g>
+  <g id="text">
+    <text x="400" y="40" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="500" fill="#6B607B" class="f-fg2" text-anchor="middle">Practice rule: “watch import direction”</text>
+    <text x="48" y="98" font-family="'Space Grotesk',Inter,'Helvetica Neue',Arial,sans-serif" font-size="19" font-weight="700" fill="#241B35" class="f-fg">Block only</text>
+    <text x="432" y="98" font-family="'Space Grotesk',Inter,'Helvetica Neue',Arial,sans-serif" font-size="19" font-weight="700" fill="#241B35" class="f-fg">Readable failure</text>
+    <text x="60" y="182" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="16" font-weight="400" fill="#EAE5F4" class="f-on-term">error: bad import direction</text>
+    <text x="86" y="319.2" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="600" fill="#241B35" class="f-fg">The agent can’t tell how to fix it</text>
+    <text x="444" y="156" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="14" font-weight="400" fill="#EAE5F4" class="f-on-term">src/domain/price.ts</text>
+    <text x="444" y="179" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="14" font-weight="400" fill="#EAE5F4" class="f-on-term">→ src/ui/PriceTag</text>
+    <text x="444" y="202" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="14" font-weight="400" fill="#EAE5F4" class="f-on-term">Rule: domain cannot import ui</text>
+    <text x="444" y="225" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="14" font-weight="400" fill="#EAE5F4" class="f-on-term">Why: keep domain independent</text>
+    <text x="444" y="248" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="14" font-weight="400" fill="#EAE5F4" class="f-on-term">Fix: move shared contracts</text>
+    <text x="470" y="319.2" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="600" fill="#241B35" class="f-fg">The agent can fix it from here</text>
+    <text x="400" y="398" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="600" fill="#6B607B" class="f-fg2" text-anchor="middle">Accept with</text>
+    <text x="298.5" y="443.6" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="16" font-weight="700" fill="#1A2110" class="f-on-lime" text-anchor="middle">One correct block</text>
+    <text x="501.5" y="443.6" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="16" font-weight="700" fill="#1A2110" class="f-on-lime" text-anchor="middle">One valid pass</text>
+  </g>
+</svg>

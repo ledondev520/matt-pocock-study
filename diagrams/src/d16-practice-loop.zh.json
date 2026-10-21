@@ -1,0 +1,141 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "练到能解决新问题",
+    "locale": "zh-CN",
+    "output": ".archify/d16-practice-loop.zh.html",
+    "quality_profile": "showcase"
+  },
+  "lanes": [
+    {
+      "id": "learn",
+      "label": "学习与提取"
+    },
+    {
+      "id": "transfer",
+      "label": "检验迁移"
+    },
+    {
+      "id": "avoid",
+      "label": "错误出口"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "lesson",
+      "label": "小课",
+      "lane": "learn",
+      "col": 0,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "practice",
+      "label": "独立提取",
+      "lane": "learn",
+      "col": 1,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "spacing",
+      "label": "间隔",
+      "lane": "learn",
+      "col": 2,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "interleave",
+      "label": "交错练习",
+      "lane": "transfer",
+      "col": 2,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "question",
+      "label": "能解决新问题?",
+      "lane": "transfer",
+      "col": 1,
+      "type": "security",
+      "icon": "decision"
+    },
+    {
+      "id": "done",
+      "label": "✓ 完成",
+      "lane": "transfer",
+      "col": 0,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "fluent",
+      "label": "× 看完觉得流畅",
+      "lane": "avoid",
+      "col": 0,
+      "type": "backend",
+      "icon": "none"
+    }
+  ],
+  "edges": [
+    {
+      "id": "lesson-practice",
+      "from": "lesson",
+      "to": "practice",
+      "variant": "emphasis"
+    },
+    {
+      "id": "practice-spacing",
+      "from": "practice",
+      "to": "spacing",
+      "variant": "emphasis"
+    },
+    {
+      "id": "spacing-interleave",
+      "from": "spacing",
+      "to": "interleave",
+      "variant": "emphasis"
+    },
+    {
+      "id": "interleave-question",
+      "from": "interleave",
+      "to": "question",
+      "variant": "emphasis"
+    },
+    {
+      "id": "question-done",
+      "from": "question",
+      "to": "done",
+      "variant": "emphasis",
+      "label": "是"
+    },
+    {
+      "id": "question-practice",
+      "from": "question",
+      "to": "practice",
+      "variant": "emphasis",
+      "role": "return",
+      "label": "否"
+    },
+    {
+      "id": "lesson-fluent",
+      "from": "lesson",
+      "to": "fluent",
+      "variant": "dashed",
+      "role": "error",
+      "label": "不算完成"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "violet",
+      "title": "来源与改编",
+      "items": [
+        "独立编排；依据 skills /teach 结构（MIT）。",
+        "改编登记与许可见本站版权说明。"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "diagram_type": "tree",
+  "meta": {
+    "title": "后续还需要当前上下文吗？",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "output": ".archify/d09-context-decision.zh/diagram.html"
+  },
+  "layout": {
+    "direction": "right",
+    "gapX": 45,
+    "gapY": 30,
+    "nodeW": 160,
+    "nodeMaxW": 230
+  },
+  "nodes": [
+    {
+      "id": "root",
+      "label": "还需要当前上下文吗？"
+    },
+    {
+      "id": "keep",
+      "label": "同一小闭环仍需当前细节",
+      "parent": "root"
+    },
+    {
+      "id": "continue",
+      "label": "继续",
+      "parent": "keep"
+    },
+    {
+      "id": "reset",
+      "label": "目标未变，混入无关材料",
+      "parent": "root"
+    },
+    {
+      "id": "clear",
+      "label": "清理",
+      "parent": "reset"
+    },
+    {
+      "id": "transfer",
+      "label": "到了可验收边界，将换会话",
+      "parent": "root"
+    },
+    {
+      "id": "handoff",
+      "label": "交接",
+      "parent": "transfer"
+    },
+    {
+      "id": "bounded",
+      "label": "有可独立验收的旁支任务",
+      "parent": "root"
+    },
+    {
+      "id": "subtask",
+      "label": "子任务",
+      "parent": "bounded"
+    },
+    {
+      "id": "long",
+      "label": "同一任务仍需推进，但历史太散",
+      "parent": "root"
+    },
+    {
+      "id": "compact",
+      "label": "压缩",
+      "parent": "long"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "violet",
+      "title": "本站判断表",
+      "items": [
+        "本站按工作需要整理，不是原帖决策树。",
+        "清理或压缩前保存有效证据与未决问题。"
+      ]
+    }
+  ]
+}

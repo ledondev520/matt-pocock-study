@@ -13,6 +13,9 @@ const XLINK = 'http://www.w3.org/1999/xlink'
 const XMLNS = 'http://www.w3.org/2000/xmlns/'
 const elements = new Set('svg g defs symbol use path rect circle ellipse line polyline polygon text tspan title desc linearGradient radialGradient stop clipPath mask pattern marker style'.split(' '))
 const attributes = new Set(`id class role aria-label aria-labelledby aria-describedby aria-hidden viewBox width height x y x1 y1 x2 y2 cx cy r rx ry d points transform fill fill-opacity fill-rule stroke stroke-width stroke-opacity stroke-linecap stroke-linejoin stroke-dasharray stroke-dashoffset stroke-miterlimit opacity color style href font-family font-size font-weight font-style text-anchor dominant-baseline alignment-baseline letter-spacing textLength lengthAdjust dx dy rotate offset stop-color stop-opacity gradientUnits gradientTransform spreadMethod fx fy fr clip-path clip-rule clipPathUnits mask maskUnits maskContentUnits patternUnits patternContentUnits patternTransform preserveAspectRatio marker-start marker-mid marker-end markerWidth markerHeight markerUnits refX refY orient overflow vector-effect`.split(/\s+/))
+const PARSE_ERROR = 'http://www.mozilla.org/newlayout/xml/parsererror.xml'
+const serializerWindow = new JSDOM('').window
+const parser = new serializerWindow.DOMParser()
 const localReference = /^#[A-Za-z_][\w:.-]*$/
 const localUrl = /^url\(\s*#[A-Za-z_][\w:.-]*\s*\)$/
 // Every allowed attribute has an explicit value grammar; an attribute without one is rejected.
@@ -53,12 +56,13 @@ export function validateSvg(source, { profile = 'art', lang } = {}) {
   // XML declarations are parsed for validity, then omitted by serialization.
   const withoutDeclaration = source.replace(/^\uFEFF?<\?xml\s[^?]*\?>/, '')
   if (/<!\s*(?:ENTITY|DOCTYPE)|<\?|<!--/i.test(withoutDeclaration)) throw new Error('SVG declarations, processing instructions and comments are forbidden')
-  let window
-  try { window = new JSDOM(source, { contentType: 'image/svg+xml' }).window }
-  catch { throw new Error('Invalid SVG XML') }
-  try {
-    const document = window.document
-    const root = document.documentElement
+  // One parser window is shared: each call parses into a fresh, script-less XML document and the
+  // output is a separately built tree, so no state crosses calls. Creating a JSDOM per figure made
+  // a full content build spend most of its time constructing windows.
+  const document = parser.parseFromString(source, 'image/svg+xml')
+  const root = document.documentElement
+  if (!root || root.namespaceURI === PARSE_ERROR || root.localName === 'parsererror') throw new Error('Invalid SVG XML')
+  {
     if (root.localName !== 'svg' || root.namespaceURI !== SVG) throw new Error('Expected an SVG root')
     const output = document.implementation.createDocument(SVG, 'svg', null)
     const scope = `svg-${randomUUID()}`
@@ -100,8 +104,8 @@ export function validateSvg(source, { profile = 'art', lang } = {}) {
       return clean
     }
     output.replaceChild(copy(root), output.documentElement)
-    return new window.XMLSerializer().serializeToString(output.documentElement)
-  } finally { window.close() }
+    return new serializerWindow.XMLSerializer().serializeToString(output.documentElement)
+  }
 }
 
 export async function importArt(directory) {
