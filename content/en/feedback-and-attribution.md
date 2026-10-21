@@ -14,6 +14,10 @@ updated: 2026-10-21
 
 Someone says a rule does not work. You immediately defend it. Someone else shares a useful method, and your retelling drops their name. Both responses remove opportunities to learn together.
 
+```figure
+id: s17-where-it-stalls
+```
+
 ## Address the issue, then ask for context
 
 Replies in the research sample are often brief and direct. The useful habit is answering the specific issue before asking about the environment, steps and expected outcome. Forceful wording adds no evidence.

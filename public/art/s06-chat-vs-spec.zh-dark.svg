@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500" role="img" aria-labelledby="s06-chat-vs-spec-title s06-chat-vs-spec-desc" class="svg-b37575f7-5fe3-4991-81f2-7b0bdeecbf79">
+  <title id="s06-chat-vs-spec-title">决定只在聊天里 vs 写进规格</title>
+  <desc id="s06-chat-vs-spec-desc">左：「保存失败时保留输入」的决定只留在昨天的聊天里，换了会话，agent 把表单清空。右：同一决定写进规格的「行为」一栏，新会话能直接找到。</desc>
+  <defs><clipPath id="s06-chat-vs-spec-clip1"><rect x="444" y="106" width="308" height="230" rx="12"/></clipPath></defs>
+  <g id="shapes">
+    <rect id="bg" x="0" y="0" width="800" height="500" fill="#0E0A1F" class="f-bg"/>
+    <rect x="24" y="24" width="356" height="452" rx="14" fill="#171128" stroke="#352A48" stroke-width="1.5" class="f-card s-border"/>
+    <rect x="42" y="42" width="320" height="44" rx="10" fill="#3A1A33" class="f-pink-tint"/>
+    <rect x="420" y="24" width="356" height="452" rx="14" fill="#171128" stroke="#352A48" stroke-width="1.5" class="f-card s-border"/>
+    <rect x="438" y="42" width="320" height="44" rx="10" fill="#241B38" class="f-muted"/>
+    <path d="M332 58 L344 70 M344 58 L332 70" fill="none" stroke="#F25CAC" stroke-width="3" class="s-pink" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M727 64 L731.7 68.9 L741 58.4" fill="none" stroke="#9C8BD9" stroke-width="3" class="s-block" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="48" y="106" width="200" height="34" rx="17" fill="#241B38" class="f-muted"/>
+    <rect x="66" y="119" width="150" height="8" rx="4.0" fill="#352A48" class="f-border"/>
+    <rect x="96" y="152" width="260" height="62" rx="16" fill="#9C8BD9" class="f-block"/>
+    <rect x="48" y="226" width="220" height="34" rx="17" fill="#241B38" class="f-muted"/>
+    <rect x="66" y="239" width="170" height="8" rx="4.0" fill="#352A48" class="f-border"/>
+    <path d="M48 290 L356 290" fill="none" stroke="#AEA4C0" stroke-width="1.5" stroke-dasharray="6 6" class="s-fg2" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="132" y="276" width="140" height="28" rx="14" fill="#171128" class="f-card"/>
+    <rect x="48" y="322" width="308" height="86" rx="12" fill="#3A1A33" stroke="#F25CAC" stroke-width="1.5" stroke-dasharray="5 4" class="f-pink-tint s-pink"/>
+    <rect x="444" y="106" width="308" height="230" rx="12" fill="#211932" class="f-inner"/>
+    <rect x="444" y="106" width="308" height="40" clip-path="url(#s06-chat-vs-spec-clip1)" fill="#9C8BD9" class="f-violet"/>
+    <rect x="444" y="106" width="308" height="230" rx="12" fill="none" stroke="#352A48" stroke-width="1.5" class="s-border"/>
+    <rect x="568" y="176" width="140" height="8" rx="4.0" fill="#352A48" class="f-border"/>
+    <rect x="456" y="200" width="284" height="44" rx="8" fill="#2A2142" stroke="#B4A3EC" stroke-width="1.5" class="f-hl s-accent"/>
+    <rect x="462" y="208" width="5" height="28" rx="2.5" fill="#C6F432" class="f-lime"/>
+    <rect x="568" y="260" width="140" height="8" rx="4.0" fill="#352A48" class="f-border"/>
+    <rect x="568" y="302" width="140" height="8" rx="4.0" fill="#352A48" class="f-border"/>
+    <path d="M598 336 L598 368" fill="none" stroke="#9C8BD9" stroke-width="2" class="s-block" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M594.1 359.9 L598 368 L601.9 359.9" fill="none" stroke="#9C8BD9" stroke-width="2" class="s-block" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="444" y="372" width="308" height="50" rx="12" fill="#241B38" class="f-muted"/>
+  </g>
+  <g id="text">
+    <text x="60" y="70.3" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="18" font-weight="700" fill="#EAE5F4" class="f-fg">只留在聊天里</text>
+    <text x="456" y="70.3" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="18" font-weight="700" fill="#EAE5F4" class="f-fg">写进规格</text>
+    <text x="116" y="178.2" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="600" fill="#140C28" class="f-on-block"><tspan x="116" dy="0">昨天确认：</tspan><tspan x="116" dy="20.2">保存失败时保留输入</tspan></text>
+    <text x="202" y="294.9" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="14" font-weight="600" fill="#AEA4C0" class="f-fg2" text-anchor="middle">换了会话</text>
+    <text x="68" y="360.1" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="600" fill="#EAE5F4" class="f-fg"><tspan x="68" dy="0">决定留在长聊天里</tspan><tspan x="68" dy="20.2">→ agent 把表单清空</tspan></text>
+    <text x="48" y="448" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="400" fill="#AEA4C0" class="f-fg2">没有变成可查的实施依据</text>
+    <text x="462" y="131.2" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="700" fill="#140C28" class="f-on-block">规格</text>
+    <text x="472" y="184.9" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="14" font-weight="600" fill="#AEA4C0" class="f-fg2">目标</text>
+    <text x="472" y="226.9" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="14" font-weight="700" fill="#EAE5F4" class="f-fg">行为</text>
+    <text x="568" y="226.9" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="14" font-weight="700" fill="#EAE5F4" class="f-fg">保存失败时保留输入</text>
+    <text x="472" y="268.9" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="14" font-weight="600" fill="#AEA4C0" class="f-fg2">范围外</text>
+    <text x="472" y="310.9" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="14" font-weight="600" fill="#AEA4C0" class="f-fg2">验收</text>
+    <text x="464" y="402.2" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="600" fill="#EAE5F4" class="f-fg">新会话知道什么已定</text>
+    <text x="444" y="448" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="400" fill="#AEA4C0" class="f-fg2">规格负责把决定传下去</text>
+  </g>
+</svg>

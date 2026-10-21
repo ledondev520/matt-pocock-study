@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 
 const css = readFileSync(new URL('../src/index.css', import.meta.url), 'utf8');
 function tokens(selector) {
@@ -47,18 +47,20 @@ for (const [mode, selector] of [['Light', ':root'], ['Dark', '\\.dark']]) {
   check(mode, 'Article links / muted', t.link, t.muted);
   check(mode, 'Hero figure labels / nodes', t['hero-text'], t['hero-node']);
   check(mode, 'Hero figure numbers / nodes', t['hero-muted'], t['hero-node']);
-  check(mode, 'Hero figure loop / violet', t['hero-text'], t['hero-bg']);
-  check(mode, 'Hero figure caption / violet', t['hero-muted'], t['hero-bg']);
+  check(mode, 'Hero body / surface', t['hero-text'], t['hero-bg']);
+  check(mode, 'Hero muted / surface', t['hero-muted'], t['hero-bg']);
+  check(mode, 'Hero accent / surface', t['hero-accent'], t['hero-bg']);
+  check(mode, 'Hero button & final node', t['hero-accent-ink'], t['hero-accent']);
+  check(mode, 'Corpus entry / outlined row', t.foreground, t['panel-inner']);
 }
-check('Both', 'Hero body', '#EBE3FF', '#43209E');
-check('Both', 'Hero tribute', '#D8CCF3', '#43209E');
-check('Both', 'Hero muted', '#D3C5F3', '#43209E');
-check('Both', 'Hero link', '#EEE6FF', '#43209E');
-check('Both', 'Hero accent', '#C6F432', '#43209E');
-check('Both', 'Hero button', '#221438', '#C6F432');
 for (const [role, fg] of [['Text', '#E9E4F5'], ['Keyword / operator', '#D5ADFF'], ['String', '#C6F432'], ['Function', '#FF91CB'], ['Type', '#9DDFFF'], ['Punctuation', '#C2B7D6'], ['Comment', '#B4A7C8'], ['Line number', '#A394B8']]) {
   check('Both', `Code: ${role}`, fg, '#171126');
 }
 check('Both', 'Code toolbar', '#C2B7D6', '#211930');
 console.table(rows);
+if (process.argv.includes('--write')) {
+  const design = new URL('../docs/DESIGN.md', import.meta.url);
+  const table = ['| Theme | Text / role | Foreground | Background | Contrast | AA |', '| --- | --- | --- | --- | --- | --- |', ...rows.map(r => `| ${r.mode} | ${r.role} | ${r.fg} | ${r.bg} | ${r.ratio} | ${r.result} |`)].join('\n');
+  writeFileSync(design, readFileSync(design, 'utf8').replace(/<!-- contrast:start -->[\s\S]*?<!-- contrast:end -->/, () => `<!-- contrast:start -->\n${table}\n<!-- contrast:end -->`));
+}
 if (rows.some(r => r.result === 'FAIL')) process.exitCode = 1;

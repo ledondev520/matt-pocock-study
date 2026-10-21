@@ -16,6 +16,10 @@ Someone finds the search results awkward. You might add highlighting, filters, s
 
 Establish who is searching, what they need to find, and where they get stuck. Define what would count as an improvement before comparing solutions.
 
+```figure
+id: s05-vague-to-goal
+```
+
 ## Restate the goal and assign the questions
 
 Briefly describe the user, goal, and success condition so the requester can correct your understanding. Inspect the code and documentation for facts such as available response fields or existing components. Those are investigation tasks you can do yourself.

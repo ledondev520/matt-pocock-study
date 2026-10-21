@@ -9,6 +9,7 @@ import { codeHtml } from './code'
 import { siteUrl } from '../src/lib/site'
 import { figureHtml, figureMarkdown, figureById, escapeHtml, buildFigures } from './figures'
 import { licenceBlock, embedsArchify, archifyAppendix } from './licences.mjs'
+import { renderArrows } from './arrows'
 
 const languages = ['en', 'zh'] as const
 const componentNames = ['cards', 'quote', 'exercise', 'figure', 'note', 'licence']
@@ -92,7 +93,7 @@ export async function renderMarkdown(source: string, lang: Lang) {
   marked.walkTokens(tokens, token => { pending.push(transform(token)) })
   await Promise.all(pending)
   const markdown = source.replace(/```(cards|quote|exercise|figure|note|licence)\s*\n[\s\S]*?\n```/g, raw => exports.get(raw) ?? '')
-  return { html: marked.parser(tokens, { renderer }), markdown: markdown.trim() + '\n', toc }
+  return { html: renderArrows(marked.parser(tokens, { renderer })), markdown: markdown.trim() + '\n', toc }
 }
 
 export async function readPages(contentDir: string): Promise<Page[]> {
@@ -113,7 +114,7 @@ export async function readPages(contentDir: string): Promise<Page[]> {
       if (head !== 'card' && !figureById(String(head))) throw new Error(`Unknown figure id: ${head}`)
       const rendered = await renderMarkdown(source.slice(match[0].length), lang)
       pages.push({ lang, slug, title, subtitle, number, order, section: section as Section, summary, head, updated, ...rendered,
-        headHtml: head === 'card' ? `<aside class="key-point"><strong>${lang === 'zh' ? '一句话要点' : 'KEY POINT'}</strong><p>${escapeHtml(String(summary))}</p></aside>` : await figureHtml(String(head), lang),
+        headHtml: head === 'card' ? renderArrows(`<aside class="key-point"><strong>${lang === 'zh' ? '一句话要点' : 'KEY POINT'}</strong><p>${escapeHtml(String(summary))}</p></aside>`) : await figureHtml(String(head), lang),
       } as Page)
     }
   }
@@ -127,7 +128,8 @@ export async function readPages(contentDir: string): Promise<Page[]> {
   // A page whose body or head embeds an Archify-generated diagram carries Archify's full licence at
   // its end (HTML, .md download and llms-full), unless it already has that licence block.
   for (const page of pages) {
-    if (!embedsArchify(page.html + page.headHtml) || page.html.includes(licenceBlock('archify', page.lang).html)) continue
+    // The rendered DOM may normalize entities; the export retains the exact licence block.
+    if (!embedsArchify(page.html + page.headHtml) || page.markdown.includes(licenceBlock('archify', page.lang).markdown)) continue
     const appendix = archifyAppendix(page.lang)
     page.html += appendix.html
     page.markdown = `${page.markdown.trimEnd()}\n\n${appendix.markdown}\n`

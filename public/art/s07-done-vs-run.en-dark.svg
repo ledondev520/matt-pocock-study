@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500" role="img" aria-labelledby="s07-done-vs-run-title s07-done-vs-run-desc" class="svg-032c192c-19c9-4fe1-a806-ad19f5c87b80">
+  <title id="s07-done-vs-run-title">“Finished” vs starting it and trying once</title>
+  <desc id="s07-done-vs-run-desc">Left: the code changed and the agent says it is finished, but nobody started the application; your first submission reveals that a missing service address still produces a success message. Right: start the application and submit the form once, so the environment makes the failure visible while the work is happening.</desc>
+  <g id="shapes">
+    <rect id="bg" x="0" y="0" width="800" height="500" fill="#0E0A1F" class="f-bg"/>
+    <rect x="24" y="24" width="356" height="452" rx="14" fill="#171128" stroke="#352A48" stroke-width="1.5" class="f-card s-border"/>
+    <rect x="42" y="42" width="320" height="44" rx="10" fill="#3A1A33" class="f-pink-tint"/>
+    <rect x="420" y="24" width="356" height="452" rx="14" fill="#171128" stroke="#352A48" stroke-width="1.5" class="f-card s-border"/>
+    <rect x="438" y="42" width="320" height="44" rx="10" fill="#241B38" class="f-muted"/>
+    <path d="M332 58 L344 70 M344 58 L332 70" fill="none" stroke="#F25CAC" stroke-width="3" class="s-pink" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M727 64 L731.7 68.9 L741 58.4" fill="none" stroke="#9C8BD9" stroke-width="3" class="s-block" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="48" y="106" width="308" height="92" rx="12" fill="#211932" stroke="#352A48" stroke-width="1.5" class="f-inner s-border"/>
+    <rect x="66" y="150" width="180" height="8" rx="4" fill="#B4A3EC" opacity="0.7"/>
+    <rect x="66" y="164" width="130" height="8" rx="4" fill="#352A48" opacity="0.7"/>
+    <rect x="66" y="178" width="210" height="8" rx="4" fill="#B4A3EC" opacity="0.7"/>
+    <rect x="96" y="212" width="260" height="44" rx="16" fill="#9C8BD9" class="f-block"/>
+    <rect x="48" y="322" width="308" height="86" rx="12" fill="#3A1A33" stroke="#F25CAC" stroke-width="1.5" stroke-dasharray="5 4" class="f-pink-tint s-pink"/>
+    <circle cx="462" cy="134" r="13" fill="#B4A3EC" class="f-accent"/>
+    <rect x="486" y="112" width="266" height="44" rx="10" fill="#211932" stroke="#352A48" stroke-width="1.5" class="f-inner s-border"/>
+    <circle cx="462" cy="194" r="13" fill="#B4A3EC" class="f-accent"/>
+    <rect x="486" y="172" width="266" height="44" rx="10" fill="#211932" stroke="#352A48" stroke-width="1.5" class="f-inner s-border"/>
+    <path d="M619 216 L619 240" fill="none" stroke="#9C8BD9" stroke-width="2" class="s-block" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M615.1 231.9 L619 240 L622.9 231.9" fill="none" stroke="#9C8BD9" stroke-width="2" class="s-block" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="444" y="244" width="308" height="78" rx="12" fill="#3A1A33" stroke="#F25CAC" stroke-width="1.5" class="f-pink-tint s-pink"/>
+    <path d="M462 277 L474 289 M474 277 L462 289" fill="none" stroke="#F25CAC" stroke-width="3" class="s-pink" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M598 322 L598 368" fill="none" stroke="#9C8BD9" stroke-width="2" class="s-block" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M594.1 359.9 L598 368 L601.9 359.9" fill="none" stroke="#9C8BD9" stroke-width="2" class="s-block" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="444" y="372" width="308" height="50" rx="8" fill="#2A2142" stroke="#B4A3EC" stroke-width="1.5" class="f-hl s-accent"/>
+    <rect x="450" y="380" width="5" height="34" rx="2.5" fill="#C6F432" class="f-lime"/>
+  </g>
+  <g id="text">
+    <text x="60" y="70.3" font-family="'Space Grotesk',Inter,'Helvetica Neue',Arial,sans-serif" font-size="18" font-weight="700" fill="#EAE5F4" class="f-fg">Code changed only</text>
+    <text x="456" y="70.3" font-family="'Space Grotesk',Inter,'Helvetica Neue',Arial,sans-serif" font-size="18" font-weight="700" fill="#EAE5F4" class="f-fg">Start it, try it once</text>
+    <text x="66" y="132" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="700" fill="#EAE5F4" class="f-fg">Code changed</text>
+    <text x="116" y="239.2" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="700" fill="#140C28" class="f-on-block">Agent: finished</text>
+    <text x="48" y="284" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="600" fill="#AEA4C0" class="f-fg2">Nobody started the app</text>
+    <text x="68" y="360.1" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="600" fill="#EAE5F4" class="f-fg"><tspan x="68" dy="0">Your first submission shows:</tspan><tspan x="68" dy="20.2">no service address, still “success”</tspan></text>
+    <text x="48" y="448" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="400" fill="#AEA4C0" class="f-fg2">Changed code isn't working behaviour</text>
+    <text x="462" y="138.9" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="700" fill="#140C28" class="f-on-block" text-anchor="middle">1</text>
+    <text x="500" y="139.2" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="600" fill="#EAE5F4" class="f-fg">Start the application</text>
+    <text x="462" y="198.9" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="700" fill="#140C28" class="f-on-block" text-anchor="middle">2</text>
+    <text x="500" y="199.2" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="600" fill="#EAE5F4" class="f-fg">Submit the form once</text>
+    <text x="488" y="278.1" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="600" fill="#EAE5F4" class="f-fg"><tspan x="488" dy="0">Missing service address</tspan><tspan x="488" dy="20.2">still shows success</tspan></text>
+    <text x="464" y="402.2" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="700" fill="#EAE5F4" class="f-fg">Failure seen during the work</text>
+    <text x="444" y="448" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="400" fill="#AEA4C0" class="f-fg2">The environment exposes it early</text>
+  </g>
+</svg>

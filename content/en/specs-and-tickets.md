@@ -14,6 +14,10 @@ updated: 2026-10-21
 
 Yesterday you agreed that a failed save should preserve the form input. Today a fresh session clears the form. The decision stayed in chat instead of becoming an accessible reference. A sprawling spec can cause a similar problem by burying the useful choices.
 
+```figure
+id: s06-chat-vs-spec
+```
+
 The job of a spec is to carry decisions forward. A new session should be able to find what is settled, what remains open, and what evidence completion requires.
 
 ## Capture confirmed behavior

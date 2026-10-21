@@ -14,6 +14,10 @@ updated: 2026-10-21
 
 The code changed, but nobody started the application. Your first submission reveals that a missing service address still produces a success message. A useful execution environment makes that failure visible while the work is happening.
 
+```figure
+id: s07-done-vs-run
+```
+
 ## Establish an expectation before implementing
 
 Start with a bounded ticket. Reproduce the failure, or define an observable expectation for new behavior. Implement, run relevant checks, repair failures, and rerun. Keep evidence of the resulting behavior.

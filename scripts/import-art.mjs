@@ -120,12 +120,13 @@ export function validateSvg(source, { profile = 'art', lang } = {}) {
 
 export async function importArt(directory) {
   const { figures } = validateFigureRegistry(JSON.parse(await readFile('data/figures.json', 'utf8')))
-  const ids = new Set(figures.filter(f => f.owner === 'art').map(f => f.id))
+  const art = new Map(figures.filter(f => f.owner === 'art').map(f => [f.id, f]))
   const pending = []
   for (const file of (await readdir(directory)).sort()) {
     if (!file.endsWith('.svg')) continue
-    const match = /^(.*)\.(zh|en)(-dark)?\.svg$/.exec(file)
-    if (!match || !ids.has(match[1])) throw new Error(`Unknown art filename: ${basename(file)}`)
+    const match = /^(.*?)\.(zh|en)(-dark)?\.svg$/.exec(file)
+    const neutralId = file.replace(/(-dark)?\.svg$/, '')
+    if (match ? !art.has(match[1]) : art.get(neutralId)?.decorative !== true) throw new Error(`Unknown art filename: ${basename(file)}`)
     const svg = validateSvg(await readFile(resolve(directory, file), 'utf8'))
     pending.push({ file, svg })
   }

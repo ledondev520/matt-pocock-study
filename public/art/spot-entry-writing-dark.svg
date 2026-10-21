@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 340" width="480" height="340" role="img" aria-labelledby="spot-entry-writing-title spot-entry-writing-desc" class="svg-c7a9ba4e-48d7-4da5-a43f-36a912edb4b6">
+  <title id="spot-entry-writing-title">写作与教学</title>
+  <desc id="spot-entry-writing-desc">剪纸风小插画：一个纸剪的问号，沿虚线走向一本打开的讲义，讲义上是分步骤的要点。</desc>
+  <g id="shapes">
+    <rect id="bg" x="0" y="0" width="480" height="340" fill="#0E0A1F" class="f-bg"/>
+    <defs><pattern id="spot-entry-writing-dots" width="9" height="9" patternUnits="userSpaceOnUse"><circle cx="4.5" cy="4.5" r="1.5" fill="#140C28" opacity="0.45"/></pattern></defs>
+    <circle cx="240" cy="176" r="150" fill="#1A132D"/>
+    <g transform="rotate(-8 112 180)"><g transform="translate(6 6)" opacity="0.16"><path d="M74 132 C74 92 150 84 152 132 C154 166 110 168 112 206" fill="none" stroke="#0E0A1F" stroke-width="24" stroke-linecap="round"/><circle cx="112" cy="248" r="15" fill="#0E0A1F"/></g><path d="M74 132 C74 92 150 84 152 132 C154 166 110 168 112 206" fill="none" stroke="#B4A3EC" stroke-width="24" stroke-linecap="round"/><circle cx="112" cy="248" r="15" fill="#B4A3EC"/></g>
+    <path d="M150 240 C190 270 214 220 246 226" fill="none" stroke="#AEA4C0" stroke-width="3" stroke-dasharray="6 7" stroke-linecap="round"/>
+    <g><g transform="translate(6 6)" opacity="0.16"><path d="M250 110 L340 96 L340 290 L250 302 Z" fill="#0E0A1F"/></g><path d="M250 110 L340 96 L340 290 L250 302 Z" fill="#2A2142"/></g>
+    <g><g transform="translate(6 6)" opacity="0.16"><path d="M340 96 L430 110 L430 302 L340 290 Z" fill="#0E0A1F"/></g><path d="M340 96 L430 110 L430 302 L340 290 Z" fill="#2A2142"/></g>
+    <path d="M340 96 L340 290" stroke="#352A48" stroke-width="2"/>
+    <circle cx="270" cy="140" r="9" fill="#9C8BD9"/><path d="M288 140 h40 M288 154 h28" stroke="#352A48" stroke-width="6" stroke-linecap="round"/>
+    <circle cx="270" cy="188" r="9" fill="#9C8BD9"/><path d="M288 188 h40 M288 202 h28" stroke="#352A48" stroke-width="6" stroke-linecap="round"/>
+    <circle cx="270" cy="236" r="9" fill="#9C8BD9"/><path d="M288 236 h40 M288 250 h28" stroke="#352A48" stroke-width="6" stroke-linecap="round"/>
+    <rect x="356" y="126" width="58" height="58" rx="6" fill="#9C8BD9"/><rect x="356" y="126" width="58" height="58" rx="6" fill="url(#spot-entry-writing-dots)"/><path d="M358 214 h54 M358 234 h40 M358 254 h48" stroke="#352A48" stroke-width="6" stroke-linecap="round"/>
+    <path d="M404 102 h16 v40 l-8 -8 l-8 8 Z" fill="#C6F432"/>
+  </g>
+  <g id="text">
+  </g>
+</svg>
