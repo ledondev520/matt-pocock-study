@@ -1,0 +1,90 @@
+{
+  "schema_version": 3,
+  "diagram_type": "lifecycle",
+  "meta": {
+    "title": "Decisions, specs and tickets",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "output": ".archify/d06-spec-lifecycle.en/diagram.html"
+  },
+  "mainPath": [
+    "decisions",
+    "spec",
+    "tickets",
+    "done"
+  ],
+  "states": [
+    {
+      "id": "decisions",
+      "type": "start",
+      "label": "Agreed decisions"
+    },
+    {
+      "id": "spec",
+      "type": "active",
+      "label": "Spec",
+      "sublabel": "Goals · behavior · exclusions · acceptance"
+    },
+    {
+      "id": "tickets",
+      "type": "active",
+      "label": "Vertical tickets",
+      "sublabel": "Keep in tracker"
+    },
+    {
+      "id": "done",
+      "type": "success",
+      "label": "Implemented"
+    },
+    {
+      "id": "temporary",
+      "type": "neutral",
+      "label": "Temporary material",
+      "sublabel": "Clean up or archive per policy"
+    },
+    {
+      "id": "adr",
+      "type": "neutral",
+      "label": "ADR",
+      "sublabel": "Keep lasting decisions"
+    }
+  ],
+  "transitions": [
+    {
+      "from": "decisions",
+      "to": "spec",
+      "label": "/to-spec",
+      "variant": "emphasis"
+    },
+    {
+      "from": "spec",
+      "to": "tickets",
+      "label": "/to-tickets",
+      "variant": "emphasis"
+    },
+    {
+      "from": "tickets",
+      "to": "done",
+      "variant": "emphasis"
+    },
+    {
+      "from": "done",
+      "to": "temporary",
+      "label": "Temporary"
+    },
+    {
+      "from": "decisions",
+      "to": "adr",
+      "label": "Lasting"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "× Unknowns are not requirements",
+      "items": [
+        "Do not present unknowns as agreed requirements."
+      ]
+    }
+  ]
+}

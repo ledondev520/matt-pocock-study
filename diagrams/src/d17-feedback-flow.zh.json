@@ -1,0 +1,133 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "把反馈变成改进候选",
+    "locale": "zh-CN",
+    "output": ".archify/d17-feedback-flow.zh.html",
+    "quality_profile": "showcase"
+  },
+  "lanes": [
+    {
+      "id": "listen",
+      "label": "理解问题"
+    },
+    {
+      "id": "check",
+      "label": "检查证据"
+    },
+    {
+      "id": "avoid",
+      "label": "错误支线"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "feedback",
+      "label": "负面反馈",
+      "lane": "listen",
+      "col": 0,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "respond",
+      "label": "回应具体问题",
+      "lane": "listen",
+      "col": 1,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "context",
+      "label": "追问复现情境",
+      "lane": "listen",
+      "col": 2,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "reproduce",
+      "label": "能复现?",
+      "lane": "check",
+      "col": 2,
+      "type": "security",
+      "icon": "decision"
+    },
+    {
+      "id": "candidate",
+      "label": "✓ 改进候选",
+      "lane": "check",
+      "col": 1,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "evidence",
+      "label": "请求具体证据",
+      "lane": "check",
+      "col": 0,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "argue",
+      "label": "× 只反驳",
+      "lane": "avoid",
+      "col": 0,
+      "type": "backend",
+      "icon": "none"
+    }
+  ],
+  "edges": [
+    {
+      "id": "feedback-respond",
+      "from": "feedback",
+      "to": "respond",
+      "variant": "emphasis"
+    },
+    {
+      "id": "respond-context",
+      "from": "respond",
+      "to": "context",
+      "variant": "emphasis"
+    },
+    {
+      "id": "context-reproduce",
+      "from": "context",
+      "to": "reproduce",
+      "variant": "emphasis"
+    },
+    {
+      "id": "reproduce-candidate",
+      "from": "reproduce",
+      "to": "candidate",
+      "variant": "emphasis",
+      "label": "是"
+    },
+    {
+      "id": "reproduce-evidence",
+      "from": "reproduce",
+      "to": "evidence",
+      "variant": "emphasis",
+      "label": "否"
+    },
+    {
+      "id": "feedback-argue",
+      "from": "feedback",
+      "to": "argue",
+      "variant": "dashed",
+      "role": "error",
+      "label": "不推荐"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "violet",
+      "title": "证据边界",
+      "items": [
+        "一次点赞或单个案例不算效果证明。"
+      ]
+    }
+  ]
+}

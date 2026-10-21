@@ -1,0 +1,148 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "把模糊请求变成可确认行为",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "output": ".archify/d05-alignment-flow.zh/diagram.html"
+  },
+  "lanes": [
+    {
+      "id": "l0",
+      "label": "请求与事实"
+    },
+    {
+      "id": "l1",
+      "label": "取舍与确认"
+    },
+    {
+      "id": "l2",
+      "label": "体验与旁路"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "request",
+      "label": "模糊请求",
+      "lane": "l0",
+      "col": 0,
+      "type": "backend",
+      "icon": "none",
+      "sublabel": "做得更好用"
+    },
+    {
+      "id": "restate",
+      "label": "复述目标",
+      "lane": "l0",
+      "col": 1,
+      "type": "backend",
+      "icon": "none",
+      "sublabel": "使用者 · 成功条件"
+    },
+    {
+      "id": "facts",
+      "label": "事实问题",
+      "lane": "l0",
+      "col": 2,
+      "type": "backend",
+      "icon": "none",
+      "sublabel": "自己查代码与资料"
+    },
+    {
+      "id": "trade",
+      "label": "取舍问题",
+      "lane": "l1",
+      "col": 1,
+      "type": "backend",
+      "icon": "none",
+      "sublabel": "分轮问，给推荐与理由"
+    },
+    {
+      "id": "ux",
+      "label": "体验问题",
+      "lane": "l2",
+      "col": 1,
+      "type": "backend",
+      "icon": "none",
+      "sublabel": "廉价原型比较"
+    },
+    {
+      "id": "agreed",
+      "label": "可确认行为",
+      "lane": "l1",
+      "col": 2,
+      "type": "backend",
+      "icon": "none",
+      "sublabel": "列出仍未解决的事项"
+    },
+    {
+      "id": "small",
+      "label": "很小且清楚的改动",
+      "lane": "l2",
+      "col": 0,
+      "type": "backend",
+      "icon": "none",
+      "sublabel": "跳过此步"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e0",
+      "from": "request",
+      "to": "restate",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e1",
+      "from": "restate",
+      "to": "facts",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e2",
+      "from": "restate",
+      "to": "trade",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e3",
+      "from": "restate",
+      "to": "ux",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e4",
+      "from": "facts",
+      "to": "agreed",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e5",
+      "from": "trade",
+      "to": "agreed",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e6",
+      "from": "ux",
+      "to": "agreed",
+      "variant": "emphasis"
+    },
+    {
+      "id": "small-bypass",
+      "from": "request",
+      "to": "small",
+      "variant": "default"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "violet",
+      "title": "记录人的选择",
+      "items": [
+        "比较原型后记录选了什么，以及为什么。"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,311 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Four learning routes",
+    "locale": "en",
+    "output": ".archify/d20-routes.en.html",
+    "quality_profile": "showcase"
+  },
+  "lanes": [
+    {
+      "id": "beginner",
+      "label": "Beginner"
+    },
+    {
+      "id": "practice",
+      "label": "Practice"
+    },
+    {
+      "id": "advanced",
+      "label": "Advanced"
+    },
+    {
+      "id": "teach",
+      "label": "Teaching"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "beginner-0",
+      "label": "TS foundations",
+      "lane": "beginner",
+      "col": 0,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "beginner-1",
+      "label": "Type tools",
+      "lane": "beginner",
+      "col": 1,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "beginner-2",
+      "label": "Implement + verify",
+      "lane": "beginner",
+      "col": 2,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "beginner-task",
+      "label": "✓ Deliver task",
+      "lane": "beginner",
+      "col": 3,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "practice-0",
+      "label": "Core principles",
+      "lane": "practice",
+      "col": 0,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "practice-1",
+      "label": "Workflow",
+      "lane": "practice",
+      "col": 1,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "practice-2",
+      "label": "Align + prototype",
+      "lane": "practice",
+      "col": 2,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "practice-3",
+      "label": "Specs + tickets",
+      "lane": "practice",
+      "col": 3,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "practice-4",
+      "label": "Review + PR",
+      "lane": "practice",
+      "col": 4,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "practice-task",
+      "label": "✓ Deliver task",
+      "lane": "practice",
+      "col": 5,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "advanced-0",
+      "label": "Context + handoff",
+      "lane": "advanced",
+      "col": 0,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "advanced-1",
+      "label": "Agent documents",
+      "lane": "advanced",
+      "col": 1,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "advanced-2",
+      "label": "Rules + checks",
+      "lane": "advanced",
+      "col": 2,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "advanced-3",
+      "label": "States + boundaries",
+      "lane": "advanced",
+      "col": 3,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "advanced-4",
+      "label": "Decisions + retros",
+      "lane": "advanced",
+      "col": 4,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "advanced-task",
+      "label": "✓ Deliver task",
+      "lane": "advanced",
+      "col": 5,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "teach-0",
+      "label": "Write to teach",
+      "lane": "teach",
+      "col": 0,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "teach-1",
+      "label": "Feedback + credit",
+      "lane": "teach",
+      "col": 1,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "teach-task",
+      "label": "✓ Deliver task",
+      "lane": "teach",
+      "col": 2,
+      "type": "backend",
+      "icon": "none"
+    }
+  ],
+  "edges": [
+    {
+      "id": "beginner-0-beginner-1",
+      "from": "beginner-0",
+      "to": "beginner-1",
+      "variant": "emphasis"
+    },
+    {
+      "id": "beginner-1-beginner-2",
+      "from": "beginner-1",
+      "to": "beginner-2",
+      "variant": "emphasis"
+    },
+    {
+      "id": "beginner-2-beginner-task",
+      "from": "beginner-2",
+      "to": "beginner-task",
+      "variant": "emphasis"
+    },
+    {
+      "id": "practice-0-practice-1",
+      "from": "practice-0",
+      "to": "practice-1",
+      "variant": "emphasis"
+    },
+    {
+      "id": "practice-1-practice-2",
+      "from": "practice-1",
+      "to": "practice-2",
+      "variant": "emphasis"
+    },
+    {
+      "id": "practice-2-practice-3",
+      "from": "practice-2",
+      "to": "practice-3",
+      "variant": "emphasis"
+    },
+    {
+      "id": "practice-3-practice-4",
+      "from": "practice-3",
+      "to": "practice-4",
+      "variant": "emphasis"
+    },
+    {
+      "id": "practice-4-practice-task",
+      "from": "practice-4",
+      "to": "practice-task",
+      "variant": "emphasis"
+    },
+    {
+      "id": "advanced-0-advanced-1",
+      "from": "advanced-0",
+      "to": "advanced-1",
+      "variant": "emphasis"
+    },
+    {
+      "id": "advanced-1-advanced-2",
+      "from": "advanced-1",
+      "to": "advanced-2",
+      "variant": "emphasis"
+    },
+    {
+      "id": "advanced-2-advanced-3",
+      "from": "advanced-2",
+      "to": "advanced-3",
+      "variant": "emphasis"
+    },
+    {
+      "id": "advanced-3-advanced-4",
+      "from": "advanced-3",
+      "to": "advanced-4",
+      "variant": "emphasis"
+    },
+    {
+      "id": "advanced-4-advanced-task",
+      "from": "advanced-4",
+      "to": "advanced-task",
+      "variant": "emphasis"
+    },
+    {
+      "id": "teach-0-teach-1",
+      "from": "teach-0",
+      "to": "teach-1",
+      "variant": "emphasis"
+    },
+    {
+      "id": "teach-1-teach-task",
+      "from": "teach-1",
+      "to": "teach-task",
+      "variant": "emphasis"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "violet",
+      "title": "Beginner",
+      "items": [
+        "Handle unknown JSON; show valid and invalid input results."
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "Practice",
+      "items": [
+        "Deliver a small ticket, behavior evidence and review notes."
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "Advanced",
+      "items": [
+        "Hand off to another session; implement an effective check."
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "Teaching",
+      "items": [
+        "Write a small lesson: problem, method, verification, sources."
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "Route scope",
+      "items": [
+        "Order designed by this site; not an official curriculum."
+      ]
+    }
+  ]
+}

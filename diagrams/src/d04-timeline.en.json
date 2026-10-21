@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "diagram_type": "timeline",
+  "meta": {
+    "title": "How the workflow evolved",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "output": ".archify/d04-timeline.en/diagram.html",
+    "evidence": "observed",
+    "timezone": "UTC"
+  },
+  "layout": {
+    "width": 600,
+    "breaks": "none"
+  },
+  "events": [
+    {
+      "id": "jan",
+      "at": "2026-01-01T00:00:00Z",
+      "title": "2026-01 Ralph / AFK",
+      "detail": "Early workflow"
+    },
+    {
+      "id": "spring",
+      "at": "2026-04-01T00:00:00Z",
+      "title": "Spring: grill / prototypes",
+      "detail": "Questions and cheap prototypes"
+    },
+    {
+      "id": "july",
+      "at": "2026-07-02T00:00:00Z",
+      "title": "2026-07 New names",
+      "detail": "/wayfinder → /to-spec → /to-tickets → /implement → /code-review"
+    },
+    {
+      "id": "oct",
+      "at": "2026-10-08T00:00:00Z",
+      "title": "2026-10 Review + retros",
+      "detail": "Do not default to /wayfinder"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "violet",
+      "title": "Date precision",
+      "items": [
+        "January and spring are broad phases; axis dates are placement anchors."
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "Matt Pocock · 2026-07-02",
+      "items": [
+        "/wayfinder -> /to-spec -> /to-tickets -> /implement -> /code-review",
+        "https://x.com/mattpocockuk/status/2072625252144730215"
+      ]
+    }
+  ]
+}

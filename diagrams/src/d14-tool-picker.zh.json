@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "diagram_type": "explainer",
+  "meta": {
+    "id": "d14-tool-picker",
+    "title": "按问题选择类型工具",
+    "locale": "zh-CN",
+    "output": "d14-tool-picker.zh.html",
+    "quality_profile": "showcase"
+  },
+  "answer": {
+    "summary": "工具各有用途，也各有边界。"
+  },
+  "panels": [
+    {
+      "id": "tools",
+      "title": "问题、作用与边界",
+      "blocks": [
+        {
+          "id": "tool-table",
+          "type": "comparison",
+          "labelColumn": "问题",
+          "columns": [
+            "工具",
+            "它做什么",
+            "它没解决什么"
+          ],
+          "rows": [
+            {
+              "id": "ids",
+              "label": "字符串 ID 混用",
+              "cells": [
+                {
+                  "text": "branded types"
+                },
+                {
+                  "text": "静态区分领域值"
+                },
+                {
+                  "text": "不验证网络输入"
+                }
+              ]
+            },
+            {
+              "id": "literal",
+              "label": "字面量被放宽",
+              "cells": [
+                {
+                  "text": "`as const`"
+                },
+                {
+                  "text": "保留字面量信息"
+                },
+                {
+                  "text": "readonly ≠ 运行时冻结"
+                }
+              ]
+            },
+            {
+              "id": "keys",
+              "label": "对象键不完整",
+              "cells": [
+                {
+                  "text": "`PropertyKey`"
+                },
+                {
+                  "text": "涵盖 string、number、symbol"
+                },
+                {
+                  "text": "类型能表达 ≠ 运行时支持"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sources": []
+}

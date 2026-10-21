@@ -1,0 +1,100 @@
+{
+  "schema_version": 3,
+  "diagram_type": "lifecycle",
+  "meta": {
+    "title": "Request states and transitions",
+    "locale": "en",
+    "output": ".archify/d15-states.en.html",
+    "quality_profile": "showcase"
+  },
+  "mainPath": [
+    "idle",
+    "loading",
+    "success"
+  ],
+  "states": [
+    {
+      "id": "idle",
+      "type": "start",
+      "label": "idle"
+    },
+    {
+      "id": "loading",
+      "type": "active",
+      "label": "loading"
+    },
+    {
+      "id": "success",
+      "type": "success",
+      "label": "success"
+    },
+    {
+      "id": "error",
+      "type": "failure",
+      "label": "error"
+    }
+  ],
+  "transitions": [
+    {
+      "id": "idle-loading",
+      "from": "idle",
+      "to": "loading",
+      "variant": "emphasis",
+      "label": "submit"
+    },
+    {
+      "id": "loading-success",
+      "from": "loading",
+      "to": "success",
+      "variant": "emphasis",
+      "label": "resolve"
+    },
+    {
+      "id": "loading-error",
+      "from": "loading",
+      "to": "error",
+      "variant": "emphasis",
+      "label": "reject"
+    },
+    {
+      "id": "error-loading",
+      "from": "error",
+      "to": "loading",
+      "variant": "emphasis",
+      "label": "retry"
+    },
+    {
+      "id": "success-idle",
+      "from": "success",
+      "to": "idle",
+      "variant": "emphasis",
+      "label": "reset"
+    },
+    {
+      "id": "idle-success",
+      "from": "idle",
+      "to": "success",
+      "variant": "dashed",
+      "note": "Ignore the event; retain idle. Tests must catch early success.",
+      "label": "× resolve: illegal transition"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "violet",
+      "title": "Representation",
+      "items": [
+        "Use a discriminated union, reducer or state machine.",
+        "Keep simple cases simple."
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "Original example",
+      "items": [
+        "Our original request table; events absent from it leave state unchanged.",
+        "Only success carries results; only error carries an error."
+      ]
+    }
+  ]
+}

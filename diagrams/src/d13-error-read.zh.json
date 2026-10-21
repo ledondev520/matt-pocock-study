@@ -1,0 +1,152 @@
+{
+  "schema_version": 1,
+  "diagram_type": "explainer",
+  "meta": {
+    "id": "d13-error-read",
+    "title": "读懂类型报错",
+    "locale": "zh-CN",
+    "output": "d13-error-read.zh.html",
+    "quality_profile": "showcase"
+  },
+  "answer": {
+    "summary": "先回答三问，再用最小复现找根因。"
+  },
+  "panels": [
+    {
+      "id": "read",
+      "title": "从报错到根因",
+      "blocks": [
+        {
+          "id": "error-flow",
+          "type": "diagram",
+          "diagramType": "workflow",
+          "spec": {
+            "schema_version": 2,
+            "diagram_type": "workflow",
+            "meta": {
+              "title": "把报错翻成普通话",
+              "locale": "zh-CN",
+              "output": ".archify/d13-error-read.zh.html",
+              "quality_profile": "showcase"
+            },
+            "lanes": [
+              {
+                "id": "input",
+                "label": "输入"
+              },
+              {
+                "id": "questions",
+                "label": "并列三问"
+              },
+              {
+                "id": "result",
+                "label": "定位"
+              }
+            ],
+            "nodes": [
+              {
+                "id": "error",
+                "label": "类型报错",
+                "lane": "input",
+                "col": 0,
+                "type": "backend",
+                "icon": "none"
+              },
+              {
+                "id": "expected",
+                "label": "预期是什么",
+                "lane": "questions",
+                "col": 0,
+                "type": "backend",
+                "icon": "none"
+              },
+              {
+                "id": "actual",
+                "label": "拿到了什么",
+                "lane": "questions",
+                "col": 1,
+                "type": "backend",
+                "icon": "none"
+              },
+              {
+                "id": "layer",
+                "label": "哪层不匹配",
+                "lane": "questions",
+                "col": 2,
+                "type": "backend",
+                "icon": "none"
+              },
+              {
+                "id": "repro",
+                "label": "最小复现",
+                "lane": "result",
+                "col": 1,
+                "type": "backend",
+                "icon": "none"
+              },
+              {
+                "id": "cause",
+                "label": "根因",
+                "lane": "result",
+                "col": 2,
+                "type": "backend",
+                "icon": "none"
+              }
+            ],
+            "edges": [
+              {
+                "id": "error-expected",
+                "from": "error",
+                "to": "expected",
+                "variant": "emphasis"
+              },
+              {
+                "id": "error-actual",
+                "from": "error",
+                "to": "actual",
+                "variant": "emphasis"
+              },
+              {
+                "id": "error-layer",
+                "from": "error",
+                "to": "layer",
+                "variant": "emphasis"
+              },
+              {
+                "id": "expected-repro",
+                "from": "expected",
+                "to": "repro",
+                "variant": "emphasis"
+              },
+              {
+                "id": "actual-repro",
+                "from": "actual",
+                "to": "repro",
+                "variant": "emphasis"
+              },
+              {
+                "id": "layer-repro",
+                "from": "layer",
+                "to": "repro",
+                "variant": "emphasis"
+              },
+              {
+                "id": "repro-cause",
+                "from": "repro",
+                "to": "cause",
+                "variant": "emphasis"
+              }
+            ]
+          }
+        },
+        {
+          "id": "translator",
+          "type": "callout",
+          "level": "note",
+          "text": "错误翻译工具只是辅助，不是正确性的权威。"
+        }
+      ]
+    }
+  ],
+  "sources": []
+}

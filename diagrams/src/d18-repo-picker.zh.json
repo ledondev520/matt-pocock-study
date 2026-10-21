@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "diagram_type": "tree",
+  "meta": {
+    "title": "按问题选择仓库",
+    "locale": "zh-CN",
+    "output": ".archify/d18-repo-picker.zh.html",
+    "quality_profile": "showcase"
+  },
+  "layout": {
+    "direction": "right",
+    "nodeW": 144,
+    "nodeMaxW": 216,
+    "gapX": 44,
+    "gapY": 28
+  },
+  "nodes": [
+    {
+      "id": "need",
+      "label": "现在要解决什么?"
+    },
+    {
+      "id": "skills",
+      "label": "流程与说明入口",
+      "parent": "need"
+    },
+    {
+      "id": "skills-repo",
+      "label": "skills",
+      "parent": "skills"
+    },
+    {
+      "id": "reset",
+      "label": "内建声明的坑",
+      "parent": "need"
+    },
+    {
+      "id": "reset-repo",
+      "label": "ts-reset",
+      "parent": "reset"
+    },
+    {
+      "id": "sandbox",
+      "label": "隔离 agent 执行",
+      "parent": "need"
+    },
+    {
+      "id": "sandbox-repo",
+      "label": "sandcastle",
+      "parent": "sandbox"
+    },
+    {
+      "id": "eval",
+      "label": "LLM 应用评测",
+      "parent": "need"
+    },
+    {
+      "id": "eval-repo",
+      "label": "evalite",
+      "parent": "eval"
+    },
+    {
+      "id": "history",
+      "label": "状态机历史示例",
+      "parent": "need"
+    },
+    {
+      "id": "history-repo",
+      "label": "xstate-catalogue",
+      "parent": "history",
+      "sublabel": "已归档"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "violet",
+      "title": "版本边界",
+      "items": [
+        "仅描述 2026-10-20 采集快照，不保证最新状态。"
+      ]
+    }
+  ]
+}

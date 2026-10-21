@@ -1,0 +1,131 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "检查通过，才有行为证据",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "output": ".archify/d07-feedback-loop.zh/diagram.html"
+  },
+  "lanes": [
+    {
+      "id": "l0",
+      "label": "明确预期"
+    },
+    {
+      "id": "l1",
+      "label": "实现与检查"
+    },
+    {
+      "id": "l2",
+      "label": "反馈闭环"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "ticket",
+      "label": "边界清楚的工单",
+      "lane": "l0",
+      "col": 0,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "expect",
+      "label": "复现或建立预期",
+      "lane": "l0",
+      "col": 1,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "implement",
+      "label": "实现",
+      "lane": "l1",
+      "col": 1,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "check",
+      "label": "检查",
+      "lane": "l1",
+      "col": 2,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "pass",
+      "label": "通过？",
+      "lane": "l2",
+      "col": 2,
+      "type": "security",
+      "icon": "none"
+    },
+    {
+      "id": "evidence",
+      "label": "✓ 行为证据",
+      "lane": "l2",
+      "col": 1,
+      "type": "backend",
+      "icon": "none"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e0",
+      "from": "ticket",
+      "to": "expect",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e1",
+      "from": "expect",
+      "to": "implement",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e2",
+      "from": "implement",
+      "to": "check",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e3",
+      "from": "check",
+      "to": "pass",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e4",
+      "from": "pass",
+      "to": "evidence",
+      "variant": "emphasis",
+      "label": "是"
+    },
+    {
+      "id": "e5",
+      "from": "pass",
+      "to": "implement",
+      "variant": "emphasis",
+      "label": "否：修复"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "violet",
+      "title": "TypeScript 项目",
+      "items": [
+        "类型检查、相关测试、格式与 lint。"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "交互行为",
+      "items": [
+        "开发服务器、可读日志、冒烟 CLI。",
+        "检查要能发现有意义的错误。"
+      ]
+    }
+  ]
+}

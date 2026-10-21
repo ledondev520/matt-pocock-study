@@ -1,5 +1,20 @@
 # Third-party notices · 第三方声明
 
+## Archify diagram CSS · Archify 图表样式
+
+The CSS fragments embedded in `public/diagrams/*.svg` are extracted and adapted
+from [Archify](https://github.com/tt-a1i/archify), licensed under MIT. The diagram
+wording and examples are our own. The exact upstream copyright lines are:
+
+```text
+Copyright (c) 2026 tt-a1i (Archify)
+Copyright (c) 2025 Cocoon AI
+```
+
+The full upstream license is preserved at [third_party/archify/LICENSE](third_party/archify/LICENSE).
+SVG 内嵌的 CSS 片段来自 Archify 并作主题适配，遵循 MIT 许可；图表文字和例子
+由本站编写。原始版权行如上，许可全文保存在该文件中。
+
 ## Quotations · 引用
 Short quotations from Matt Pocock (https://x.com/mattpocockuk, https://www.aihero.dev,
 https://github.com/mattpocock) remain © Matt Pocock. Each one links to its source.

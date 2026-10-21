@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "diagram_type": "explainer",
+  "meta": {
+    "id": "d14-tool-picker",
+    "title": "Choose type tools by problem",
+    "locale": "en",
+    "output": "d14-tool-picker.en.html",
+    "quality_profile": "showcase"
+  },
+  "answer": {
+    "summary": "Each tool addresses one problem and has limits."
+  },
+  "panels": [
+    {
+      "id": "tools",
+      "title": "Problems, tools and limits",
+      "blocks": [
+        {
+          "id": "tool-table",
+          "type": "comparison",
+          "labelColumn": "Problem",
+          "columns": [
+            "Tool",
+            "What it does",
+            "What it leaves open"
+          ],
+          "rows": [
+            {
+              "id": "ids",
+              "label": "Mixed string IDs",
+              "cells": [
+                {
+                  "text": "branded types"
+                },
+                {
+                  "text": "Distinguish domain values statically"
+                },
+                {
+                  "text": "Does not validate network input"
+                }
+              ]
+            },
+            {
+              "id": "literal",
+              "label": "Widened literals",
+              "cells": [
+                {
+                  "text": "`as const`"
+                },
+                {
+                  "text": "Preserve literal information"
+                },
+                {
+                  "text": "readonly ≠ runtime freezing"
+                }
+              ]
+            },
+            {
+              "id": "keys",
+              "label": "Incomplete key handling",
+              "cells": [
+                {
+                  "text": "`PropertyKey`"
+                },
+                {
+                  "text": "Covers string, number, symbol"
+                },
+                {
+                  "text": "Type expressiveness ≠ runtime support"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sources": []
+}

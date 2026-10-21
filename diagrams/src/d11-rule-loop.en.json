@@ -1,0 +1,145 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Turn a real failure into an effective rule",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "output": ".archify/d11-rule-loop.en/diagram.html"
+  },
+  "lanes": [
+    {
+      "id": "l0",
+      "label": "Evidence + checks"
+    },
+    {
+      "id": "l1",
+      "label": "Review + standards"
+    },
+    {
+      "id": "l2",
+      "label": "Verify next time"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "failure",
+      "label": "Real failure",
+      "lane": "l0",
+      "col": 0,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "mechanical",
+      "label": "Mechanically checkable?",
+      "lane": "l0",
+      "col": 1,
+      "type": "security",
+      "icon": "none"
+    },
+    {
+      "id": "tools",
+      "label": "lint / hook / types / CI",
+      "lane": "l0",
+      "col": 2,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "review",
+      "label": "Review with context",
+      "lane": "l1",
+      "col": 1,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "standard",
+      "label": "CODING_STANDARDS.md",
+      "lane": "l1",
+      "col": 2,
+      "type": "backend",
+      "icon": "none",
+      "sublabel": "Title names desired behavior"
+    },
+    {
+      "id": "prevent",
+      "label": "✓ Catch it next time",
+      "lane": "l2",
+      "col": 2,
+      "type": "backend",
+      "icon": "none"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e0",
+      "from": "failure",
+      "to": "mechanical",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e1",
+      "from": "mechanical",
+      "to": "tools",
+      "variant": "emphasis",
+      "label": "Yes"
+    },
+    {
+      "id": "e2",
+      "from": "mechanical",
+      "to": "review",
+      "variant": "emphasis",
+      "label": "No"
+    },
+    {
+      "id": "e3",
+      "from": "tools",
+      "to": "standard",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e4",
+      "from": "review",
+      "to": "standard",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e5",
+      "from": "standard",
+      "to": "prevent",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e6",
+      "from": "prevent",
+      "to": "failure",
+      "variant": "emphasis",
+      "label": "Keep observing"
+    }
+  ],
+  "mainPath": [
+    "failure",
+    "mechanical",
+    "tools",
+    "standard",
+    "prevent"
+  ],
+  "cards": [
+    {
+      "dot": "violet",
+      "title": "Document enforcement",
+      "items": [
+        "State whether tools already enforce the rule."
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "Separate responsibilities",
+      "items": [
+        "AGENTS.md provides navigation."
+      ]
+    }
+  ]
+}

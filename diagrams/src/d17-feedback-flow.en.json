@@ -1,0 +1,137 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Turn feedback into change candidates",
+    "locale": "en",
+    "output": ".archify/d17-feedback-flow.en.html",
+    "quality_profile": "showcase"
+  },
+  "lanes": [
+    {
+      "id": "listen",
+      "label": "Understand the issue"
+    },
+    {
+      "id": "check",
+      "label": "Check evidence"
+    },
+    {
+      "id": "avoid",
+      "label": "False branch"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "feedback",
+      "label": "Negative feedback",
+      "lane": "listen",
+      "col": 0,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "respond",
+      "label": "Address the issue",
+      "lane": "listen",
+      "col": 1,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "context",
+      "label": "Ask for context",
+      "lane": "listen",
+      "col": 2,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "reproduce",
+      "label": "Reproducible?",
+      "lane": "check",
+      "col": 2,
+      "type": "security",
+      "icon": "decision"
+    },
+    {
+      "id": "candidate",
+      "label": "✓ Change candidate",
+      "lane": "check",
+      "col": 1,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "evidence",
+      "label": "Ask for evidence",
+      "lane": "check",
+      "col": 0,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "argue",
+      "label": "× Only argue back",
+      "lane": "avoid",
+      "col": 0,
+      "type": "backend",
+      "icon": "none"
+    }
+  ],
+  "edges": [
+    {
+      "id": "feedback-respond",
+      "from": "feedback",
+      "to": "respond",
+      "variant": "emphasis"
+    },
+    {
+      "id": "respond-context",
+      "from": "respond",
+      "to": "context",
+      "variant": "emphasis"
+    },
+    {
+      "id": "context-reproduce",
+      "from": "context",
+      "to": "reproduce",
+      "variant": "emphasis"
+    },
+    {
+      "id": "reproduce-candidate",
+      "from": "reproduce",
+      "to": "candidate",
+      "variant": "emphasis",
+      "label": "Yes"
+    },
+    {
+      "id": "reproduce-evidence",
+      "from": "reproduce",
+      "to": "evidence",
+      "variant": "emphasis",
+      "label": "No"
+    },
+    {
+      "id": "feedback-argue",
+      "from": "feedback",
+      "to": "argue",
+      "variant": "dashed",
+      "role": "error",
+      "label": "Avoid",
+      "fromSide": "left",
+      "toSide": "left",
+      "route": "return-left",
+      "labelSegment": 1
+    }
+  ],
+  "cards": [
+    {
+      "dot": "violet",
+      "title": "Evidence limit",
+      "items": [
+        "One like or one case does not prove effectiveness."
+      ]
+    }
+  ]
+}

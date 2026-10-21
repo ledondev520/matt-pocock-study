@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "diagram_type": "tree",
+  "meta": {
+    "title": "Where should an instruction live?",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "output": ".archify/d10-what-stays.en/diagram.html"
+  },
+  "layout": {
+    "direction": "right",
+    "gapX": 45,
+    "gapY": 30,
+    "nodeW": 160,
+    "nodeMaxW": 230
+  },
+  "nodes": [
+    {
+      "id": "root",
+      "label": "This instruction"
+    },
+    {
+      "id": "broad",
+      "label": "Broadly relevant; hard to discover",
+      "parent": "root"
+    },
+    {
+      "id": "keep",
+      "label": "Keep in root file",
+      "parent": "broad"
+    },
+    {
+      "id": "config",
+      "label": "Available in real configuration",
+      "parent": "root"
+    },
+    {
+      "id": "remove",
+      "label": "Remove; read real config",
+      "parent": "config"
+    },
+    {
+      "id": "rare",
+      "label": "Infrequent",
+      "parent": "root"
+    },
+    {
+      "id": "move",
+      "label": "Move by topic; name trigger",
+      "parent": "rare"
+    },
+    {
+      "id": "stale",
+      "label": "Vague, stale or repeated",
+      "parent": "root"
+    },
+    {
+      "id": "observe",
+      "label": "Check behavior, then remove or merge",
+      "parent": "stale"
+    },
+    {
+      "id": "platform",
+      "label": "Platform requirement",
+      "parent": "root"
+    },
+    {
+      "id": "obey",
+      "label": "Keep following it",
+      "parent": "platform"
+    }
+  ],
+  "cards": []
+}

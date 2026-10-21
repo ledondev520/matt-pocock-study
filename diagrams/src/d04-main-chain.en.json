@@ -1,0 +1,151 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "From alignment to a reviewable PR",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "output": ".archify/d04-main-chain.en/diagram.html"
+  },
+  "lanes": [
+    {
+      "id": "l0",
+      "label": "Input → output"
+    },
+    {
+      "id": "l1",
+      "label": "Implement → deliver"
+    },
+    {
+      "id": "l2",
+      "label": "Escalate when needed"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "align",
+      "label": "Align",
+      "lane": "l0",
+      "col": 0,
+      "type": "backend",
+      "icon": "none",
+      "sublabel": "In: unclear request",
+      "tag": "Out: confirmed decisions",
+      "width": 200
+    },
+    {
+      "id": "spec",
+      "label": "Specify",
+      "lane": "l0",
+      "col": 1,
+      "type": "backend",
+      "icon": "none",
+      "sublabel": "In: settled decisions",
+      "width": 260,
+      "tag": "Out: goal, behavior, exclusions, verification"
+    },
+    {
+      "id": "ticket",
+      "label": "Ticket",
+      "lane": "l0",
+      "col": 2,
+      "type": "backend",
+      "icon": "none",
+      "sublabel": "In: spec",
+      "tag": "Out: independently verifiable vertical slice",
+      "width": 230
+    },
+    {
+      "id": "implement",
+      "label": "Implement",
+      "lane": "l1",
+      "col": 2,
+      "type": "backend",
+      "icon": "none",
+      "sublabel": "In: bounded ticket",
+      "tag": "Out: change passing relevant checks",
+      "width": 230
+    },
+    {
+      "id": "review",
+      "label": "Review",
+      "lane": "l1",
+      "col": 1,
+      "type": "backend",
+      "icon": "none",
+      "sublabel": "In: change + references",
+      "width": 260,
+      "tag": "Out: requirements + standards conclusions"
+    },
+    {
+      "id": "pr",
+      "label": "PR",
+      "lane": "l1",
+      "col": 0,
+      "type": "backend",
+      "icon": "none",
+      "sublabel": "In: review + behavior evidence",
+      "width": 260,
+      "tag": "Out: overview, before/after evidence, merge risk"
+    },
+    {
+      "id": "wayfinder",
+      "label": "/wayfinder",
+      "lane": "l2",
+      "col": 1,
+      "type": "backend",
+      "icon": "none",
+      "sublabel": "Map index · dependencies · open questions"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e0",
+      "from": "align",
+      "to": "spec",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e1",
+      "from": "spec",
+      "to": "ticket",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e2",
+      "from": "ticket",
+      "to": "implement",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e3",
+      "from": "implement",
+      "to": "review",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e4",
+      "from": "review",
+      "to": "pr",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e5",
+      "from": "wayfinder",
+      "to": "spec",
+      "variant": "dashed",
+      "label": "Cross-session decisions"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "violet",
+      "title": "Different ticket roles",
+      "items": [
+        "Decision tickets ≠ implementation tickets; commands are entry points.",
+        "Spec: goals, behavior, exclusions and acceptance.",
+        "PR: overview, before/after evidence and merge risk."
+      ]
+    }
+  ]
+}

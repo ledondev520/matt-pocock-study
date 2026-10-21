@@ -1,0 +1,153 @@
+{
+  "schema_version": 1,
+  "diagram_type": "dataflow",
+  "meta": {
+    "title": "Source scope and site outputs",
+    "locale": "en",
+    "output": ".archify/d21-source-scope.en.html",
+    "quality_profile": "showcase"
+  },
+  "stages": [
+    {
+      "label": "Sources"
+    },
+    {
+      "label": "Snapshot cutoff"
+    },
+    {
+      "label": "Site outputs"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "posts",
+      "type": "external",
+      "icon": "none",
+      "label": "Public posts",
+      "stage": 0,
+      "row": 0
+    },
+    {
+      "id": "index",
+      "type": "external",
+      "icon": "none",
+      "label": "Article index",
+      "stage": 0,
+      "row": 1,
+      "sublabel": "Public"
+    },
+    {
+      "id": "repos",
+      "type": "external",
+      "icon": "none",
+      "label": "Open repos",
+      "stage": 0,
+      "row": 2,
+      "sublabel": "License verified"
+    },
+    {
+      "id": "site",
+      "type": "backend",
+      "icon": "none",
+      "label": "This site",
+      "sublabel": "2026-10-20",
+      "stage": 1,
+      "row": 1
+    },
+    {
+      "id": "quotes",
+      "type": "backend",
+      "icon": "none",
+      "label": "Linked short quotes",
+      "stage": 2,
+      "row": 0
+    },
+    {
+      "id": "interpretation",
+      "type": "backend",
+      "icon": "none",
+      "label": "Our interpretation",
+      "stage": 2,
+      "row": 1
+    },
+    {
+      "id": "adaptations",
+      "type": "backend",
+      "icon": "none",
+      "label": "MIT adaptations",
+      "stage": 2,
+      "row": 2,
+      "sublabel": "Registered"
+    },
+    {
+      "id": "excluded",
+      "type": "security",
+      "icon": "none",
+      "label": "× Paid courses",
+      "sublabel": "cohort / workshops",
+      "stage": 0,
+      "row": 3
+    }
+  ],
+  "flows": [
+    {
+      "id": "posts-site",
+      "from": "posts",
+      "to": "site",
+      "variant": "emphasis",
+      "label": "Sources"
+    },
+    {
+      "id": "index-site",
+      "from": "index",
+      "to": "site",
+      "variant": "emphasis",
+      "label": "Sources"
+    },
+    {
+      "id": "repos-site",
+      "from": "repos",
+      "to": "site",
+      "variant": "emphasis",
+      "label": "Sources"
+    },
+    {
+      "id": "site-quotes",
+      "from": "site",
+      "to": "quotes",
+      "variant": "emphasis",
+      "label": "Quote"
+    },
+    {
+      "id": "site-interpretation",
+      "from": "site",
+      "to": "interpretation",
+      "variant": "emphasis",
+      "label": "Interpret"
+    },
+    {
+      "id": "site-adaptations",
+      "from": "site",
+      "to": "adaptations",
+      "variant": "emphasis",
+      "label": "Registered MIT"
+    },
+    {
+      "id": "repos-adaptations",
+      "from": "repos",
+      "to": "adaptations",
+      "variant": "default",
+      "route": "bottom-channel",
+      "label": "Registered files only"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "Excluded scope",
+      "items": [
+        "Paid course, cohort and workshop content is excluded."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "diagram_type": "tree",
+  "meta": {
+    "title": "Locate the failure, improve the environment",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "output": ".archify/d02-failure-sort.en/diagram.html"
+  },
+  "layout": {
+    "direction": "right",
+    "gapX": 45,
+    "gapY": 30,
+    "nodeW": 160,
+    "nodeMaxW": 230
+  },
+  "nodes": [
+    {
+      "id": "root",
+      "label": "The agent failed"
+    },
+    {
+      "id": "goal",
+      "label": "Wrong goal",
+      "parent": "root"
+    },
+    {
+      "id": "align",
+      "label": "Return to alignment",
+      "parent": "goal"
+    },
+    {
+      "id": "info",
+      "label": "Missing context",
+      "parent": "root"
+    },
+    {
+      "id": "docs",
+      "label": "Add navigation + terms",
+      "parent": "info"
+    },
+    {
+      "id": "verify",
+      "label": "Missing checks",
+      "parent": "root"
+    },
+    {
+      "id": "checks",
+      "label": "Add automatic checks",
+      "parent": "verify"
+    },
+    {
+      "id": "design",
+      "label": "Design flaw",
+      "parent": "root"
+    },
+    {
+      "id": "model",
+      "label": "Improve API + states",
+      "parent": "design"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "Our synthesis",
+      "items": [
+        "× Do not blame every failure on the model."
+      ]
+    }
+  ]
+}

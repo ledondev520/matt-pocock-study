@@ -1,0 +1,148 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Turn a vague request into agreed behavior",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "output": ".archify/d05-alignment-flow.en/diagram.html"
+  },
+  "lanes": [
+    {
+      "id": "l0",
+      "label": "Request + facts"
+    },
+    {
+      "id": "l1",
+      "label": "Trade-offs + agreement"
+    },
+    {
+      "id": "l2",
+      "label": "Experience + bypass"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "request",
+      "label": "Vague request",
+      "lane": "l0",
+      "col": 0,
+      "type": "backend",
+      "icon": "none",
+      "sublabel": "Make it easier to use"
+    },
+    {
+      "id": "restate",
+      "label": "Restate the goal",
+      "lane": "l0",
+      "col": 1,
+      "type": "backend",
+      "icon": "none",
+      "sublabel": "Users · success criteria"
+    },
+    {
+      "id": "facts",
+      "label": "Facts",
+      "lane": "l0",
+      "col": 2,
+      "type": "backend",
+      "icon": "none",
+      "sublabel": "Inspect code + sources"
+    },
+    {
+      "id": "trade",
+      "label": "Trade-offs",
+      "lane": "l1",
+      "col": 1,
+      "type": "backend",
+      "icon": "none",
+      "sublabel": "Ask in rounds; recommend + explain"
+    },
+    {
+      "id": "ux",
+      "label": "Experience",
+      "lane": "l2",
+      "col": 1,
+      "type": "backend",
+      "icon": "none",
+      "sublabel": "Compare cheap prototypes"
+    },
+    {
+      "id": "agreed",
+      "label": "Agreed behavior",
+      "lane": "l1",
+      "col": 2,
+      "type": "backend",
+      "icon": "none",
+      "sublabel": "List unresolved issues"
+    },
+    {
+      "id": "small",
+      "label": "Small, clear change",
+      "lane": "l2",
+      "col": 0,
+      "type": "backend",
+      "icon": "none",
+      "sublabel": "Skip this step"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e0",
+      "from": "request",
+      "to": "restate",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e1",
+      "from": "restate",
+      "to": "facts",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e2",
+      "from": "restate",
+      "to": "trade",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e3",
+      "from": "restate",
+      "to": "ux",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e4",
+      "from": "facts",
+      "to": "agreed",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e5",
+      "from": "trade",
+      "to": "agreed",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e6",
+      "from": "ux",
+      "to": "agreed",
+      "variant": "emphasis"
+    },
+    {
+      "id": "small-bypass",
+      "from": "request",
+      "to": "small",
+      "variant": "default"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "violet",
+      "title": "Record the human choice",
+      "items": [
+        "After comparing prototypes, record the choice and why."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "diagram_type": "tree",
+  "meta": {
+    "title": "Check licenses before reuse",
+    "locale": "en",
+    "output": ".archify/d18-license-tree.en.html",
+    "quality_profile": "showcase"
+  },
+  "layout": {
+    "direction": "right",
+    "nodeW": 144,
+    "nodeMaxW": 216,
+    "gapX": 44,
+    "gapY": 28
+  },
+  "nodes": [
+    {
+      "id": "reuse",
+      "label": "Reuse repository content?"
+    },
+    {
+      "id": "mit",
+      "label": "Root MIT + registered",
+      "parent": "reuse"
+    },
+    {
+      "id": "allowed",
+      "label": "Adapt registered files",
+      "parent": "mit",
+      "sublabel": "Keep exact copyright + full MIT text"
+    },
+    {
+      "id": "none",
+      "label": "No license",
+      "parent": "reuse"
+    },
+    {
+      "id": "interpret",
+      "label": "Interpret, quote briefly, link",
+      "parent": "none"
+    },
+    {
+      "id": "subdir",
+      "label": "MIT in subdirectory only",
+      "parent": "reuse",
+      "sublabel": "For example: translator"
+    },
+    {
+      "id": "scope",
+      "label": "Does not cover the whole repo",
+      "parent": "subdir"
+    },
+    {
+      "id": "course",
+      "label": "Course related",
+      "parent": "reuse",
+      "sublabel": "For example: ai-hero-cli"
+    },
+    {
+      "id": "exclude",
+      "label": "Exclude code and course content",
+      "parent": "course"
+    }
+  ]
+}

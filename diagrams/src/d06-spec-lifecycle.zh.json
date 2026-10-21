@@ -1,0 +1,90 @@
+{
+  "schema_version": 3,
+  "diagram_type": "lifecycle",
+  "meta": {
+    "title": "决策、规格与工单的生命周期",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "output": ".archify/d06-spec-lifecycle.zh/diagram.html"
+  },
+  "mainPath": [
+    "decisions",
+    "spec",
+    "tickets",
+    "done"
+  ],
+  "states": [
+    {
+      "id": "decisions",
+      "type": "start",
+      "label": "已定决策"
+    },
+    {
+      "id": "spec",
+      "type": "active",
+      "label": "规格",
+      "sublabel": "目标 · 行为 · 范围外 · 验收"
+    },
+    {
+      "id": "tickets",
+      "type": "active",
+      "label": "纵向工单",
+      "sublabel": "放 tracker"
+    },
+    {
+      "id": "done",
+      "type": "success",
+      "label": "实现完成"
+    },
+    {
+      "id": "temporary",
+      "type": "neutral",
+      "label": "临时实施材料",
+      "sublabel": "用后清理或按政策归档"
+    },
+    {
+      "id": "adr",
+      "type": "neutral",
+      "label": "ADR",
+      "sublabel": "保存长期决策"
+    }
+  ],
+  "transitions": [
+    {
+      "from": "decisions",
+      "to": "spec",
+      "label": "/to-spec",
+      "variant": "emphasis"
+    },
+    {
+      "from": "spec",
+      "to": "tickets",
+      "label": "/to-tickets",
+      "variant": "emphasis"
+    },
+    {
+      "from": "tickets",
+      "to": "done",
+      "variant": "emphasis"
+    },
+    {
+      "from": "done",
+      "to": "temporary",
+      "label": "临时"
+    },
+    {
+      "from": "decisions",
+      "to": "adr",
+      "label": "长期"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "× 不把未知写成需求",
+      "items": [
+        "未知项不能写成已确认需求。"
+      ]
+    }
+  ]
+}

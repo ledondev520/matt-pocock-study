@@ -1,0 +1,32 @@
+{
+  "zh": {
+    "align": [
+      "/zh/alignment-and-prototypes"
+    ],
+    "docs": [
+      "/zh/agent-documents"
+    ],
+    "checks": [
+      "/zh/implementation-and-feedback",
+      "/zh/standards-and-checks"
+    ],
+    "model": [
+      "/zh/state-and-module-boundaries"
+    ]
+  },
+  "en": {
+    "align": [
+      "/en/alignment-and-prototypes"
+    ],
+    "docs": [
+      "/en/agent-documents"
+    ],
+    "checks": [
+      "/en/implementation-and-feedback",
+      "/en/standards-and-checks"
+    ],
+    "model": [
+      "/en/state-and-module-boundaries"
+    ]
+  }
+}

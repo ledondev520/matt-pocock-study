@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "diagram_type": "tree",
+  "meta": {
+    "title": "按风险与不确定性分流",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "output": ".archify/d04-triage.zh/diagram.html"
+  },
+  "layout": {
+    "direction": "right",
+    "gapX": 45,
+    "gapY": 30,
+    "nodeW": 160,
+    "nodeMaxW": 230
+  },
+  "nodes": [
+    {
+      "id": "root",
+      "label": "这次改动"
+    },
+    {
+      "id": "small",
+      "label": "很小且明确",
+      "parent": "root"
+    },
+    {
+      "id": "direct",
+      "label": "直接做并验证",
+      "parent": "small"
+    },
+    {
+      "id": "medium",
+      "label": "中大改动",
+      "parent": "root"
+    },
+    {
+      "id": "docs",
+      "label": "/grill-with-docs",
+      "parent": "medium"
+    },
+    {
+      "id": "empty",
+      "label": "没有代码库",
+      "parent": "root"
+    },
+    {
+      "id": "grill",
+      "label": "考虑 /grill-me",
+      "parent": "empty"
+    },
+    {
+      "id": "complex",
+      "label": "跨会话且决策复杂",
+      "parent": "root"
+    },
+    {
+      "id": "wayfinder",
+      "label": "升级 /wayfinder",
+      "parent": "complex"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "violet",
+      "title": "判断依据",
+      "items": [
+        "按预期改动与不确定性，不按项目大小。"
+      ]
+    }
+  ]
+}

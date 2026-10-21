@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "diagram_type": "tree",
+  "meta": {
+    "title": "Choose repositories by problem",
+    "locale": "en",
+    "output": ".archify/d18-repo-picker.en.html",
+    "quality_profile": "showcase"
+  },
+  "layout": {
+    "direction": "right",
+    "nodeW": 144,
+    "nodeMaxW": 216,
+    "gapX": 44,
+    "gapY": 28
+  },
+  "nodes": [
+    {
+      "id": "need",
+      "label": "What problem now?"
+    },
+    {
+      "id": "skills",
+      "label": "Workflow guidance",
+      "parent": "need"
+    },
+    {
+      "id": "skills-repo",
+      "label": "skills",
+      "parent": "skills"
+    },
+    {
+      "id": "reset",
+      "label": "Built-in type pitfalls",
+      "parent": "need"
+    },
+    {
+      "id": "reset-repo",
+      "label": "ts-reset",
+      "parent": "reset"
+    },
+    {
+      "id": "sandbox",
+      "label": "Isolate agent execution",
+      "parent": "need"
+    },
+    {
+      "id": "sandbox-repo",
+      "label": "sandcastle",
+      "parent": "sandbox"
+    },
+    {
+      "id": "eval",
+      "label": "Evaluate LLM apps",
+      "parent": "need"
+    },
+    {
+      "id": "eval-repo",
+      "label": "evalite",
+      "parent": "eval"
+    },
+    {
+      "id": "history",
+      "label": "State machine history",
+      "parent": "need"
+    },
+    {
+      "id": "history-repo",
+      "label": "xstate-catalogue",
+      "parent": "history",
+      "sublabel": "Archived"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "violet",
+      "title": "Version scope",
+      "items": [
+        "Describes the 2026-10-20 snapshot; current status may differ."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,145 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Practice until learning transfers",
+    "locale": "en",
+    "output": ".archify/d16-practice-loop.en.html",
+    "quality_profile": "showcase"
+  },
+  "lanes": [
+    {
+      "id": "learn",
+      "label": "Learn and recall"
+    },
+    {
+      "id": "transfer",
+      "label": "Check transfer"
+    },
+    {
+      "id": "avoid",
+      "label": "False exit"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "lesson",
+      "label": "Small lesson",
+      "lane": "learn",
+      "col": 0,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "practice",
+      "label": "Recall independently",
+      "lane": "learn",
+      "col": 1,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "spacing",
+      "label": "Space practice",
+      "lane": "learn",
+      "col": 2,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "interleave",
+      "label": "Interleave practice",
+      "lane": "transfer",
+      "col": 2,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "question",
+      "label": "Solve a new problem?",
+      "lane": "transfer",
+      "col": 1,
+      "type": "security",
+      "icon": "decision"
+    },
+    {
+      "id": "done",
+      "label": "✓ Complete",
+      "lane": "transfer",
+      "col": 0,
+      "type": "backend",
+      "icon": "none"
+    },
+    {
+      "id": "fluent",
+      "label": "× Feels fluent now",
+      "lane": "avoid",
+      "col": 0,
+      "type": "backend",
+      "icon": "none"
+    }
+  ],
+  "edges": [
+    {
+      "id": "lesson-practice",
+      "from": "lesson",
+      "to": "practice",
+      "variant": "emphasis"
+    },
+    {
+      "id": "practice-spacing",
+      "from": "practice",
+      "to": "spacing",
+      "variant": "emphasis"
+    },
+    {
+      "id": "spacing-interleave",
+      "from": "spacing",
+      "to": "interleave",
+      "variant": "emphasis"
+    },
+    {
+      "id": "interleave-question",
+      "from": "interleave",
+      "to": "question",
+      "variant": "emphasis"
+    },
+    {
+      "id": "question-done",
+      "from": "question",
+      "to": "done",
+      "variant": "emphasis",
+      "label": "Yes"
+    },
+    {
+      "id": "question-practice",
+      "from": "question",
+      "to": "practice",
+      "variant": "emphasis",
+      "role": "return",
+      "label": "No"
+    },
+    {
+      "id": "lesson-fluent",
+      "from": "lesson",
+      "to": "fluent",
+      "variant": "dashed",
+      "role": "error",
+      "label": "Avoid",
+      "fromSide": "left",
+      "toSide": "left",
+      "route": "return-left",
+      "labelSegment": 1
+    }
+  ],
+  "cards": [
+    {
+      "dot": "violet",
+      "title": "Source and adaptation",
+      "items": [
+        "Original arrangement informed by skills /teach (MIT).",
+        "See the site copyright page for license registration."
+      ]
+    }
+  ]
+}

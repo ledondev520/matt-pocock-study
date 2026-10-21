@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "diagram_type": "timeline",
+  "meta": {
+    "title": "工作流逐步演变",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "output": ".archify/d04-timeline.zh/diagram.html",
+    "evidence": "observed",
+    "timezone": "UTC"
+  },
+  "layout": {
+    "width": 600,
+    "breaks": "none"
+  },
+  "events": [
+    {
+      "id": "jan",
+      "at": "2026-01-01T00:00:00Z",
+      "title": "2026-01 Ralph / AFK",
+      "detail": "早期工作流"
+    },
+    {
+      "id": "spring",
+      "at": "2026-04-01T00:00:00Z",
+      "title": "春季 grill / 原型",
+      "detail": "提问与廉价原型"
+    },
+    {
+      "id": "july",
+      "at": "2026-07-02T00:00:00Z",
+      "title": "2026-07 新命名",
+      "detail": "/wayfinder → /to-spec → /to-tickets → /implement → /code-review"
+    },
+    {
+      "id": "oct",
+      "at": "2026-10-08T00:00:00Z",
+      "title": "2026-10 评审与复盘",
+      "detail": "不要默认从 /wayfinder 开始"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "violet",
+      "title": "日期粒度",
+      "items": [
+        "1 月和春季为阶段概括，轴上日期仅作位置锚点。"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "Matt Pocock · 2026-07-02",
+      "items": [
+        "/wayfinder -> /to-spec -> /to-tickets -> /implement -> /code-review",
+        "https://x.com/mattpocockuk/status/2072625252144730215"
+      ]
+    }
+  ]
+}

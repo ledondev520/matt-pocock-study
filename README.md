@@ -39,6 +39,27 @@ Set `SITE_URL` to the public HTTPS origin when building (default: `https://matt.
 
 内容必须按同名 slug 成对提供中英文，格式见共享契约。构建只显示已完成页面；后续内容与插图放入对应目录即可接入。生成文件（包括 figures.json、OG PNG）与数据库均不入库。
 
+## Diagrams
+
+Paired Chinese/English Archify candidates live in `diagrams/src/<id>.{zh,en}.json`.
+Install Archify separately, then run `ARCHIFY_HOME=… npm run diagrams` with Node 20
+and headless Chrome (`CHROME_BIN` defaults to `google-chrome`). An optional list
+of diagram IDs limits the build, for example `npm run diagrams -- home-corpus`.
+This maintainer command runs showcase finalization, then Chrome extracts static
+SVG nodes and styles into `public/diagrams/`. Wide layouts are reflowed into a
+390px reading column with wrapped labels of at least 14px; timeline exports use
+a proportional vertical time axis. Explainer comparisons
+become native SVG cards. Notes remain visible. These generated SVGs are committed;
+CI only validates them and does not run Archify. HTML, receipts, and the size/pass
+report stay in ignored `.archify/`; Chrome profiles stay in ignored `.cache/`.
+
+Inline the SVG markup to inherit the page's light/dark color tokens. Each file
+has its own scoped class and IDs, so different diagrams or languages can share
+a page. Internal node links and source references that the Archify schema cannot
+store live in `<id>.links.json`; external source URLs remain in candidates or
+sidecars because exported SVGs cannot request external resources. Archify notices and its MIT license are
+in `THIRD_PARTY_NOTICES.md` and `third_party/archify/LICENSE`.
+
 ## Figures and OG images / 插图与分享图
 
 ```sh

@@ -1,0 +1,139 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "从对齐走到可评审的 PR",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "output": ".archify/d04-main-chain.zh/diagram.html"
+  },
+  "lanes": [
+    {
+      "id": "l0",
+      "label": "输入 → 产出"
+    },
+    {
+      "id": "l1",
+      "label": "实现 → 交付"
+    },
+    {
+      "id": "l2",
+      "label": "按需升级"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "align",
+      "label": "对齐",
+      "lane": "l0",
+      "col": 0,
+      "type": "backend",
+      "icon": "none",
+      "sublabel": "模糊请求 → 已确认决策"
+    },
+    {
+      "id": "spec",
+      "label": "规格",
+      "lane": "l0",
+      "col": 1,
+      "type": "backend",
+      "icon": "none",
+      "sublabel": "已定决策 → 目标、行为、范围外、验收方式"
+    },
+    {
+      "id": "ticket",
+      "label": "实施工单",
+      "lane": "l0",
+      "col": 2,
+      "type": "backend",
+      "icon": "none",
+      "sublabel": "规格 → 可独立验收的纵向能力"
+    },
+    {
+      "id": "implement",
+      "label": "实现",
+      "lane": "l1",
+      "col": 2,
+      "type": "backend",
+      "icon": "none",
+      "sublabel": "边界清楚的工单 → 通过相关检查的改动"
+    },
+    {
+      "id": "review",
+      "label": "评审",
+      "lane": "l1",
+      "col": 1,
+      "type": "backend",
+      "icon": "none",
+      "sublabel": "改动与依据 → 需求、规范两条结论"
+    },
+    {
+      "id": "pr",
+      "label": "PR",
+      "lane": "l1",
+      "col": 0,
+      "type": "backend",
+      "icon": "none",
+      "sublabel": "评审与行为证据 → 变化概览、前后证据、合并风险"
+    },
+    {
+      "id": "wayfinder",
+      "label": "/wayfinder",
+      "lane": "l2",
+      "col": 1,
+      "type": "backend",
+      "icon": "none",
+      "sublabel": "地图索引 · 依赖 · 未决问题"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e0",
+      "from": "align",
+      "to": "spec",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e1",
+      "from": "spec",
+      "to": "ticket",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e2",
+      "from": "ticket",
+      "to": "implement",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e3",
+      "from": "implement",
+      "to": "review",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e4",
+      "from": "review",
+      "to": "pr",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e5",
+      "from": "wayfinder",
+      "to": "spec",
+      "variant": "dashed",
+      "label": "跨会话决策"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "violet",
+      "title": "工单用途不同",
+      "items": [
+        "决策工单 ≠ 实现工单；斜杠命令只是入口。",
+        "规格：目标、行为、范围外、验收方式。",
+        "PR：变化概览、前后证据、合并风险。"
+      ]
+    }
+  ]
+}
