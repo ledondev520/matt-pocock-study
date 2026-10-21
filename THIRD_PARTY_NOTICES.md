@@ -12,6 +12,8 @@ Copyright (c) 2025 Cocoon AI
 ```
 
 The full upstream license is preserved at [third_party/archify/LICENSE](third_party/archify/LICENSE).
+The reused rules, as shipped after theme mapping and scoping, are kept in
+[third_party/archify/diagram-css.css](third_party/archify/diagram-css.css).
 SVG 内嵌的 CSS 片段来自 Archify 并作主题适配，遵循 MIT 许可；图表文字和例子
 由本站编写。原始版权行如上，许可全文保存在该文件中。
 

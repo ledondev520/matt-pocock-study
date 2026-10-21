@@ -1,0 +1,21 @@
+/*
+ * Archify-derived CSS fragments shipped inside public/diagrams/*.svg.
+ *
+ * Source: Archify 3.2.0 (https://github.com/tt-a1i/archify), MIT licence, see ./LICENSE.
+ *   Copyright (c) 2026 tt-a1i (Archify)
+ *   Copyright (c) 2025 Cocoon AI
+ *
+ * scripts/diagrams/export-svg.mjs collects these rules from Archify's rendered output,
+ * keeps only paint and text properties, maps colours to the site's theme tokens and
+ * scopes each rule to its SVG root. Below are the resulting rules as shipped, with the
+ * per-figure scope class written as `.diagram`. Everything else in the SVG <style>
+ * (the .export-* layout and typography rules) is our own.
+ */
+.diagram { font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, "DejaVu Sans Mono", "Liberation Mono", "Noto Sans Mono CJK SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", monospace; }
+.diagram .c-frontend { fill: var(--muted); stroke: var(--primary); }
+.diagram .c-backend { fill: var(--muted); stroke: var(--primary); }
+.diagram .c-external { fill: var(--muted); stroke: var(--primary); }
+.diagram .t-primary { fill: var(--foreground); }
+.diagram .a-emphasis { stroke: var(--primary); fill: none; }
+.diagram .c-security { fill: var(--muted); stroke: var(--pink); }
+.diagram .c-database { fill: var(--muted); stroke: var(--primary); }

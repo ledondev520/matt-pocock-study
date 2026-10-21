@@ -40,6 +40,8 @@ Use our original failed-save scenario to understand the labels. Only the English
 id: s21-four-marks
 ```
 
+The sample quotation in the figure, “All code is debt.”, comes from [Matt Pocock · 2026-05-01](https://x.com/mattpocockuk/status/2050173149170282674).
+
 ```quote
 text: Could I get some attribution on /grill-me and /teach?
 author: Matt Pocock

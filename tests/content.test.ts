@@ -5,14 +5,36 @@ import { expect, it, describe } from 'vitest'
 import { createElement } from 'react'
 import { renderToString } from 'react-dom/server'
 import { JSDOM } from 'jsdom'
+import { parse, type DefaultTreeAdapterMap } from 'parse5'
 import { Site } from '../src/Site'
 import { marked } from 'marked'
 import { buildContent, readPages, renderMarkdown } from '../scripts/content'
 import registry from '../data/figures.json'
 import { siteUrl } from '../src/lib/site'
 
-// One parser window, used only for each page's single heading; parsing all 44 full pages cost most of this test's time.
-const htmlParser = new (new JSDOM('').window.DOMParser)()
+// Each rendered page is parsed as a full HTML document with parse5 (the parser jsdom uses), without
+// building a jsdom DOM: same tree, a fraction of the cost. Template contents live in `content`, not
+// `childNodes`, so like querySelectorAll the walk does not see them; comments and script text are
+// not elements.
+type HtmlNode = DefaultTreeAdapterMap['node']
+const elementsNamed = (node: HtmlNode, name: string, found: HtmlNode[] = []): HtmlNode[] => {
+  if ('tagName' in node && node.tagName === name) found.push(node)
+  if ('childNodes' in node) for (const child of node.childNodes) elementsNamed(child, name, found)
+  return found
+}
+const textContent = (node: HtmlNode): string => node.nodeName === '#text' ? (node as DefaultTreeAdapterMap['textNode']).value
+  : 'tagName' in node && node.tagName === 'template' ? '' : 'childNodes' in node ? node.childNodes.map(textContent).join('') : ''
+const headingsOf = (html: string) => elementsNamed(parse(html), 'h1')
+
+it('page heading lookup matches a jsdom document query (headings in template, comment or script do not count)', () => {
+  for (const html of ['<template><h1>T</h1></template>', '<!-- <h1>T</h1> -->', '<script type="application/json">"<h1>T</h1>"</script>', '<main><h1>T</h1></main>']) {
+    const reference = new JSDOM(html).window.document
+    const headings = headingsOf(html)
+    expect(headings).toHaveLength(reference.querySelectorAll('h1').length)
+    expect(headings).toHaveLength(html.startsWith('<main>') ? 1 : 0)
+    expect(headings.map(textContent)).toEqual([...reference.querySelectorAll('h1')].map(h => h.textContent))
+  }
+})
 
 it('exports every present page with absolute indexes and readable components', async () => {
   const output = await mkdtemp(join(tmpdir(), 'study-content-'))
@@ -33,13 +55,9 @@ it('exports every present page with absolute indexes and readable components', a
         const markdown = await readFile(join(output, lang, `${page.slug}.md`), 'utf8')
         expect(markdown).toBe(`# ${page.title}\n\n${page.summary}\n\n${page.markdown}`)
         const model = { pages, currentPage: page, figures: { zh: {}, en: {} }, corpusCount: 0, corpusItems: [], corpusTags: [], siteUrl: siteUrl() }
-        const html = renderToString(createElement(Site, { model, path: `/${lang}/${page.slug}` }))
-        // Count every <h1 start tag in the server markup (stricter than a DOM query: comments and
-        // raw-text content count too), then parse only the heading to read its text.
-        const headings = [...html.matchAll(/<h1[\s>/][\s\S]*?<\/h1>/gi)]
-        expect(html.match(/<h1[\s>/]/gi) ?? []).toHaveLength(1)
+        const headings = headingsOf(renderToString(createElement(Site, { model, path: `/${lang}/${page.slug}` })))
         expect(headings).toHaveLength(1)
-        expect(htmlParser.parseFromString(headings[0][0], 'text/html').body.textContent).toBe(page.title)
+        expect(textContent(headings[0])).toBe(page.title)
         expect(markdown).not.toContain('slug:')
         expect(markdown).not.toMatch(/```(?:quote|cards|exercise|figure|note)/)
       }
