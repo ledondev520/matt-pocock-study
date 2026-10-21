@@ -1,6 +1,7 @@
 import { readFile, readdir } from 'node:fs/promises'
 import { SaxesParser, type SaxesTagNS } from 'saxes'
 import { describe, expect, it } from 'vitest'
+import { validateSvg } from '../scripts/import-art.mjs'
 
 const directory = new URL('../public/diagrams/', import.meta.url)
 const files = (await readdir(directory)).filter(name => name.endsWith('.svg')).sort()
@@ -22,6 +23,8 @@ describe('committed diagram SVGs', () => {
 
   for (const file of files) it(`${file} parses as safe, responsive, themeable SVG`, async () => {
     const xml = await readFile(new URL(file, directory), 'utf8')
+    const lang = file.endsWith('.zh.svg') ? 'zh' : 'en'
+    expect(validateSvg(xml, { profile: 'diagram', lang })).toContain('<svg')
     expect(xml.replace('http://www.w3.org/2000/svg', '')).not.toMatch(/(?:https?:\/\/|file:|data:|javascript:)/i)
     const parser = new SaxesParser({ xmlns: true })
     const tags: SaxesTagNS[] = []

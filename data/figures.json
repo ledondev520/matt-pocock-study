@@ -67,12 +67,12 @@
       "kind": "步骤",
       "viewBox": "0 0 800 500",
       "alt": {
-        "zh": "让静默失败逐层变得可见",
-        "en": "Expose a silent failure through reproduction, checks and review evidence."
+        "zh": "缺服务地址仍显示已发送：复现假成功、拒绝无效配置，并检查异常与合法路径及评审证据。",
+        "en": "Expose false success from a missing service address; reject invalid configuration and verify both invalid and valid paths."
       },
       "caption": {
-        "zh": "让静默失败逐层变得可见。",
-        "en": "Expose a silent failure through reproduction, checks and review evidence."
+        "zh": "缺服务地址仍显示已发送：复现假成功、拒绝无效配置，并检查异常与合法路径及评审证据。",
+        "en": "Expose false success from a missing service address; reject invalid configuration and verify both invalid and valid paths."
       }
     },
     {
@@ -187,12 +187,12 @@
       "kind": "前后对比",
       "viewBox": "0 0 800 500",
       "alt": {
-        "zh": "分层实施与纵向切片对照",
-        "en": "Vertical slices connect UI, API and DB early to expose integration risk."
+        "zh": "分层完成后再集成，与先贯通输入、处理、输出的纵向切片对照。",
+        "en": "Compare late integration with a thin path through input, processing and output, then expand it."
       },
       "caption": {
-        "zh": "分层实施与纵向切片对照。",
-        "en": "Vertical slices connect UI, API and DB early to expose integration risk."
+        "zh": "分层完成后再集成，与先贯通输入、处理、输出的纵向切片对照。",
+        "en": "Compare late integration with a thin path through input, processing and output, then expand it."
       }
     },
     {
@@ -202,12 +202,12 @@
       "kind": "结构",
       "viewBox": "0 0 800 500",
       "alt": {
-        "zh": "可独立验收的工单结构",
-        "en": "A ticket states a complete capability, dependencies and acceptance criteria."
+        "zh": "收藏工单的任务、依赖、范围外、失败观察、成功观察与验收证据六栏。",
+        "en": "A favorites ticket has six fields: task, dependencies, exclusions, failure observations, success observations and evidence."
       },
       "caption": {
-        "zh": "可独立验收的工单结构。",
-        "en": "A ticket states a complete capability, dependencies and acceptance criteria."
+        "zh": "收藏工单的任务、依赖、范围外、失败观察、成功观察与验收证据六栏。",
+        "en": "A favorites ticket has six fields: task, dependencies, exclusions, failure observations, success observations and evidence."
       }
     },
     {
@@ -442,12 +442,12 @@
       "kind": "前后对比",
       "viewBox": "0 0 800 500",
       "alt": {
-        "zh": "泛型保留输入输出关系",
-        "en": "Generics preserve the relationship between input and output types."
+        "zh": "echoWide(12) 返回较宽的联合类型；泛型 echo(12) 保留类型 12。",
+        "en": "Compare echoWide(12), returning string | number, with generic echo(12), retaining type 12."
       },
       "caption": {
-        "zh": "泛型保留输入输出关系。",
-        "en": "Generics preserve the relationship between input and output types."
+        "zh": "echoWide(12) 返回较宽的联合类型；泛型 echo(12) 保留类型 12。",
+        "en": "Compare echoWide(12), returning string | number, with generic echo(12), retaining type 12."
       }
     },
     {
@@ -722,38 +722,6 @@
     }
   ],
   "pageHeads": {
-    "02": {
-      "type": "figure",
-      "value": "d02-failure-sort"
-    },
-    "03": {
-      "type": "figure",
-      "value": "s03-card-anatomy"
-    },
-    "04": {
-      "type": "figure",
-      "value": "d04-triage"
-    },
-    "05": {
-      "type": "figure",
-      "value": "d05-alignment-flow"
-    },
-    "06": {
-      "type": "figure",
-      "value": "d06-spec-lifecycle"
-    },
-    "07": {
-      "type": "figure",
-      "value": "d07-feedback-loop"
-    },
-    "08": {
-      "type": "figure",
-      "value": "s08-two-axes"
-    },
-    "09": {
-      "type": "figure",
-      "value": "d09-context-decision"
-    },
     "10": {
       "type": "figure",
       "value": "s10-index"
@@ -801,6 +769,38 @@
     "21": {
       "type": "card",
       "value": "「非官方、非商业的独立整理:读者能分辨原话、本站解读和获许可的改编。」"
+    },
+    "02": {
+      "type": "figure",
+      "value": "d02-failure-sort"
+    },
+    "03": {
+      "type": "figure",
+      "value": "s03-card-anatomy"
+    },
+    "04": {
+      "type": "figure",
+      "value": "d04-triage"
+    },
+    "05": {
+      "type": "figure",
+      "value": "d05-alignment-flow"
+    },
+    "06": {
+      "type": "figure",
+      "value": "d06-spec-lifecycle"
+    },
+    "07": {
+      "type": "figure",
+      "value": "d07-feedback-loop"
+    },
+    "08": {
+      "type": "figure",
+      "value": "s08-two-axes"
+    },
+    "09": {
+      "type": "figure",
+      "value": "d09-context-decision"
     }
   }
 }

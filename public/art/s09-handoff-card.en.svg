@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500" role="img" aria-labelledby="s09-handoff-card-title s09-handoff-card-desc">
+  <title id="s09-handoff-card-title">A handoff in six boxes</title>
+  <desc id="s09-handoff-card-desc">Current goal, confirmed decisions, artifact paths, verification status, open questions, next step and suggested skill. Reference specs and ADRs by path; remove sensitive data.</desc>
+  <defs><clipPath id="s09-handoff-card-clip1"><rect x="32" y="28" width="736" height="444" rx="18"/></clipPath></defs>
+  <g id="shapes">
+    <rect id="bg" x="0" y="0" width="800" height="500" fill="#F8F7FC" class="f-bg"/>
+    <rect x="32" y="28" width="736" height="444" rx="18" fill="#FFFFFF" class="f-card"/>
+    <rect x="32" y="28" width="736" height="60" clip-path="url(#s09-handoff-card-clip1)" fill="#43209E" class="f-violet"/>
+    <rect x="32" y="28" width="736" height="444" rx="18" fill="none" stroke="#DCD6E7" stroke-width="1.5" class="s-border"/>
+    <rect x="535" y="41" width="217" height="34" rx="17" fill="#C6F432" class="f-lime"/>
+    <path d="M550 53 L560 63 M560 53 L550 63" fill="none" stroke="#1A2110" stroke-width="2.5" class="s-on-lime" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="48" y="104" width="226" height="174" rx="12" fill="#F8F7FC" stroke="#DCD6E7" stroke-width="1" class="f-inner s-border"/>
+    <rect x="66" y="216" width="166" height="8" rx="4.0" fill="#DCD6E7" class="f-border"/>
+    <rect x="66" y="232" width="116" height="8" rx="4.0" fill="#DCD6E7" class="f-border"/>
+    <rect x="284" y="104" width="226" height="174" rx="12" fill="#F8F7FC" stroke="#DCD6E7" stroke-width="1" class="f-inner s-border"/>
+    <rect x="302" y="216" width="166" height="8" rx="4.0" fill="#DCD6E7" class="f-border"/>
+    <rect x="302" y="232" width="116" height="8" rx="4.0" fill="#DCD6E7" class="f-border"/>
+    <rect x="520" y="104" width="226" height="174" rx="12" fill="#F8F7FC" stroke="#DCD6E7" stroke-width="1" class="f-inner s-border"/>
+    <g transform="rotate(-35 558 216)"><rect x="538" y="208" width="24" height="16" rx="8" fill="none" stroke="#7445EB" stroke-width="3" class="s-accent"/><rect x="554" y="208" width="24" height="16" rx="8" fill="none" stroke="#7445EB" stroke-width="3" class="s-accent"/></g>
+    <rect x="48" y="288" width="226" height="174" rx="12" fill="#F8F7FC" stroke="#DCD6E7" stroke-width="1" class="f-inner s-border"/>
+    <rect x="66" y="400" width="166" height="8" rx="4.0" fill="#DCD6E7" class="f-border"/>
+    <rect x="66" y="416" width="116" height="8" rx="4.0" fill="#DCD6E7" class="f-border"/>
+    <rect x="284" y="288" width="226" height="174" rx="12" fill="#F8F7FC" stroke="#DCD6E7" stroke-width="1" class="f-inner s-border"/>
+    <rect x="302" y="400" width="166" height="8" rx="4.0" fill="#DCD6E7" class="f-border"/>
+    <rect x="302" y="416" width="116" height="8" rx="4.0" fill="#DCD6E7" class="f-border"/>
+    <rect x="520" y="288" width="226" height="174" rx="12" fill="#F8F7FC" stroke="#DCD6E7" stroke-width="1" class="f-inner s-border"/>
+    <rect x="538" y="400" width="166" height="8" rx="4.0" fill="#DCD6E7" class="f-border"/>
+    <rect x="538" y="416" width="116" height="8" rx="4.0" fill="#DCD6E7" class="f-border"/>
+  </g>
+  <g id="text">
+    <text x="56" y="65.0" font-family="'Space Grotesk',Inter,'Helvetica Neue',Arial,sans-serif" font-size="20" font-weight="700" fill="#FFFFFF" class="f-on-block">Handoff</text>
+    <text x="569" y="63.2" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="700" fill="#1A2110" class="f-on-lime">Remove sensitive data</text>
+    <text x="66" y="136" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="14" font-weight="500" fill="#6B607B" class="f-fg2">01</text>
+    <text x="66" y="168" font-family="'Space Grotesk',Inter,'Helvetica Neue',Arial,sans-serif" font-size="17" font-weight="700" fill="#241B35" class="f-fg">Current goal</text>
+    <text x="302" y="136" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="14" font-weight="500" fill="#6B607B" class="f-fg2">02</text>
+    <text x="302" y="168" font-family="'Space Grotesk',Inter,'Helvetica Neue',Arial,sans-serif" font-size="17" font-weight="700" fill="#241B35" class="f-fg">Confirmed decisions</text>
+    <text x="538" y="136" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="14" font-weight="500" fill="#6B607B" class="f-fg2">03</text>
+    <text x="538" y="168" font-family="'Space Grotesk',Inter,'Helvetica Neue',Arial,sans-serif" font-size="17" font-weight="700" fill="#241B35" class="f-fg">Artifact paths</text>
+    <text x="586" y="211.2" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="500" fill="#241B35" class="f-fg"><tspan x="586" dy="0">Specs, ADRs:</tspan><tspan x="586" dy="20.2">path only</tspan></text>
+    <text x="66" y="320" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="14" font-weight="500" fill="#6B607B" class="f-fg2">04</text>
+    <text x="66" y="352" font-family="'Space Grotesk',Inter,'Helvetica Neue',Arial,sans-serif" font-size="17" font-weight="700" fill="#241B35" class="f-fg">Verification status</text>
+    <text x="302" y="320" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="14" font-weight="500" fill="#6B607B" class="f-fg2">05</text>
+    <text x="302" y="352" font-family="'Space Grotesk',Inter,'Helvetica Neue',Arial,sans-serif" font-size="17" font-weight="700" fill="#241B35" class="f-fg">Open questions</text>
+    <text x="538" y="320" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="14" font-weight="500" fill="#6B607B" class="f-fg2">06</text>
+    <text x="538" y="352" font-family="'Space Grotesk',Inter,'Helvetica Neue',Arial,sans-serif" font-size="17" font-weight="700" fill="#241B35" class="f-fg"><tspan x="538" dy="0">Next step &amp;</tspan><tspan x="538" dy="23.0">suggested skill</tspan></text>
+  </g>
+</svg>

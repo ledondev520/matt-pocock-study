@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500" role="img" aria-labelledby="s07-hitl-afk-title s07-hitl-afk-desc">
+  <title id="s07-hitl-afk-title">HITL vs AFK</title>
+  <desc id="s07-hitl-afk-desc">HITL: a human makes the key calls, for unclear goals or scope. AFK: works on its own once scope and feedback are clear. Start small, then scale.</desc>
+  <g id="shapes">
+    <rect id="bg" x="0" y="0" width="800" height="500" fill="#0E0A1F" class="f-bg"/>
+    <rect x="176" y="32" width="294" height="92" rx="14" fill="#A083F4" class="f-block"/>
+    <rect x="482" y="32" width="294" height="92" rx="14" fill="#A083F4" class="f-violet"/>
+    <rect x="176" y="136" width="294" height="80" rx="12" fill="#171128" stroke="#352A48" stroke-width="1.5" class="f-card s-border"/>
+    <rect x="482" y="136" width="294" height="80" rx="12" fill="#171128" stroke="#352A48" stroke-width="1.5" class="f-card s-border"/>
+    <path d="M176 296 L776 296" fill="none" stroke="#352A48" stroke-width="2" class="s-border" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="176" y="252" width="168" height="88" rx="12" fill="#171128" stroke="#352A48" stroke-width="1.5" class="f-card s-border"/>
+    <path d="M348 296 L388 296" fill="none" stroke="#EAE5F4" stroke-width="2" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M379.9 299.9 L388 296 L379.9 292.1" fill="none" stroke="#EAE5F4" stroke-width="2" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="392" y="252" width="168" height="88" rx="12" fill="#171128" stroke="#352A48" stroke-width="1.5" class="f-card s-border"/>
+    <path d="M564 296 L604 296" fill="none" stroke="#EAE5F4" stroke-width="2" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M595.9 299.9 L604 296 L595.9 292.1" fill="none" stroke="#EAE5F4" stroke-width="2" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="608" y="252" width="168" height="88" rx="12" fill="#C6F432" class="f-lime"/>
+    <path d="M200 372 L750 372" fill="none" stroke="#A083F4" stroke-width="2.5" class="s-accent" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M741.0 376.3 L750 372 L741.0 367.7" fill="none" stroke="#A083F4" stroke-width="2.5" class="s-accent" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g id="text">
+    <text x="24" y="83.2" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="600" fill="#AEA4C0" class="f-fg2">Mode</text>
+    <text x="24" y="171.2" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="600" fill="#AEA4C0" class="f-fg2"><tspan x="24" dy="0">When to</tspan><tspan x="24" dy="20.2">use it</tspan></text>
+    <text x="200" y="72" font-family="'Space Grotesk',Inter,'Helvetica Neue',Arial,sans-serif" font-size="26" font-weight="700" fill="#140C28" class="f-on-block">HITL</text>
+    <text x="200" y="102" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="16" font-weight="500" fill="#140C28" class="f-on-block2">A human makes the key calls</text>
+    <text x="506" y="72" font-family="'Space Grotesk',Inter,'Helvetica Neue',Arial,sans-serif" font-size="26" font-weight="700" fill="#140C28" class="f-on-block">AFK</text>
+    <text x="506" y="102" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="16" font-weight="500" fill="#140C28" class="f-on-block2">Works on its own</text>
+    <text x="323.0" y="170.8" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="16" font-weight="600" fill="#EAE5F4" class="f-fg" text-anchor="middle"><tspan x="323.0" dy="0">Goal or scope</tspan><tspan x="323.0" dy="21.6">is still unclear</tspan></text>
+    <text x="629.0" y="170.8" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="16" font-weight="600" fill="#EAE5F4" class="f-fg" text-anchor="middle"><tspan x="629.0" dy="0">Scope and feedback</tspan><tspan x="629.0" dy="21.6">are clear enough</tspan></text>
+    <text x="24" y="301.2" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="600" fill="#AEA4C0" class="f-fg2">How to start</text>
+    <text x="260.0" y="290.8" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="16" font-weight="600" fill="#EAE5F4" class="f-fg" text-anchor="middle"><tspan x="260.0" dy="0">Start with one</tspan><tspan x="260.0" dy="21.6">low-risk task</tspan></text>
+    <text x="476.0" y="290.8" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="16" font-weight="600" fill="#EAE5F4" class="f-fg" text-anchor="middle"><tspan x="476.0" dy="0">Watch the</tspan><tspan x="476.0" dy="21.6">results</tspan></text>
+    <text x="692.0" y="290.8" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="16" font-weight="600" fill="#1A2110" class="f-on-lime" text-anchor="middle"><tspan x="692.0" dy="0">Then</tspan><tspan x="692.0" dy="21.6">scale up</tspan></text>
+    <text x="476" y="400" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="500" fill="#EAE5F4" class="f-fg" text-anchor="middle">HITL → AFK: the clearer the scope, the more you can step away</text>
+    <text x="400" y="458" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="400" fill="#AEA4C0" class="f-fg2" text-anchor="middle">No promise that unattended runs are safe to ship</text>
+  </g>
+</svg>

@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500" role="img" aria-labelledby="home-routes-title home-routes-desc">
+  <title id="home-routes-title">Three ways in: start from where you are stuck</title>
+  <desc id="home-routes-desc">The question 'What do you want to fix first?' branches to Workflow Overview, TypeScript Foundations and Writing to Teach.</desc>
+  <defs><clipPath id="home-routes-clip1"><rect x="22" y="262" width="236" height="196" rx="12"/></clipPath><clipPath id="home-routes-clip2"><rect x="282" y="262" width="236" height="196" rx="12"/></clipPath><clipPath id="home-routes-clip3"><rect x="542" y="262" width="236" height="196" rx="12"/></clipPath></defs>
+  <g id="shapes">
+    <rect id="bg" x="0" y="0" width="800" height="500" fill="#F8F7FC" class="f-bg"/>
+    <rect x="190" y="32" width="420" height="72" rx="16" fill="#43209E" class="f-violet"/>
+    <path d="M400 104 V136" fill="none" stroke="#241B35" stroke-width="2" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M140 160 Q140 136 164 136 H636 Q660 136 660 160" fill="none" stroke="#241B35" stroke-width="2" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M400 136 V160" fill="none" stroke="#241B35" stroke-width="2" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="28" y="160" width="224" height="46" rx="23" fill="#EEEBF5" class="f-muted"/>
+    <path d="M140 206 L140 258" fill="none" stroke="#241B35" stroke-width="2" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M136.1 249.9 L140 258 L143.9 249.9" fill="none" stroke="#241B35" stroke-width="2" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="22" y="262" width="236" height="196" rx="12" fill="#FFFFFF" class="f-card"/>
+    <rect x="22" y="262" width="236" height="6" clip-path="url(#home-routes-clip1)" fill="#C6F432" class="f-lime"/>
+    <rect x="22" y="262" width="236" height="196" rx="12" fill="none" stroke="#DCD6E7" stroke-width="1.5" class="s-border"/>
+    <rect x="288" y="160" width="224" height="46" rx="23" fill="#EEEBF5" class="f-muted"/>
+    <path d="M400 206 L400 258" fill="none" stroke="#241B35" stroke-width="2" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M396.1 249.9 L400 258 L403.9 249.9" fill="none" stroke="#241B35" stroke-width="2" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="282" y="262" width="236" height="196" rx="12" fill="#FFFFFF" class="f-card"/>
+    <rect x="282" y="262" width="236" height="6" clip-path="url(#home-routes-clip2)" fill="#F25CAC" class="f-pink"/>
+    <rect x="282" y="262" width="236" height="196" rx="12" fill="none" stroke="#DCD6E7" stroke-width="1.5" class="s-border"/>
+    <rect x="548" y="160" width="224" height="46" rx="23" fill="#EEEBF5" class="f-muted"/>
+    <path d="M660 206 L660 258" fill="none" stroke="#241B35" stroke-width="2" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M656.1 249.9 L660 258 L663.9 249.9" fill="none" stroke="#241B35" stroke-width="2" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="542" y="262" width="236" height="196" rx="12" fill="#FFFFFF" class="f-card"/>
+    <rect x="542" y="262" width="236" height="6" clip-path="url(#home-routes-clip3)" fill="#7445EB" class="f-accent"/>
+    <rect x="542" y="262" width="236" height="196" rx="12" fill="none" stroke="#DCD6E7" stroke-width="1.5" class="s-border"/>
+  </g>
+  <g id="text">
+    <text x="400" y="75.3" font-family="'Space Grotesk',Inter,'Helvetica Neue',Arial,sans-serif" font-size="21" font-weight="700" fill="#FFFFFF" class="f-on-block" text-anchor="middle">What do you want to fix first?</text>
+    <text x="140" y="188.2" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="600" fill="#241B35" class="f-fg" text-anchor="middle">Unblock AI coding</text>
+    <text x="44" y="302" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="500" fill="#6B607B" class="f-fg2">Page 04</text>
+    <text x="44" y="339.2" font-family="'Space Grotesk',Inter,'Helvetica Neue',Arial,sans-serif" font-size="21" font-weight="700" fill="#241B35" class="f-fg"><tspan x="44" dy="0">Workflow</tspan><tspan x="44" dy="28.4">Overview</tspan></text>
+    <text x="44" y="408" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="400" fill="#6B607B" class="f-fg2">Right-size the process</text>
+    <text x="44" y="440" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="600" fill="#7445EB" class="f-accent">Start →</text>
+    <text x="400" y="188.2" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="600" fill="#241B35" class="f-fg" text-anchor="middle">Learn TypeScript basics</text>
+    <text x="304" y="302" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="500" fill="#6B607B" class="f-fg2">Page 13</text>
+    <text x="304" y="339.2" font-family="'Space Grotesk',Inter,'Helvetica Neue',Arial,sans-serif" font-size="21" font-weight="700" fill="#241B35" class="f-fg"><tspan x="304" dy="0">TypeScript</tspan><tspan x="304" dy="28.4">Foundations</tspan></text>
+    <text x="304" y="408" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="400" fill="#6B607B" class="f-fg2">Known &amp; unknown</text>
+    <text x="304" y="440" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="600" fill="#7445EB" class="f-accent">Start →</text>
+    <text x="660" y="188.2" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="600" fill="#241B35" class="f-fg" text-anchor="middle">Learn to explain</text>
+    <text x="564" y="302" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="500" fill="#6B607B" class="f-fg2">Page 16</text>
+    <text x="564" y="339.2" font-family="'Space Grotesk',Inter,'Helvetica Neue',Arial,sans-serif" font-size="21" font-weight="700" fill="#241B35" class="f-fg"><tspan x="564" dy="0">Writing</tspan><tspan x="564" dy="28.4">to Teach</tspan></text>
+    <text x="564" y="408" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="400" fill="#6B607B" class="f-fg2">Start from the reader</text>
+    <text x="564" y="440" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="600" fill="#7445EB" class="f-accent">Start →</text>
+  </g>
+</svg>

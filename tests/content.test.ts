@@ -81,8 +81,8 @@ This is our inference.
 const x = 1;
 \`\`\`
 `, 'en')
-    for (const fragment of ['key-cards', '<th scope="row">', 'punch-quote', '<details>', 'tracer-figure', 'callout inference', 'code-window', 'data-copy']) expect(result.html).toContain(fragment)
-    for (const fragment of ['- **First**', '> One short sentence.', 'Author', 'https://example.org/source', '2026-01-01', 'Figure:', '/figures/s06-tracer.en.svg', 'Suggested approach', '**Our inference**']) expect(result.markdown).toContain(fragment)
+    for (const fragment of ['key-cards', '<th scope="row">', 'punch-quote', '<details>', 'data-figure="s06-tracer"', '/art/s06-tracer.en.svg', '/art/s06-tracer.en-dark.svg', 'callout inference', 'code-window', 'data-copy']) expect(result.html).toContain(fragment)
+    for (const fragment of ['- **First**', '> One short sentence.', 'Author', 'https://example.org/source', '2026-01-01', 'Figure:', '/art/s06-tracer.en.svg', 'Suggested approach', '**Our inference**']) expect(result.markdown).toContain(fragment)
     expect(result.toc).toEqual([{ id: 'a-section', title: 'A section' }])
   })
   it.each([

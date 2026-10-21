@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500" role="img" aria-labelledby="s08-two-axes-title s08-two-axes-desc">
+  <title id="s08-two-axes-title">Requirements and standards are two axes</title>
+  <desc id="s08-two-axes-desc">X: is the requirement met? Y: does it follow the repo’s standards? Only the top-right passes both; one overall score hides the other axis.</desc>
+  <g id="shapes">
+    <rect id="bg" x="0" y="0" width="800" height="500" fill="#F8F7FC" class="f-bg"/>
+    <rect x="132" y="40" width="210" height="160" rx="14" fill="#FFFFFF" stroke="#DCD6E7" stroke-width="1.5" class="f-card s-border"/>
+    <path d="M228.0 79 L246.0 97 M246.0 79 L228.0 97" fill="none" stroke="#F25CAC" stroke-width="3.5" class="s-pink" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="352" y="40" width="210" height="160" rx="14" fill="#5129C5" class="f-block"/>
+    <circle cx="457.0" cy="92" r="20" fill="#FFFFFF" class="f-on-block"/>
+    <path d="M449.0 92 L454.3 97.6 L465.0 85.6" fill="none" stroke="#5129C5" stroke-width="3" class="s-block" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="132" y="210" width="210" height="160" rx="14" fill="#FFFFFF" stroke="#DCD6E7" stroke-width="1.5" class="f-card s-border"/>
+    <path d="M228.0 249 L246.0 267 M246.0 249 L228.0 267" fill="none" stroke="#F25CAC" stroke-width="3.5" class="s-pink" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="352" y="210" width="210" height="160" rx="14" fill="#FFFFFF" stroke="#DCD6E7" stroke-width="1.5" class="f-card s-border"/>
+    <path d="M448.0 249 L466.0 267 M466.0 249 L448.0 267" fill="none" stroke="#F25CAC" stroke-width="3.5" class="s-pink" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M132 388 L562 388" fill="none" stroke="#241B35" stroke-width="2" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M553.9 391.9 L562 388 L553.9 384.1" fill="none" stroke="#241B35" stroke-width="2" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M114 370 L114 40" fill="none" stroke="#241B35" stroke-width="2" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M117.9 48.1 L114 40 L110.1 48.1" fill="none" stroke="#241B35" stroke-width="2" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="594" y="140" width="141" height="40" rx="20" fill="#FCE7F2" stroke="#F25CAC" stroke-width="1.5" stroke-dasharray="5 4" class="f-pink-tint s-pink"/>
+    <path d="M610 154 L622 166 M622 154 L610 166" fill="none" stroke="#F25CAC" stroke-width="3" class="s-pink" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g id="text">
+    <text x="237.0" y="142.8" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="16" font-weight="600" fill="#241B35" class="f-fg" text-anchor="middle"><tspan x="237.0" dy="0">Standards OK,</tspan><tspan x="237.0" dy="21.6">requirement wrong</tspan></text>
+    <text x="457.0" y="158.7" font-family="'Space Grotesk',Inter,'Helvetica Neue',Arial,sans-serif" font-size="19" font-weight="700" fill="#FFFFFF" class="f-on-block" text-anchor="middle">Both pass</text>
+    <text x="237.0" y="323.6" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="16" font-weight="600" fill="#241B35" class="f-fg" text-anchor="middle">Both fail</text>
+    <text x="457.0" y="312.8" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="16" font-weight="600" fill="#241B35" class="f-fg" text-anchor="middle"><tspan x="457.0" dy="0">Requirement met,</tspan><tspan x="457.0" dy="21.6">breaks conventions</tspan></text>
+    <text x="347" y="418" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="600" fill="#241B35" class="f-fg" text-anchor="middle">Requirement met? →</text>
+    <text x="136" y="418" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="400" fill="#6B607B" class="f-fg2">No</text>
+    <text x="558" y="418" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="400" fill="#6B607B" class="f-fg2" text-anchor="end">Yes</text>
+    <text x="100" y="205" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="600" fill="#241B35" class="f-fg" text-anchor="middle" transform="rotate(-90 100 205)">Follows standards? →</text>
+    <text x="106" y="364" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="400" fill="#6B607B" class="f-fg2" text-anchor="end">No</text>
+    <text x="106" y="56" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="400" fill="#6B607B" class="f-fg2" text-anchor="end">Yes</text>
+    <text x="634" y="165.6" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="16" font-weight="600" fill="#241B35" class="f-fg">Score 7/10</text>
+    <path class="strike s-pink" d="M631.0 160.5 H718.4" stroke="#F25CAC" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+    <text x="594" y="234.0" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="16" font-weight="500" fill="#241B35" class="f-fg"><tspan x="594" dy="0">One overall</tspan><tspan x="594" dy="21.6">score hides</tspan><tspan x="594" dy="21.6">the other axis</tspan></text>
+  </g>
+</svg>

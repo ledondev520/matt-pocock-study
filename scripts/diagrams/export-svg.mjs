@@ -10,7 +10,6 @@ export function exportSvg(spec, identity, links = {}) {
   svg.setAttribute('xmlns', ns)
   svg.setAttribute('class', scope)
   svg.setAttribute('role', 'img')
-  svg.setAttribute('lang', spec.meta.locale || 'en')
   svg.setAttribute('aria-labelledby', `${scope}-title ${scope}-desc`)
   const make = (tag, attributes = {}, text) => {
     const element = document.createElementNS(ns, tag)
@@ -27,7 +26,7 @@ export function exportSvg(spec, identity, links = {}) {
     if (/^(bg|background)$/.test(name)) return '--background'
     if (/mask|surface|card-bg/.test(name)) return '--card'
     if (/grid|border|lane-stroke|boundary-stroke/.test(name)) return '--border'
-    if (/fill|wash/.test(name)) return '--card-accent'
+    if (/fill|wash/.test(name)) return '--muted'
     if (/security|rose/.test(name)) return '--pink'
     return '--primary'
   }
@@ -75,13 +74,13 @@ export function exportSvg(spec, identity, links = {}) {
 .${scope} .export-box{fill:var(--card,#FFFFFF);stroke:var(--primary,#5129C5);stroke-width:1.5}
 .${scope} .export-success .export-box{fill:var(--lime,#C6F432)}
 .${scope} .export-success text{fill:#241B35}
-.${scope} .export-decision{fill:var(--card-accent,#F8F7FC);stroke:var(--primary,#5129C5);stroke-width:1.5}
+.${scope} .export-decision{fill:var(--card,#FFFFFF);stroke:var(--primary,#5129C5);stroke-width:1.5}
 .${scope} .export-edge{fill:none;stroke:var(--primary,#5129C5);stroke-width:1.5;stroke-linejoin:round}
 .${scope} .export-wrong{stroke:var(--pink,#F25CAC);stroke-dasharray:5 4}
 .${scope} .export-dashed{stroke-dasharray:6 4}
 .${scope} .export-arrow{fill:var(--primary,#5129C5)}
 .${scope} .export-wrong-arrow{fill:var(--pink,#F25CAC)}
-.${scope} .export-note{fill:var(--card-accent,#F8F7FC);stroke:var(--border,#DCD6E7)}
+.${scope} .export-note{fill:var(--card,#FFFFFF);stroke:var(--border,#DCD6E7)}
 .${scope} .export-note.export-wrong{stroke:var(--pink,#F25CAC);stroke-dasharray:5 4}
 .${scope} a:focus-visible .export-box{stroke:var(--ring,#5129C5);stroke-width:3}
 `
@@ -162,7 +161,6 @@ export function exportSvg(spec, identity, links = {}) {
     const group = native ? native.cloneNode(false) : make('g')
     for (const attribute of [...group.attributes]) group.removeAttribute(attribute.name)
     group.setAttribute('id', `${scope}-node-${node.id}`)
-    group.setAttribute('data-node', node.id)
     if (node.type === 'success' || node.label.startsWith('✓')) group.setAttribute('class', 'export-success')
     const wrong = node.type === 'failure' || /^(wrong|fluent|paid|forbidden)$/.test(node.id)
     // Retain the renderer's principal shape, then resize its geometry to the
@@ -286,7 +284,6 @@ export function exportSvg(spec, identity, links = {}) {
     cursor += 30
   }
   svg.setAttribute('viewBox', `0 0 390 ${Math.ceil(cursor + 8)}`)
-  svg.setAttribute('data-layout-contract', 'compact-reader-v1')
   // Drop every rule whose selector no longer occurs after runtime removal and
   // compaction. Never ship the viewer stylesheet or unused semantic classes.
   const parsedStyles = new CSSStyleSheet()

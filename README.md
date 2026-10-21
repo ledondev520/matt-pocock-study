@@ -53,7 +53,10 @@ become native SVG cards. Notes remain visible. These generated SVGs are committe
 CI only validates them and does not run Archify. HTML, receipts, and the size/pass
 report stay in ignored `.archify/`; Chrome profiles stay in ignored `.cache/`.
 
-Inline the SVG markup to inherit the page's light/dark color tokens. Each file
+The figure loader validates and re-serializes SVGs before inlining them to inherit
+the page's light/dark color tokens. The diagram profile permits only same-language
+links to existing content pages (`/<lang>/<slug>`); art keeps the strict static
+profile without anchors. Each file
 has its own scoped class and IDs, so different diagrams or languages can share
 a page. Internal node links and source references that the Archify schema cannot
 store live in `<id>.links.json`; external source URLs remain in candidates or
@@ -68,6 +71,8 @@ npm run og
 ```
 
 Art filenames must be known art figure IDs: `<id>.zh.svg`, `<id>.en.svg`, `<id>.zh-dark.svg`, `<id>.en-dark.svg`. The importer validates the entire batch before copying into `public/art/`, rejecting scripts, event handlers, active embedded content, entities and external references. SVG support is deliberately limited: an element/attribute allowlist, static presentation declarations only, and functions limited to `var`, `rgb`, `rgba`, `hsl`, `hsla`, `calc` and unquoted `url(#local-id)`. Quotes are allowed only in font families. Every allowed attribute has its own value grammar (attributes without one are rejected); any attribute value containing `url(` other than a bare `url(#local-id)`, `image-set(`, `image(`, `cross-fade(`, `@import` or `expression(` is rejected, and `mask`, `clip-path` and `marker-*` accept only `none` or `url(#local-id)`. Stylesheet selectors must start at their own SVG root class or ID and are rewritten under a unique scope. At-rules (including media rules), CSS escapes, custom declarations, resource functions and page-wide selectors are rejected. XML declarations and metadata are dropped; other processing instructions are rejected. Art has no links. The separate diagram profile permits only `href="/<same-language>/<known-slug>"` anchors (or corpus), with no other anchor attributes. Rebuild after importing. Theme switches art immediately; missing dark art falls back to light.
+
+The delivered batch contains all 100 art variants. See [the integration report](docs/ART_INTEGRATION.md) for the original validation failures and the metadata removed from staging copies before strict import.
 
 插图导入先验证整批 SVG；未知 ID 和不安全引用会失败。语言由文件名切换，深色图缺失时回退到浅色图。重新构建后即可展示。
 

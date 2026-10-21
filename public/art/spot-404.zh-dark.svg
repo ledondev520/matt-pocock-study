@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500" role="img" aria-labelledby="spot-404-title spot-404-desc">
+  <title id="spot-404-title">找不到这个页面</title>
+  <desc id="spot-404-desc">这个地址没有页面;从首页三条入口、学习路径或语料库重新开始。</desc>
+  <defs><clipPath id="spot-404-clip1"><rect x="40" y="284" width="224" height="172" rx="12"/></clipPath><clipPath id="spot-404-clip2"><rect x="288" y="284" width="224" height="172" rx="12"/></clipPath><clipPath id="spot-404-clip3"><rect x="536" y="284" width="224" height="172" rx="12"/></clipPath></defs>
+  <g id="shapes">
+    <rect id="bg" x="0" y="0" width="800" height="500" fill="#0E0A1F" class="f-bg"/>
+    <rect x="180" y="32" width="440" height="180" rx="20" fill="#A083F4" class="f-violet"/>
+    <rect x="40" y="284" width="224" height="172" rx="12" fill="#171128" class="f-card"/>
+    <rect x="40" y="284" width="224" height="6" clip-path="url(#spot-404-clip1)" fill="#C6F432" class="f-lime"/>
+    <rect x="40" y="284" width="224" height="172" rx="12" fill="none" stroke="#352A48" stroke-width="1.5" class="s-border"/>
+    <rect x="288" y="284" width="224" height="172" rx="12" fill="#171128" class="f-card"/>
+    <rect x="288" y="284" width="224" height="6" clip-path="url(#spot-404-clip2)" fill="#F25CAC" class="f-pink"/>
+    <rect x="288" y="284" width="224" height="172" rx="12" fill="none" stroke="#352A48" stroke-width="1.5" class="s-border"/>
+    <rect x="536" y="284" width="224" height="172" rx="12" fill="#171128" class="f-card"/>
+    <rect x="536" y="284" width="224" height="6" clip-path="url(#spot-404-clip3)" fill="#A083F4" class="f-accent"/>
+    <rect x="536" y="284" width="224" height="172" rx="12" fill="none" stroke="#352A48" stroke-width="1.5" class="s-border"/>
+  </g>
+  <g id="text">
+    <text x="400" y="116" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="64" font-weight="700" fill="#140C28" class="f-on-block" text-anchor="middle">404</text>
+    <text x="400" y="170" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="22" font-weight="700" fill="#140C28" class="f-on-block2" text-anchor="middle">找不到这个页面</text>
+    <text x="400" y="256" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="16" font-weight="600" fill="#AEA4C0" class="f-fg2" text-anchor="middle">从这里重新开始</text>
+    <text x="62" y="324" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="14" font-weight="500" fill="#AEA4C0" class="f-fg2">第 01 页</text>
+    <text x="62" y="381.0" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="20" font-weight="700" fill="#EAE5F4" class="f-fg">首页三条入口</text>
+    <text x="62" y="430" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="600" fill="#A083F4" class="f-accent">前往 →</text>
+    <text x="310" y="324" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="14" font-weight="500" fill="#AEA4C0" class="f-fg2">第 20 页</text>
+    <text x="310" y="381.0" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="20" font-weight="700" fill="#EAE5F4" class="f-fg">学习路径</text>
+    <text x="310" y="430" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="600" fill="#A083F4" class="f-accent">前往 →</text>
+    <text x="558" y="324" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="14" font-weight="500" fill="#AEA4C0" class="f-fg2">原文索引</text>
+    <text x="558" y="381.0" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="20" font-weight="700" fill="#EAE5F4" class="f-fg">语料库</text>
+    <text x="558" y="430" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="600" fill="#A083F4" class="f-accent">前往 →</text>
+  </g>
+</svg>

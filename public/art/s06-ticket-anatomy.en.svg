@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500" role="img" aria-labelledby="s06-ticket-anatomy-title s06-ticket-anatomy-desc">
+  <title id="s06-ticket-anatomy-title">Anatomy of a good vertical ticket</title>
+  <desc id="s06-ticket-anatomy-desc">A favorites ticket: task, dependencies, exclusions, failure and success observations, evidence. After refresh, visible state agrees with storage.</desc>
+  <defs><clipPath id="s06-ticket-anatomy-clip1"><rect x="40" y="32" width="476" height="436" rx="16"/></clipPath></defs>
+  <g id="shapes">
+    <rect id="bg" x="0" y="0" width="800" height="500" fill="#F8F7FC" class="f-bg"/>
+    <rect x="40" y="32" width="476" height="436" rx="16" fill="#FFFFFF" class="f-card"/>
+    <rect x="40" y="32" width="476" height="64" clip-path="url(#s06-ticket-anatomy-clip1)" fill="#43209E" class="f-violet"/>
+    <rect x="40" y="32" width="476" height="436" rx="16" fill="none" stroke="#DCD6E7" stroke-width="1.5" class="s-border"/>
+    <rect x="56" y="108" width="444" height="54" rx="10" fill="#F8F7FC" stroke="#DCD6E7" stroke-width="1" class="f-inner s-border"/>
+    <rect x="56" y="166" width="444" height="54" rx="10" fill="#F8F7FC" stroke="#DCD6E7" stroke-width="1" class="f-inner s-border"/>
+    <rect x="56" y="224" width="444" height="54" rx="10" fill="#F8F7FC" stroke="#DCD6E7" stroke-width="1" class="f-inner s-border"/>
+    <rect x="56" y="282" width="444" height="54" rx="10" fill="#F8F7FC" stroke="#DCD6E7" stroke-width="1" class="f-inner s-border"/>
+    <rect x="56" y="340" width="444" height="54" rx="10" fill="#F8F7FC" stroke="#DCD6E7" stroke-width="1" class="f-inner s-border"/>
+    <rect x="56" y="398" width="444" height="54" rx="10" fill="#C6F432" class="f-lime"/>
+    <rect x="556" y="132" width="204" height="236" rx="16" fill="#FFFFFF" stroke="#DCD6E7" stroke-width="1.5" class="f-card s-border"/>
+    <rect x="578" y="217" width="30" height="30" rx="7" fill="#5129C5" class="f-block"/>
+    <path d="M586 232 L590.7 236.9 L600 226.4" fill="none" stroke="#FFFFFF" stroke-width="3" class="s-on-block" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="578" y="295" width="30" height="30" rx="7" fill="#5129C5" class="f-block"/>
+    <path d="M586 310 L590.7 314.9 L600 304.4" fill="none" stroke="#FFFFFF" stroke-width="3" class="s-on-block" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M518 250 L552 250" fill="none" stroke="#241B35" stroke-width="2" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M543.9 253.9 L552 250 L543.9 246.1" fill="none" stroke="#241B35" stroke-width="2" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g id="text">
+    <text x="64" y="71.0" font-family="'Space Grotesk',Inter,'Helvetica Neue',Arial,sans-serif" font-size="20" font-weight="700" fill="#FFFFFF" class="f-on-block">Vertical ticket</text>
+    <text x="492" y="69.6" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="16" font-weight="500" fill="#E4DAFB" class="f-on-block2" text-anchor="end">Example</text>
+    <text x="72" y="139.9" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="600" fill="#241B35" class="f-fg">Task</text>
+    <text x="224" y="130.4" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="400" fill="#6B607B" class="f-fg2"><tspan x="224" dy="0">Favorite an item and save;</tspan><tspan x="224" dy="18.9">retain state after refresh</tspan></text>
+    <text x="72" y="197.9" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="600" fill="#241B35" class="f-fg">Dependencies</text>
+    <text x="224" y="188.5" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="400" fill="#6B607B" class="f-fg2"><tspan x="224" dy="0">Item ID, existing user identity,</tspan><tspan x="224" dy="18.9">available storage interface</tspan></text>
+    <text x="72" y="255.9" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="600" fill="#241B35" class="f-fg">Exclusions</text>
+    <text x="224" y="246.5" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="400" fill="#6B607B" class="f-fg2"><tspan x="224" dy="0">Bulk actions, filtering,</tspan><tspan x="224" dy="18.9">cross-device synchronization</tspan></text>
+    <text x="72" y="304.4" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="600" fill="#241B35" class="f-fg"><tspan x="72" dy="0">Failure</tspan><tspan x="72" dy="18.9">observation</tspan></text>
+    <text x="224" y="304.4" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="400" fill="#6B607B" class="f-fg2"><tspan x="224" dy="0">Save error shown; no false</tspan><tspan x="224" dy="18.9">success; retry allowed</tspan></text>
+    <text x="72" y="362.4" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="600" fill="#241B35" class="f-fg"><tspan x="72" dy="0">Success</tspan><tspan x="72" dy="18.9">observation</tspan></text>
+    <text x="224" y="362.4" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="400" fill="#6B607B" class="f-fg2"><tspan x="224" dy="0">After click, save and refresh,</tspan><tspan x="224" dy="18.9">visible state matches storage</tspan></text>
+    <text x="72" y="429.9" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="600" fill="#1A2110" class="f-on-lime">Evidence</text>
+    <text x="224" y="420.4" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="400" fill="#1A2110" class="f-on-lime"><tspan x="224" dy="0">One successful operation;</tspan><tspan x="224" dy="18.9">one simulated save failure</tspan></text>
+    <text x="578" y="172" font-family="'Space Grotesk',Inter,'Helvetica Neue',Arial,sans-serif" font-size="17" font-weight="700" fill="#241B35" class="f-fg">Passes when</text>
+    <text x="622" y="226.8" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="16" font-weight="600" fill="#241B35" class="f-fg"><tspan x="622" dy="0">Verifiable</tspan><tspan x="622" dy="21.6">on its own</tspan></text>
+    <text x="622" y="304.8" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="16" font-weight="600" fill="#241B35" class="f-fg"><tspan x="622" dy="0">Dependencies</tspan><tspan x="622" dy="21.6">are explicit</tspan></text>
+  </g>
+</svg>

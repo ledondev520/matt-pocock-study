@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500" role="img" aria-labelledby="s11-two-kinds-title s11-two-kinds-desc">
+  <title id="s11-two-kinds-title">First sort a rule into one of two kinds</title>
+  <desc id="s11-two-kinds-desc">Mechanically checkable facts go to lint, hooks, types or CI, with error output that says how to fix it; judgment calls go to review, with reasons.</desc>
+  <g id="shapes">
+    <rect id="bg" x="0" y="0" width="800" height="500" fill="#0E0A1F" class="f-bg"/>
+    <rect x="300" y="24" width="200" height="52" rx="26" fill="#A083F4" class="f-violet"/>
+    <path d="M400 76 V100" fill="none" stroke="#EAE5F4" stroke-width="2" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M206 124 Q206 100 230 100 H570 Q594 100 594 124" fill="none" stroke="#EAE5F4" stroke-width="2" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M206 124 L206 136" fill="none" stroke="#EAE5F4" stroke-width="2" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M203.0 129.7 L206 136 L209.0 129.7" fill="none" stroke="#EAE5F4" stroke-width="2" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="24" y="140" width="364" height="80" rx="14" fill="#A083F4" class="f-block"/>
+    <path d="M206 224 L206 254" fill="none" stroke="#EAE5F4" stroke-width="2" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M202.1 245.9 L206 254 L209.9 245.9" fill="none" stroke="#EAE5F4" stroke-width="2" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="24" y="258" width="364" height="92" rx="14" fill="#171128" stroke="#352A48" stroke-width="1.5" class="f-card s-border"/>
+    <rect x="24" y="366" width="364" height="80" rx="14" fill="#C6F432" class="f-lime"/>
+    <path d="M594 124 L594 136" fill="none" stroke="#EAE5F4" stroke-width="2" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M591.0 129.7 L594 136 L597.0 129.7" fill="none" stroke="#EAE5F4" stroke-width="2" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="412" y="140" width="364" height="80" rx="14" fill="#A083F4" class="f-accent"/>
+    <path d="M594 224 L594 254" fill="none" stroke="#EAE5F4" stroke-width="2" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M590.1 245.9 L594 254 L597.9 245.9" fill="none" stroke="#EAE5F4" stroke-width="2" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="412" y="258" width="364" height="92" rx="14" fill="#171128" stroke="#352A48" stroke-width="1.5" class="f-card s-border"/>
+    <rect x="412" y="366" width="364" height="80" rx="14" fill="#241B38" class="f-muted"/>
+  </g>
+  <g id="text">
+    <text x="400.0" y="56.3" font-family="'Space Grotesk',Inter,'Helvetica Neue',Arial,sans-serif" font-size="18" font-weight="700" fill="#140C28" class="f-on-block" text-anchor="middle">A rule</text>
+    <text x="206.0" y="174.2" font-family="'Space Grotesk',Inter,'Helvetica Neue',Arial,sans-serif" font-size="18" font-weight="700" fill="#140C28" class="f-on-block" text-anchor="middle"><tspan x="206.0" dy="0">Mechanically</tspan><tspan x="206.0" dy="24.3">checkable facts</tspan></text>
+    <text x="206.0" y="298.4" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="17" font-weight="600" fill="#EAE5F4" class="f-fg" text-anchor="middle"><tspan x="206.0" dy="0">Enforced by lint,</tspan><tspan x="206.0" dy="23.0">hooks, types or CI</tspan></text>
+    <text x="48" y="401.1" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="600" fill="#1A2110" class="f-on-lime"><tspan x="48" dy="0">Error output tells the</tspan><tspan x="48" dy="20.2">agent how to fix it</tspan></text>
+    <text x="594.0" y="174.2" font-family="'Space Grotesk',Inter,'Helvetica Neue',Arial,sans-serif" font-size="18" font-weight="700" fill="#140C28" class="f-on-block" text-anchor="middle"><tspan x="594.0" dy="0">Judgment calls</tspan><tspan x="594.0" dy="24.3">that need context</tspan></text>
+    <text x="594.0" y="298.4" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="17" font-weight="600" fill="#EAE5F4" class="f-fg" text-anchor="middle"><tspan x="594.0" dy="0">Left to review,</tspan><tspan x="594.0" dy="23.0">with reasons</tspan></text>
+    <text x="436" y="401.1" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="500" fill="#EAE5F4" class="f-fg"><tspan x="436" dy="0">Reviewers state the</tspan><tspan x="436" dy="20.2">basis, not just a verdict</tspan></text>
+    <text x="400" y="476" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="400" fill="#AEA4C0" class="f-fg2" text-anchor="middle">Example: import direction is checkable; whether a name is clear needs judgment</text>
+  </g>
+</svg>

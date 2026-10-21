@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500" role="img" aria-labelledby="s09-handoff-card-title s09-handoff-card-desc">
+  <title id="s09-handoff-card-title">一份交接只要六格</title>
+  <desc id="s09-handoff-card-desc">当前目标、已确认决策、产物路径、验证状态、未解决问题、下一步与建议技能;规格和 ADR 只引用路径,去掉敏感信息。</desc>
+  <defs><clipPath id="s09-handoff-card-clip1"><rect x="32" y="28" width="736" height="444" rx="18"/></clipPath></defs>
+  <g id="shapes">
+    <rect id="bg" x="0" y="0" width="800" height="500" fill="#0E0A1F" class="f-bg"/>
+    <rect x="32" y="28" width="736" height="444" rx="18" fill="#171128" class="f-card"/>
+    <rect x="32" y="28" width="736" height="60" clip-path="url(#s09-handoff-card-clip1)" fill="#A083F4" class="f-violet"/>
+    <rect x="32" y="28" width="736" height="444" rx="18" fill="none" stroke="#352A48" stroke-width="1.5" class="s-border"/>
+    <rect x="535" y="41" width="217" height="34" rx="17" fill="#C6F432" class="f-lime"/>
+    <path d="M550 53 L560 63 M560 53 L550 63" fill="none" stroke="#1A2110" stroke-width="2.5" class="s-on-lime" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="48" y="104" width="226" height="174" rx="12" fill="#211932" stroke="#352A48" stroke-width="1" class="f-inner s-border"/>
+    <rect x="66" y="216" width="166" height="8" rx="4.0" fill="#352A48" class="f-border"/>
+    <rect x="66" y="232" width="116" height="8" rx="4.0" fill="#352A48" class="f-border"/>
+    <rect x="284" y="104" width="226" height="174" rx="12" fill="#211932" stroke="#352A48" stroke-width="1" class="f-inner s-border"/>
+    <rect x="302" y="216" width="166" height="8" rx="4.0" fill="#352A48" class="f-border"/>
+    <rect x="302" y="232" width="116" height="8" rx="4.0" fill="#352A48" class="f-border"/>
+    <rect x="520" y="104" width="226" height="174" rx="12" fill="#211932" stroke="#352A48" stroke-width="1" class="f-inner s-border"/>
+    <g transform="rotate(-35 558 216)"><rect x="538" y="208" width="24" height="16" rx="8" fill="none" stroke="#A083F4" stroke-width="3" class="s-accent"/><rect x="554" y="208" width="24" height="16" rx="8" fill="none" stroke="#A083F4" stroke-width="3" class="s-accent"/></g>
+    <rect x="48" y="288" width="226" height="174" rx="12" fill="#211932" stroke="#352A48" stroke-width="1" class="f-inner s-border"/>
+    <rect x="66" y="400" width="166" height="8" rx="4.0" fill="#352A48" class="f-border"/>
+    <rect x="66" y="416" width="116" height="8" rx="4.0" fill="#352A48" class="f-border"/>
+    <rect x="284" y="288" width="226" height="174" rx="12" fill="#211932" stroke="#352A48" stroke-width="1" class="f-inner s-border"/>
+    <rect x="302" y="400" width="166" height="8" rx="4.0" fill="#352A48" class="f-border"/>
+    <rect x="302" y="416" width="116" height="8" rx="4.0" fill="#352A48" class="f-border"/>
+    <rect x="520" y="288" width="226" height="174" rx="12" fill="#211932" stroke="#352A48" stroke-width="1" class="f-inner s-border"/>
+    <rect x="538" y="400" width="166" height="8" rx="4.0" fill="#352A48" class="f-border"/>
+    <rect x="538" y="416" width="116" height="8" rx="4.0" fill="#352A48" class="f-border"/>
+  </g>
+  <g id="text">
+    <text x="56" y="65.0" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="20" font-weight="700" fill="#140C28" class="f-on-block">交接</text>
+    <text x="569" y="63.2" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="700" fill="#1A2110" class="f-on-lime">去掉敏感信息</text>
+    <text x="66" y="136" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="14" font-weight="500" fill="#AEA4C0" class="f-fg2">01</text>
+    <text x="66" y="168" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="17" font-weight="700" fill="#EAE5F4" class="f-fg">当前目标</text>
+    <text x="302" y="136" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="14" font-weight="500" fill="#AEA4C0" class="f-fg2">02</text>
+    <text x="302" y="168" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="17" font-weight="700" fill="#EAE5F4" class="f-fg">已确认决策</text>
+    <text x="538" y="136" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="14" font-weight="500" fill="#AEA4C0" class="f-fg2">03</text>
+    <text x="538" y="168" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="17" font-weight="700" fill="#EAE5F4" class="f-fg">产物路径</text>
+    <text x="586" y="211.2" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="500" fill="#EAE5F4" class="f-fg"><tspan x="586" dy="0">规格、ADR</tspan><tspan x="586" dy="20.2">只引用路径</tspan></text>
+    <text x="66" y="320" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="14" font-weight="500" fill="#AEA4C0" class="f-fg2">04</text>
+    <text x="66" y="352" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="17" font-weight="700" fill="#EAE5F4" class="f-fg">验证状态</text>
+    <text x="302" y="320" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="14" font-weight="500" fill="#AEA4C0" class="f-fg2">05</text>
+    <text x="302" y="352" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="17" font-weight="700" fill="#EAE5F4" class="f-fg">未解决问题</text>
+    <text x="538" y="320" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="14" font-weight="500" fill="#AEA4C0" class="f-fg2">06</text>
+    <text x="538" y="352" font-family="'Noto Sans SC','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="17" font-weight="700" fill="#EAE5F4" class="f-fg">下一步与建议技能</text>
+  </g>
+</svg>

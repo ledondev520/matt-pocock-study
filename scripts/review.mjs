@@ -41,7 +41,7 @@ try {
     const name = `${view}-${width}-${theme}`
     await page.screenshot({ path: `.cache/screenshots/${name}.png`, fullPage: true })
     await page.screenshot({ path: `.cache/screenshots/${name}-viewport.png` })
-    if (view === 'article') await page.locator('.tracer-figure').screenshot({ path: `.cache/screenshots/tracer-${width}-${theme}.png` })
+    if (view === 'article') await page.locator('[data-figure="s06-tracer"], .tracer-figure').screenshot({ path: `.cache/screenshots/tracer-${width}-${theme}.png` })
     checks.push({ name, ...measurements })
     for (const englishPath of ['/en/specs-and-tickets', '/en/corpus']) {
       await page.goto(origin + englishPath, { waitUntil: 'networkidle' })

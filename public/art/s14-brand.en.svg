@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500" role="img" aria-labelledby="s14-brand-title s14-brand-desc">
+  <title id="s14-brand-title">Branded types stop mixed-up IDs</title>
+  <desc id="s14-brand-desc">Left: UserId and OrderId are both string, so passing an OrderId where a UserId is expected compiles. Right: with brands, the same mistake is a type error.</desc>
+  <g id="shapes">
+    <rect id="bg" x="0" y="0" width="800" height="500" fill="#F8F7FC" class="f-bg"/>
+    <rect x="24" y="24" width="368" height="420" rx="16" fill="#FFFFFF" stroke="#DCD6E7" stroke-width="1.5" class="f-card s-border"/>
+    <rect x="408" y="24" width="368" height="420" rx="16" fill="#FFFFFF" stroke="#DCD6E7" stroke-width="1.5" class="f-card s-border"/>
+    <rect x="52" y="92" width="148" height="76" rx="12" fill="#F8F7FC" stroke="#DCD6E7" stroke-width="1.5" class="f-inner s-border"/>
+    <rect x="216" y="92" width="148" height="76" rx="12" fill="#F8F7FC" stroke="#DCD6E7" stroke-width="1.5" class="f-inner s-border"/>
+    <rect x="52" y="272" width="312" height="60" rx="12" fill="#5129C5" class="f-block"/>
+    <path d="M290 172 L290 266" fill="none" stroke="#241B35" stroke-width="2.5" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M286.1 257.9 L290 266 L293.9 257.9" fill="none" stroke="#241B35" stroke-width="2.5" class="s-line" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="436" y="92" width="148" height="76" rx="12" fill="#F8F7FC" stroke="#DCD6E7" stroke-width="1.5" class="f-inner s-border"/>
+    <path d="M556 104 L556 134" fill="none" stroke="#241B35" stroke-width="2" class="s-fg" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M556 104 L576 111 L556 118 Z" fill="#C6F432" class="f-lime" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="600" y="92" width="148" height="76" rx="12" fill="#F8F7FC" stroke="#DCD6E7" stroke-width="1.5" class="f-inner s-border"/>
+    <path d="M720 104 L720 134" fill="none" stroke="#241B35" stroke-width="2" class="s-fg" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M720 104 L740 111 L720 118 Z" fill="#F25CAC" class="f-pink" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="436" y="272" width="312" height="60" rx="12" fill="#5129C5" class="f-block"/>
+    <path d="M674 172 L674 266" fill="none" stroke="#F25CAC" stroke-width="2.5" class="s-pink" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M670.1 257.9 L674 266 L677.9 257.9" fill="none" stroke="#F25CAC" stroke-width="2.5" class="s-pink" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="674" cy="214" r="16" fill="#FCE7F2" class="f-pink-tint"/>
+    <path d="M667 207 L681 221 M681 207 L667 221" fill="none" stroke="#F25CAC" stroke-width="3" class="s-pink" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g id="text">
+    <text x="48" y="62" font-family="'Space Grotesk',Inter,'Helvetica Neue',Arial,sans-serif" font-size="19" font-weight="700" fill="#241B35" class="f-fg">Both just string</text>
+    <text x="432" y="62" font-family="'Space Grotesk',Inter,'Helvetica Neue',Arial,sans-serif" font-size="19" font-weight="700" fill="#241B35" class="f-fg">With a brand</text>
+    <text x="68" y="122" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="17" font-weight="700" fill="#241B35" class="f-fg">UserId</text>
+    <text x="68" y="150" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="15" font-weight="400" fill="#6B607B" class="f-fg2">string</text>
+    <text x="232" y="122" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="17" font-weight="700" fill="#241B35" class="f-fg">OrderId</text>
+    <text x="232" y="150" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="15" font-weight="400" fill="#6B607B" class="f-fg2">string</text>
+    <text x="208.0" y="296.4" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="17" font-weight="700" fill="#FFFFFF" class="f-on-block" text-anchor="middle"><tspan x="208.0" dy="0">notificationTarget</tspan><tspan x="208.0" dy="23.0">(id: UserId): string</tspan></text>
+    <text x="272" y="219.6" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="16" font-weight="700" fill="#241B35" class="f-fg" text-anchor="end">No error</text>
+    <text x="52" y="380" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="400" fill="#6B607B" class="f-fg2">Passing an OrderId</text>
+    <text x="52" y="408" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="600" fill="#241B35" class="f-fg">Compiles; the bug reaches runtime</text>
+    <text x="452" y="122" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="17" font-weight="700" fill="#241B35" class="f-fg">UserId</text>
+    <text x="452" y="150" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="15" font-weight="400" fill="#6B607B" class="f-fg2">"user"</text>
+    <text x="616" y="122" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="17" font-weight="700" fill="#241B35" class="f-fg">OrderId</text>
+    <text x="616" y="150" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="15" font-weight="400" fill="#6B607B" class="f-fg2">"order"</text>
+    <text x="592.0" y="296.4" font-family="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace" font-size="17" font-weight="700" fill="#FFFFFF" class="f-on-block" text-anchor="middle"><tspan x="592.0" dy="0">notificationTarget</tspan><tspan x="592.0" dy="23.0">(id: UserId): string</tspan></text>
+    <text x="648" y="219.6" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="16" font-weight="700" fill="#241B35" class="f-fg" text-anchor="end">Type error</text>
+    <text x="436" y="380" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="400" fill="#6B607B" class="f-fg2">Passing an OrderId</text>
+    <text x="436" y="408" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="600" fill="#241B35" class="f-fg">Stopped at compile time</text>
+    <text x="400" y="476" font-family="Inter,'Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="400" fill="#6B607B" class="f-fg2" text-anchor="middle">Static only: it does not validate data from the network</text>
+  </g>
+</svg>
