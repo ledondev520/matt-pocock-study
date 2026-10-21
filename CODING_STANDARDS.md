@@ -29,4 +29,4 @@ A review-time checklist; each rule targets a mistake that tends to repeat.
 - SVG presentation attributes are CSS too: every allowed attribute needs an explicit value grammar, resource syntax (`url(` non-local, `image-set(`, `image(`, `@import`, `expression(`) is rejected in every attribute, and reference attributes (mask, clip-path, marker-*) accept only `url(#local-id)`. Why: an attribute outside the CSS-property set skipped value checks and loaded resources. (PR #1 r3)
 16. 交互区域的 DOM 顺序必须与视觉顺序、键盘和读屏顺序一致；不用 CSS `order` 移动含可聚焦元素的区域，调整布局后实测 Tab 顺序。原因：截图正确时，焦点仍可能越过首屏主操作跳到页底。(PR #2)
 17. 中英文教学例子须核对依赖方向、允许 / 禁止和前后条件在两种语言里一致，不能只比对标题和组件结构。原因：结构配对通过时，仍可能把合法路径译成违规路径。(PR #2)
-18. HTML 测试提速可以复用解析器，但仍须对完整页面建 DOM 再断言；只截取片段解析不能证明节点位于页面 DOM 中（template、注释、raw-text 里的标签会被误算）。(PR #3)
+18. 测试提速只能减少重复工作（共用构建结果、缓存），不能改变断言所查询的 DOM：仍用原来的 jsdom 整页文档断言；片段解析或自写树遍历会漏掉 template、noscript、SVG 等上下文差异。(PR #3)
