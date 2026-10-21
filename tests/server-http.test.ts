@@ -166,6 +166,9 @@ const negotiations = [
   ['*;q=0, gzip;q=1', 'gzip'],
   ['identity;q=0, br;q=0, gzip;q=0', '406'],
   ['*;q=0', '406'],
+  ['br;q=0, gzip;q=0.5, *;q=1', 'gzip'],
+  ['gzip;q=0.2, *;q=1', 'br'],
+  ['br;q=0, gzip;q=0, *;q=1', null],
 ] as const
 it.each(representations.flatMap(path => negotiations.map(([accept, encoding]) => ({ path, accept, encoding }))))('negotiates $path with $accept -> $encoding', async ({ path, accept, encoding }) => {
   const original = await app.request(path)
@@ -283,4 +286,13 @@ it('compresses every eligible extension at 1 KB with Brotli q11 and gzip, leavin
     }
     for (const file of ['small.txt', 'binary.png']) for (const suffix of ['.br', '.gz']) await expect(readFile(join(dir, file + suffix))).rejects.toMatchObject({ code: 'ENOENT' })
   } finally { await rm(dir, { recursive: true, force: true }) }
+})
+
+it('never turns a static or cached response into a 500 under concurrent requests', async () => {
+  // Regression: re-wrapping a cloned (tee'd) file stream intermittently threw "body disturbed or locked".
+  const paths = ['/en', '/assets/app.js', '/assets/plain.js', '/en/article.md', '/image.svg']
+  const requests = Array.from({ length: 400 }, (_, i) => app.request(paths[i % paths.length], { headers: { 'Accept-Encoding': ['br', 'gzip', 'identity'][i % 3] } }))
+  const responses = await Promise.all(requests)
+  expect(responses.map(response => response.status).filter(status => status !== 200)).toEqual([])
+  await Promise.all(responses.map(response => response.arrayBuffer()))
 })

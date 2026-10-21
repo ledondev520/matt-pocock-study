@@ -18,9 +18,10 @@ const encodeGzip = promisify(gzip)
 function negotiateEncoding(header: string | undefined) {
   const accepted = parseAccept(header ?? '')
   const wildcard = accepted.find(value => value.type === '*')?.q
-  // Unlisted identity stays acceptable (RFC 9110 §12.5.3) but ranks below any coding the client listed.
+  // Unlisted identity stays acceptable (RFC 9110 §12.5.3) but ranks below every listed coding.
+  // The wildcard may only refuse it (`*;q=0`); a positive wildcard never raises it above 0.001.
   const quality = (encoding: string) => accepted.find(value => value.type.toLowerCase() === encoding)?.q
-    ?? (encoding === 'identity' ? wildcard ?? 0.001 : wildcard ?? 0)
+    ?? (encoding === 'identity' ? (wildcard === 0 ? 0 : 0.001) : wildcard ?? 0)
   // Stable sorting preserves the server preference for equal quality values.
   const encoding = (['br', 'gzip', 'identity'] as const).filter(value => quality(value) > 0)
     .sort((a, b) => quality(b) - quality(a))[0]
@@ -56,8 +57,12 @@ export function createApp(db: Database.Database, staticRoot?: string, corpus: Co
     await next()
     if (c.res.status !== 200 || !['GET', 'HEAD'].includes(c.req.method)) return
     const existing = c.res.headers.get('ETag')
-    const tag = existing && !existing.startsWith('W/') ? existing : `"${createHash('sha256').update(new Uint8Array(await c.res.clone().arrayBuffer())).digest('hex')}"`
-    c.header('ETag', tag)
+    // Buffer once instead of clone(): re-wrapping a tee'd file stream in c.header() could
+    // intermittently throw "body disturbed or locked" and turn the response into a 500.
+    const bytes = new Uint8Array(await c.res.arrayBuffer())
+    c.res = new Response(bytes, c.res)
+    const tag = existing && !existing.startsWith('W/') ? existing : `"${createHash('sha256').update(bytes).digest('hex')}"`
+    c.res.headers.set('ETag', tag)
     const condition = c.req.header('If-None-Match')
     if (condition === '*' || condition?.split(',').some(value => value.trim().replace(/^W\//, '') === tag)) {
       const headers = new Headers(c.res.headers)
