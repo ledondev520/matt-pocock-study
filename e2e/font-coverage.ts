@@ -18,11 +18,12 @@ export type ProbeCache = Set<string>
 function collectInPage(pattern: string): Probe[] {
   const cjk = new RegExp(pattern, 'gu')
   const probes = new Map<string, Probe>()
-  const drawn = (element: Element) => {
-    // A closed <select> has no box for its options, but it draws them (selected text, popup).
-    const box = element.closest('option, optgroup') ? element.closest('select') : element
-    return !!box && box.checkVisibility({ visibilityProperty: true })
-  }
+  // A closed <select> has no box for its options, but it draws them (selected text, popup).
+  const box = (element: Element) => element.closest('option, optgroup') ? element.closest('select') : element
+  // Laid out: no display:none on it or an ancestor, not in closed/hidden content.
+  const rendered = (element: Element) => !!box(element)?.checkVisibility()
+  // Rendered and its own visibility is visible (a descendant may override a hidden ancestor).
+  const drawn = (element: Element) => !!box(element)?.checkVisibility({ visibilityProperty: true })
   const add = (element: Element, pseudo: string | null, text: string, where = element.tagName.toLowerCase() + (pseudo ?? '')) => {
     const style = getComputedStyle(element, pseudo)
     if (!style.fontFamily.includes('Noto Sans SC')) return
@@ -34,7 +35,8 @@ function collectInPage(pattern: string): Probe[] {
   const walker = document.createTreeWalker(document.documentElement, NodeFilter.SHOW_TEXT)
   while (walker.nextNode()) {
     const parent = walker.currentNode.parentElement
-    if (!parent || parent.closest('script, style, template, noscript, head, svg title, svg desc') || !drawn(parent)) continue
+    // A <textarea>'s text node is only its default value; what it draws is collected below.
+    if (!parent || parent.closest('script, style, template, noscript, head, svg title, svg desc, textarea') || !drawn(parent)) continue
     // Text directly inside a closed <details> (outside its <summary>) is not drawn.
     if (parent instanceof HTMLDetailsElement && !parent.open) continue
     add(parent, null, (walker.currentNode as Text).data)
@@ -42,11 +44,13 @@ function collectInPage(pattern: string): Probe[] {
   // Generated content: the browser's own serialization of the computed `content` value.
   const unescape = (s: string) => s.replace(/\\([\da-fA-F]{1,6}) ?|\\(.)/g, (_, hex, ch) => hex ? String.fromCodePoint(parseInt(hex, 16)) : ch)
   for (const element of document.querySelectorAll('body *')) {
-    if (!drawn(element)) continue
+    // A pseudo-element is drawn when its element is laid out and its own computed visibility
+    // is visible, whatever the element's visibility is.
+    if (!rendered(element)) continue
     for (const pseudo of ['::before', '::after']) {
       const style = getComputedStyle(element, pseudo)
       const content = style.content
-      if (!content || content === 'none' || content === 'normal' || style.display === 'none') continue
+      if (!content || content === 'none' || content === 'normal' || style.display === 'none' || style.visibility !== 'visible') continue
       const text = [...content.matchAll(/"((?:[^"\\]|\\.)*)"|attr\(\s*([\w-]+)\s*\)/g)].map(m => m[2] ? element.getAttribute(m[2]) ?? '' : unescape(m[1])).join('')
       add(element, pseudo, text)
     }

@@ -26,9 +26,9 @@ npx playwright test e2e/font-coverage.pw.ts e2e/no-english-cjk-fonts.pw.ts e2e/n
 
 ## 缺字检查（浏览器）
 
-缺字检查在浏览器里做，而不是在文本层猜测各种编码。`e2e/font-coverage.pw.ts` 在构建产物上逐页打开 `dist/` 里的每个页面（中英文全部路由），收集页面**实际绘制**的字符：所有文本节点（包括脚本运行后写入的，如 `innerHTML`、拼接的代理对）、每个元素 `::before`/`::after` 的计算后 `content`，以及文本类 `input`/`textarea` 的 `value`（为空时取 `placeholder`，按 `::placeholder` 的字体）。只看字体栈里包含 `Noto Sans SC` 的元素中、属于上述判定的字符。
+缺字检查在浏览器里做，而不是在文本层猜测各种编码。`e2e/font-coverage.pw.ts` 在构建产物上逐页打开 `dist/` 里的每个页面（中英文全部路由），收集页面**实际绘制**的字符：所有文本节点（包括脚本运行后写入的，如 `innerHTML`、拼接的代理对）、每个元素 `::before`/`::after` 的计算后 `content`，以及文本类 `input`/`textarea` 的当前 `value`（为空时取 `placeholder`，按 `::placeholder` 的字体）；`textarea` 标记里的默认文本只在它仍是当前值时才算。只看字体栈里包含 `Noto Sans SC` 的元素中、属于上述判定的字符。
 
-不绘制的内容不检查：`hidden`、`display: none`、`visibility: hidden`、关闭的 `<details>` 内文、`display: none` 的伪元素，以及 SVG 的 `<title>`/`<desc>`（这两个只给辅助技术和浏览器提示框用）。`<select>` 的选项按所属 `<select>` 是否可见判断。
+不绘制的内容不检查：`hidden`、`display: none`、`visibility: hidden`、关闭的 `<details>` 内文、伪元素按它自己的计算后 `visibility` 判断（元素 `visibility: hidden` 而伪元素设回 `visible` 时照常检查，反之不检查），且元素本身及祖先都不能是 `display: none`；以及 SVG 的 `<title>`/`<desc>`（这两个只给辅助技术和浏览器提示框用）。`<select>` 的选项按所属 `<select>` 是否可见判断。
 
 每个路由检查这些状态：1440px 宽加载完成后；改为 320px 宽后；展开页面上所有 `<details>`（练习答案）后。语料页（`/zh/corpus`、`/en/corpus`）还会依次检查：逐页点「下一页」直到最后一页、按一个标签搜索、无结果、日期范围无效（400）、服务不可用（500）和加载中。
 
