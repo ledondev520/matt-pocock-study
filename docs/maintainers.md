@@ -4,7 +4,7 @@ Everything a maintainer needs beyond the [README](../README.md): build, deploy, 
 
 ## Run
 
-Node 20.19+ (20.x) and npm:
+Node 22.23.4+ (22.x) and npm:
 
 ```sh
 npm install
@@ -38,7 +38,7 @@ Set `SITE_URL` to the public HTTPS origin when building (default: `https://matt.
 ## Diagrams
 
 Paired Chinese/English Archify candidates live in `diagrams/src/<id>.{zh,en}.json`.
-Install Archify separately, then run `ARCHIFY_HOME=… npm run diagrams` with Node 20
+Install Archify separately, then run `ARCHIFY_HOME=… npm run diagrams` with Node 22.23.4+ (22.x)
 and headless Chrome (`CHROME_BIN` defaults to `google-chrome`). An optional list
 of diagram IDs limits the build, for example `npm run diagrams -- home-corpus`.
 This maintainer command runs showcase finalization, then Chrome extracts static
