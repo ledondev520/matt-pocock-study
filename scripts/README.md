@@ -48,7 +48,7 @@ node scripts/corpus/build-index.mjs --types post,article,repo,web --min-likes 50
 # Prepare and review an original bilingual summary batch in the raw directory.
 node scripts/corpus/apply-summaries.mjs .corpus-raw/summaries.jsonl
 node scripts/check-overlap.mjs --require-raw
-node --test test/corpus/
+node --test test/corpus/*.test.mjs
 ```
 
 | Script | Behavior and output |
@@ -167,7 +167,7 @@ Suggested package scripts (add separately):
   "corpus:build": "node scripts/corpus/build-index.mjs",
   "corpus:summaries": "node scripts/corpus/apply-summaries.mjs",
   "check:overlap": "node scripts/check-overlap.mjs",
-  "test:corpus": "node --test test/corpus/"
+  "test:corpus": "node --test test/corpus/*.test.mjs"
 }
 ```
 
