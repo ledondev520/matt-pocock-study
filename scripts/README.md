@@ -2,7 +2,7 @@
 
 ## English
 
-These tools use plain Node 20 ESM and built-in modules, with no npm dependencies.
+These tools use plain Node 22.23.4+ (22.x) ESM and built-in modules, with no npm dependencies.
 Run commands from the repository root. The committed index contains metadata and
 our own bilingual summaries. Original posts, article titles, descriptions, HTML,
 and article bodies must never be committed. The starter index is intentionally
@@ -48,7 +48,7 @@ node scripts/corpus/build-index.mjs --types post,article,repo,web --min-likes 50
 # Prepare and review an original bilingual summary batch in the raw directory.
 node scripts/corpus/apply-summaries.mjs .corpus-raw/summaries.jsonl
 node scripts/check-overlap.mjs --require-raw
-node --test test/corpus/
+node --test test/corpus/*.test.mjs
 ```
 
 | Script | Behavior and output |
@@ -167,7 +167,7 @@ Suggested package scripts (add separately):
   "corpus:build": "node scripts/corpus/build-index.mjs",
   "corpus:summaries": "node scripts/corpus/apply-summaries.mjs",
   "check:overlap": "node scripts/check-overlap.mjs",
-  "test:corpus": "node --test test/corpus/"
+  "test:corpus": "node --test test/corpus/*.test.mjs"
 }
 ```
 
@@ -182,7 +182,7 @@ Suggested ignore entries (add separately):
 
 ## 中文
 
-工具仅使用 Node 20 内置模块，无 npm 依赖。请在仓库根目录运行。提交到仓库的
+工具仅使用 Node 22.23.4+ (22.x) 内置模块，无 npm 依赖。请在仓库根目录运行。提交到仓库的
 仅为链接、时间、分类、主题标签、互动数和我们自己撰写的中英文摘要。原帖、
 文章标题、仓库描述、网页 HTML 和正文均属于原始材料，绝不能提交。初始索引为
 `[]`，不包含未经核实的示例。

@@ -4,12 +4,12 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": ">=20.19.0 <21"
+    "node": ">=22.23.4 <23"
   },
   "scripts": {
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run && node --test test/corpus/ && npm run contrast",
+    "test": "vitest run && node --test test/corpus/*.test.mjs && npm run contrast",
     "test:layout": "playwright test",
     "build:content": "tsx scripts/build-content.ts",
     "build": "npm run build:content && npm run og && vite build && tsx scripts/static.tsx && tsx scripts/compress.ts",
