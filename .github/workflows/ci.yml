@@ -107,3 +107,57 @@ jobs:
       - run: npm run build
       - name: No page scrolls horizontally at 320, 390 and 1440px (light and dark)
         run: npm run test:layout
+
+  data-pr-allowlist:
+    name: Data PR allowlist
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Classify changed files
+        id: classify
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+        run: |
+          set -euo pipefail
+          scripts/ci/data-pr-allowlist.sh "$BASE" "$HEAD" | tee "$RUNNER_TEMP/classify.txt"
+          allowlisted=$(sed -n 's/^allowlisted=//p' "$RUNNER_TEMP/classify.txt")
+          touches=$(sed -n 's/^touches_data=//p' "$RUNNER_TEMP/classify.txt")
+          sync=false
+          if [ "$HEAD_REPO" = "$GITHUB_REPOSITORY" ] && [[ $HEAD_REF =~ ^sync/knowledge-[A-Za-z0-9._-]+$ ]]; then sync=true; fi
+          echo "touches_data=$touches" >> "$GITHUB_OUTPUT"
+          {
+            echo "### Data PR allowlist"
+            echo "- only allow-listed data files changed: $allowlisted"
+            echo "- sync branch: $sync"
+            if [ "$allowlisted" = true ] && [ "$sync" = true ]; then
+              echo "- eligible for auto-merge once every required check is green"
+            else
+              echo "- not eligible for auto-merge: needs the usual independent review"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+          # A sync branch exists only to carry data; anything else on it is an error.
+          if [ "$sync" = true ] && [ "$allowlisted" != true ]; then
+            echo "::error::sync/knowledge-* PRs may only modify allow-listed data files in place"
+            exit 1
+          fi
+      - uses: actions/setup-node@v4
+        if: steps.classify.outputs.touches_data == 'true'
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+      - name: Re-run the privacy gate and format check on the data
+        if: steps.classify.outputs.touches_data == 'true'
+        env:
+          KB_DENYLIST: ${{ secrets.KB_DENYLIST }}
+        run: |
+          set -euo pipefail
+          git checkout -q --detach "${{ github.event.pull_request.head.sha }}"
+          npm ci
+          npx tsx scripts/ci/check-kb-data.ts
