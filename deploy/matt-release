@@ -20,6 +20,8 @@ readonly RELEASES=$ROOT/releases
 readonly INCOMING=$ROOT/incoming
 readonly STATE=$ROOT/deploy-state
 readonly SERVICE=matt-site
+# Optional AI Q&A service that reads the same release; restarted only if it is running.
+readonly ASK_SERVICE=matt-ask
 readonly RUN_USER=mattsite
 readonly HEALTH_URL=http://127.0.0.1:8787/api/health
 readonly KEEP=5
@@ -58,6 +60,7 @@ switch_to() {
   mv -Tf -- "$ROOT/current.new" "$ROOT/current"
   printf '%s\n' "$name" >> "$STATE/history"
   systemctl restart "$SERVICE"
+  systemctl try-restart "$ASK_SERVICE" 2>/dev/null || log "note: $ASK_SERVICE restart failed or not installed"
 }
 
 healthy() {
