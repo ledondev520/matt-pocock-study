@@ -63,7 +63,7 @@ async function resolves(href: string, base: string) {
   }
 }
 it('writes complete, localized HTML and absolute metadata for all routes', async () => {
-  for (const lang of ['zh', 'en']) for (const slug of ['', ...model.pages.filter(p => p.lang === lang).map(p => p.slug)]) {
+  for (const lang of ['zh', 'en']) for (const slug of ['', ...model.pages.filter(p => p.lang === lang).map(p => p.slug), 'knowledge']) {
     const path = `/${lang}${slug ? '/' + slug : ''}`
     const html = await readFile(`dist${path}/index.html`, 'utf8')
     const doc = new JSDOM(html).window.document
@@ -94,7 +94,7 @@ it('resolves every internal href in generated and React-rendered HTML', async ()
     const doc = new JSDOM(html).window.document
     for (const node of doc.querySelectorAll('[href]')) await resolves(node.getAttribute('href')!, base)
   }
-  for (const path of ['/', '/zh', '/en', '/zh/corpus', '/en/corpus', ...model.pages.map(p => `/${p.lang}/${p.slug}`)]) {
+  for (const path of ['/', '/zh', '/en', '/zh/corpus', '/en/corpus', '/zh/knowledge', '/en/knowledge', ...model.pages.map(p => `/${p.lang}/${p.slug}`)]) {
     const dataFile = path === '/' || path === '/zh' || path === '/en' ? `dist${path}/index.json` : `dist${path}.json`
     const scoped: Model = JSON.parse(await readFile(dataFile, 'utf8'))
     const doc = new JSDOM(renderToString(<Site model={scoped} path={path} />)).window.document
@@ -174,6 +174,17 @@ it('round-trips replacement tokens through metadata, rendered HTML and embedded 
     expect(embedded.currentPage!.title).toBe(special)
     expect(embedded.currentPage!.summary).toBe(special)
     expect(JSON.parse(await readFile(join(root, 'en/specs-and-tickets.json'), 'utf8'))).toEqual(embedded)
+  } finally { await rm(root, { recursive: true, force: true }) }
+})
+it('static rendering refuses a knowledge base feed with a gate finding', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'static-kb-'))
+  try {
+    await writeFile(join(root, 'content.json'), await readFile('dist/content.json'))
+    await writeFile(join(root, 'figures.json'), await readFile('dist/figures.json'))
+    await writeFile(join(root, 'index.html'), '<!doctype html><html lang="en"><head><!--page-meta--></head><body><div id="root"></div><!--site-data--></body></html>')
+    const post = 'https://x.com/mattpocockuk/status/1'
+    await writeFile(join(root, 'kb.json'), JSON.stringify({ version: 2, entries: [{ id: 'matt-notes-2099-01-02-1', date: '2099-01-02', source: 'matt-notes', title: '样例 a@b.co', url: post, body: [{ text: '原帖', href: post }] }] }))
+    await expect(staticPages(root, join(root, 'kb.json'))).rejects.toThrow(/gate findings/)
   } finally { await rm(root, { recursive: true, force: true }) }
 })
 it.each(['/zh/a/b', '/zh/a_b', '/zh/不存在'])('shares Chinese 404 rendering and metadata for %s', async path => {
