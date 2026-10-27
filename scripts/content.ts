@@ -173,9 +173,9 @@ export function agentFiles(lang: Lang, localized: Page[], site: string) {
 The site is public and read-only: no login, no API key. Cite the page URL, and link to Matt's original when you quote him.`
   const intro = t('用我们自己的话整理 Matt Pocock 的公开分享：AI coding 工作流、给 agent 立规矩、TypeScript、写作与教学。',
     'Notes in our own words on Matt Pocock\'s public teaching: AI coding workflow, rules for agents, TypeScript, and writing to teach.')
-  const otherLanguage = t(`English: ${site}${llmsPath('en')}`, `中文版：${site}${llmsPath('zh')}`)
+  const otherLanguage = t(`English: ${site}${llmsPath('en')}`, `Chinese version: ${site}${llmsPath('zh')}`)
   const index = `# ${title}\n\n> ${summary}\n\n${intro}${zh ? '' : ' '}${otherLanguage}\n\n${howTo}\n\n## ${t('页面', 'Pages')}\n\n${groups}\n\n### ${t('网站', 'Site')}\n\n${homeLine}\n`
-  const home = `# ${title}\n\n${summary}\n\n${intro}\n\n## ${t('让你的 Coding Agent 来读', 'Let your coding agent read it')}\n\n${t('把这句话发给你的 Coding Agent，「拆大 PR」换成你想学的：', 'Paste this into your coding agent and swap in whatever you want to learn:')}\n\n> ${agentPrompt(lang, site)}\n\n- ${t('用法和目录：', 'How to use the site, with the index: ')}${site}${llmsPath(lang)}\n- ${t('全部页面合在一起：', 'Every page in one file: ')}${site}${llmsFullPath(lang)}${localized.some(page => page.slug === 'corpus') ? `\n- ${t('语料库（Matt 公开资料的索引）：', 'The corpus (an index of Matt\'s public work): ')}${site}/${lang}/corpus.md` : ''}\n\n## ${t('全部笔记', 'All notes')}\n\n${groups}\n`
+  const home = `# ${title}\n\n${summary}\n\n${intro}\n\n## ${t('让你的 Coding Agent 来读', 'Let your coding agent read it')}\n\n${t('把这句话发给你的 Coding Agent，想学别的就把中间那句换掉：', 'Paste this into your coding agent and swap in whatever you want to learn:')}\n\n> ${agentPrompt(lang, site)}\n\n- ${t('用法和目录：', 'How to use the site, with the index: ')}${site}${llmsPath(lang)}\n- ${t('全部页面合在一起：', 'Every page in one file: ')}${site}${llmsFullPath(lang)}${localized.some(page => page.slug === 'corpus') ? `\n- ${t('语料库（Matt 公开资料的索引）：', 'The corpus (an index of Matt\'s public work): ')}${site}/${lang}/corpus.md` : ''}\n\n## ${t('全部笔记', 'All notes')}\n\n${groups}\n`
   return { index, full, home }
 }
 

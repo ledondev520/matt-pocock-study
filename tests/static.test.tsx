@@ -176,6 +176,57 @@ it('every indexable page has a Markdown twin that is in llms.txt and sitemap.xml
     for (const url of index.match(/https?:\/\/[^\s)`，。；]+/g) ?? []) if (!url.includes('/api/')) await resolves(url, '/')
   }
 })
+// The .md twin says what the page says: same title, same headings in the same order, and every plain
+// paragraph of the article body appears in the Markdown. Home twins list every note the home page links.
+// Arrows (→ ← ↗ …) are drawn as SVG on the page, so they are left out of the comparison.
+const plain = (text: string) => text.replace(/[\u2190-\u21ff]/g, ' ').replace(/\s+/g, ' ').trim()
+const markdownText = (markdown: string) => plain(markdown.replace(/```[\s\S]*?```/g, ' ').replace(/!?\[([^\]]*)\](?:\([^)]*\)|\[[^\]]*\])/g, '$1').replace(/[*`]/g, '').replace(/^>\s?/gm, ''))
+const markdownHeadings = (markdown: string, depth: RegExp) => markdown.replace(/```[\s\S]*?```/g, '').split('\n').flatMap(line => { const m = line.match(depth); return m ? [plain(m[1].replace(/!?\[([^\]]*)\]\([^)]*\)/g, '$1').replace(/[*`]/g, ''))] : [] })
+it('every Markdown twin matches its HTML page', async () => {
+  let articles = 0, homes = 0
+  for (const file of await files('dist')) {
+    const doc = new JSDOM(await readFile(file, 'utf8')).window.document
+    const href = doc.querySelector('link[rel="alternate"][type="text/markdown"]')?.getAttribute('href')
+    if (!href) continue
+    const markdown = await readFile(`dist${href}`, 'utf8')
+    const h1 = plain(doc.querySelector('h1')?.textContent ?? '')
+    const body = doc.querySelector('.article-body')
+    if (body) {
+      articles++
+      expect(markdownHeadings(markdown, /^# (.+)$/)[0], `${href} title`).toBe(h1)
+      const htmlHeadings = [...body.querySelectorAll('h2[id], h3[id]')].filter(h => !h.closest('figure, aside, details')).map(h => plain(h.textContent ?? ''))
+      expect(markdownHeadings(markdown, /^#{2,3} (.+)$/).filter(h => htmlHeadings.includes(h)), `${href} headings`).toEqual(htmlHeadings)
+      const text = markdownText(markdown)
+      for (const p of body.querySelectorAll(':scope > p')) expect(text, `${href} paragraph`).toContain(plain(p.textContent ?? ''))
+    } else if (doc.querySelector('.hero')) {
+      homes++
+      const lang = doc.documentElement.lang === 'zh' ? 'zh' : 'en'
+      const linked = [...doc.querySelectorAll('.reading-section .topic-card a')].map(a => a.getAttribute('href')!)
+      expect(linked.length, file).toBeGreaterThan(10)
+      for (const page of linked) expect(markdown, `${href} lists ${page}`).toContain(`](${site()}${page}.md)`)
+      expect(markdown, `${href} carries the copy line`).toContain(doc.getElementById('agent-prompt-text')!.textContent!)
+      expect(markdown.startsWith(`# ${lang === 'zh' ? 'Matt Pocock 学习笔记' : 'Matt Pocock study notes'}\n`), href).toBe(true)
+    } else expect(markdownHeadings(markdown, /^# (.+)$/)[0], `${href} title`).toBe(h1)
+  }
+  expect(articles).toBeGreaterThan(30)
+  expect(homes).toBe(3)
+})
+// The home page's copy line: the same text in both languages' HTML, a real button with an accessible
+// name, and no CJK characters anywhere in the English home (a single one would load the Chinese font).
+it('home pages show a copyable agent line with a labelled button', async () => {
+  for (const [file, lang] of [['dist/zh/index.html', 'zh'], ['dist/en/index.html', 'en'], ['dist/index.html', 'en']] as const) {
+    const doc = new JSDOM(await readFile(file, 'utf8')).window.document
+    const text = doc.getElementById('agent-prompt-text')?.textContent ?? ''
+    expect(text, file).toContain(`${site()}${lang === 'zh' ? '/zh/llms.txt' : '/llms.txt'}`)
+    expect(text, file).toMatch(lang === 'zh' ? /^去 / : /^Go read /)
+    const button = doc.querySelector('.agent-prompt button')!
+    expect(button.getAttribute('type'), file).toBe('button')
+    expect(button.getAttribute('aria-label'), file).toBe(lang === 'zh' ? '复制这句话' : 'Copy the line for your agent')
+    expect(button.getAttribute('aria-label'), 'visible label is part of the accessible name').toContain(button.textContent)
+    expect(button.getAttribute('aria-describedby'), file).toBe('agent-prompt-text')
+    if (lang === 'en') expect(doc.querySelector('.agent-prompt')!.textContent, file).not.toMatch(/[\u3000-\u9fff\uff00-\uffef]/)
+  }
+})
 it('robots.txt blocks no crawler and points to the sitemap', async () => {
   const robots = await readFile('dist/robots.txt', 'utf8')
   expect(robots).toMatch(/^User-agent: \*$/m)

@@ -126,6 +126,8 @@ nav a:hover { color: var(--link); }
 .agent-prompt-copy:hover { background: var(--border); }
 .agent-prompt-copy:focus-visible { outline: 2px solid var(--ring); outline-offset: -2px; }
 .agent-prompt-hint { margin-top: 7px; font-size: 13px; color: var(--hero-muted); }
+/* Phones: keep room for three lines so the box does not shrink when web fonts replace the fallback (a layout shift at 412px). */
+@media (max-width: 480px) { .agent-prompt-text { min-height: calc(3 * 1.6em + 20px); } }
 .author-links { display: flex; gap: 23px; margin-top: 12px; }
 .author-links a { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--hero-text); }
 .author-links a:hover { color: var(--link); }

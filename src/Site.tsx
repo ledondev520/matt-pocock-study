@@ -42,7 +42,9 @@ export function Site({ model, path, dark = false, onTheme, onLanguage }: {
   </>
 }
 // One line to paste into a coding agent. Copy uses the Clipboard API; where that is unavailable or
-// refused, the line is selected so the reader can copy it by hand.
+// refused, the line is selected so the reader can copy it by hand. The Chinese wording only uses
+// characters whose Noto Sans SC slices the home page already loads: one new character cost an
+// extra font request and a layout shift.
 function AgentPrompt({ lang, site }: { lang: Lang; site: string }) {
   const zh = lang === 'zh', t = (cn: string, en: string) => zh ? cn : en
   const [copied, setCopied] = useState(false)
@@ -65,7 +67,7 @@ function AgentPrompt({ lang, site }: { lang: Lang; site: string }) {
     if (!navigator.clipboard) return select()
     navigator.clipboard.writeText(text).then(() => setCopied(true), select)
   }
-  return <div className="agent-prompt"><span className="eyebrow">{t('给你的 Coding Agent', 'FOR YOUR CODING AGENT')}</span><div className="agent-prompt-row"><p id="agent-prompt-text" className="agent-prompt-text">{text}</p><button type="button" className="agent-prompt-copy" onClick={copy}>{copied ? t('已复制', 'Copied') : t('复制', 'Copy')}</button></div><p className="agent-prompt-hint" aria-live="polite">{copied ? t('已复制，粘给 agent 就行。', 'Copied. Paste it into your agent.') : t('把「拆大 PR」换成你想学的。', 'Swap in whatever you want to learn.')}</p></div>
+  return <div className="agent-prompt"><span className="eyebrow">{t('给你的 Coding Agent', 'FOR YOUR CODING AGENT')}</span><div className="agent-prompt-row"><p id="agent-prompt-text" className="agent-prompt-text">{text}</p><button type="button" className="agent-prompt-copy" onClick={copy} aria-label={copied ? t('已复制这句话', 'Copied the line for your agent') : t('复制这句话', 'Copy the line for your agent')} aria-describedby="agent-prompt-text">{copied ? t('已复制', 'Copied') : t('复制', 'Copy')}</button></div><p className="agent-prompt-hint" aria-live="polite">{copied ? t('已复制，发给 agent 就行。', 'Copied. Paste it into your agent.') : t('想学别的，把中间那句换掉就行。', 'Swap in whatever you want to learn.')}</p></div>
 }
 function Home({ model, lang, pages }: { model: Model; lang: Lang; pages: PageSummary[] }) {
   const zh = lang === 'zh', t = (cn: string, en: string) => zh ? cn : en
