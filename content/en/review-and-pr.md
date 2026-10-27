@@ -87,7 +87,7 @@ Carry this state into a fresh session with the [handoff lesson](/en/context-and-
 - Matt Pocock, [review evidence and merge risk](https://x.com/mattpocockuk/status/2107062474914550098), 2026-10-05.
 - [skills repository][skills]: the two structures identified above; Copyright (c) 2026 Matt Pocock.
 - [show-me upstream credit][showme], Dex Horthy / HumanLayer; attribution only.
-- [Site copyright details](/en/about-and-copyright). The complete MIT licence for the adapted structures follows at the end of this page.
+- [Site copyright details](/en/about-and-copyright). The complete MIT licence for the adapted structures is on the [Licenses](/en/licenses) page.
 
 [skills]: https://github.com/mattpocock/skills
 [showme]: https://github.com/humanlayer/skills/blob/main/plugins/show-me/skills/show-me/SKILL.md

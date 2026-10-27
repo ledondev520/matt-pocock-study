@@ -74,7 +74,7 @@ kind: inference
 
 PR 来源保留对 Dex Horthy / HumanLayer 的[上游致谢](https://github.com/humanlayer/skills/blob/main/plugins/show-me/skills/show-me/SKILL.md)。仅保留归属，不取上游内容或推定其许可。
 
-本站新增例子与讲解属于本站编写。登记同时覆盖中英页面、单页 Markdown 与各语言合集；导出必须保留作者、源文件与完整声明。skills 与 Archify 的完整 MIT 许可附后（见页末）。
+本站新增例子与讲解属于本站编写。登记同时覆盖中英页面、单页 Markdown 与各语言合集；导出必须保留作者、源文件与完整声明。skills 与 Archify 的完整 MIT 许可见[许可](/zh/licenses)页。
 
 ## 已知缺口与更正
 

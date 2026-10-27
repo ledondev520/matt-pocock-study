@@ -3,8 +3,8 @@ import { flushSync } from 'react-dom'
 import { Site } from './Site'
 import type { Model, Page } from './lib/content'
 import { metadata } from './lib/metadata'
-import { pickLang, routeInfo } from './lib/lang'
-import { savePreference, storedPreference } from './lib/preferences'
+import { routeInfo } from './lib/lang'
+import { savePreference } from './lib/preferences'
 
 export function App({ model: initialModel }: { model: Model }) {
   const [model, setModel] = useState(initialModel)
@@ -41,10 +41,8 @@ export function App({ model: initialModel }: { model: Model }) {
         } else window.scrollTo(0, 0)
       } catch { if (version === navigation) location.assign(url.href) }
     }
-    if (window.location.pathname === '/') {
-      const target = `/${pickLang(storedPreference('lang'), navigator.language)}`
-      history.replaceState(null, '', target); void navigate(target)
-    }
+    // "/" is pre-rendered as the Chinese home page. A reader who chose English is sent to /en by the
+    // inline script in index.html before the body is parsed, so no language is shown and replaced.
     const pop = () => {
       if (location.pathname === renderedPath) {
         // Native hash/history traversal already owns scrolling on this page.
@@ -78,7 +76,7 @@ export function App({ model: initialModel }: { model: Model }) {
     document.documentElement.lang = m.lang; document.title = m.title
     for (const [selector, value] of [['meta[name="description"]', m.description], ['meta[property="og:title"]', m.title], ['meta[property="og:description"]', m.description], ['meta[property="og:url"]', m.url], ['meta[property="og:image"]', m.image]]) document.querySelector(selector)?.setAttribute('content', value)
     document.querySelector('link[rel="canonical"]')?.setAttribute('href', m.url)
-    document.querySelectorAll('link[rel="alternate"]').forEach(link => link.setAttribute('href', link.getAttribute('hreflang') === m.lang ? m.url : m.alternate))
+    document.querySelectorAll('link[rel="alternate"]').forEach(link => link.setAttribute('href', link.getAttribute('hreflang') === 'x-default' ? m.xDefault : link.getAttribute('hreflang') === m.lang ? m.url : m.alternate))
   }, [model, path])
   function toggleTheme() {
     const value = !dark

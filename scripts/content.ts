@@ -2,13 +2,14 @@ import { mkdir, readdir, readFile, rm } from 'node:fs/promises'
 import { join } from 'node:path'
 import { outputPath, writeOutput } from './output-path.mjs'
 import { parse } from 'yaml'
-import { marked, type Token, type Tokens } from 'marked'
+import { marked, type Token, type Tokens, type TokensList } from 'marked'
 import { sections, type Page, type Section } from '../src/lib/content'
 import type { Lang } from '../src/lib/lang'
 import { codeHtml } from './code'
 import { siteUrl } from '../src/lib/site'
 import { figureHtml, figureMarkdown, figureById, escapeHtml, buildFigures } from './figures'
-import { licenceBlock, embedsArchify, archifyAppendix } from './licences.mjs'
+import { licenceMarkdown, embedsArchify, archifyAppendix } from './licences.mjs'
+import { licensesSlug } from '../src/lib/metadata'
 import { renderArrows } from './arrows'
 
 const languages = ['en', 'zh'] as const
@@ -31,6 +32,24 @@ const inline = (text: string) => marked.parseInline(text, { renderer: componentR
 const md = (text: string) => marked.parse(text, { async: false, renderer: componentRenderer })
 const headingId = (text: string) => text.toLowerCase().replace(/<[^>]*>/g, '').replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-|-$/g, '') || 'section'
 
+// Notices that stay in the Markdown exports but not on the page: every "## …" section holding a
+// licence fence (the per-page MIT notice; the texts live on /licenses), and the closing disclaimer
+// paragraph (the footer carries it). Run on the lexed tokens, before components are transformed.
+export const disclaimerPattern = /^(?:非官方、非商业|Independent, unofficial|Unofficial, non-?commercial)/
+export function pageTokens(tokens: TokensList): TokensList {
+  const hidden = new Set<Token>()
+  let section: Token[] = []
+  const close = () => { if (section.some(t => t.type === 'code' && (t as Tokens.Code).lang === 'licence')) section.forEach(t => hidden.add(t)); section = [] }
+  for (const token of tokens) {
+    if (token.type === 'heading' && (token as Tokens.Heading).depth <= 2) close()
+    section.push(token)
+  }
+  close()
+  const last = tokens.filter(t => t.type !== 'space').at(-1)
+  if (last?.type === 'paragraph' && disclaimerPattern.test((last as Tokens.Paragraph).text)) hidden.add(last)
+  return Object.assign(tokens.filter(t => !hidden.has(t)), { links: tokens.links })
+}
+
 export async function renderMarkdown(source: string, lang: Lang) {
   const toc: Page['toc'] = []
   const renderer = articleRenderer()
@@ -50,6 +69,7 @@ export async function renderMarkdown(source: string, lang: Lang) {
   }
   renderer.code = ({ text, lang: codeLang }: Tokens.Code) => codeHtml(text, codeLang ?? 'text', lang)
   const tokens = marked.lexer(source)
+  const visible = pageTokens(tokens)
   const exports = new Map<string, string>()
   async function transform(token: Token) {
     if (token.type !== 'code' || !componentNames.includes(token.lang ?? '')) return
@@ -58,7 +78,8 @@ export async function renderMarkdown(source: string, lang: Lang) {
     let html = '', readable = ''
     if (kind === 'licence') {
       // Full upstream licence text, verbatim from third_party/ (hash-checked); never typed into content.
-      ({ html, markdown: readable } = licenceBlock(f.id ?? '', lang))
+      // Exports keep it in place; the page shows it only on /licenses.
+      readable = licenceMarkdown(f.id ?? '', lang)
     } else if (kind === 'figure') {
       html = await figureHtml(f.id, lang); readable = figureMarkdown(f.id, lang)
     } else if (kind === 'quote') {
@@ -93,7 +114,7 @@ export async function renderMarkdown(source: string, lang: Lang) {
   marked.walkTokens(tokens, token => { pending.push(transform(token)) })
   await Promise.all(pending)
   const markdown = source.replace(/```(cards|quote|exercise|figure|note|licence)\s*\n[\s\S]*?\n```/g, raw => exports.get(raw) ?? '')
-  return { html: renderArrows(marked.parser(tokens, { renderer })), markdown: markdown.trim() + '\n', toc }
+  return { html: renderArrows(marked.parser(visible, { renderer })), markdown: markdown.trim() + '\n', toc }
 }
 
 export async function readPages(contentDir: string): Promise<Page[]> {
@@ -122,17 +143,16 @@ export async function readPages(contentDir: string): Promise<Page[]> {
   if (!pages.length || slugs('en') !== slugs('zh')) throw new Error('Both languages must have the same nonempty set of slugs')
   // Unpublished lessons link to the available index until their content is added.
   for (const page of pages) {
-    const available = new Set(pages.filter(p => p.lang === page.lang).map(p => p.slug))
+    const available = new Set([...pages.filter(p => p.lang === page.lang).map(p => p.slug), licensesSlug])
     page.html = page.html.replace(/href="\/(en|zh)\/([a-z0-9-]+)(#[^"]*)?"/g, (all, targetLang, slug) => available.has(slug) ? all : `href="/${targetLang}#topics"`)
   }
   // A page whose body or head embeds an Archify-generated diagram carries Archify's full licence at
-  // its end (HTML, .md download and llms-full), unless it already has that licence block.
+  // the end of its Markdown export (.md and llms-full), unless it already has that licence block.
+  // The page itself links to /licenses from the footer.
+  if (pages.some(p => p.slug === licensesSlug)) throw new Error(`content/*/${licensesSlug}.md would collide with the licences view`)
   for (const page of pages) {
-    // The rendered DOM may normalize entities; the export retains the exact licence block.
-    if (!embedsArchify(page.html + page.headHtml) || page.markdown.includes(licenceBlock('archify', page.lang).markdown)) continue
-    const appendix = archifyAppendix(page.lang)
-    page.html += appendix.html
-    page.markdown = `${page.markdown.trimEnd()}\n\n${appendix.markdown}\n`
+    if (!embedsArchify(page.html + page.headHtml) || page.markdown.includes(licenceMarkdown('archify', page.lang))) continue
+    page.markdown = `${page.markdown.trimEnd()}\n\n${archifyAppendix(page.lang)}\n`
   }
   return pages.sort((a, b) => a.order - b.order || a.slug.localeCompare(b.slug))
 }

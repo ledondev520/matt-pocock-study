@@ -101,7 +101,7 @@ kind: inference
 - [AGENTS.md 公开文章](https://www.aihero.dev/a-complete-guide-to-agents-md)，独立解读。
 - [极简说明文章](https://www.aihero.dev/never-run-claude-init)，独立解读。
 - [skills 仓库][skills]：上述自查结构改编；Copyright (c) 2026 Matt Pocock。
-- [本站版权说明](/zh/about-and-copyright)；完整 MIT 许可附后（见页末）。
+- [本站版权说明](/zh/about-and-copyright)；完整 MIT 许可见[许可](/zh/licenses)页。
 
 [skills]: https://github.com/mattpocock/skills
 

@@ -90,7 +90,7 @@ Make those artifact paths easier to discover with [agent documentation](/en/agen
 
 - Matt Pocock, [a contextual heuristic](https://x.com/mattpocockuk/status/2087111966854730148), 2026-08-11.
 - [skills repository][skills]: handoff adaptation identified above; Copyright (c) 2026 Matt Pocock.
-- [Site copyright details](/en/about-and-copyright). The complete MIT licence follows at the end of this page.
+- [Site copyright details](/en/about-and-copyright). The complete MIT licence is on the [Licenses](/en/licenses) page.
 
 [skills]: https://github.com/mattpocock/skills
 

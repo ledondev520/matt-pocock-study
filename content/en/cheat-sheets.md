@@ -55,7 +55,7 @@ Navigation points a collaborator to information; checks reject mechanically dete
 
 ## Verification and handoff
 
-These fields condense structures from Matt Pocock's [skills repository](https://github.com/mattpocock/skills), adapted under MIT. The complete licence follows at the end of this page; see also the [copyright page](/en/about-and-copyright).
+These fields condense structures from Matt Pocock's [skills repository](https://github.com/mattpocock/skills), adapted under MIT. The complete licence is on the [Licenses](/en/licenses) page; see also the [copyright page](/en/about-and-copyright).
 
 <!-- compare -->
 | Field | What to retain | Full lesson |

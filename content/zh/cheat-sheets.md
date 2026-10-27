@@ -56,7 +56,7 @@ id: d19-rule-placement
 
 ## 验证与交接
 
-以下字段压缩自 Matt Pocock 的 [skills 仓库](https://github.com/mattpocock/skills)，MIT 改编；完整许可附后（见页末），另见[版权页](/zh/about-and-copyright)。
+以下字段压缩自 Matt Pocock 的 [skills 仓库](https://github.com/mattpocock/skills)，MIT 改编；完整许可见[许可](/zh/licenses)页，另见[版权页](/zh/about-and-copyright)。
 
 <!-- compare -->
 | 字段 | 留下什么 | 回到原课 |

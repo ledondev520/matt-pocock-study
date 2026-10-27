@@ -29,5 +29,9 @@ export interface Page extends PageSummary {
 }
 export type Figures = Record<Lang, Record<string, string>>
 export interface Model { pages: PageSummary[]; currentPage?: Page; figures: Figures; corpusCount: number; corpusItems: import('../../server/corpus').CorpusRecord[]; corpusTags: string[]; siteUrl: string
-  /** Archify licence appendix for non-article views whose figures embed Archify diagrams; set at build time. */
-  licenceHtml?: string }
+  /** Copyright and licence texts, only set on the /licenses views (build time, hash-checked). */
+  licences?: Licences }
+export interface Licences {
+  mit: { id: string; name: string; repo: string; licenseUrl: string; text: string }[]
+  fonts: { id: string; name: string; pkg: string; repo: string; href: string; text: string }[]
+}
