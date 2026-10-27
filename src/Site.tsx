@@ -6,7 +6,10 @@ import { routeInfo, type Lang } from './lib/lang'
 import { agentPrompt } from './lib/agent'
 import { kbSlug, licensesSlug } from './lib/metadata'
 import type { CorpusRecord } from '../server/corpus'
-import { byDate, SOURCES, type KbEntry, type Segment } from '../scripts/kb/feed'
+import { byDate, SOURCES, type KbEntry } from '../scripts/kb/feed'
+import { KbText } from './KbText'
+import { Timeline } from './Timeline'
+import { timelineSlug } from './lib/timeline'
 
 export const sourceUrl = 'https://github.com/ledondev520/matt-pocock-study'
 export function pageHref(model: Model, lang: Lang, slug: string) {
@@ -24,20 +27,20 @@ export function Site({ model, path, dark = false, onTheme, onLanguage }: {
   const t = (cn: string, en: string) => zh ? cn : en
   const pages = model.pages.filter(p => p.lang === lang && p.slug !== 'corpus')
   const page = model.currentPage?.lang === lang && model.currentPage.slug === slug ? model.currentPage : undefined
-  const corpus = slug === 'corpus', licenses = slug === licensesSlug && !!model.licences, kb = slug === kbSlug
-  const otherPath = `/${other}${page ? `/${page.slug}` : licenses ? `/${licensesSlug}` : kb ? `/${kbSlug}` : ''}`
+  const corpus = slug === 'corpus', licenses = slug === licensesSlug && !!model.licences, kb = slug === kbSlug, timeline = slug === timelineSlug
+  const otherPath = `/${other}${page ? `/${page.slug}` : licenses ? `/${licensesSlug}` : kb ? `/${kbSlug}` : timeline ? `/${timelineSlug}` : ''}`
   useEffect(() => { setMenu(false) }, [path])
   return <>
     <a className="skip-link" href="#main">{t('跳至正文', 'Skip to content')}</a>
     <header className="site-header"><div className="wrap header-inner">
       <a className="brand" href={`/${lang}`}><span className="brand-icon"><Zap size={25} fill="currentColor" /></span><span><strong>Matt<span className="brand-dot">.</span>{t('学习笔记', 'Study notes')}</strong><span className="brand-sub">THINK CLEARLY. BUILD BETTER.</span></span></a>
       <nav className={menu ? 'main-nav open' : 'main-nav'} aria-label={t('主导航', 'Main navigation')}>
-        <a href={`/${lang}#topics`}>{t('学习笔记', 'Notes')}</a><a href={`/${lang}/corpus`}>{t('语料库', 'Corpus')}</a><a href={`/${lang}/${kbSlug}`}>{t('知识库', 'Knowledge')}</a><a href={pageHref(model, lang, 'learn-from-matt')}>{t('关于', 'About')}</a>
+        <a href={`/${lang}#topics`}>{t('学习笔记', 'Notes')}</a><a href={`/${lang}/corpus`}>{t('语料库', 'Corpus')}</a><a href={`/${lang}/${kbSlug}`}>{t('知识库', 'Knowledge')}</a><a href={`/${lang}/${timelineSlug}`}>{t('时间轴', 'Timeline')}</a><a href={pageHref(model, lang, 'learn-from-matt')}>{t('关于', 'About')}</a>
       </nav>
       <div className="header-tools"><a className="language-toggle" href={otherPath} hrefLang={other} lang={other === 'zh' ? 'zh-Hans' : 'en'} onClick={() => onLanguage?.(other)}>{t('EN', '中文')}</a><span className="tool-divider" /><button className="icon-button" onClick={onTheme} aria-label={t(dark ? '切换浅色主题' : '切换深色主题', dark ? 'Switch to light theme' : 'Switch to dark theme')} aria-pressed={dark}>{dark ? <Sun size={19} /> : <Moon size={19} />}</button><a className="github-link" href={sourceUrl} aria-label="GitHub source"><Github size={21} /></a><button className="icon-button mobile-menu" aria-label={t('打开导航', 'Toggle navigation')} aria-expanded={menu} onClick={() => setMenu(!menu)}><Menu size={22} /></button></div>
     </div></header>
     <main id="main" tabIndex={-1}>
-      {home ? <Home model={model} lang={lang} pages={pages} /> : licenses ? <Licenses model={model} lang={lang} /> : corpus ? <Corpus model={model} lang={lang} intro={page} /> : kb ? <KnowledgeBase entries={model.knowledge ?? []} lang={lang} /> : page ? <Article model={model} page={page} pages={pages} /> : <div className="wrap missing-page"><span className="eyebrow">404</span><h1>{t('这个地址没有页面', 'Page not found')}</h1><Figure id="spot-404" model={model} lang={lang} /><div className="hero-actions"><a className="primary-button" href={`/${lang}`}>{t('回到首页', 'Back home')}</a><a href={`/${lang}/corpus`}>{t('搜索语料库', 'Search the corpus')} <Arrow dir="up-right" /></a></div></div>}
+      {home ? <Home model={model} lang={lang} pages={pages} /> : licenses ? <Licenses model={model} lang={lang} /> : corpus ? <Corpus model={model} lang={lang} intro={page} /> : kb ? <KnowledgeBase entries={model.knowledge ?? []} lang={lang} /> : timeline ? <Timeline items={model.timeline ?? []} lang={lang} /> : page ? <Article model={model} page={page} pages={pages} /> : <div className="wrap missing-page"><span className="eyebrow">404</span><h1>{t('这个地址没有页面', 'Page not found')}</h1><Figure id="spot-404" model={model} lang={lang} /><div className="hero-actions"><a className="primary-button" href={`/${lang}`}>{t('回到首页', 'Back home')}</a><a href={`/${lang}/corpus`}>{t('搜索语料库', 'Search the corpus')} <Arrow dir="up-right" /></a></div></div>}
     </main>
     <footer className="site-footer wrap"><div className="footer-main"><div className="footer-brand"><Zap size={20} /><strong>Matt · {t('学习笔记', 'Study notes')}</strong></div><a href={sourceUrl}><Github size={18} /> {t('查看源码', 'View source')} <Arrow dir="up-right" /></a></div><p className="footer-note">{t('非官方、非商业的学习整理，与 Matt Pocock 无隶属或背书关系；所引作品版权归原作者。', 'Unofficial, non-commercial study notes; not affiliated with or endorsed by Matt Pocock. Quoted works belong to their authors.')} <a href={`/${lang}/${licensesSlug}`}>{t('许可', 'Licenses')}</a></p></footer>
   </>
@@ -127,19 +130,7 @@ function Corpus({ model, lang, intro }: { model: Model; lang: Lang; intro?: Page
 }
 
 // Knowledge base. Every string comes from data/knowledge-base.json, which the build validates and
-// gate-checks; React escapes all text and links point only at allow-listed hosts. A link and the
-// punctuation right after it stay on one line, so no line starts with a closing mark.
-function KbText({ segments }: { segments: Segment[] }) {
-  const out = []
-  for (let i = 0; i < segments.length; i++) {
-    const s = segments[i]
-    if (!s.href) { out.push(<ArrowText key={i}>{s.text}</ArrowText>); continue }
-    const next = segments[i + 1], lead = next && !next.href ? /^[。，、；：！？）」』”’,.;:!?)\]]+/.exec(next.text)?.[0] ?? '' : ''
-    out.push(<span className="kb-keep" key={i}><a href={s.href} target="_blank" rel="noreferrer"><ArrowText>{s.text}</ArrowText></a>{lead}</span>)
-    if (lead) { segments = [...segments.slice(0, i + 1), { text: next.text.slice(lead.length) }, ...segments.slice(i + 2)] }
-  }
-  return <>{out}</>
-}
+// gate-checks; React escapes all text and links point only at allow-listed hosts (KbText).
 function KnowledgeBase({ entries, lang }: { entries: KbEntry[]; lang: Lang }) {
   const zh = lang === 'zh', days = byDate(entries)
   const back = <a href={`/${lang}`}><Arrow dir="left" /> {zh ? '返回首页' : 'Back home'}</a>
