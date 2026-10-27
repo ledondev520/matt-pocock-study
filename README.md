@@ -27,3 +27,5 @@ npm run dev
 ```
 
 Then open the address Vite prints. Building, deploying, tests, the API and content rules are in [docs/maintainers.md](docs/maintainers.md).
+
+<!-- policy drill: this line is never merged -->
