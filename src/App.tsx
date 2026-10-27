@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { flushSync } from 'react-dom'
 import { Site } from './Site'
 import type { Model, Page } from './lib/content'
+import { markdownPath } from './lib/agent'
 import { metadata } from './lib/metadata'
 import { pickLang, routeInfo } from './lib/lang'
 import { savePreference, storedPreference } from './lib/preferences'
@@ -78,7 +79,15 @@ export function App({ model: initialModel }: { model: Model }) {
     document.documentElement.lang = m.lang; document.title = m.title
     for (const [selector, value] of [['meta[name="description"]', m.description], ['meta[property="og:title"]', m.title], ['meta[property="og:description"]', m.description], ['meta[property="og:url"]', m.url], ['meta[property="og:image"]', m.image]]) document.querySelector(selector)?.setAttribute('content', value)
     document.querySelector('link[rel="canonical"]')?.setAttribute('href', m.url)
-    document.querySelectorAll('link[rel="alternate"]').forEach(link => link.setAttribute('href', link.getAttribute('hreflang') === m.lang ? m.url : m.alternate))
+    // Language alternates only: the Markdown alternate has no hreflang and points at this page's .md twin.
+    document.querySelectorAll('link[rel="alternate"][hreflang]').forEach(link => link.setAttribute('href', link.getAttribute('hreflang') === m.lang ? m.url : m.alternate))
+    const { lang, slug, home } = routeInfo(path)
+    let twin = document.querySelector('link[rel="alternate"][type="text/markdown"]')
+    if (!home && !model.pages.some(p => p.lang === lang && p.slug === slug)) twin?.remove()
+    else {
+      if (!twin) { twin = Object.assign(document.createElement('link'), { rel: 'alternate', type: 'text/markdown' }); document.head.append(twin) }
+      twin.setAttribute('href', markdownPath(path))
+    }
   }, [model, path])
   function toggleTheme() {
     const value = !dark

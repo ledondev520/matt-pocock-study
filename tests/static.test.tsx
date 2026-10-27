@@ -247,6 +247,34 @@ it('robots.txt blocks no crawler and points to the sitemap', async () => {
   }
   expect(new JSDOM(await readFile('dist/sitemap.xml', 'utf8'), { contentType: 'application/xml' }).window.document.querySelector('parsererror')).toBeNull()
 })
+// Every sitemap entry names itself in its own language and its twin in the other language, and the twin
+// names it back. The language is the one the page itself declares in <html lang>.
+it('sitemap hreflang pairs point at each other across languages', async () => {
+  const doc = new JSDOM(await readFile('dist/sitemap.xml', 'utf8'), { contentType: 'application/xml' }).window.document
+  const entries = new Map<string, Record<string, string>>()
+  for (const url of doc.getElementsByTagName('url')) {
+    const links = Object.fromEntries([...url.getElementsByTagName('xhtml:link')].map(link => [link.getAttribute('hreflang')!, link.getAttribute('href')!]))
+    entries.set(url.getElementsByTagName('loc')[0].textContent!, links)
+  }
+  expect(entries.size).toBeGreaterThan(40)
+  for (const [loc, links] of entries) {
+    const html = await (await app.request(new URL(loc).pathname)).text()
+    const lang = new JSDOM(html).window.document.documentElement.lang
+    const other = lang === 'zh' ? 'en' : 'zh'
+    expect(Object.keys(links).sort(), loc).toEqual(['en', 'zh'])
+    expect(links[lang], `${loc} names itself as ${lang}`).toBe(loc)
+    expect(links[other], `${loc} twin is a different page`).not.toBe(loc)
+    expect(entries.has(links[other]), `${loc} twin ${links[other]} is in the sitemap`).toBe(true)
+    expect(entries.get(links[other])![lang], `${links[other]} points back to ${loc}`).toBe(loc)
+    expect(entries.get(links[other])![other], `${links[other]} names itself as ${other}`).toBe(links[other])
+  }
+})
+// English agent files stay English: a stray CJK character means a Chinese string leaked into the English build.
+it('English agent files contain no CJK characters', async () => {
+  const targets = ['dist/llms.txt', 'dist/llms-full.txt', ...(await walk('dist/en', '.md'))]
+  expect(targets).toContain('dist/en/index.md')
+  for (const file of targets) expect(await readFile(file, 'utf8'), file).not.toMatch(/[\u3000-\u9fff\uff00-\uffef]/)
+})
 it('files written for agents carry no addresses, local paths or key-shaped strings', async () => {
   const targets = ['dist/llms.txt', 'dist/llms-full.txt', 'dist/zh/llms.txt', 'dist/zh/llms-full.txt', 'dist/robots.txt', 'dist/sitemap.xml', ...(await walk('dist', '.md'))]
   for (const file of targets) {

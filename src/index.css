@@ -122,7 +122,10 @@ nav a:hover { color: var(--link); }
 .agent-prompt .eyebrow { font-family: 'Space Grotesk', 'Noto Sans SC', 'Noto Sans CJK SC', sans-serif; }
 .agent-prompt-row { margin-top: 9px; display: flex; align-items: stretch; border: 1px solid var(--hero-border); border-radius: 8px; background: var(--card); overflow: hidden; }
 .agent-prompt-text { flex: 1; min-width: 0; margin: 0; padding: 10px 13px; font-size: 15px; line-height: 1.6; color: var(--hero-text); overflow-wrap: anywhere; }
-.agent-prompt-copy { flex: none; padding-inline: 16px; border-left: 1px solid var(--hero-border); background: var(--muted); color: var(--foreground); font-size: 14px; font-weight: 600; cursor: pointer; }
+/* The button is as wide as its longest label (data-longest, laid in the same grid cell but hidden), so "Copy" → "Copied" does not rewrap the line. */
+.agent-prompt-copy { flex: none; display: grid; place-items: center; padding-inline: 16px; border-left: 1px solid var(--hero-border); background: var(--muted); color: var(--foreground); font-size: 14px; font-weight: 600; cursor: pointer; }
+.agent-prompt-copy > span, .agent-prompt-copy::after { grid-area: 1 / 1; }
+.agent-prompt-copy::after { content: attr(data-longest); visibility: hidden; }
 .agent-prompt-copy:hover { background: var(--border); }
 .agent-prompt-copy:focus-visible { outline: 2px solid var(--ring); outline-offset: -2px; }
 .agent-prompt-hint { margin-top: 7px; font-size: 13px; color: var(--hero-muted); }
