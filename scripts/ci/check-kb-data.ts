@@ -3,7 +3,9 @@
 // secret), and canonical formatting (exactly what scripts/kb/sync.ts writes).
 // Fails closed: a missing gate module, a symlink or an unreadable file is an error.
 // Prints categories and entry ids only, never the matched text.
-// Usage: npx tsx scripts/ci/check-kb-data.ts
+// Usage: npx tsx scripts/ci/check-kb-data.ts [file]
+// `file` defaults to data/knowledge-base.json. CI passes a copy of the PR's data file and runs
+// this script (and the gate module) from the base branch, so the PR's code never runs.
 import { existsSync, lstatSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
@@ -15,7 +17,7 @@ interface FeedModule {
   parseDenylist: (text: string) => string[]
 }
 
-const DATA = 'data/knowledge-base.json'
+const DATA = process.argv[2] ?? 'data/knowledge-base.json'
 const GATE = resolve('scripts/kb/feed.ts')
 
 async function run(): Promise<number> {

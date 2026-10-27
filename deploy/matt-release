@@ -4,13 +4,18 @@
 # is validated again here because this is the privilege boundary.
 #
 #   matt-release activate <commit-sha-40>     unpack incoming/<sha>.tar.gz into a new release,
-#                                             switch `current`, restart, health-check; on failure
-#                                             switch back and exit 1
+#                                             switch `current`, restart, health-check; if the
+#                                             restart or the health check fails, switch back to
+#                                             the previous release, restart it and exit 1
 #   matt-release rollback <current-release>   switch to the newest earlier good release
 #   matt-release status                       print release=<name> commit=<sha>
 #
+# activate prints `release=<new>` and `previous=<old>` before switching, then `result=ok`, or
+# `result=failed`, `failed=<new>`, `restored=<old>` and `restored_healthy=true|false`.
+#
 # Release directories: releases/<UTCYYYYmmdd-HHMMSS>-<sha12>. Only names in that exact form are
-# pruned (newest 5 kept, plus whatever is current); hand-made releases are never deleted.
+# pruned: failed releases go first and do not count, the newest 5 good ones are kept, and the
+# current and the previous good release are never deleted; hand-made releases are never deleted.
 set -euo pipefail
 umask 022
 export LC_ALL=C PATH=/usr/sbin:/usr/bin:/sbin:/bin
@@ -29,8 +34,12 @@ readonly NEW_NAME='^[0-9]{8}-[0-9]{6}-[0-9a-f]{12}$'
 # Older hand-made releases look like 20261022-1548-3af3984; they are valid rollback targets.
 readonly ANY_NAME='^[0-9]{8}-[0-9]{4,6}-[0-9a-f]{7,40}$'
 
-die() { echo "matt-release: $*" >&2; exit 2; }
-log() { echo "matt-release: $*" >&2; }
+# Output must never abort a switch half way: if the SSH client goes away, writes fail (SIGPIPE
+# and SIGHUP are ignored) and the script carries on to a consistent state.
+trap '' HUP PIPE
+out() { printf '%s\n' "$*" 2>/dev/null || true; }
+log() { printf 'matt-release: %s\n' "$*" >&2 2>/dev/null || true; }
+die() { log "$*"; exit 2; }
 
 [ "$(id -u)" -eq 0 ] || die "must run as root"
 install -d -m 700 "$STATE"
@@ -56,23 +65,39 @@ valid_release() {
 switch_to() {
   local name=$1
   valid_release "$name" || die "not a release: $name"
-  ln -sfn -- "releases/$name" "$ROOT/current.new"
-  mv -Tf -- "$ROOT/current.new" "$ROOT/current"
-  printf '%s\n' "$name" >> "$STATE/history"
-  systemctl restart "$SERVICE"
+  # Explicit checks: callers run this inside `if`, where `set -e` does not apply.
+  ln -sfn -- "releases/$name" "$ROOT/current.new" || return 1
+  mv -Tf -- "$ROOT/current.new" "$ROOT/current" || return 1
+  printf '%s\n' "$name" >> "$STATE/history" || log "could not record $name in the history"
+}
+
+# A failed restart is reported, not fatal: the caller decides (together with the health check)
+# whether to switch back.
+restart() {
+  local rc=0
+  systemctl restart "$SERVICE" || { rc=$?; log "systemctl restart $SERVICE failed (exit $rc)"; }
   systemctl try-restart "$ASK_SERVICE" 2>/dev/null || log "note: $ASK_SERVICE restart failed or not installed"
+  return "$rc"
+}
+
+# Switch to a release and bring it up; succeeds only if the restart and the health check pass.
+go_live() {
+  switch_to "$1" || { log "could not switch current to $1"; return 1; }
+  restart || return 1
+  healthy
 }
 
 healthy() {
-  local _
+  local _ body
   for _ in $(seq 1 30); do
-    if curl -fsS --max-time 3 "$HEALTH_URL" 2>/dev/null | grep -q '"ok":true'; then return 0; fi
+    if body=$(curl -fsS --max-time 3 "$HEALTH_URL" 2>/dev/null) && [[ $body == *'"ok":true'* ]]; then return 0; fi
     sleep 1
   done
   return 1
 }
 
 mark_failed() { printf '%s\n' "$1" >> "$STATE/failed"; }
+is_failed() { [ -s "$STATE/failed" ] && grep -qxF -- "$1" "$STATE/failed"; }
 
 # Newest release in the activation history that is not current, not failed and still on disk.
 previous_good() {
@@ -80,20 +105,25 @@ previous_good() {
   [ -s "$STATE/history" ] || return 1
   while IFS= read -r name; do
     [ "$name" = "$cur" ] && continue
-    [ -s "$STATE/failed" ] && grep -qxF -- "$name" "$STATE/failed" && continue
+    is_failed "$name" && continue
     valid_release "$name" || continue
     printf '%s\n' "$name"; return 0
   done < <(tac -- "$STATE/history")
   return 1
 }
 
+# Failed releases are deleted first and never count towards KEEP, so a run of failed deploys
+# cannot push the last good release out; the current and the previous good one always stay.
 prune() {
-  local cur=$1 name n=0
+  local cur=$1 prev name n=0
+  prev=$(previous_good "$cur") || prev=
   while IFS= read -r name; do
     [[ $name =~ $NEW_NAME ]] || continue
-    n=$((n + 1))
-    [ "$n" -le "$KEEP" ] && continue
-    [ "$name" = "$cur" ] && continue
+    if [ "$name" = "$cur" ] || [ "$name" = "$prev" ]; then n=$((n + 1)); continue; fi
+    if ! is_failed "$name"; then
+      n=$((n + 1))
+      [ "$n" -le "$KEEP" ] && continue
+    fi
     valid_release "$name" || continue
     log "pruning $name"
     rm -rf --one-file-system -- "${RELEASES:?}/$name"
@@ -139,17 +169,25 @@ cmd_activate() {
   mv -T -- "$stage" "$RELEASES/$name"
 
   log "switching $old -> $name"
-  switch_to "$name"
-  if ! healthy; then
-    log "health check failed; switching back to $old"
-    mark_failed "$name"
-    switch_to "$old"
-    healthy || log "WARNING: $old is not healthy either"
-    exit 1
+  out "release=$name"
+  out "previous=$old"
+  if go_live "$name"; then
+    prune "$name"
+    out "result=ok"
+    return 0
   fi
-  prune "$name"
-  echo "release=$name"
-  echo "previous=$old"
+  log "restart or health check failed for $name; switching back to $old"
+  mark_failed "$name"
+  out "result=failed"
+  out "failed=$name"
+  out "restored=$old"
+  if go_live "$old"; then
+    out "restored_healthy=true"
+  else
+    log "WARNING: $old is not healthy either"
+    out "restored_healthy=false"
+  fi
+  exit 1
 }
 
 cmd_rollback() {
@@ -160,10 +198,9 @@ cmd_rollback() {
   target=$(previous_good "$cur") || die "no earlier good release to roll back to"
   log "rolling back $cur -> $target"
   mark_failed "$cur"
-  switch_to "$target"
-  healthy || { log "WARNING: $target is not healthy after rollback"; exit 1; }
-  echo "release=$target"
-  echo "previous=$cur"
+  out "release=$target"
+  out "previous=$cur"
+  go_live "$target" || { log "WARNING: $target is not healthy after rollback"; exit 1; }
 }
 
 cmd_status() {
@@ -171,8 +208,8 @@ cmd_status() {
   cur=$(current_name) || die "current does not point at a release"
   commit=$(cat -- "$RELEASES/$cur/DEPLOYED_COMMIT" 2>/dev/null || echo unknown)
   [[ $commit =~ ^[0-9a-f]{7,40}$ ]] || commit=unknown
-  echo "release=$cur"
-  echo "commit=$commit"
+  out "release=$cur"
+  out "commit=$commit"
 }
 
 case ${1:-} in

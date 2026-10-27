@@ -59,7 +59,7 @@ jobs:
           echo "::error::Run this workflow from main (got $GITHUB_REF)."
           exit 1
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
           ref: main
           fetch-depth: 0
@@ -92,7 +92,7 @@ jobs:
         if: env.ACTION == 'deploy' && steps.target.outputs.skip == 'false'
         run: git checkout -q --detach "${{ steps.target.outputs.sha }}"
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         if: env.ACTION == 'deploy' && steps.target.outputs.skip == 'false'
         with:
           node-version-file: '.nvmrc'
@@ -140,10 +140,19 @@ jobs:
         run: |
           set -euo pipefail
           sum=$(sha256sum "$RUNNER_TEMP/release.tar.gz" | cut -d' ' -f1)
-          deploy/remote.sh deploy "$SHA" "$sum" < "$RUNNER_TEMP/release.tar.gz" | tee "$RUNNER_TEMP/activate.out"
-          release=$(sed -n 's/^release=//p' "$RUNNER_TEMP/activate.out")
-          [[ $release =~ ^[0-9]{8}-[0-9]{6}-[0-9a-f]{12}$ ]] || { echo "::error::server did not report the new release"; exit 1; }
-          echo "release=$release" >> "$GITHUB_OUTPUT"
+          rc=0
+          deploy/remote.sh deploy "$SHA" "$sum" < "$RUNNER_TEMP/release.tar.gz" | tee "$RUNNER_TEMP/activate.out" || rc=$?
+          # matt-release prints release=<new> before it switches, so the name is known even when
+          # activation fails half way (the restore step below then checks what is live).
+          release=$(sed -n 's/^release=//p' "$RUNNER_TEMP/activate.out" | tail -n 1)
+          if [[ $release =~ ^[0-9]{8}-[0-9]{6}-[0-9a-f]{12}$ ]]; then echo "release=$release" >> "$GITHUB_OUTPUT"; fi
+          if [ "$rc" -ne 0 ]; then
+            restored=$(sed -n 's/^restored=//p' "$RUNNER_TEMP/activate.out" | tail -n 1)
+            echo "::error::activation of ${release:-the upload} failed (exit $rc); server switched back to: ${restored:-unknown}"
+            exit "$rc"
+          fi
+          grep -qx 'result=ok' "$RUNNER_TEMP/activate.out" || { echo "::error::server did not confirm the new release"; exit 1; }
+          [ -n "$release" ] || { echo "::error::server did not report the new release"; exit 1; }
 
       - name: Roll back on request
         if: env.ACTION == 'rollback'
@@ -173,8 +182,8 @@ jobs:
           fi
           deploy/smoke.sh "$SITE_URL"
 
-      - name: Restore the previous release after a failed smoke test
-        if: failure() && steps.activate.outputs.release != ''
+      - name: Restore the previous release after a failed or cancelled deploy
+        if: (failure() || cancelled()) && steps.activate.outputs.release != ''
         env:
           RELEASE: ${{ steps.activate.outputs.release }}
           MATT_DEPLOY_HOST: ${{ secrets.MATT_DEPLOY_HOST }}
@@ -182,8 +191,13 @@ jobs:
           MATT_DEPLOY_USER: mattdeploy
         run: |
           set -euo pipefail
-          echo "::error::Smoke test failed for $RELEASE; rolling back."
-          deploy/remote.sh rollback "$RELEASE" < /dev/null
+          current=$(deploy/remote.sh status < /dev/null | sed -n 's/^release=//p')
+          if [ "$current" = "$RELEASE" ]; then
+            echo "::error::Deploy of $RELEASE failed; rolling back."
+            deploy/remote.sh rollback "$RELEASE" < /dev/null
+          else
+            echo "::error::Deploy of $RELEASE failed; the server already switched back to ${current:-unknown}."
+          fi
           deploy/remote.sh status < /dev/null
           deploy/smoke.sh "$SITE_URL"
 
