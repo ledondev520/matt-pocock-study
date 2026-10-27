@@ -32,3 +32,6 @@ public/og/
 # Playwright layout check output
 test-results/
 playwright-report/
+
+# /api/ask build-time index (server-only, never in dist/)
+server-data/

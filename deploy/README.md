@@ -47,3 +47,24 @@ secrets: `MATT_DEPLOY_SSH_KEY`, `MATT_DEPLOY_HOST`, `MATT_DEPLOY_PORT`,
 - By hand on the server: `sudo /usr/local/sbin/matt-release status`, then
   `sudo /usr/local/sbin/matt-release rollback <current-release>`.
 - To undo code, revert the merge commit in a PR; the next CI run on `main` deploys it.
+
+## /api/ask process (matt-ask)
+
+`server/ask/index.ts` is a separate process so the API key and outbound network access stay out
+of the static site process. It listens on loopback only (`ASK_HOST` must be `127.0.0.1` or `::1`,
+default port 8788) and serves `POST /api/ask`; `GET /healthz` is for local checks. Examples:
+`matt-ask.service.example` (systemd) and `nginx-matt-ask.conf.example` (forwards `/api/ask` only).
+
+- Build: `npm run build` also writes `server-data/ask-index.json` (the site's own words: page
+  sections, study notes, corpus summaries). It is outside `dist/`, so the static server never
+  publishes it.
+- Optional private sources, read on the server only and never published: `ASK_DATASET_DIR`
+  (a directory of `matt-posts-<year>.jsonl`) and `ASK_CHUNKS_FILE` (methodology chunks, JSON or
+  JSON Lines; format adapter in `server/ask/methodology-adapter.ts`). Responses carry only short
+  checked quotes (≤ 25 words) and links.
+- Off by default: answers need `ASK_ENABLED=1` and `DEEPSEEK_API_KEY` in the environment. Without
+  them the endpoint still returns the closest passages (`mode: "search"`).
+- Logs are one JSON line per request with hashes only (question hash, daily-salted client hash),
+  status, token counts and latency; the question text is never logged or stored.
+- `matt-release` already runs `systemctl try-restart matt-ask` after switching releases.
+- Turn answers off: `systemctl stop matt-ask` (nginx then returns 502 and the page shows search).
