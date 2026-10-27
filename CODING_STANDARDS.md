@@ -33,3 +33,5 @@ A review-time checklist; each rule targets a mistake that tends to repeat.
 19. 浏览器排版检查以可见字符的行框为准，逐行检查每行首字符（含块内第一行）；隐藏文字不能替代可见的前一个字符。原因：只比较相邻 DOM 文本，会漏掉块首或隐藏文字之后独占一行的标点。可见性要看整条祖先链（opacity 为 0、文字颜色透明、被裁剪成视觉隐藏的读屏文字都算不可见），标点前后文按同块内的可见字符读，不能把文本节点边界当成文本结尾；每类都要有夹具。(PR #5)
 20. GET 与 HEAD 必须返回同一表示的状态、编码、长度和 ETag；压缩协商要处理 identity 与 q=0（都不可接受时 406）；4xx/5xx 不得因条件请求变成 304。原因：错误的表示协商和缓存校验会丢失错误正文、误报缓存命中并破坏 HEAD 元数据。(PR #6)
 21. 中间件要读响应正文时先整体读成字节、再用这些字节重建 Response，不用 `clone()` 后再改头；并发回归测试断言没有 500。原因：克隆出的文件流被框架重新包装时会间歇性报 "body disturbed or locked"，响应变成 500，单次测试很难复现。(PR #6)
+22. 判定「能否免审 / 自动合并」的检查必须跑 base 分支上的 workflow 和脚本(`pull_request_target`),只把 PR 当数据读,不 checkout、不安装、不执行 PR 里的任何文件;PR 控制的字符串(分支名、标题)经 `env:` 传入,不在 `run:` 里写 `${{ }}`。原因:`pull_request` 跑的是 PR 自带的 workflow 和脚本,同仓库分支可以把检查改成永远通过。(PR #12)
+23. root 部署脚本从「切换 current」到「健康检查通过」之间的每个失败点(包括 `systemctl restart` 非零)都必须先切回上一个 release 再非零退出,并把新旧 release 名输出给调用方;要有桩测试覆盖 restart 失败。原因:`set -e` 下 restart 失败会直接退出,线上停在新版本,外层也拿不到 release 名去回滚。(PR #12)
