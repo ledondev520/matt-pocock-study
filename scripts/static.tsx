@@ -28,7 +28,7 @@ export function pageModel(model: Model, pages: Page[], path: string): Model {
     knowledge: kb ? model.knowledge : undefined,
   }
 }
-export async function staticPages(root = 'dist') {
+export async function staticPages(root = 'dist', kbFile = 'data/knowledge-base.json') {
   const template = await readFile(join(root, 'index.html'), 'utf8')
   const db = createIndex([])
   importCorpus(db, loadCorpus())
@@ -38,7 +38,7 @@ export async function staticPages(root = 'dist') {
   const summaries = pages.map(({ lang, slug, title, subtitle, section, number, order, summary, head, updated }) => ({ lang, slug, title, subtitle, section, number, order, summary, head, updated }))
   const model: Model = { pages: summaries, figures: JSON.parse(await readFile(join(root, 'figures.json'), 'utf8')), corpusCount: corpus.total, corpusItems: corpus.items, corpusTags: corpusTags(db), siteUrl: siteUrl(),
     // Committed, gate-checked feed; an invalid file or any gate finding fails the build.
-    knowledge: validateFeed(JSON.parse(await readFile('data/knowledge-base.json', 'utf8'))).entries }
+    knowledge: validateFeed(JSON.parse(await readFile(kbFile, 'utf8'))).entries }
   db.close()
   if (pages.some(p => p.slug === kbSlug)) throw new Error(`content/*/${kbSlug}.md would collide with the knowledge base view`)
   const paths = ['/', '/zh', '/en', ...pages.map(p => `/${p.lang}/${p.slug}`), `/zh/${kbSlug}`, `/en/${kbSlug}`, '/404', '/zh/404', '/en/404']

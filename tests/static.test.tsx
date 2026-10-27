@@ -173,6 +173,17 @@ it('round-trips replacement tokens through metadata, rendered HTML and embedded 
     expect(JSON.parse(await readFile(join(root, 'en/specs-and-tickets.json'), 'utf8'))).toEqual(embedded)
   } finally { await rm(root, { recursive: true, force: true }) }
 })
+it('static rendering refuses a knowledge base feed with a gate finding', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'static-kb-'))
+  try {
+    await writeFile(join(root, 'content.json'), await readFile('dist/content.json'))
+    await writeFile(join(root, 'figures.json'), await readFile('dist/figures.json'))
+    await writeFile(join(root, 'index.html'), '<!doctype html><html lang="en"><head><!--page-meta--></head><body><div id="root"></div><!--site-data--></body></html>')
+    const post = 'https://x.com/mattpocockuk/status/1'
+    await writeFile(join(root, 'kb.json'), JSON.stringify({ version: 2, entries: [{ id: 'matt-notes-2099-01-02-1', date: '2099-01-02', source: 'matt-notes', title: '样例 a@b.co', url: post, body: [{ text: '原帖', href: post }] }] }))
+    await expect(staticPages(root, join(root, 'kb.json'))).rejects.toThrow(/gate findings/)
+  } finally { await rm(root, { recursive: true, force: true }) }
+})
 it.each(['/zh/a/b', '/zh/a_b', '/zh/不存在'])('shares Chinese 404 rendering and metadata for %s', async path => {
   const response = await app.request(path)
   expect(response.status).toBe(404)

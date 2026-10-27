@@ -1,6 +1,8 @@
 // Knowledge base feed: parser, publication gate (fail closed), sync CLI and rendering.
 // All notes below are SAMPLE data written for these tests (样例数据), not real notes; the private
-// names are made up (样例名). The real list lives outside this repository.
+// names are made up (样例名), and every quota or usage figure is invented for the tests (777/1000,
+// 37.5% and so on); none is a real reading. The real list lives outside this repository.
+import { execFileSync } from 'node:child_process'
 import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, existsSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -17,7 +19,7 @@ import { pageModel } from '../scripts/static'
 const SAMPLE_NAMES = ['Samplebot', '样例名', 'sample-dir/']
 const post = (id: number, handle = 'mattpocockuk') => `https://x.com/${handle}/status/${id}`
 const notes = (...entries: string[]) => `# 样例笔记 SAMPLE\n\n正文 Samplebot 在调研部分出现也不发布。\n\n## 每日追加（样例）\n\n### 2099-01-02（样例：读取范围…）\n\n${entries.join('\n')}\n\n下次从 id 1 之后接着读。\n`
-const entry = (body: string, link = post(111)) => `- **样例标题。** ${body} [原帖](${link})。Direct。用法：样例用法 Samplebot、/home/sample/x、额度 12%。`
+const entry = (body: string, link = post(111)) => `- **样例标题。** ${body} [原帖](${link})。Direct。用法：样例用法 Samplebot、/home/sample/x、额度 3.14%。`
 const feedOf = (...entries: string[]) => buildFeed([{ source: 'matt-notes', text: notes(...entries) }]).feed
 
 describe('parser', () => {
@@ -29,7 +31,7 @@ describe('parser', () => {
     expect(skipped).toEqual([{ source: 'matt-notes', date: '2099-01-02', reason: 'no-title', line: 10 }])
   })
   it('a body that continues the title does not start with punctuation', () => {
-    expect(parseNotes(notes('- **样例标题**：样例正文 [原帖](' + post(1) + ')。'), 'matt-notes').entries[0].body[0].text).toBe('样例正文 ')
+    expect(parseNotes(notes('- **样例标题**：样例正文 [原帖](' + post(1) + ')。用法：样例。'), 'matt-notes').entries[0].body[0].text).toBe('样例正文 ')
   })
   it('skips (and reports) an entry without an original post link; the rest still publish', () => {
     const { entries, skipped } = parseNotes(notes('- **样例无链接。** 只有文字，[别处](https://github.com/mattpocock/skills)。', entry('样例正文。')), 'matt-notes')
@@ -56,14 +58,16 @@ describe('parser', () => {
 describe('gate (one case per category, plus look-alikes that must pass)', () => {
   const blocked: [string, string][] = [
     ['email', '样例联系 sample.person@example.com'],
-    ['quota', '样例用了 120k tokens'],
-    ['quota', '样例 5.2M cached'],
-    ['quota', '样例本周额度还剩 41%'],
-    ['quota', '样例 70% 周额度'],
-    ['quota', '样例当日剩余 161/1000'],
-    ['quota', 'sample usage: 85'],
+    ['quota', '样例共 120k tokens'],
+    ['quota', '样例 9.9M cached'],
+    ['quota', '样例本周额度还剩 37.5%'],
+    ['quota', '样例 24.68% 周额度'],
+    ['quota', '样例当日剩余 777/1000'],
+    ['quota', '样例今天 777/1000'],
+    ['quota', 'sample usage: 4321'],
     ['internal-name', '样例：交给 Samplebot 处理'],
     ['internal-name', '样例：样例名负责'],
+    ['internal-name', '样例：SAMPLEBOT 负责'],
     ['internal-path', '样例文件在 /home/sample/a.md'],
     ['internal-path', '样例 ~/notes/a.md'],
     ['internal-path', '样例见 C:\\sample\\a.md'],
@@ -98,6 +102,92 @@ describe('gate (one case per category, plus look-alikes that must pass)', () => 
   ])('look-alike passes: %s', text => {
     expect(gateFeed(feedOf(entry(text)), SAMPLE_NAMES)).toEqual([])
   })
+})
+
+describe('usage marker variants never publish the usage part (review P2-1)', () => {
+  const line = (rest: string, title = '样例标题。') => `- **${title}** 样例正文 [原帖](${post(111)})。${rest}`
+  it.each([
+    '**用法**：内部样例', '**用法：** 内部样例', '__用法__: 内部样例', '用法︰内部样例', '用法﹕内部样例', '用途：内部样例',
+    '用\u200b法：内部样例', '用 法 ： 内部样例', '⽤法：内部样例', '*用途*:内部样例',
+  ])('%s', rest => {
+    const { entries } = parseNotes(notes(line(rest)), 'matt-notes')
+    // Recognised as the marker: the entry is published, cut before it.
+    expect(entries.map(e => e.body.map(s => s.text).join(''))).toEqual(['样例正文 原帖。'])
+    expect(JSON.stringify(entries)).not.toContain('内部样例')
+  })
+  it.each([
+    ['a marker in the title', line('用法：样例。', '样例 用法：内部样例。')],
+    ['an unrecognised 用… section', line('用处：内部样例')],
+    ['用法 written with a look-alike colon the split does not know', line('用法 ⦂ 内部样例')],
+    ['用法 hidden by a zero-width space and no colon', line('用\u200b法 内部样例')],
+  ])('skips the whole entry for %s, and logs it', (_, text) => {
+    const { entries, skipped } = parseNotes(notes(text), 'matt-notes')
+    expect(entries).toEqual([])
+    expect(skipped).toEqual([expect.objectContaining({ reason: 'usage-marker' })])
+  })
+  it('an entry without any usage marker is skipped (nothing shows where the internal part starts)', () => {
+    const { entries, skipped } = parseNotes(notes(`- **样例标题。** 样例正文 [原帖](${post(111)})。`), 'matt-notes')
+    expect(entries).toEqual([])
+    expect(skipped).toEqual([expect.objectContaining({ reason: 'no-usage-marker' })])
+  })
+  it('作用： and 用了 in ordinary prose are not markers', () => {
+    expect(parseNotes(notes(entry('样例作用：类型推断，用了 3 个提示词。')), 'matt-notes').entries).toHaveLength(1)
+  })
+})
+
+describe('gate sees the text the page shows (review P2-2 bypasses, one case each)', () => {
+  const P = post(111)
+  // Each body goes through entry(), so it sits before a standard usage part and must be blocked by the gate.
+  const bypass: [string, string][] = [
+    ['internal-name', '样例 Ｓａｍｐｌｅｂｏｔ'], ['internal-name', '样例 Sample\u200bbot'], ['internal-name', '样例 Sample\u00adbot'], ['internal-name', '样例 Sample\ufe0fbot'], ['internal-name', '样例 Sample\u034fbot'],
+    ['internal-name', '样例 样\u200b例名'], ['internal-name', `样例 [Samplebot](${P})`], ['internal-name', `样例 Sample[bot](${P})`],
+    ['internal-name', `样例 样例[名](${P})`], ['internal-name', '样例 Sample**bot**'], ['internal-name', '样例 Sample`bot`'],
+    ['internal-name', '样例 Samplebot_x'], ['internal-name', '样例 Sample bot 处理'], ['internal-name', '样例 样·例·名'],
+    ['email', '样例 a.b＠example.com'], ['email', '样例 a.b @ example.com'], ['email', '样例 a.b@\u200bexample.com'],
+    ['email', `样例 a.b@[example.com](${P})`], ['email', '样例 ａ.ｂ@ｅｘａｍｐｌｅ.ｃｏｍ'],
+    // RFC 5737 documentation address, built from parts so the repository's own IPv4 scan stays quiet.
+    ['ip', '样例 ' + ['２０３', '０', '１１３', '９'].join('.')], ['ip', '样例 ' + ['203', '0', '113', '9'].join('。')],
+    ['ip', '样例 ' + ['203', '0', '\u200b113', '9'].join('.')], ['ip', '样例 ' + ['203', '0', '113', '9'].join('．')],
+    ['phone', '样例 138 0013 8000'], ['phone', '样例 138-0013-8000'], ['phone', '样例 +86 138 0013 8000'],
+    ['phone', '样例 +86-138-0013-8000'], ['phone', '样例 １３８００１３８０００'], ['phone', '样例 1380013\u200b8000'],
+    ['internal-rule', '样例按 ｒｕｌｅｓ.md'], ['internal-rule', '样例按 rules\u200b.md'], ['internal-rule', '样例按 rules**.md**'],
+    ['internal-rule', '样例按 rules*.md*'], ['internal-rule', '样例按 rules<b>.md</b>'], ['email', '样例 a.b@*example*.com'],
+    // Review P3: secret shapes, quota phrasings and paths after any character (built from parts for the scanners).
+    ['secret', '样例 ' + ['sk', 'proj', 'A'.repeat(20)].join('-')], ['secret', '样例 ' + ['sk', 'ant', 'api03', 'A'.repeat(20)].join('-')],
+    ['secret', '样例 gh' + 's_' + 'A'.repeat(36)], ['secret', '样例 AI' + 'za' + 'A'.repeat(35)], ['secret', '样例 gl' + 'pat-' + 'A'.repeat(20)],
+    ['quota', '样例 还剩 13.57%'], ['quota', '样例今天用掉 345 万'], ['quota', '样例额度 ３．１４％'], ['quota', '样例周额度还剩两成'],
+    ['internal-path', '样例放在/tmp/sample.md'], ['internal-path', '样例路径：/etc/sample'], ['internal-path', '样例见`/home/sample/a`'],
+  ]
+  it.each(bypass)('%s: %s', (category, text) => {
+    expect(gateFeed(feedOf(entry(text)), SAMPLE_NAMES).map(f => f.category)).toContain(category)
+  })
+  it('the shown text is checked whole even when no single segment matches', () => {
+    const findings = gateFeed(feedOf(entry(`样例 Sample[bot](${P})`)), SAMPLE_NAMES)
+    expect(findings).toEqual([expect.objectContaining({ category: 'internal-name', field: 'shown' })])
+  })
+  it('links: each source may only link to its own originals (plus the shared Matt sites)', () => {
+    expect(gateFeed(feedOf(entry(`样例 [别人](${post(5, 'someone')})`)), SAMPLE_NAMES).map(f => f.category)).toEqual(['link'])
+    expect(gateFeed(feedOf(entry('样例 [仓库](https://github.com/sample-org/sample-repo)')), SAMPLE_NAMES).map(f => f.category)).toEqual(['link'])
+    const team = buildFeed([{ source: 'team', text: notes(entry('样例 [仓库](https://github.com/sample-org/sample-repo)', post(9, 'someone'))) }]).feed
+    expect(gateFeed(team, SAMPLE_NAMES)).toEqual([])
+  })
+  it.each([
+    '样例 2099 年 1 月 2 日', '样例版本 1.2.3', '样例 @mattpocockuk 说', '样例作用：类型推断', '样例用了 3 个提示词', '样例 sample_case 写法',
+    '样例 138 个提示词', '样例 10.5 万浏览', `样例见 [skills](https://github.com/mattpocock/skills) 和 [原帖](${post(222)})`,
+  ])('look-alike still passes: %s', text => {
+    expect(gateFeed(feedOf(entry(text)), SAMPLE_NAMES)).toEqual([])
+  })
+})
+
+describe('the build re-checks the committed feed', () => {
+  it('build:content stops on a feed with a gate finding', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'kb-build-'))
+    try {
+      const bad = join(dir, 'bad.json')
+      writeFileSync(bad, JSON.stringify({ version: 2, entries: [{ id: 'matt-notes-2099-01-02-1', date: '2099-01-02', source: 'matt-notes', title: '样例 a@b.co', url: post(1), body: [{ text: '原帖', href: post(1) }] }] }))
+      expect(() => execFileSync('npx', ['tsx', 'scripts/build-content.ts'], { env: { ...process.env, KB_FEED: bad }, stdio: 'pipe', timeout: 60000 })).toThrow(/gate findings/)
+    } finally { rmSync(dir, { recursive: true, force: true }) }
+  }, 70000)
 })
 
 describe('sync CLI fails closed and reads only configured sources', () => {
@@ -163,6 +253,7 @@ describe('committed feed and build validation', () => {
     ['duplicate id', { ...good, entries: [one, one] }],
     ['dates out of order', { ...good, entries: [{ ...one, date: '2099-01-01', id: 'matt-notes-2099-01-01-1' }, { ...one, id: 'matt-notes-2099-01-02-2' }] }],
     ['old version', { version: 1, days: [] }],
+    ['original link missing from the body', { ...good, entries: [{ ...one, body: [{ text: '回复', href: post(2) }] }] }],
   ])('rejects %s', (_, value) => { expect(() => validateFeed(value)).toThrow(/knowledge-base/) })
 })
 

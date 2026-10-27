@@ -6,7 +6,8 @@ import { readFileSync } from 'node:fs'
 import { validateFeed } from './kb/feed'
 
 // Fail early on an invalid knowledge base feed (static.tsx checks it again when rendering).
-validateFeed(JSON.parse(readFileSync('data/knowledge-base.json', 'utf8')))
+// KB_FEED only exists so tests can point the check at a bad file.
+validateFeed(JSON.parse(readFileSync(process.env.KB_FEED ?? 'data/knowledge-base.json', 'utf8')))
 
 const pages = await buildContent('content', 'public')
 await mkdir('generated', { recursive: true })

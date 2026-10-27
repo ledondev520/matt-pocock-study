@@ -36,5 +36,16 @@ should read this file rather than the notes.
 | `body` | Plain-text segments; a segment with `href` is a link. Render text escaped; never as HTML. Concatenate `text` for search. |
 | `url` | The original post. `matt-notes`: `https://x.com/mattpocockuk/status/<id>`. `team`: any `https://x.com/<handle>/status/<id>` or a `https://github.com/<owner>/<repo>…` page. Always also present as a link in `body`. |
 
-Every link in `body` is on an allow-list (the originals above, `github.com/mattpocock/…`,
-`www.aihero.dev`, `www.totaltypescript.com`). Entries are in Chinese.
+Every link in `body` is on an allow-list: the entry's own source's originals (a `matt-notes` entry
+cannot link to other X accounts or other GitHub repositories), plus `github.com/mattpocock/…`,
+`www.aihero.dev` and `www.totaltypescript.com`. Entries are in Chinese.
+
+## How a note becomes an entry · 笔记怎样变成条目
+
+- Only the part before the usage marker is published. The marker is `用法` or `用途`, then any colon;
+  Markdown emphasis, spaces and invisible characters may sit inside it (`**用法**：`, `用途︰`).
+- An entry with no marker, a marker in its title, or anything else that still reads like a `用…`
+  section after folding (NFKC, invisible characters removed) is skipped and logged, not published.
+- The gate checks every field as written, folded, and with Markdown removed, and then the entry as
+  the page shows it (title plus all segment texts joined). Private names are also matched with every
+  space and punctuation mark removed. Any finding blocks the whole batch.
