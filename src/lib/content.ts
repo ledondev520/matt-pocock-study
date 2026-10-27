@@ -30,4 +30,6 @@ export interface Page extends PageSummary {
 export type Figures = Record<Lang, Record<string, string>>
 export interface Model { pages: PageSummary[]; currentPage?: Page; figures: Figures; corpusCount: number; corpusItems: import('../../server/corpus').CorpusRecord[]; corpusTags: string[]; siteUrl: string
   /** Archify licence appendix for non-article views whose figures embed Archify diagrams; set at build time. */
-  licenceHtml?: string }
+  licenceHtml?: string
+  /** Knowledge base entries (newest first); only set on the knowledge base views. */
+  knowledge?: import('../../scripts/kb/feed').KbEntry[] }
