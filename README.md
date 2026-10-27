@@ -24,3 +24,14 @@ Copy button, fix round 1 (home page, light theme, headless Chromium, clipped to 
 | 320 px, fixed | copy-zh-320-before-click.png / copy-zh-320-after-click.png | copy-en-320-before-click.png / copy-en-320-after-click.png |
 | 390 px, before fix | e9ece22-copy-zh-390-before-click.png / e9ece22-copy-zh-390-after-click.png | e9ece22-copy-en-390-before-click.png / e9ece22-copy-en-390-after-click.png |
 | 390 px, fixed | copy-zh-390-before-click.png / copy-zh-390-after-click.png | copy-en-390-before-click.png / copy-en-390-after-click.png |
+
+After merging `main` (#15, licences page) into the branch, merge commit 32585da. Light theme, headless Chromium; phones 390 px (top 1500 px of the page; the footer clipped to the element), desktop 1440 px (first screen). `/` is the Chinese home; the footer is the disclaimer plus one "许可 / Licenses" link; no visible `.md` link anywhere.
+
+| | Chinese | English |
+|---|---|---|
+| Home, 390 px | merge-home-zh-mobile.png | merge-home-en-mobile.png |
+| Home, 1440 px | merge-home-zh-desktop.png | merge-home-en-desktop.png |
+| Licences page, 390 px | merge-licenses-zh-mobile.png | merge-licenses-en-mobile.png |
+| Licences page, 1440 px | merge-licenses-zh-desktop.png | merge-licenses-en-desktop.png |
+| Footer, 390 px | merge-footer-zh-mobile.png | merge-footer-en-mobile.png |
+| Footer, 1440 px | merge-footer-zh-desktop.png | merge-footer-en-desktop.png |
