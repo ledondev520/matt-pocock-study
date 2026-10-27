@@ -54,6 +54,13 @@ const fixtures: { name: string; html?: string; script?: string; expected: string
   { name: '::before set hidden inside a visible element', html: `<p class="fx-f" data-label="&#x4e02;">ok</p><style>.fx-f::before { content: attr(data-label); visibility: hidden }</style>`, expected: null },
   // A textarea draws its current value, not the default text in its markup.
   { name: 'textarea: current value checked, replaced default text not reported', html: `<textarea id="fx-t1">&#x20bb7;</textarea><textarea id="fx-t2"></textarea>`, script: `document.getElementById('fx-t1').value = 'ok'; document.getElementById('fx-t2').value = "\\u4e02"`, expected: absent, notReported: astral },
+  // A display:contents element has no box, but its text and ::before/::after are drawn in its parent's box.
+  { name: 'text of a display:contents element', html: `<p style="display:contents">&#x4e02;</p>`, expected: absent },
+  { name: '::after of a display:contents element', html: `<span class="fx-g" style="display:contents" data-label="&#x4e02;"></span><style>.fx-g::after { content: attr(data-label) }</style>`, expected: absent },
+  { name: 'display:contents text and ::after inside display:none or a closed <details>', html: `<div style="display:none"><p class="fx-h" style="display:contents" data-label="&#x4e02;">&#x4e02;</p></div><details><summary>x</summary><span class="fx-h" style="display:contents" data-label="&#x4e02;">&#x4e02;</span></details><style>.fx-h::after { content: attr(data-label) }</style>`, expected: null },
+  // content-visibility:hidden on an element skips its contents, its ::before/::after included.
+  { name: '::after set visible inside a visibility:hidden, content-visibility:hidden element', html: `<p class="fx-i" style="visibility:hidden;content-visibility:hidden" data-label="&#x4e02;"></p><style>.fx-i::after { content: attr(data-label); visibility: visible }</style>`, expected: null },
+  { name: '::before of a content-visibility:hidden element', html: `<p class="fx-j" style="content-visibility:hidden" data-label="&#x4e02;">ok</p><style>.fx-j::before { content: attr(data-label) }</style>`, expected: null },
   { name: 'hidden, display:none, visibility:hidden and closed-<details> text, SVG <title>/<desc>', html: `<p hidden>&#x4e02;</p><div style="display:none"><span>&#x4e02;</span></div><p style="visibility:hidden">&#x4e02;</p><p class="fx-d" style="--label:'&#92;4e02'"></p><style>.fx-d::after { content: var(--label); display: none }</style><details><summary>x</summary>&#x4e02;</details><svg width="20" height="20"><title>&#x4e02;</title><desc>&#x4e02;</desc><rect width="20" height="20"/></svg>`, expected: null },
 ]
 

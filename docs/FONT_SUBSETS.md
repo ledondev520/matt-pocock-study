@@ -28,7 +28,7 @@ npx playwright test e2e/font-coverage.pw.ts e2e/no-english-cjk-fonts.pw.ts e2e/n
 
 缺字检查在浏览器里做，而不是在文本层猜测各种编码。`e2e/font-coverage.pw.ts` 在构建产物上逐页打开 `dist/` 里的每个页面（中英文全部路由），收集页面**实际绘制**的字符：所有文本节点（包括脚本运行后写入的，如 `innerHTML`、拼接的代理对）、每个元素 `::before`/`::after` 的计算后 `content`，以及文本类 `input`/`textarea` 的当前 `value`（为空时取 `placeholder`，按 `::placeholder` 的字体）；`textarea` 标记里的默认文本只在它仍是当前值时才算。只看字体栈里包含 `Noto Sans SC` 的元素中、属于上述判定的字符。
 
-不绘制的内容不检查：`hidden`、`display: none`、`visibility: hidden`、关闭的 `<details>` 内文、伪元素按它自己的计算后 `visibility` 判断（元素 `visibility: hidden` 而伪元素设回 `visible` 时照常检查，反之不检查），且元素本身及祖先都不能是 `display: none`；以及 SVG 的 `<title>`/`<desc>`（这两个只给辅助技术和浏览器提示框用）。`<select>` 的选项按所属 `<select>` 是否可见判断。
+不绘制的内容不检查：`hidden`、`display: none`、`visibility: hidden`、关闭的 `<details>` 内文、`content-visibility: hidden` 元素的内容（含它自己的 `::before`/`::after`）、伪元素按它自己的计算后 `visibility` 判断（元素 `visibility: hidden` 而伪元素设回 `visible` 时照常检查，反之不检查），且元素本身及祖先都不能是 `display: none`；`display: contents` 的元素自己没有盒子，但它的文字和 `::before`/`::after` 画在父元素的盒子里，照常检查（按最近的有盒祖先判断上述各条）；以及 SVG 的 `<title>`/`<desc>`（这两个只给辅助技术和浏览器提示框用）。`<select>` 的选项按所属 `<select>` 是否可见判断。
 
 每个路由检查这些状态：1440px 宽加载完成后；改为 320px 宽后；展开页面上所有 `<details>`（练习答案）后。语料页（`/zh/corpus`、`/en/corpus`）还会依次检查：逐页点「下一页」直到最后一页、按一个标签搜索、无结果、日期范围无效（400）、服务不可用（500）和加载中。
 
@@ -36,6 +36,6 @@ npx playwright test e2e/font-coverage.pw.ts e2e/no-english-cjk-fonts.pw.ts e2e/n
 
 范围说明：字体栈本来就不含 Noto Sans SC 的元素（如 `"Space Grotesk", sans-serif` 的眉标、`system-ui` 的 SVG 箭头、语言切换标签）本来就由系统字体显示，不在检查范围内。用户在搜索框里自己输入的任意文字不在范围内。
 
-这个检查随 `npm run test:layout` 运行，CI 的 Layout 作业在构建之后执行它（缓存 Playwright 浏览器）。同一文件里的夹具测试证明它能抓到：`innerHTML` 里的实体、`"\uD842"+"\uDFB7"` 拼出的代理对、style 属性里经 `&#92;` 或 `&bsol;` 变成 CSS 转义再由 `::after` 显示的字、命名实体 `&dot;`、`input` 的 `placeholder` 和 `value`、只在语料第 2 页出现的字、前一页检查过但后一页字体丢失的字、同名系统字体画的字；同时不会误报 JSON 里的 `"\\uf900"`（解析后是 6 个 ASCII 字符）、CSS 注释里的转义，以及上面列出的各种不绘制的内容。
+这个检查随 `npm run test:layout` 运行，CI 的 Layout 作业在构建之后执行它（缓存 Playwright 浏览器）。同一文件里的夹具测试证明它能抓到：`innerHTML` 里的实体、`"\uD842"+"\uDFB7"` 拼出的代理对、style 属性里经 `&#92;` 或 `&bsol;` 变成 CSS 转义再由 `::after` 显示的字、命名实体 `&dot;`、`input` 的 `placeholder` 和 `value`、只在语料第 2 页出现的字、前一页检查过但后一页字体丢失的字、同名系统字体画的字；`display: contents` 元素的文字和 `::after`；同时不会误报 JSON 里的 `"\\uf900"`（解析后是 6 个 ASCII 字符）、CSS 注释里的转义，以及上面列出的各种不绘制的内容。
 
 开发期间修改文案后需再运行 `npm run build:fonts`（或重启 `npm run dev`），让 Vite 读取更新后的字体与 CSS。

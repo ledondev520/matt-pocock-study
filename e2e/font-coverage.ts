@@ -20,9 +20,24 @@ function collectInPage(pattern: string): Probe[] {
   const probes = new Map<string, Probe>()
   // A closed <select> has no box for its options, but it draws them (selected text, popup).
   const box = (element: Element) => element.closest('option, optgroup') ? element.closest('select') : element
-  // Laid out: no display:none on it or an ancestor, not in closed/hidden content.
-  const rendered = (element: Element) => !!box(element)?.checkVisibility()
-  // Rendered and its own visibility is visible (a descendant may override a hidden ancestor).
+  // Its contents (child text, ::before/::after) are drawn. checkVisibility() is false for a
+  // display:contents element, which has no box but whose contents are laid out in its parent's
+  // box, so climb to the nearest element with a box. That box must be laid out and must not
+  // skip its own contents (content-visibility:hidden, which checkVisibility() only checks on
+  // ancestors); a closed <details> passed on the way skips everything but its <summary>.
+  const contentsDrawn = (element: Element) => {
+    let child: Element | null = null
+    for (let e = box(element); e; child = e, e = e.parentElement) {
+      if (child && e instanceof HTMLDetailsElement && !e.open && child !== e.querySelector(':scope > summary')) return false
+      const style = getComputedStyle(e)
+      if (style.display !== 'contents') return e.checkVisibility() && style.contentVisibility !== 'hidden'
+    }
+    return false
+  }
+  // Text in it is drawn: its contents are drawn and its own visibility is visible (a
+  // descendant may override a hidden ancestor).
+  const textDrawn = (element: Element) => contentsDrawn(element) && getComputedStyle(box(element)!).visibility === 'visible'
+  // A form control is laid out and visible.
   const drawn = (element: Element) => !!box(element)?.checkVisibility({ visibilityProperty: true })
   const add = (element: Element, pseudo: string | null, text: string, where = element.tagName.toLowerCase() + (pseudo ?? '')) => {
     const style = getComputedStyle(element, pseudo)
@@ -36,7 +51,7 @@ function collectInPage(pattern: string): Probe[] {
   while (walker.nextNode()) {
     const parent = walker.currentNode.parentElement
     // A <textarea>'s text node is only its default value; what it draws is collected below.
-    if (!parent || parent.closest('script, style, template, noscript, head, svg title, svg desc, textarea') || !drawn(parent)) continue
+    if (!parent || parent.closest('script, style, template, noscript, head, svg title, svg desc, textarea') || !textDrawn(parent)) continue
     // Text directly inside a closed <details> (outside its <summary>) is not drawn.
     if (parent instanceof HTMLDetailsElement && !parent.open) continue
     add(parent, null, (walker.currentNode as Text).data)
@@ -44,9 +59,10 @@ function collectInPage(pattern: string): Probe[] {
   // Generated content: the browser's own serialization of the computed `content` value.
   const unescape = (s: string) => s.replace(/\\([\da-fA-F]{1,6}) ?|\\(.)/g, (_, hex, ch) => hex ? String.fromCodePoint(parseInt(hex, 16)) : ch)
   for (const element of document.querySelectorAll('body *')) {
-    // A pseudo-element is drawn when its element is laid out and its own computed visibility
-    // is visible, whatever the element's visibility is.
-    if (!rendered(element)) continue
+    // A pseudo-element is drawn when its element's contents are drawn (display:contents
+    // included, content-visibility:hidden excluded) and its own computed visibility is
+    // visible, whatever the element's visibility is.
+    if (!contentsDrawn(element)) continue
     for (const pseudo of ['::before', '::after']) {
       const style = getComputedStyle(element, pseudo)
       const content = style.content
