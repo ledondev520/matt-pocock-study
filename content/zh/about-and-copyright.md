@@ -74,7 +74,7 @@ kind: inference
 
 PR 来源保留对 Dex Horthy / HumanLayer 的[上游致谢](https://github.com/humanlayer/skills/blob/main/plugins/show-me/skills/show-me/SKILL.md)。仅保留归属，不取上游内容或推定其许可。
 
-本站新增例子与讲解属于本站编写。登记同时覆盖中英页面、单页 Markdown 与各语言合集；导出必须保留作者、源文件与完整声明。skills 与 Archify 的完整 MIT 许可附后（见页末）。
+本站新增例子与讲解属于本站编写。登记同时覆盖中英页面、单页 Markdown 与各语言合集；导出必须保留作者、源文件与完整声明。skills 与 Archify 的完整 MIT 许可见[许可](/zh/licenses)页。
 
 ## 已知缺口与更正
 
@@ -105,11 +105,11 @@ answer: 这是本站建议，应标为推论；需验证失败后输入确实保
 
 - [本页引文：署名请求，2026-07-06](https://x.com/mattpocockuk/status/2074147715210997924)
 - [Matt 的 X](https://x.com/mattpocockuk) · [GitHub](https://github.com/mattpocock) · [AI Hero](https://aihero.dev/skills)
-- [skills 原仓库](https://github.com/mattpocock/skills) · [上游 LICENSE](https://github.com/mattpocock/skills/blob/main/LICENSE)
+- [skills 原仓库](https://github.com/mattpocock/skills) · [上游 LICENSE](https://github.com/mattpocock/skills/blob/2817544484ea89558aabd8a0360e042888fad713/LICENSE)
 
 ## skills MIT 许可声明
 
-本页改编的结构来自 [mattpocock/skills](https://github.com/mattpocock/skills)，MIT 许可，Copyright (c) 2026 Matt Pocock。完整许可附后，与[原仓库 LICENSE](https://github.com/mattpocock/skills/blob/main/LICENSE)一字不差。
+本页改编的结构来自 [mattpocock/skills](https://github.com/mattpocock/skills)，MIT 许可，Copyright (c) 2026 Matt Pocock。完整许可附后，与[原仓库 LICENSE](https://github.com/mattpocock/skills/blob/2817544484ea89558aabd8a0360e042888fad713/LICENSE)一字不差。
 
 ```licence
 id: mattpocock-skills
@@ -117,7 +117,7 @@ id: mattpocock-skills
 
 本站说明图内嵌的 CSS 片段改编自 [Archify](https://github.com/tt-a1i/archify)，MIT 许可，Copyright (c) 2026 tt-a1i (Archify)；Copyright (c) 2025 Cocoon AI。
 
-Archify 的完整许可附后，与[原仓库 LICENSE](https://github.com/tt-a1i/archify/blob/main/LICENSE)一字不差。
+Archify 的完整许可附后，与[取用时上游的 LICENSE](https://github.com/tt-a1i/archify/blob/7a16d30322f5bd09c832386faa95d8c9a933f0c0/LICENSE)一字不差。
 
 ```licence
 id: archify

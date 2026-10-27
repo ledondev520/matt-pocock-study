@@ -1,0 +1,508 @@
+{
+  "version": 2,
+  "entries": [
+    {
+      "id": "matt-notes-2026-10-27-2114749427889979405",
+      "date": "2026-10-27",
+      "source": "matt-notes",
+      "title": "今日提示词：把\"单向门\"PR 拆成两个",
+      "body": [
+        {
+          "text": "第 1 个 PR 实现全部内容但能轻松回滚（双向门），第 2 个叠在上面的 PR 才真正跨过单向门；也就是 expand/contract，需要时用 feature flag。好处是大 PR 的大部分能先在生产上验证。848 赞。"
+        },
+        {
+          "text": "原帖",
+          "href": "https://x.com/mattpocockuk/status/2114749427889979405"
+        },
+        {
+          "text": "。单向门的例子他举的是\"合并后会给 10 万/12 万人发邮件的 PR，邮件发出去撤不回\"（"
+        },
+        {
+          "text": "回复1",
+          "href": "https://x.com/mattpocockuk/status/2114753597841854539"
+        },
+        {
+          "text": "、"
+        },
+        {
+          "text": "回复2",
+          "href": "https://x.com/mattpocockuk/status/2114827895931576535"
+        },
+        {
+          "text": "）。"
+        }
+      ],
+      "url": "https://x.com/mattpocockuk/status/2114749427889979405"
+    },
+    {
+      "id": "matt-notes-2026-10-27-2115035446627459461",
+      "date": "2026-10-27",
+      "source": "matt-notes",
+      "title": "agent 最擅长的一类任务：掌握 100% 数据、能自己跑实验、能独立验证、能一步步逼近目标",
+      "body": [
+        {
+          "text": "他说这类任务上信任度拉满、结果惊人，还在找一个词来称呼它。433 赞。"
+        },
+        {
+          "text": "原帖",
+          "href": "https://x.com/mattpocockuk/status/2115035446627459461"
+        },
+        {
+          "text": "。补充：只有部分编码任务属于这类，让 agent 做像素级还原它会搞砸（"
+        },
+        {
+          "text": "回复",
+          "href": "https://x.com/mattpocockuk/status/2115050274515804279"
+        },
+        {
+          "text": "）；agent 读日志、处理文本比人快，但人看图强得多（"
+        },
+        {
+          "text": "回复",
+          "href": "https://x.com/mattpocockuk/status/2115042306474627189"
+        },
+        {
+          "text": "）。"
+        }
+      ],
+      "url": "https://x.com/mattpocockuk/status/2115035446627459461"
+    },
+    {
+      "id": "matt-notes-2026-10-27-2115023694942662985",
+      "date": "2026-10-27",
+      "source": "matt-notes",
+      "title": "领域知识很值钱：一个专业词就能解锁 agent 的深层知识",
+      "body": [
+        {
+          "text": "他做视频剪辑器时告诉 agent 某些辅音会干扰静音检测，只说了 \"fricative\"（擦音）这个词，agent 就拿出完整国际音标，一起排查哪些辅音最麻烦。694 赞。"
+        },
+        {
+          "text": "原帖",
+          "href": "https://x.com/mattpocockuk/status/2115023694942662985"
+        },
+        {
+          "text": "。做法细节：静音检测本身是确定性的，再让 LLM 在其上过一遍、按节奏调整剪辑（"
+        },
+        {
+          "text": "回复",
+          "href": "https://x.com/mattpocockuk/status/2115030431208816848"
+        },
+        {
+          "text": "）。"
+        }
+      ],
+      "url": "https://x.com/mattpocockuk/status/2115023694942662985"
+    },
+    {
+      "id": "matt-notes-2026-10-26-2114407583167705279",
+      "date": "2026-10-26",
+      "source": "matt-notes",
+      "title": "下一个\"给 agent 用的语言\"应该：像 Rust 一样快、像 Go 一样设计空间小、有史上最严格的类型/验证系统",
+      "body": [
+        {
+          "text": "他说 Bend 是有意思的第一步。这是他近期互动最高的帖之一（5073 赞、约 47 万浏览）。"
+        },
+        {
+          "text": "原帖",
+          "href": "https://x.com/mattpocockuk/status/2114407583167705279"
+        },
+        {
+          "text": "。但他接着说 Bend \"not remotely ready for primetime\"，3–4 个提示词就把它的在线 playground 搞崩了（"
+        },
+        {
+          "text": "原帖",
+          "href": "https://x.com/mattpocockuk/status/2114408093748736169"
+        },
+        {
+          "text": "）。"
+        }
+      ],
+      "url": "https://x.com/mattpocockuk/status/2114407583167705279"
+    },
+    {
+      "id": "matt-notes-2026-10-26-2114408298489553322",
+      "date": "2026-10-26",
+      "source": "matt-notes",
+      "title": "形式化证明/验证是关键，语言必须确定性",
+      "body": [
+        {
+          "text": "回复里说 \"the formal proof aspect is essential\"（"
+        },
+        {
+          "text": "回复",
+          "href": "https://x.com/mattpocockuk/status/2114408298489553322"
+        },
+        {
+          "text": "）；有人提议把 AI 推理内置进语言，他回 \"coding languages MUST be deterministic\"（"
+        },
+        {
+          "text": "回复",
+          "href": "https://x.com/mattpocockuk/status/2114431890300268920"
+        },
+        {
+          "text": "，185 赞）；对\"纯重构 PR 怎么判定\"和\"那就 C？\"他都回\"需要 formal verification\"（"
+        },
+        {
+          "text": "回复1",
+          "href": "https://x.com/mattpocockuk/status/2114664574464987377"
+        },
+        {
+          "text": "、"
+        },
+        {
+          "text": "回复2",
+          "href": "https://x.com/mattpocockuk/status/2114711217969512948"
+        },
+        {
+          "text": "）；\"agent 以后直接写二进制\"他说是 insane take（"
+        },
+        {
+          "text": "回复",
+          "href": "https://x.com/mattpocockuk/status/2114636323940184524"
+        },
+        {
+          "text": "）。"
+        }
+      ],
+      "url": "https://x.com/mattpocockuk/status/2114408298489553322"
+    },
+    {
+      "id": "matt-notes-2026-10-26-2114432666103931215",
+      "date": "2026-10-26",
+      "source": "matt-notes",
+      "title": "新课最后一节讲\"软件工厂\"：完全用 GitHub Actions 搭一个基础版，逐个点名每个部件，指出 GitHub 替你藏了多少复杂度，再带大家头脑风暴怎么搭自己的工厂",
+      "body": [
+        {
+          "text": "原帖",
+          "href": "https://x.com/mattpocockuk/status/2114432666103931215"
+        },
+        {
+          "text": "（正文到 \"build your own factory,\" 为止，后面没读到）。有人问不用 GitHub 怎么办，他说 GitHub 只是好搭的具体演示，基础设施可以自己定（"
+        },
+        {
+          "text": "回复",
+          "href": "https://x.com/mattpocockuk/status/2114452754378662313"
+        },
+        {
+          "text": "）。"
+        }
+      ],
+      "url": "https://x.com/mattpocockuk/status/2114432666103931215"
+    },
+    {
+      "id": "matt-notes-2026-10-26-2114436829130686647",
+      "date": "2026-10-26",
+      "source": "matt-notes",
+      "title": "人审放在哪：每扇单向门都审，双向门可以自动合并",
+      "body": [
+        {
+          "text": "回答\"人审在工厂哪一环\"。"
+        },
+        {
+          "text": "回复",
+          "href": "https://x.com/mattpocockuk/status/2114436829130686647"
+        },
+        {
+          "text": "。"
+        }
+      ],
+      "url": "https://x.com/mattpocockuk/status/2114436829130686647"
+    },
+    {
+      "id": "matt-notes-2026-10-25-2114311664069718370",
+      "date": "2026-10-25",
+      "source": "matt-notes",
+      "title": "纯重构 PR 可以用确定性检查决定能不能自动合并",
+      "body": [
+        {
+          "text": "条件极严：只重组代码、不改模块依赖图、不降低测试覆盖率、再加别的规则；他明说新功能不适用，修 bug 可能也不适用，但能让一类重构更放心。"
+        },
+        {
+          "text": "原帖",
+          "href": "https://x.com/mattpocockuk/status/2114311664069718370"
+        },
+        {
+          "text": "。有人问\"写成 skill 让模型查不就行\"，他只回了一个词 \"deterministically\"，即要确定性而不是靠模型判断（"
+        },
+        {
+          "text": "回复",
+          "href": "https://x.com/mattpocockuk/status/2114322583969559023"
+        },
+        {
+          "text": "；解读为\"不交给模型\" ）。"
+        }
+      ],
+      "url": "https://x.com/mattpocockuk/status/2114311664069718370"
+    },
+    {
+      "id": "matt-notes-2026-10-25-2114313438218289172",
+      "date": "2026-10-25",
+      "source": "matt-notes",
+      "title": "\"理想是重构源码但打包产物不变\"，但他想完后觉得可能做不到",
+      "body": [
+        {
+          "text": "需要禁止 import.meta.glob、运行时读源码文件位置和全局状态。"
+        },
+        {
+          "text": "原帖",
+          "href": "https://x.com/mattpocockuk/status/2114313438218289172"
+        },
+        {
+          "text": "。"
+        }
+      ],
+      "url": "https://x.com/mattpocockuk/status/2114313438218289172"
+    },
+    {
+      "id": "matt-notes-2026-10-25-2114313570628587744",
+      "date": "2026-10-25",
+      "source": "matt-notes",
+      "title": "一条单向门（回滚不了）的 PR 必须有人审，而且是在 agent 审完之后多加的一层",
+      "body": [
+        {
+          "text": "行业和公司阶段不同单向门多少不同；没有用户时几乎每扇门都是双向的，可以少点人审。"
+        },
+        {
+          "text": "原帖",
+          "href": "https://x.com/mattpocockuk/status/2114313570628587744"
+        },
+        {
+          "text": "、"
+        },
+        {
+          "text": "补充",
+          "href": "https://x.com/mattpocockuk/status/2114315407024877889"
+        },
+        {
+          "text": "。"
+        }
+      ],
+      "url": "https://x.com/mattpocockuk/status/2114313570628587744"
+    },
+    {
+      "id": "matt-notes-2026-10-25-2114264078889762990",
+      "date": "2026-10-25",
+      "source": "matt-notes",
+      "title": "AI 时代值得学的是\"与工具、模型、语言都无关\"的技巧",
+      "body": [
+        {
+          "text": "能提升 agent 输出质量、进任何代码库都能用：软件基本功、模块设计、提高测试质量，还有 UI、公司流程、领导力、可观测性、产品设计等没被挖的方向；他说现在不会再做讲 API 和语言特性的 Total TypeScript（销量断崖），而会做\"TypeScript for AI\"，讲怎么让 TS 代码库对 agent 高效。"
+        },
+        {
+          "text": "原帖",
+          "href": "https://x.com/mattpocockuk/status/2114264078889762990"
+        },
+        {
+          "text": "。"
+        }
+      ],
+      "url": "https://x.com/mattpocockuk/status/2114264078889762990"
+    },
+    {
+      "id": "matt-notes-2026-10-25-2114299749918724383",
+      "date": "2026-10-25",
+      "source": "matt-notes",
+      "title": "教人钓鱼而不是给鱼",
+      "body": [
+        {
+          "text": "回复有人想要\"规则直接打包成 agent 读的文件\"的建议。"
+        },
+        {
+          "text": "原帖",
+          "href": "https://x.com/mattpocockuk/status/2114299749918724383"
+        },
+        {
+          "text": "。（回复很短，没展开）。"
+        }
+      ],
+      "url": "https://x.com/mattpocockuk/status/2114299749918724383"
+    },
+    {
+      "id": "matt-notes-2026-10-23-2113264229453033684",
+      "date": "2026-10-23",
+      "source": "matt-notes",
+      "title": "代码才是中心，spec 不是",
+      "body": [
+        {
+          "text": "原话 \"The code, not the spec, should be the center of your universe\"；回复里补充 \"Code is executable, spec is not\"，并把代码看成 agent 运行的环境：烂代码就像烂编译结果。"
+        },
+        {
+          "text": "原帖",
+          "href": "https://x.com/mattpocockuk/status/2113264229453033684"
+        },
+        {
+          "text": "。"
+        }
+      ],
+      "url": "https://x.com/mattpocockuk/status/2113264229453033684"
+    },
+    {
+      "id": "matt-notes-2026-10-23-2113278371711107225",
+      "date": "2026-10-23",
+      "source": "matt-notes",
+      "title": "spec 不进仓库，ADR 进仓库",
+      "body": [
+        {
+          "text": "他说 ADR 描述的是代码表达不了的东西，所以 spec 放仓库不好、ADR 好；spec 放 issue tracker，完成后关闭。"
+        },
+        {
+          "text": "ADR 回复",
+          "href": "https://x.com/mattpocockuk/status/2113278371711107225"
+        },
+        {
+          "text": "、"
+        },
+        {
+          "text": "issue 回复",
+          "href": "https://x.com/mattpocockuk/status/2113310369066139868"
+        },
+        {
+          "text": "。"
+        }
+      ],
+      "url": "https://x.com/mattpocockuk/status/2113278371711107225"
+    },
+    {
+      "id": "matt-notes-2026-10-23-2113309036984795237",
+      "date": "2026-10-23",
+      "source": "matt-notes",
+      "title": "他在重新定义 spec-driven development（SDD）",
+      "body": [
+        {
+          "text": "认为这个词被\"semantic diffusion\"（含义被稀释）搞乱了，发帖征集定义。"
+        },
+        {
+          "text": "原帖",
+          "href": "https://x.com/mattpocockuk/status/2113309036984795237"
+        },
+        {
+          "text": "。（只有提问，还没给出他的定义）。"
+        }
+      ],
+      "url": "https://x.com/mattpocockuk/status/2113309036984795237"
+    },
+    {
+      "id": "matt-notes-2026-10-23-2113278944594325761",
+      "date": "2026-10-23",
+      "source": "matt-notes",
+      "title": "/grill-me 仍在用，但只在需求极不清楚时",
+      "body": [
+        {
+          "text": "一次只问一个问题，因为一轮问答就可能把方向带偏；任务明显一个会话规划不完时用 /wayfinder 兜底。"
+        },
+        {
+          "text": "原帖",
+          "href": "https://x.com/mattpocockuk/status/2113278944594325761"
+        },
+        {
+          "text": "、"
+        },
+        {
+          "text": "/wayfinder 回复",
+          "href": "https://x.com/mattpocockuk/status/2113307744992387097"
+        },
+        {
+          "text": "。"
+        }
+      ],
+      "url": "https://x.com/mattpocockuk/status/2113278944594325761"
+    },
+    {
+      "id": "matt-notes-2026-10-23-2113196247964074322",
+      "date": "2026-10-23",
+      "source": "matt-notes",
+      "title": "今日提示词：/grill-me on how a /software-factory might help us",
+      "body": [
+        {
+          "text": "用来判断软件工厂（自动化多 agent 产线）适不适合你，并头脑风暴需要的基础设施；该 skill 还附带编排器、Git 托管、工单系统、Runner 的初步调研文档。"
+        },
+        {
+          "text": "原帖",
+          "href": "https://x.com/mattpocockuk/status/2113196247964074322"
+        },
+        {
+          "text": "、"
+        },
+        {
+          "text": "补充",
+          "href": "https://x.com/mattpocockuk/status/2113198957480366468"
+        },
+        {
+          "text": "。（skill 内容本身只读到链接 "
+        },
+        {
+          "text": "https://github.com/mattpocock/skills/pull/1316",
+          "href": "https://github.com/mattpocock/skills/pull/1316"
+        },
+        {
+          "text": "）。"
+        }
+      ],
+      "url": "https://x.com/mattpocockuk/status/2113196247964074322"
+    },
+    {
+      "id": "matt-notes-2026-10-23-2112855845297959206",
+      "date": "2026-10-23",
+      "source": "matt-notes",
+      "title": "能确定性就确定性，但不是总能",
+      "body": [
+        {
+          "text": "回应\"skill 应该写成脚本而不是 markdown\"：Always choose determinism where determinism is an option, but it's not always an option。"
+        },
+        {
+          "text": "原帖",
+          "href": "https://x.com/mattpocockuk/status/2112855845297959206"
+        },
+        {
+          "text": "。"
+        }
+      ],
+      "url": "https://x.com/mattpocockuk/status/2112855845297959206"
+    },
+    {
+      "id": "matt-notes-2026-10-23-2112890871909679444",
+      "date": "2026-10-23",
+      "source": "matt-notes",
+      "title": "用 /retro 反馈\"代码哪里不像你写的\"",
+      "body": [
+        {
+          "text": "有人试了 /grill-me 到 /implement 的流程，他建议用 /retro 说清 AI 代码哪里和自己写的不一样。"
+        },
+        {
+          "text": "原帖",
+          "href": "https://x.com/mattpocockuk/status/2112890871909679444"
+        },
+        {
+          "text": "。"
+        }
+      ],
+      "url": "https://x.com/mattpocockuk/status/2112890871909679444"
+    },
+    {
+      "id": "matt-notes-2026-10-23-2112880319934165307",
+      "date": "2026-10-23",
+      "source": "matt-notes",
+      "title": "真实用户才是质量老师",
+      "body": [
+        {
+          "text": "个人软件、内部软件、公开软件三级；建议找一小群（哪怕 1 个）真会用的测试者，反馈会暴露你对自己产品有多宽容；AI 没改变这点。"
+        },
+        {
+          "text": "原帖",
+          "href": "https://x.com/mattpocockuk/status/2112880319934165307"
+        },
+        {
+          "text": "、"
+        },
+        {
+          "text": "补充",
+          "href": "https://x.com/mattpocockuk/status/2112880606405435506"
+        },
+        {
+          "text": "。"
+        }
+      ],
+      "url": "https://x.com/mattpocockuk/status/2112880319934165307"
+    }
+  ]
+}
