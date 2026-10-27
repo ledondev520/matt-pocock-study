@@ -44,7 +44,7 @@ npx playwright test e2e/font-coverage.pw.ts e2e/no-english-cjk-fonts.pw.ts e2e/n
 
 每个路由检查这些状态：1440px 宽加载完成后；改为 320px 宽后；展开页面上所有 `<details>`（练习答案）后。语料页（`/zh/corpus`、`/en/corpus`）还会依次检查：逐页点「下一页」直到最后一页、按一个标签搜索、无结果、日期范围无效（400）、服务不可用（500）和加载中。
 
-每个（字体栈、字重、字形风格、字符）组合在页面里用一个隔离的探针元素渲染一次，再通过 Chrome DevTools Protocol 的 `CSS.getPlatformFontsForNode` 问 Chrome 实际用哪个字体画了它。只要有一个字不是由站点自带的 Web 字体（Noto Sans SC、Inter、Space Grotesk、JetBrains Mono，且 CDP 报告 `isCustomFont` 为真）画的，测试就失败；本机装有同名系统字体也不能冒充，并列出路由、字符、码位和实际字体。例如 `ˇ` 由 Inter 画，不算缺字；`˙` 落到系统字体，算缺字。探针结果只在同一文档内复用（同一页的多个状态之间），换页后重新检查，以免后一页字体加载失败时被前一页的结果掩盖。
+每个（字体栈、字重、字形风格、字符）组合在页面里用一个隔离的探针元素渲染一次，再通过 Chrome DevTools Protocol 的 `CSS.getPlatformFontsForNode` 问 Chrome 实际用哪个字体画了它。只要有一个字不是由站点自带的 Web 字体（Noto Sans SC、Inter、Space Grotesk、JetBrains Mono，且 CDP 报告 `isCustomFont` 为真）画的，测试就失败；本机装有同名系统字体也不能冒充，并列出路由、字符、码位和实际字体。例如 `ˇ` 由 Inter 画，`˙` 由它所在的 Noto 回退分片画，都不算缺字；子集和回退分片都没有的 `丒`（U+4E12）落到系统字体，算缺字。探针结果只在同一文档内复用（同一页的多个状态之间），换页后重新检查，以免后一页字体加载失败时被前一页的结果掩盖。
 
 范围说明：字体栈本来就不含 Noto Sans SC 的元素（如 `"Space Grotesk", sans-serif` 的眉标、`system-ui` 的 SVG 箭头、语言切换标签）本来就由系统字体显示，不在检查范围内。用户在搜索框里自己输入的任意文字不在范围内。
 

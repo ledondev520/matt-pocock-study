@@ -38,13 +38,14 @@ test('every built page renders its CJK text with the site fonts, never a system 
 // slice does draw (丂) is tested in e2e/noto-fallback.pw.ts.
 const absent = '\u4E12'
 const astral = '\u{20BB7}'
-const fixtures: { name: string; html?: string; script?: string; expected: string | string[] | null; notReported?: string }[] = [
+const fixtures: { name: string; html?: string; script?: string; expected: string | string[] | null; notReported?: string | string[] }[] = [
   { name: 'entity assigned through innerHTML', script: `const p = document.createElement('p'); document.querySelector('main').append(p); p.innerHTML = "\\u0026#x4e12;"`, expected: absent },
   { name: 'surrogate pair built from two escapes', script: `const p = document.createElement('p'); document.querySelector('main').append(p); p.textContent = "\\uD842" + "\\uDFB7"`, expected: astral },
   { name: 'numeric entity in a style attribute that becomes a CSS escape in ::after', html: `<p class="fx-a" style="--label:'&#92;4e12'"></p><style>.fx-a::after { content: var(--label) }</style>`, expected: absent },
   { name: 'named entity (&bsol;) in a style attribute that becomes a CSS escape in ::after', html: `<p class="fx-b" style="--label:'&bsol;4e12'"></p><style>.fx-b::before { content: var(--label) }</style>`, expected: absent },
-  // ˙ falls through to a system font; ˇ is drawn by Inter, so it is correctly not a miss.
-  { name: 'named entities (&dot; &caron;) as text', html: `<p>&dot;&caron;</p>`, expected: '˙', notReported: 'ˇ' },
+  // ˙ (Script_Extensions=Bopomofo) is drawn by its Noto fallback slice and ˇ by Inter, so neither
+  // is a miss; 丒, which no site font has, written as a numeric entity next to them is.
+  { name: 'named entities (&dot; &caron;) as text', html: `<p>&dot;&caron;&#x4e12;</p>`, expected: absent, notReported: ['˙', 'ˇ'] },
   // Legitimate content that must not be reported.
   { name: 'JSON value "\\\\uf900" (six ASCII characters once parsed)', script: `const p = document.createElement('p'); document.querySelector('main').append(p); p.textContent = JSON.parse('{"label":"\\\\\\\\uf900"}').label`, expected: null },
   { name: 'escape inside a CSS comment', html: `<style>/* \\f900 */ .fx-c::after { content: "ok" }</style><p class="fx-c"></p>`, expected: null },
@@ -83,7 +84,7 @@ test.describe('font coverage gate fixtures', () => {
       const { misses } = await auditPage(page, 'fixture')
       if (fixture.expected) expect(misses.map(m => m.char)).toContain(fixture.expected)
       else expect(misses).toEqual([])
-      if (fixture.notReported) expect(misses.map(m => m.char)).not.toContain(fixture.notReported)
+      for (const character of [fixture.notReported ?? []].flat()) expect(misses.map(m => m.char)).not.toContain(character)
     })
   }
 })
