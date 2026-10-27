@@ -1,0 +1,147 @@
+# Data PR policy: decides which PRs may auto-merge, and must not be changeable by those PRs.
+#
+# Auto-merge is only for knowledge-base data PRs: a same-repository sync/knowledge-* branch that
+# modifies allow-listed data files in place (scripts/ci/data-pr-allowlist.sh). The sync script
+# turns auto-merge on with the maintainer's own token, so the merge triggers CI and Deploy.
+#
+# Why pull_request_target: with pull_request, GitHub runs the workflow file and scripts from the
+# PR itself, so a PR could rewrite the check that judges it. pull_request_target runs this file
+# from the base branch; every job below checks out the base branch only and runs base-branch
+# scripts. The PR is read as data: its commits are fetched as git objects and inspected with
+# `git diff --raw` / `git cat-file`; nothing from the PR is checked out, installed or executed.
+# Consequence: a change to this file or to scripts/ci/ takes effect only after it is merged, and
+# such a change is itself never allow-listed (only data/knowledge-base.json is).
+#
+# Do not add a checkout of the PR head, `npm ci` on PR files, or `${{ }}` of PR-controlled
+# strings (branch name, title, body) inside `run:`; pass them through `env:`.
+# Job names are the check names "Data PR allowlist" and "Auto-merge guard"; keep them in sync
+# with the ruleset.
+
+name: Data PR policy
+
+on:
+  pull_request_target:
+    branches: [main]
+    types: [opened, reopened, synchronize, edited, auto_merge_enabled]
+
+permissions: {}
+
+jobs:
+  allowlist:
+    name: Data PR allowlist
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    env:
+      PR: ${{ github.event.pull_request.number }}
+      HEAD: ${{ github.event.pull_request.head.sha }}
+      HEAD_REF: ${{ github.event.pull_request.head.ref }}
+      HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+    steps:
+      # No `ref:`: under pull_request_target this is the base branch commit that this workflow
+      # file came from (github.sha).
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Fetch the PR head as git objects (not checked out)
+        run: |
+          set -euo pipefail
+          [[ $PR =~ ^[0-9]+$ && $HEAD =~ ^[0-9a-f]{40}$ ]] || { echo "::error::unexpected PR number or head sha"; exit 1; }
+          git fetch --no-tags -q origin "+refs/pull/$PR/head:refs/remotes/pr/head"
+          git cat-file -e "$HEAD^{commit}"
+
+      - name: Classify changed files (base-branch script)
+        id: classify
+        run: |
+          set -euo pipefail
+          rc=0
+          scripts/ci/data-pr-policy.sh "$GITHUB_SHA" "$HEAD" > "$RUNNER_TEMP/classify.txt" || rc=$?
+          # File names come from the PR: print them with workflow commands switched off.
+          token=$(openssl rand -hex 16)
+          echo "::stop-commands::$token"
+          cat "$RUNNER_TEMP/classify.txt"
+          echo "::$token::"
+          allowlisted=$(sed -n 's/^allowlisted=//p' "$RUNNER_TEMP/classify.txt" | tail -n 1)
+          touches=$(sed -n 's/^touches_data=//p' "$RUNNER_TEMP/classify.txt" | tail -n 1)
+          sync=$(sed -n 's/^sync=//p' "$RUNNER_TEMP/classify.txt" | tail -n 1)
+          eligible=$(sed -n 's/^eligible=//p' "$RUNNER_TEMP/classify.txt" | tail -n 1)
+          echo "touches_data=${touches:-false}" >> "$GITHUB_OUTPUT"
+          {
+            echo "### Data PR allowlist"
+            echo "- only allow-listed data files changed: ${allowlisted:-false}"
+            echo "- sync branch: ${sync:-false}"
+            if [ "$eligible" = true ]; then
+              echo "- eligible for auto-merge once every required check is green"
+            else
+              echo "- not eligible for auto-merge: needs the usual independent review"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+          if [ "$rc" -ne 0 ]; then
+            echo "::error::sync/knowledge-* PRs may only modify allow-listed data files in place (policy exit $rc)"
+            exit 1
+          fi
+
+      - name: Copy the PR's knowledge base out of git (as data)
+        if: steps.classify.outputs.touches_data == 'true'
+        run: |
+          set -euo pipefail
+          read -r mode type _ < <(git ls-tree "$HEAD" -- data/knowledge-base.json) || true
+          if [ "${mode:-}" != 100644 ] || [ "${type:-}" != blob ]; then
+            echo "::error::data/knowledge-base.json must be a regular file in the PR"; exit 1
+          fi
+          git cat-file blob "$HEAD:data/knowledge-base.json" > "$RUNNER_TEMP/knowledge-base.json"
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        if: steps.classify.outputs.touches_data == 'true'
+        with:
+          node-version-file: '.nvmrc'
+
+      - name: Re-run the privacy gate and format check (base-branch code, PR data)
+        if: steps.classify.outputs.touches_data == 'true'
+        env:
+          # Only same-repository PRs get the private name list: a fork could otherwise probe it.
+          KB_DENYLIST: ${{ github.event.pull_request.head.repo.full_name == github.repository && secrets.KB_DENYLIST || '' }}
+        run: |
+          set -euo pipefail
+          npm ci
+          npx tsx scripts/ci/check-kb-data.ts "$RUNNER_TEMP/knowledge-base.json"
+
+  guard:
+    name: Auto-merge guard
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: write
+    env:
+      PR: ${{ github.event.pull_request.number }}
+      HEAD: ${{ github.event.pull_request.head.sha }}
+      HEAD_REF: ${{ github.event.pull_request.head.ref }}
+      HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Disable auto-merge unless the PR is a data-only sync PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          [[ $PR =~ ^[0-9]+$ && $HEAD =~ ^[0-9a-f]{40}$ ]] || { echo "::error::unexpected PR number or head sha"; exit 1; }
+          eligible=false
+          # Any failure to fetch or classify leaves eligible=false (fail closed).
+          if git fetch --no-tags -q origin "+refs/pull/$PR/head:refs/remotes/pr/head" &&
+             result=$(scripts/ci/data-pr-policy.sh "$GITHUB_SHA" "$HEAD"); then
+            if grep -qx 'eligible=true' <<< "$result"; then eligible=true; fi
+          fi
+          auto_merge=$(gh pr view "$PR" --repo "$GITHUB_REPOSITORY" --json autoMergeRequest --jq '.autoMergeRequest != null')
+          echo "eligible=$eligible auto_merge=$auto_merge"
+          if [ "$eligible" != true ] && [ "$auto_merge" = true ]; then
+            gh pr merge "$PR" --repo "$GITHUB_REPOSITORY" --disable-auto
+            echo "::warning::Auto-merge disabled: only data-only sync/knowledge-* PRs may auto-merge."
+          fi

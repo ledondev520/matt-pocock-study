@@ -1,0 +1,59 @@
+#!/bin/bash
+# Forced command for the Matt deploy SSH key (installed as /usr/local/sbin/matt-deploy-gate).
+# sshd runs this instead of whatever the client asked for; the request arrives in
+# SSH_ORIGINAL_COMMAND and is parsed here, never executed. Runs as the deploy user.
+#
+# Accepted requests:
+#   deploy <commit-sha-40> <sha256-of-tarball>   tarball on stdin; stored, verified, then
+#                                                handed to matt-release (via sudo) to activate
+#   rollback <current-release-name>              switch back to the previous good release
+#   status                                       print the current release and its commit
+set -euo pipefail
+umask 077
+export LC_ALL=C PATH=/usr/sbin:/usr/bin:/sbin:/bin
+
+readonly INCOMING=/srv/matt-site/incoming
+readonly RELEASE_CMD=/usr/local/sbin/matt-release
+readonly MAX_BYTES=$((600 * 1024 * 1024))
+
+die() { echo "matt-deploy-gate: $*" >&2; exit 2; }
+
+request=${SSH_ORIGINAL_COMMAND:-}
+[ ${#request} -le 200 ] || die "request too long"
+[[ $request =~ ^[a-z0-9\ -]*$ ]] || die "unexpected characters in request"
+read -r -a argv <<< "$request"
+verb=${argv[0]:-}
+
+case $verb in
+  deploy)
+    [ ${#argv[@]} -eq 3 ] || die "usage: deploy <sha> <sha256>"
+    sha=${argv[1]} sum=${argv[2]}
+    [[ $sha =~ ^[0-9a-f]{40}$ ]] || die "bad commit sha"
+    [[ $sum =~ ^[0-9a-f]{64}$ ]] || die "bad sha256"
+    if [ ! -d "$INCOMING" ] || [ -L "$INCOMING" ]; then die "missing $INCOMING"; fi
+    part="$INCOMING/$sha.tar.gz.part" final="$INCOMING/$sha.tar.gz"
+    rm -f -- "$part" "$final"
+    trap 'rm -f -- "$part"' EXIT
+    # Read at most MAX_BYTES + 1 so an oversized upload is detected without filling the disk.
+    head -c $((MAX_BYTES + 1)) > "$part"
+    size=$(stat -c %s -- "$part")
+    [ "$size" -gt 0 ] || die "empty upload"
+    [ "$size" -le "$MAX_BYTES" ] || die "upload larger than $MAX_BYTES bytes"
+    got=$(sha256sum -- "$part" | cut -d' ' -f1)
+    [ "$got" = "$sum" ] || die "sha256 mismatch"
+    mv -f -- "$part" "$final"
+    trap - EXIT
+    exec sudo -n "$RELEASE_CMD" activate "$sha"
+    ;;
+  rollback)
+    [ ${#argv[@]} -eq 2 ] || die "usage: rollback <current-release>"
+    exec sudo -n "$RELEASE_CMD" rollback "${argv[1]}"
+    ;;
+  status)
+    [ ${#argv[@]} -eq 1 ] || die "usage: status"
+    exec sudo -n "$RELEASE_CMD" status
+    ;;
+  *)
+    die "unknown request"
+    ;;
+esac

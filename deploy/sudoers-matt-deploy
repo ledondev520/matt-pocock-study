@@ -1,0 +1,4 @@
+# /etc/sudoers.d/matt-deploy (mode 0440, check with: visudo -cf /etc/sudoers.d/matt-deploy)
+# The deploy user may run exactly one root-owned script; it validates its own arguments.
+Defaults:mattdeploy !requiretty, env_reset, secure_path="/usr/sbin:/usr/bin:/sbin:/bin"
+mattdeploy ALL=(root) NOPASSWD: /usr/local/sbin/matt-release
