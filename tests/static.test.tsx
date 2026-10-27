@@ -254,7 +254,7 @@ it('every built page and SVG file that embeds Archify CSS points to or carries t
 // the view's JSON (the client renders from it).
 it('the licences pages show each MIT and font licence byte-identical to its file, with its upstream links', async () => {
   const expected = await Promise.all([...licenceFiles, ...fontFiles].map(file => readFile(file)))
-  const upstream = [['https://github.com/mattpocock/skills', 'https://github.com/mattpocock/skills/blob/main/LICENSE'], ['https://github.com/tt-a1i/archify', 'https://github.com/tt-a1i/archify/blob/7a16d30322f5bd09c832386faa95d8c9a933f0c0/LICENSE']]
+  const upstream = [['https://github.com/mattpocock/skills', 'https://github.com/mattpocock/skills/blob/2817544484ea89558aabd8a0360e042888fad713/LICENSE'], ['https://github.com/tt-a1i/archify', 'https://github.com/tt-a1i/archify/blob/7a16d30322f5bd09c832386faa95d8c9a933f0c0/LICENSE']]
   for (const lang of ['zh', 'en'] as const) {
     const html = await readFile(`dist/${lang}/licenses/index.html`, 'utf8')
     const doc = new JSDOM(html).window.document
@@ -262,6 +262,10 @@ it('the licences pages show each MIT and font licence byte-identical to its file
     expect(doc.querySelector('h1')!.textContent).toBe(lang === 'zh' ? '许可' : 'Licenses')
     expect(doc.querySelector('link[rel="canonical"]')!.getAttribute('href')).toBe(`${siteUrl()}/${lang}/licenses`)
     expect(doc.querySelector('meta[name="robots"]')).toBeNull()
+    // The intro states what the texts match: the upstream LICENSE as it stood when the material was
+    // taken (Archify's has since changed), not whatever the repository holds today.
+    expect(doc.querySelector('.licenses-page > p')!.textContent).toContain(lang === 'zh' ? '按 MIT 要求在此保留其版权声明和许可全文（与取用时上游的 LICENSE 一字不差）。' : 'their copyright notices and full licence texts are kept here, identical to each upstream LICENSE as it stood when the material was taken.')
+    expect(doc.querySelector('.licenses-page > p')!.textContent).not.toMatch(/原仓库 LICENSE 一字不差|identical to the repository LICENSE/)
     const shown = [...doc.querySelectorAll('pre.license-text')].map(pre => Buffer.from(pre.textContent ?? '', 'utf8'))
     expect(shown).toHaveLength(expected.length)
     shown.forEach((bytes, i) => expect(bytes.equals(expected[i]), `${lang} licence ${i} is byte-identical`).toBe(true))
@@ -274,6 +278,23 @@ it('the licences pages show each MIT and font licence byte-identical to its file
     const scoped: Model = JSON.parse(await readFile(`dist/${lang}/licenses.json`, 'utf8'))
     expect([...scoped.licences!.mit, ...scoped.licences!.fonts].map((item, i) => Buffer.from(item.text, 'utf8').equals(expected[i]))).toEqual(Array(licenceFiles.length + fontFiles.length).fill(true))
     expect((await app.request(`/${lang}/licenses`)).status).toBe(200)
+  }
+})
+
+// Both licence links point at the commit the LICENSE was taken from. Archify's main branch has since
+// moved to Apache-2.0, so a link to main would contradict "identical to the upstream LICENSE"; skills
+// is pinned the same way so a later upstream change cannot do the same. Checked over every built file
+// (pages, JSON, .md exports, llms files), not only the licences page.
+it('no built file links a licence on an upstream main branch', async () => {
+  const texts = (await walk('dist', '')).filter(file => /\.(html|json|md|txt|xml|js|svg)$/i.test(file))
+  expect(texts).toEqual(expect.arrayContaining(['dist/llms-full.txt', 'dist/zh/llms-full.txt', 'dist/en/about-and-copyright.md', 'dist/zh/about-and-copyright.md']))
+  for (const file of texts) {
+    const text = await readFile(file, 'utf8')
+    expect(text.includes('archify/blob/main/LICENSE'), `${file} links Archify's LICENSE on main`).toBe(false)
+    expect(text.includes('mattpocock/skills/blob/main/LICENSE'), `${file} links skills' LICENSE on main`).toBe(false)
+  }
+  for (const file of ['dist/en/about-and-copyright.md', 'dist/zh/about-and-copyright.md', 'dist/llms-full.txt', 'dist/zh/llms-full.txt']) {
+    expect(await readFile(file, 'utf8'), file).toContain('https://github.com/tt-a1i/archify/blob/7a16d30322f5bd09c832386faa95d8c9a933f0c0/LICENSE')
   }
 })
 

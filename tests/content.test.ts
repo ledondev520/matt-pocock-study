@@ -171,6 +171,39 @@ it('every page that cites a reused MIT source or embeds Archify CSS ships that s
   }
 })
 
+// The pages that adapt skills structures, written out by hand. Their visible adaptation lines are
+// gone from the pages, so the rule above no longer finds them from the source text; this list is the
+// anchor. It matches the register on about-and-copyright ("改编与覆盖页面" / "Adaptation and covered pages"),
+// cross-checked below.
+const adaptsSkills = ['review-and-pr', 'agent-documents', 'context-and-handoff', 'cheat-sheets', 'learning-path', 'writing-to-teach'].flatMap(slug => (['zh', 'en'] as const).map(lang => `${lang}/${slug}`))
+it('the twelve pages that adapt skills keep the skills MIT notice section and full licence in their .md and llms-full exports', async () => {
+  expect(adaptsSkills).toHaveLength(12)
+  for (const lang of ['zh', 'en'] as const) {
+    const register = (await readFile(`content/${lang}/about-and-copyright.md`, 'utf8')).split('\n').filter(line => line.startsWith('| skills/'))
+    const listed = new Set(register.flatMap(line => line.split('|')[2].split(/[：:]/)[1].split(/[、,]/).map(slug => slug.trim())))
+    expect([...listed].sort(), `${lang} register`).toEqual(adaptsSkills.filter(id => id.startsWith(`${lang}/`)).map(id => id.slice(3)).sort())
+  }
+  const text = licenceText('mattpocock-skills')
+  const heading = { zh: '\n## skills MIT 许可声明\n', en: '\n## skills MIT notice\n' }
+  const bundles = { en: await readFile(join(output, 'llms-full.txt'), 'utf8'), zh: await readFile(join(output, 'zh', 'llms-full.txt'), 'utf8') }
+  for (const id of adaptsSkills) {
+    const [lang, slug] = id.split('/') as ['zh' | 'en', string]
+    const page = pages.find(item => item.lang === lang && item.slug === slug)
+    expect(page, id).toBeDefined()
+    const markdown = await readFile(join(output, lang, `${slug}.md`), 'utf8')
+    const bundle = bundles[lang]
+    const at = bundle.indexOf(page!.markdown)
+    expect(at, `${id} in llms-full`).toBeGreaterThanOrEqual(0)
+    for (const [where, exported] of [[`${id}.md`, markdown], [`${id} in llms-full`, bundle.slice(at, at + page!.markdown.length)]] as const) {
+      expect(exported.split(heading[lang]).length - 1, `${where}: notice section`).toBe(1)
+      const section = exported.slice(exported.indexOf(heading[lang]))
+      expect(section, `${where}: copyright line in the notice`).toContain('Copyright (c) 2026 Matt Pocock')
+      expect(section, `${where}: full licence after the notice heading`).toContain(text)
+      expect(exported.split(text).length - 1, `${where}: licence once`).toBe(1)
+    }
+  }
+})
+
 it('keeps the per-page licence notice and the closing disclaimer in the export but off the page', async () => {
   const source = '## Body\n\nKept [link][ref].\n\n## skills MIT notice\n\nAdapted from skills.\n\n```licence\nid: mattpocock-skills\n```\n\nUnofficial, non-commercial study notes. No affiliation.\n\n[ref]: https://example.org/\n'
   const result = await renderMarkdown(source, 'en')

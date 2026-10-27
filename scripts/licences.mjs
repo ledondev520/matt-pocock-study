@@ -12,7 +12,7 @@ export const licences = {
   'mattpocock-skills': {
     name: 'mattpocock/skills',
     repo: 'https://github.com/mattpocock/skills',
-    licenseUrl: 'https://github.com/mattpocock/skills/blob/main/LICENSE',
+    licenseUrl: 'https://github.com/mattpocock/skills/blob/2817544484ea89558aabd8a0360e042888fad713/LICENSE',
     file: 'third_party/mattpocock-skills/LICENSE',
     sha256: '0e7ac423bf2c6e223b7c5b156f8cf72da49d748e56a1641402c31f22ad07dbb5',
   },
