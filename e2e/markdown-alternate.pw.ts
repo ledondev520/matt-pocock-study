@@ -46,3 +46,32 @@ for (const start of ['/', '/zh', '/en/review-and-pr', '/en/corpus', '/zh/license
     expect(await page.evaluate(() => (window as unknown as { marker: number }).marker), 'no full reload').toBe(marker)
   })
 }
+
+// 404s have no Markdown twin. The client removes the link when it renders a 404 and adds it back when
+// the reader leaves one (src/App.tsx). Entering: a one-level and a multi-level unknown path, both
+// served as 404 without the link; leaving: the brand link (client-side, no reload); then a client-side
+// 404 again (pushState + popstate to /<lang>/404, whose page data exists, so nothing reloads).
+const hydrated = async (page: Page) => {
+  await page.waitForFunction(() => Object.keys(document.querySelector('.icon-button')!).some(key => key.startsWith('__reactProps')))
+  await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(resolve, 50)))))
+}
+for (const start of ['/zh/no-such-page', '/en/a/b']) {
+  test(`markdown alternate is absent on a 404 and comes back after leaving it, from ${start}`, async ({ page }) => {
+    const response = await page.goto(start)
+    expect(response!.status()).toBe(404)
+    await hydrated(page)
+    const lang = start.split('/')[1]
+    expect(await markdownHref(page), 'no Markdown link on the 404').toEqual([])
+    await expectLanguageLinks(page)
+    const marker = await page.evaluate(() => (window as unknown as { marker: number }).marker = Math.random())
+    await page.locator('a.brand').click()
+    await expect(page).toHaveURL(new RegExp(`/${lang}$`))
+    await expect.poll(() => markdownHref(page), 'the link is added back on the home page').toEqual([`/${lang}/index.md`])
+    await expectLanguageLinks(page)
+    await page.evaluate(path => { history.pushState(null, '', path); dispatchEvent(new PopStateEvent('popstate')) }, `/${lang}/404`)
+    await expect(page.locator('.missing-page')).toBeVisible()
+    await expect.poll(() => markdownHref(page), 'the link is removed on a client-side 404').toEqual([])
+    await expectLanguageLinks(page)
+    expect(await page.evaluate(() => (window as unknown as { marker: number }).marker), 'no full reload').toBe(marker)
+  })
+}

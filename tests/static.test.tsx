@@ -242,6 +242,19 @@ it('every Markdown twin matches its HTML page', async () => {
       for (const a of page.querySelectorAll('.kb-lede a[href], .kb-list a[href]')) expect(markdown, `${href} links ${a.getAttribute('href')}`).toContain(`](${twinHref(a.getAttribute('href')!)})`)
       expect(page.querySelectorAll('.kb-entry').length, `${href} has notes`).toBeGreaterThan(0)
       expect(markdown.split('](https://x.com/').length - 1, `${href} links every original post`).toBeGreaterThanOrEqual(page.querySelectorAll('.kb-source').length)
+      // Each note's own original-post link, with its label, right under that note (not only links in the body).
+      const zh = doc.documentElement.lang === 'zh'
+      for (const [i, link] of [...page.querySelectorAll('.kb-entry .kb-source')].entries()) {
+        const entry = link.closest('.kb-entry')!
+        const line = zh ? `[查看原帖](${link.getAttribute('href')})` : `- [${plain(link.textContent ?? '')}](${link.getAttribute('href')})`
+        expect(plain(link.textContent ?? ''), `${href} note ${i} link text`).toMatch(zh ? /^查看原帖$/ : /^(?:Matt notes|Team notes): original post \d+$/)
+        if (zh) {
+          const title = plain(entry.querySelector('h3')!.textContent ?? '')
+          const sections = markdown.split(/^### /m).filter(part => plain(part.split('\n')[0]) === title)
+          expect(sections.length, `${href} has a section for ${title}`).toBeGreaterThan(0)
+          expect(sections.some(part => part.split('\n').includes(line)), `${href} "${title}" carries its original-post link`).toBe(true)
+        } else expect(markdown.split('\n'), `${href} lists ${line}`).toContain(line)
+      }
     } else expect(markdownHeadings(markdown, /^# (.+)$/)[0], `${href} title`).toBe(h1)
   }
   expect(articles).toBeGreaterThan(30)
