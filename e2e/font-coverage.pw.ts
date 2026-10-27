@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { chromium, expect, test } from '@playwright/test'
 import subsetFont from 'subset-font'
-import { collectCharacters } from '../scripts/fonts.mjs'
+import { collectCharacters, fallbackSlices } from '../scripts/fonts.mjs'
 import { auditPage, auditRoute, type Miss } from './font-coverage'
 import { routes } from './routes'
 
@@ -31,42 +31,47 @@ test('every built page renders its CJK text with the site fonts, never a system 
   expect(misses).toEqual([])
 })
 
-// Characters outside the subset. 丂 is checked against the collected set so the fixture
-// cannot silently become covered; 𠮷 is outside the simplified-Chinese source font.
-const absent = '丂'
+// Characters no site font draws: outside the subset and outside every fallback slice
+// (docs/FONT_SUBSETS.md, option A). 丒 is checked against the collected set and the fallback
+// ranges so the fixture cannot silently become covered; 𠮷 is outside the simplified-Chinese
+// source font and every Fontsource slice. A character outside the subset that a fallback
+// slice does draw (丂) is tested in e2e/noto-fallback.pw.ts.
+const absent = '\u4E12'
 const astral = '\u{20BB7}'
 const fixtures: { name: string; html?: string; script?: string; expected: string | string[] | null; notReported?: string }[] = [
-  { name: 'entity assigned through innerHTML', script: `const p = document.createElement('p'); document.querySelector('main').append(p); p.innerHTML = "\\u0026#x4e02;"`, expected: absent },
+  { name: 'entity assigned through innerHTML', script: `const p = document.createElement('p'); document.querySelector('main').append(p); p.innerHTML = "\\u0026#x4e12;"`, expected: absent },
   { name: 'surrogate pair built from two escapes', script: `const p = document.createElement('p'); document.querySelector('main').append(p); p.textContent = "\\uD842" + "\\uDFB7"`, expected: astral },
-  { name: 'numeric entity in a style attribute that becomes a CSS escape in ::after', html: `<p class="fx-a" style="--label:'&#92;4e02'"></p><style>.fx-a::after { content: var(--label) }</style>`, expected: absent },
-  { name: 'named entity (&bsol;) in a style attribute that becomes a CSS escape in ::after', html: `<p class="fx-b" style="--label:'&bsol;4e02'"></p><style>.fx-b::before { content: var(--label) }</style>`, expected: absent },
+  { name: 'numeric entity in a style attribute that becomes a CSS escape in ::after', html: `<p class="fx-a" style="--label:'&#92;4e12'"></p><style>.fx-a::after { content: var(--label) }</style>`, expected: absent },
+  { name: 'named entity (&bsol;) in a style attribute that becomes a CSS escape in ::after', html: `<p class="fx-b" style="--label:'&bsol;4e12'"></p><style>.fx-b::before { content: var(--label) }</style>`, expected: absent },
   // ˙ falls through to a system font; ˇ is drawn by Inter, so it is correctly not a miss.
   { name: 'named entities (&dot; &caron;) as text', html: `<p>&dot;&caron;</p>`, expected: '˙', notReported: 'ˇ' },
   // Legitimate content that must not be reported.
   { name: 'JSON value "\\\\uf900" (six ASCII characters once parsed)', script: `const p = document.createElement('p'); document.querySelector('main').append(p); p.textContent = JSON.parse('{"label":"\\\\\\\\uf900"}').label`, expected: null },
   { name: 'escape inside a CSS comment', html: `<style>/* \\f900 */ .fx-c::after { content: "ok" }</style><p class="fx-c"></p>`, expected: null },
   // Form controls draw placeholder and value text outside the DOM text nodes.
-  { name: 'input placeholder', html: `<input type="search" placeholder="&#x4e02;">`, expected: absent },
-  { name: 'input value', script: `const i = document.createElement('input'); document.querySelector('main').append(i); i.value = "\\u4e02"`, expected: absent },
+  { name: 'input placeholder', html: `<input type="search" placeholder="&#x4e12;">`, expected: absent },
+  { name: 'input value', script: `const i = document.createElement('input'); document.querySelector('main').append(i); i.value = "\\u4e12"`, expected: absent },
   // Nothing is drawn for these, so they must not be reported.
   // A pseudo-element's own visibility decides whether it is drawn, not its element's.
-  { name: '::after set visible inside a visibility:hidden element', html: `<p class="fx-e" style="visibility:hidden" data-label="&#x4e02;"></p><style>.fx-e::after { content: attr(data-label); visibility: visible }</style>`, expected: absent },
-  { name: '::before set hidden inside a visible element', html: `<p class="fx-f" data-label="&#x4e02;">ok</p><style>.fx-f::before { content: attr(data-label); visibility: hidden }</style>`, expected: null },
+  { name: '::after set visible inside a visibility:hidden element', html: `<p class="fx-e" style="visibility:hidden" data-label="&#x4e12;"></p><style>.fx-e::after { content: attr(data-label); visibility: visible }</style>`, expected: absent },
+  { name: '::before set hidden inside a visible element', html: `<p class="fx-f" data-label="&#x4e12;">ok</p><style>.fx-f::before { content: attr(data-label); visibility: hidden }</style>`, expected: null },
   // A textarea draws its current value, not the default text in its markup.
-  { name: 'textarea: current value checked, replaced default text not reported', html: `<textarea id="fx-t1">&#x20bb7;</textarea><textarea id="fx-t2"></textarea>`, script: `document.getElementById('fx-t1').value = 'ok'; document.getElementById('fx-t2').value = "\\u4e02"`, expected: absent, notReported: astral },
+  { name: 'textarea: current value checked, replaced default text not reported', html: `<textarea id="fx-t1">&#x20bb7;</textarea><textarea id="fx-t2"></textarea>`, script: `document.getElementById('fx-t1').value = 'ok'; document.getElementById('fx-t2').value = "\\u4e12"`, expected: absent, notReported: astral },
   // A display:contents element has no box, but its text and ::before/::after are drawn in its parent's box.
-  { name: 'text of a display:contents element', html: `<p style="display:contents">&#x4e02;</p>`, expected: absent },
-  { name: '::after of a display:contents element', html: `<span class="fx-g" style="display:contents" data-label="&#x4e02;"></span><style>.fx-g::after { content: attr(data-label) }</style>`, expected: absent },
-  { name: 'display:contents text and ::after inside display:none or a closed <details>', html: `<div style="display:none"><p class="fx-h" style="display:contents" data-label="&#x4e02;">&#x4e02;</p></div><details><summary>x</summary><span class="fx-h" style="display:contents" data-label="&#x4e02;">&#x4e02;</span></details><style>.fx-h::after { content: attr(data-label) }</style>`, expected: null },
+  { name: 'text of a display:contents element', html: `<p style="display:contents">&#x4e12;</p>`, expected: absent },
+  { name: '::after of a display:contents element', html: `<span class="fx-g" style="display:contents" data-label="&#x4e12;"></span><style>.fx-g::after { content: attr(data-label) }</style>`, expected: absent },
+  { name: 'display:contents text and ::after inside display:none or a closed <details>', html: `<div style="display:none"><p class="fx-h" style="display:contents" data-label="&#x4e12;">&#x4e12;</p></div><details><summary>x</summary><span class="fx-h" style="display:contents" data-label="&#x4e12;">&#x4e12;</span></details><style>.fx-h::after { content: attr(data-label) }</style>`, expected: null },
   // content-visibility:hidden on an element skips its contents, its ::before/::after included.
-  { name: '::after set visible inside a visibility:hidden, content-visibility:hidden element', html: `<p class="fx-i" style="visibility:hidden;content-visibility:hidden" data-label="&#x4e02;"></p><style>.fx-i::after { content: attr(data-label); visibility: visible }</style>`, expected: null },
-  { name: '::before of a content-visibility:hidden element', html: `<p class="fx-j" style="content-visibility:hidden" data-label="&#x4e02;">ok</p><style>.fx-j::before { content: attr(data-label) }</style>`, expected: null },
-  { name: 'hidden, display:none, visibility:hidden and closed-<details> text, SVG <title>/<desc>', html: `<p hidden>&#x4e02;</p><div style="display:none"><span>&#x4e02;</span></div><p style="visibility:hidden">&#x4e02;</p><p class="fx-d" style="--label:'&#92;4e02'"></p><style>.fx-d::after { content: var(--label); display: none }</style><details><summary>x</summary>&#x4e02;</details><svg width="20" height="20"><title>&#x4e02;</title><desc>&#x4e02;</desc><rect width="20" height="20"/></svg>`, expected: null },
+  { name: '::after set visible inside a visibility:hidden, content-visibility:hidden element', html: `<p class="fx-i" style="visibility:hidden;content-visibility:hidden" data-label="&#x4e12;"></p><style>.fx-i::after { content: attr(data-label); visibility: visible }</style>`, expected: null },
+  { name: '::before of a content-visibility:hidden element', html: `<p class="fx-j" style="content-visibility:hidden" data-label="&#x4e12;">ok</p><style>.fx-j::before { content: attr(data-label) }</style>`, expected: null },
+  { name: 'hidden, display:none, visibility:hidden and closed-<details> text, SVG <title>/<desc>', html: `<p hidden>&#x4e12;</p><div style="display:none"><span>&#x4e12;</span></div><p style="visibility:hidden">&#x4e12;</p><p class="fx-d" style="--label:'&#92;4e12'"></p><style>.fx-d::after { content: var(--label); display: none }</style><details><summary>x</summary>&#x4e12;</details><svg width="20" height="20"><title>&#x4e12;</title><desc>&#x4e12;</desc><rect width="20" height="20"/></svg>`, expected: null },
 ]
 
 test.describe('font coverage gate fixtures', () => {
   test.beforeAll(async () => {
     expect((await collectCharacters()).has(absent)).toBe(false)
+    const slices = await fallbackSlices(new Set())
+    for (const character of [absent, astral]) expect(slices.some(slice => slice.codes.includes(character.codePointAt(0)!))).toBe(false)
   })
   for (const fixture of fixtures) {
     test(`${fixture.expected ? 'catches' : 'does not report'}: ${fixture.name}`, async ({ page }) => {

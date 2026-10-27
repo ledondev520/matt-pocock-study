@@ -1,7 +1,8 @@
 import { execFileSync } from 'node:child_process'
 import { readdir, readFile, stat, mkdtemp, writeFile, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
-import { join, resolve } from 'node:path'
+import { createRequire } from 'node:module'
+import { dirname, join, resolve } from 'node:path'
 import { beforeAll, afterAll, expect, it } from 'vitest'
 import { JSDOM } from 'jsdom'
 import { renderToString } from 'react-dom/server'
@@ -14,6 +15,8 @@ import { siteUrl } from '../src/lib/site'
 import { createApp } from '../server/app'
 import { createIndex } from '../server/db'
 import registry from '../data/figures.json'
+import { collectCharacters, fontWeights } from '../scripts/fonts.mjs'
+import { parseFontFaces, type NotoFace } from './font-faces'
 
 let model: Model
 const db = createIndex([])
@@ -606,3 +609,47 @@ it('serves the Chinese home page at / with /zh as canonical and a pre-paint redi
     expect(target, `${stored} at ${path}`).toBe(redirected ? '/en' : undefined)
   }
 })
+
+it('build ships the Noto subset faces and the full Fontsource fallback slices, all self-hosted (option A)', async () => {
+  const fontsource = dirname(createRequire(import.meta.url).resolve('@fontsource/noto-sans-sc/package.json'))
+  const sheets = (await readdir('dist/assets')).filter(name => name.endsWith('.css'))
+  const faces: NotoFace[] = []
+  for (const sheet of sheets) faces.push(...parseFontFaces(await readFile(join('dist/assets', sheet), 'utf8'), '/assets/'))
+  // The HTML links the stylesheet that carries the faces (no extra request for the fallback).
+  const html = await readFile('dist/zh/index.html', 'utf8')
+  const linked = sheets.filter(sheet => html.includes(`/assets/${sheet}`))
+  expect(linked).toHaveLength(1)
+  expect(faces.length).toBeGreaterThan(0)
+  const linkedFaces = parseFontFaces(await readFile(join('dist/assets', linked[0]), 'utf8'), '/assets/')
+  expect(linkedFaces).toHaveLength(faces.length)
+  const generated = parseFontFaces(await readFile('generated/fonts/noto-sans-sc.css', 'utf8'), './')
+  const characters = await collectCharacters()
+  for (const weight of fontWeights) {
+    const own = faces.filter(face => face.weight === weight)
+    const subset = own.filter(face => face.kind === 'subset')
+    const fallbacks = own.filter(face => face.kind === 'fallback')
+    expect(subset).toHaveLength(1)
+    expect(fallbacks.length).toBeGreaterThan(50)
+    // Same faces and ranges as the generated CSS (the minifier must not drop or merge any).
+    const expected = generated.filter(face => face.weight === weight)
+    expect(own.map(face => [face.kind, face.slice, [...face.codes].sort((a, b) => a - b).join()])).toEqual(expected.map(face => [face.kind, face.slice, [...face.codes].sort((a, b) => a - b).join()]))
+    // Ranges are disjoint: a subset character can never pull a fallback slice.
+    const owner = new Map<number, string>()
+    const overlaps: string[] = []
+    for (const face of own) for (const code of face.codes) { if (owner.has(code)) overlaps.push(`U+${code.toString(16)}`); owner.set(code, face.file) }
+    expect(overlaps).toEqual([])
+    // Every collected character has a face: the subset, or a fallback slice.
+    expect([...characters].filter(character => !owner.has(character.codePointAt(0)!))).toEqual([])
+    const subsetBytes = await readFile(join('dist/assets', subset[0].file))
+    expect(subsetBytes.toString('ascii', 0, 4)).toBe('wOF2')
+    for (const face of fallbacks) {
+      // The shipped file exists and is the unmodified Fontsource slice for that id and weight.
+      const shipped = await readFile(join('dist/assets', face.file)).catch(() => null)
+      expect(shipped, face.file).not.toBeNull()
+      expect(shipped!.equals(await readFile(join(fontsource, `files/noto-sans-sc-${face.slice}-${weight}-normal.woff2`))), face.file).toBe(true)
+    }
+  }
+  // No other Noto files ship (e.g. a leftover Fontsource import with its 100+ slices and woff copies).
+  const shippedNoto = (await readdir('dist/assets')).filter(name => /^noto-sans-sc/.test(name)).sort()
+  expect(shippedNoto).toEqual(faces.map(face => face.file).sort())
+}, 60000)
