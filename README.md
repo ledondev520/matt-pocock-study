@@ -35,3 +35,5 @@ After merging `main` (#15, licences page) into the branch, merge commit 32585da.
 | Licences page, 1440 px | merge-licenses-zh-desktop.png | merge-licenses-en-desktop.png |
 | Footer, 390 px | merge-footer-zh-mobile.png | merge-footer-en-mobile.png |
 | Footer, 1440 px | merge-footer-zh-desktop.png | merge-footer-en-desktop.png |
+
+After the second merge (`main` with #11, knowledge base), merge commit b5ecc18: the same set as `merge2-*.png`, plus the knowledge base page (`merge2-knowledge-{zh,en}-{mobile,desktop}.png`). The header now has the "知识库 / Knowledge" link from #11. The `merge-*.png` files above are from the first merge (32585da).
