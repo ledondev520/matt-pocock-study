@@ -62,9 +62,6 @@ date: 2026-08-11
 id: s09-handoff-card
 ```
 
-六格结构根据 [Matt Pocock 的 skills 仓库][skills] 改编，MIT。
-来源文件：`skills/productivity/handoff/SKILL.md`。字段和下面的场景由本站组织。
-
 分享前去掉密钥、个人资料与带凭据的日志。需要访问的资源可以说明授权方式，
 不要把凭据塞进交接。区分「已有产物」和「已验证成功」，文件存在不是完成证据。
 
@@ -97,10 +94,7 @@ answer: 未决问题是跨页是否遗漏。下一步用 42 条匹配数据验�
 ## 来源与归属
 
 - Matt Pocock，[经验判断](https://x.com/mattpocockuk/status/2087111966854730148)，2026-08-11。
-- [skills 仓库][skills]：上述 handoff 结构改编；Copyright (c) 2026 Matt Pocock。
-- [本站版权说明](/zh/about-and-copyright)；完整 MIT 许可见[许可](/zh/licenses)页。
-
-[skills]: https://github.com/mattpocock/skills
+- [本站版权说明](/zh/about-and-copyright)。
 
 ## skills MIT 许可声明
 

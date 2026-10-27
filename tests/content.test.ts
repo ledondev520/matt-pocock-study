@@ -90,13 +90,13 @@ it('break points in inline code change neither the copied text nor the .md and l
     const base = lang === 'en' ? output : join(output, lang)
     const exports = [await readFile(join(base, 'llms-full.txt'), 'utf8'), ...await Promise.all(pages.filter(page => page.lang === lang).map(page => readFile(join(output, lang, `${page.slug}.md`), 'utf8')))]
     for (const text of exports) expect(text).not.toMatch(/<wbr|code-keep/)
-    const learning = await readFile(join(output, lang, 'learning-path.md'), 'utf8')
-    expect(learning).toContain('`skills/productivity/teach/SKILL.md`')
-    expect(exports[0]).toContain('`skills/productivity/teach/SKILL.md`')
+    const foundations = await readFile(join(output, lang, 'typescript-foundations.md'), 'utf8')
+    expect(foundations).toContain('`{ seats: number }`')
+    expect(exports[0]).toContain('`{ seats: number }`')
   }
-  const html = pages.find(page => page.lang === 'en' && page.slug === 'learning-path')!.html
-  const code = [...pageDocument(html).querySelectorAll('code')].find(el => el.textContent === 'skills/productivity/teach/SKILL.md')!
-  expect(code.querySelectorAll('wbr')).toHaveLength(3)
+  const html = pages.find(page => page.lang === 'en' && page.slug === 'typescript-foundations')!.html
+  const code = [...pageDocument(html).querySelectorAll('code')].find(el => el.textContent === '{ seats: number }')!
+  expect(code.querySelectorAll('.code-keep')).toHaveLength(1)
 })
 
 // Rule, checked on the rendered page rather than through the build's own helper: an inline <svg>

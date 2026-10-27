@@ -3,19 +3,23 @@ import { readFileSync } from 'node:fs'
 
 /**
  * MIT sources whose material this site reuses. Each LICENSE file under third_party/ is a
- * byte-for-byte copy of the upstream repository's LICENSE; the pinned sha256 makes any edit
- * (including a changed copyright holder or year) fail the build.
+ * byte-for-byte copy of the upstream repository's LICENSE as it stood when the material was taken;
+ * the pinned sha256 makes any edit (including a changed copyright holder or year) fail the build.
+ * `licenseUrl` points at that same text upstream: Archify moved to Apache-2.0 on 2026-10-25
+ * (9c306ee), so its link is pinned to 7a16d30, the last commit whose LICENSE is this MIT text.
  */
 export const licences = {
   'mattpocock-skills': {
     name: 'mattpocock/skills',
     repo: 'https://github.com/mattpocock/skills',
+    licenseUrl: 'https://github.com/mattpocock/skills/blob/main/LICENSE',
     file: 'third_party/mattpocock-skills/LICENSE',
     sha256: '0e7ac423bf2c6e223b7c5b156f8cf72da49d748e56a1641402c31f22ad07dbb5',
   },
   archify: {
     name: 'Archify (tt-a1i/archify)',
     repo: 'https://github.com/tt-a1i/archify',
+    licenseUrl: 'https://github.com/tt-a1i/archify/blob/7a16d30322f5bd09c832386faa95d8c9a933f0c0/LICENSE',
     file: 'third_party/archify/LICENSE',
     sha256: 'b799ab081703e7821ae5096d2c1abdf14bbdc75e8ea1c4045998c36ed6db9706',
   },
@@ -83,7 +87,7 @@ function fontLicenceText(id, read = file => readFileSync(file, 'utf8')) {
 /** Everything the /licenses view shows, with each text read through its hash check. */
 export function licencesView() {
   return {
-    mit: Object.entries(licences).map(([id, entry]) => ({ id, name: entry.name, repo: entry.repo, licenseUrl: `${entry.repo}/blob/main/LICENSE`, text: licenceText(id) })),
+    mit: Object.entries(licences).map(([id, entry]) => ({ id, name: entry.name, repo: entry.repo, licenseUrl: entry.licenseUrl, text: licenceText(id) })),
     fonts: Object.entries(fonts).map(([id, entry]) => ({ id, name: entry.name, pkg: entry.pkg, repo: entry.repo, href: '/' + entry.file.replace(/^public\//, ''), text: fontLicenceText(id) })),
   }
 }

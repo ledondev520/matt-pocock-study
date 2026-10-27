@@ -55,8 +55,6 @@ Navigation points a collaborator to information; checks reject mechanically dete
 
 ## Verification and handoff
 
-These fields condense structures from Matt Pocock's [skills repository](https://github.com/mattpocock/skills), adapted under MIT. The complete licence is on the [Licenses](/en/licenses) page; see also the [copyright page](/en/about-and-copyright).
-
 <!-- compare -->
 | Field | What to retain | Full lesson |
 | --- | --- | --- |
@@ -65,12 +63,6 @@ These fields condense structures from Matt Pocock's [skills repository](https://
 | Unverified items | Missing evidence and risk | [Review and PR](/en/review-and-pr) |
 | Artifact links | Existing locations, avoiding duplication | [Context and handoff](/en/context-and-handoff) |
 | Next action | Receiving task and verification | [Context and handoff](/en/context-and-handoff) |
-
-Source files: `skills/productivity/handoff/SKILL.md`, `skills/engineering/code-review/SKILL.md`, `skills/engineering/pr/SKILL.md`.
-
-Navigation also adapts `skills/productivity/writing-for-agents/SKILL.md`; the exercise and review structure adapts `skills/productivity/teach/SKILL.md`.
-
-The PR source credits Dex Horthy / HumanLayer's [upstream work](https://github.com/humanlayer/skills/blob/main/plugins/show-me/skills/show-me/SKILL.md). This site takes no content from that upstream file.
 
 An unverified field should identify behaviours not run, missing environment and possible impact. The receiver needs to know which conclusions remain unsupported. Link existing evidence without treating an earlier result as a fresh verification.
 
@@ -113,7 +105,7 @@ Done means the selection addresses the reported failure and the action produces 
 ## Sources
 
 - [Matt's cheat-sheet quote, 2023-09-12](https://x.com/mattpocockuk/status/1701619240686485799)
-- Each table links to this site's full explanations; MIT source files and upstream credit accompany the adapted fields.
+- Each table links to this site's full explanations.
 
 ## skills MIT notice
 

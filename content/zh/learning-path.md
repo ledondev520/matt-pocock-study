@@ -62,15 +62,13 @@ id: d20-routes
 
 ## 把进展交给结果
 
-小胜利、练习与复习结构根据 Matt Pocock 的 [skills 仓库](https://github.com/mattpocock/skills)改编，MIT；文件：`skills/productivity/teach/SKILL.md`。
-
 ```cards
 - **先交产物** 对照每条路线的完成标准核验。
 - **隔段时间** 关闭答案，再做一道变式题。
 - **换种情境** 混合输入与失败条件，检查是否会选择方法。
 ```
 
-完整许可见[许可](/zh/licenses)页，另见[版权页](/zh/about-and-copyright)。以上顺序由本站设计，不是 Matt 的官方路径，也不承诺固定学习小时数。
+以上顺序由本站设计，不是 Matt 的官方路径，也不承诺固定学习小时数。
 
 ```note
 kind: inference
@@ -88,7 +86,7 @@ kind: inference
 ## 来源
 
 - [Matt 的免费学习邀请，2022-09-05](https://x.com/mattpocockuk/status/1566739592249835520)
-- 各路线链接为本站课程；教学结构的 MIT 来源文件见上文。
+- 各路线链接为本站课程。
 
 ## skills MIT 许可声明
 

@@ -61,15 +61,13 @@ Done means another reader attempts a fresh example and you check the answer and 
 
 ## Let results show progress
 
-The small-win, practice and review structure adapts Matt Pocock's [skills repository](https://github.com/mattpocock/skills), MIT; source file: `skills/productivity/teach/SKILL.md`.
-
 ```cards
 - **Deliver first** Check the artifact against the route's completion criteria.
 - **Return later** Close the answer and try a variation.
 - **Change the context** Mix inputs and failure conditions to practise selecting a method.
 ```
 
-The complete licence is on the [Licenses](/en/licenses) page; see also the [copyright page](/en/about-and-copyright). These route sequences are this site's design. They are not Matt's official learning path and promise no fixed completion time.
+These route sequences are this site's design. They are not Matt's official learning path and promise no fixed completion time.
 
 ```note
 kind: inference
@@ -87,7 +85,7 @@ Our suggestion: ask a person or another session to verify each completed segment
 ## Sources
 
 - [Matt's free-learning invitation, 2022-09-05](https://x.com/mattpocockuk/status/1566739592249835520)
-- Route links lead to this site's lessons; the MIT teaching source is identified above.
+- Route links lead to this site's lessons.
 
 ## skills MIT notice
 

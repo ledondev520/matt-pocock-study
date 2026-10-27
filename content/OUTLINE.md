@@ -451,7 +451,7 @@
 | skills · https://github.com/mattpocock/skills | `skills/engineering/pr/SKILL.md` | `Copyright (c) 2026 Matt Pocock` | 改编概览 / 证据 / 风险模板；保留其 Dex Horthy / HumanLayer 致谢来源；`review-and-pr`、`cheat-sheets` |
 | skills · https://github.com/mattpocock/skills | `skills/productivity/teach/SKILL.md` | `Copyright (c) 2026 Matt Pocock` | 改编小课、练习与复习结构；`writing-to-teach`、`learning-path`、`cheat-sheets`；若其他页面直接套用模板，也按此来源标注 |
 
-每个复用块旁写「根据 Matt Pocock 的 skills 仓库改编，MIT」，附来源仓库与上述文件路径，并链接 `about-and-copyright` 内完整声明。每份单页 Markdown 下载直接带上完整声明；合集按来源保留一份完整声明，并能定位受其覆盖的页面。本站添加的例子和讲解不得因此被错误标为原作者原文。
+页面正文不写「改编，MIT」、版权行或「本页改编自…」说明（2026-10-28 起；构建产物测试拦截，见 tests/static.test.tsx）：上述来源文件登记在 `about-and-copyright`，版权行与许可全文在 `/zh/licenses`、`/en/licenses`（每页页脚链接）。每份单页 Markdown 导出末尾直接带上完整声明；合集按来源保留一份完整声明，并能定位受其覆盖的页面。本站添加的例子和讲解不得因此被错误标为原作者原文。
 
 PR 文件的上游致谢在本地原文件中给出 https://github.com/humanlayer/skills/blob/main/plugins/show-me/skills/show-me/SKILL.md 。这里只保留来源致谢，不从该上游取内容，也不推定它的许可。
 

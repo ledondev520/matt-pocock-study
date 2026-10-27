@@ -254,7 +254,7 @@ it('every built page and SVG file that embeds Archify CSS points to or carries t
 // the view's JSON (the client renders from it).
 it('the licences pages show each MIT and font licence byte-identical to its file, with its upstream links', async () => {
   const expected = await Promise.all([...licenceFiles, ...fontFiles].map(file => readFile(file)))
-  const upstream = [['https://github.com/mattpocock/skills', 'https://github.com/mattpocock/skills/blob/main/LICENSE'], ['https://github.com/tt-a1i/archify', 'https://github.com/tt-a1i/archify/blob/main/LICENSE']]
+  const upstream = [['https://github.com/mattpocock/skills', 'https://github.com/mattpocock/skills/blob/main/LICENSE'], ['https://github.com/tt-a1i/archify', 'https://github.com/tt-a1i/archify/blob/7a16d30322f5bd09c832386faa95d8c9a933f0c0/LICENSE']]
   for (const lang of ['zh', 'en'] as const) {
     const html = await readFile(`dist/${lang}/licenses/index.html`, 'utf8')
     const doc = new JSDOM(html).window.document
@@ -315,6 +315,34 @@ it('every built page has a one-line footer with one licences link, and no licenc
     expect(response.headers.get('Content-Type')).toBe('text/markdown; charset=utf-8')
   }
   for (const path of ['/llms.txt', '/llms-full.txt', '/zh/llms.txt', '/zh/llms-full.txt']) expect((await app.request(path)).status, path).toBe(200)
+})
+
+// Pages carry no licence or adaptation notices: no "MIT", no "Copyright (c)" line and no sentence
+// saying a structure was adapted from skills (or Archify). Those live on /licenses and in the .md and
+// llms-full exports. Checked on the built HTML, so a notice section that leaks back onto a page (for
+// example "本页改编的结构来自…" / "The structure adapted here comes from…") fails here, not only in
+// a unit test. Exempt: the licences pages, about-and-copyright (the copyright register itself) and
+// open-source-guide (each repository's licence is its subject). Text inside inline <svg> diagrams is
+// left out: those files are locked byte for byte by the Archify test above.
+const noticeExempt = /^dist\/(?:zh|en)\/(?:licenses|about-and-copyright|open-source-guide)\/index\.html$/
+const adaptation = /改编|adapt/i, upstream = /\bskills\b|SKILL\.md|mattpocock|Matt Pocock|Archify/
+it('no built page outside the licences, copyright and open-source guide pages shows MIT, a copyright line or an adaptation notice', async () => {
+  let checked = 0
+  for (const file of await files('dist')) {
+    if (noticeExempt.test(file)) continue
+    const doc = new JSDOM(await readFile(file, 'utf8')).window.document
+    doc.querySelectorAll('script, style, template, svg').forEach(node => node.remove())
+    const text = (doc.body.textContent ?? '').replace(/\s+/g, ' ')
+    expect(text.match(/.{0,40}\bMIT\b.{0,40}/)?.[0], `${file} shows MIT`).toBeUndefined()
+    expect(text.match(/.{0,40}Copyright \(c\).{0,40}/i)?.[0], `${file} shows a copyright line`).toBeUndefined()
+    for (const block of doc.body.querySelectorAll('p, li, td, th, h2, h3, h4, dt, dd, figcaption, summary, blockquote')) {
+      const line = (block.textContent ?? '').replace(/\s+/g, ' ')
+      expect(adaptation.test(line) && upstream.test(line) ? line : undefined, `${file} shows an adaptation notice`).toBeUndefined()
+    }
+    checked++
+  }
+  // Every article in both languages, the homes and the 404s were read (and the exemptions were few).
+  expect(checked).toBeGreaterThanOrEqual(model.pages.length - 4)
 })
 
 // "/" is the Chinese home page in its first HTML response: no English, no client redirect. Only a

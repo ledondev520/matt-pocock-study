@@ -32,8 +32,6 @@ Separate a documented violation from a possible design smell. A violation needs 
 | Requirements | Ticket: export every result | Export entry | Only the current page is exported | 42 matches produce 20 rows |
 | Standards | Repository permission rule | Download handler | Uses the shared permission entry | An anonymous request is rejected |
 
-Review structure adapted from [Matt Pocock's skills repository][skills], MIT: `skills/engineering/code-review/SKILL.md`. The scenario and wording are ours.
-
 ## Give the reviewer something to verify
 
 Use three parts for the PR. Describe the changed behaviour, compare results for the same input, then explain merge risk. Include the environment, affected callers, rollback conditions and anything still unverified.
@@ -50,8 +48,6 @@ date: 2026-10-05
 ```
 
 An agent's confidence cannot fill the evidence column. Link a run, screenshot or log and say which claim it supports. A check that has not run remains an open item.
-
-The three-part structure adapts `skills/engineering/pr/SKILL.md` from [skills][skills], MIT. That file credits Dex Horthy / HumanLayer's [show-me][showme]. We retain that credit without taking content from the upstream work.
 
 ## Exercise: make an export fix reviewable
 
@@ -85,11 +81,9 @@ Carry this state into a fresh session with the [handoff lesson](/en/context-and-
 ## Sources and attribution
 
 - Matt Pocock, [review evidence and merge risk](https://x.com/mattpocockuk/status/2107062474914550098), 2026-10-05.
-- [skills repository][skills]: the two structures identified above; Copyright (c) 2026 Matt Pocock.
 - [show-me upstream credit][showme], Dex Horthy / HumanLayer; attribution only.
-- [Site copyright details](/en/about-and-copyright). The complete MIT licence for the adapted structures is on the [Licenses](/en/licenses) page.
+- [Site copyright details](/en/about-and-copyright).
 
-[skills]: https://github.com/mattpocock/skills
 [showme]: https://github.com/humanlayer/skills/blob/main/plugins/show-me/skills/show-me/SKILL.md
 
 ## skills MIT notice

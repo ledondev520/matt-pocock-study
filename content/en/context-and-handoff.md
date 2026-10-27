@@ -57,8 +57,6 @@ Record the current goal, confirmed decisions, artifact locations, verification s
 id: s09-handoff-card
 ```
 
-Structure adapted from [Matt Pocock's skills repository][skills], MIT: `skills/productivity/handoff/SKILL.md`. The field arrangement and example are ours.
-
 Remove secrets, personal information and credentials embedded in logs. Explain how authorised access is obtained without including credentials. Keep artifact existence separate from verification: a file can exist while its behaviour remains untested.
 
 ## Exercise: can someone continue from this alone?
@@ -89,10 +87,7 @@ Make those artifact paths easier to discover with [agent documentation](/en/agen
 ## Sources and attribution
 
 - Matt Pocock, [a contextual heuristic](https://x.com/mattpocockuk/status/2087111966854730148), 2026-08-11.
-- [skills repository][skills]: handoff adaptation identified above; Copyright (c) 2026 Matt Pocock.
-- [Site copyright details](/en/about-and-copyright). The complete MIT licence is on the [Licenses](/en/licenses) page.
-
-[skills]: https://github.com/mattpocock/skills
+- [Site copyright details](/en/about-and-copyright).
 
 ## skills MIT notice
 

@@ -45,8 +45,6 @@ Inspect the example’s input and expected outcome separately. Without an input,
 
 ## Close the explanation
 
-Adapted from Matt Pocock's [skills repository](https://github.com/mattpocock/skills), MIT; source file: `skills/productivity/teach/SKILL.md`.
-
 ```cards
 - **Retrieval** Close the explanation and answer unaided.
 - **Spacing** Return later and record what you forgot.
@@ -57,7 +55,7 @@ Adapted from Matt Pocock's [skills repository](https://github.com/mattpocock/ski
 id: d16-practice-loop
 ```
 
-Teach one small concept, then ask for a decision. Define completion as handling an unfamiliar input. Reading smoothly is insufficient evidence. The complete licence is on the [Licenses](/en/licenses) page; see also the [copyright page](/en/about-and-copyright).
+Teach one small concept, then ask for a decision. Define completion as handling an unfamiliar input. Reading smoothly is insufficient evidence.
 
 ## Check the teaching too
 
@@ -91,7 +89,6 @@ Done means another reader can predict the feedback from your explanation and jus
 ## Sources
 
 - [Matt on teaching examples, 2025-11-28](https://x.com/mattpocockuk/status/1994475432763113845)
-- [skills, MIT source for the teaching structure](https://github.com/mattpocock/skills); file identified above.
 
 ## skills MIT notice
 

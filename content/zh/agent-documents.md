@@ -49,10 +49,6 @@ id: d10-what-stays
 平台必须遵守的要求继续遵守。资料拆得太碎也有成本：人要维护更多文件与入口，
 agent 可能要多次跳转。观察找资料和更新资料的负担，再决定拆分粒度。
 
-以下自查结构根据 [Matt Pocock 的 skills 仓库][skills] 改编，MIT。
-
-来源文件：`skills/productivity/writing-for-agents/SKILL.md`。示例文字由本站编写。
-
 ```cards
 - **触发清楚** 每个入口都说出什么任务需要它。
 - **事实单源** 配置能回答的问题，回到配置读取。
@@ -100,10 +96,7 @@ kind: inference
 - Matt Pocock，[入口与删减](https://x.com/mattpocockuk/status/2073473197991715246)，2026-07-04。
 - [AGENTS.md 公开文章](https://www.aihero.dev/a-complete-guide-to-agents-md)，独立解读。
 - [极简说明文章](https://www.aihero.dev/never-run-claude-init)，独立解读。
-- [skills 仓库][skills]：上述自查结构改编；Copyright (c) 2026 Matt Pocock。
-- [本站版权说明](/zh/about-and-copyright)；完整 MIT 许可见[许可](/zh/licenses)页。
-
-[skills]: https://github.com/mattpocock/skills
+- [本站版权说明](/zh/about-and-copyright)。
 
 ## skills MIT 许可声明
 
