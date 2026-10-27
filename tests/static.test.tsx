@@ -74,7 +74,8 @@ it('writes complete, localized HTML and absolute metadata for all routes', async
     expect(doc.querySelector('link[rel="canonical"]')?.getAttribute('href')).toBe(siteUrl() + path)
     expect(doc.querySelector('meta[property="og:url"]')?.getAttribute('content')).toBe(siteUrl() + path)
     expect(doc.querySelector('meta[property="og:image"]')?.getAttribute('content')).toMatch(new RegExp('^' + siteUrl().replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '/og/'))
-    expect(doc.querySelectorAll('link[rel="alternate"]')).toHaveLength(2)
+    expect(doc.querySelectorAll('link[rel="alternate"][hreflang]')).toHaveLength(2)
+    expect(doc.querySelectorAll('link[rel="alternate"][type="text/markdown"]')).toHaveLength(1)
     expect(doc.querySelector('meta[name="twitter:card"]')?.getAttribute('content')).toBe('summary_large_image')
     const page = model.pages.find(p => p.lang === lang && p.slug === slug)
     if (page) {
@@ -132,6 +133,68 @@ it('serves static pages, downloads and assets and gives unknown paths a real 404
     const response = await app.request(path)
     expect(response.status).toBe(404)
     expect(await response.text()).toContain(path.startsWith('/zh/') ? '这个地址没有页面' : 'Page not found')
+  }
+})
+
+// Agent-readable gate, derived from dist/ (no route list here): every indexable HTML page links its
+// Markdown twin, the twin exists and is plain Markdown, it is listed in that language's llms.txt, and
+// the page's canonical URL is in sitemap.xml. A new route that skips any of these fails the build.
+const site = () => siteUrl()
+const stripCode = (markdown: string) => markdown.replace(/```[\s\S]*?```/g, '').replace(/`[^`\n]*`/g, '')
+it('every indexable page has a Markdown twin that is in llms.txt and sitemap.xml', async () => {
+  const sitemap = await readFile('dist/sitemap.xml', 'utf8')
+  const llms = { en: await readFile('dist/llms.txt', 'utf8'), zh: await readFile('dist/zh/llms.txt', 'utf8') }
+  const indexable: string[] = []
+  for (const file of await files('dist')) {
+    const doc = new JSDOM(await readFile(file, 'utf8')).window.document
+    if (doc.querySelector('meta[name="robots"][content~="noindex"]')) continue
+    indexable.push(file)
+    const lang = doc.documentElement.lang === 'zh' ? 'zh' : 'en'
+    const links = doc.querySelectorAll('link[rel="alternate"][type="text/markdown"]')
+    expect(links, `${file} links its .md`).toHaveLength(1)
+    const href = links[0].getAttribute('href')!
+    expect(href, file).toMatch(/^\/(zh|en)\/[a-z0-9-]+\.md$/)
+    const markdown = await readFile(`dist${href}`, 'utf8').catch(() => '')
+    expect(markdown, `${file}: dist${href}`).toMatch(/^# \S/)
+    expect(stripCode(markdown), `${href} has no HTML tags outside code`).not.toMatch(/<\/?(?:div|span|p|a|img|svg|section|aside|details|summary|table|tr|td|th|br|figure|script|style)\b[^>]*>/i)
+    expect(llms[lang], `${href} in ${lang} llms.txt`).toContain(`](${site()}${href})`)
+    const canonical = doc.querySelector('link[rel="canonical"]')!.getAttribute('href')!
+    expect(sitemap, `${canonical} in sitemap.xml`).toContain(`<loc>${canonical}</loc>`)
+    const response = await app.request(href)
+    expect(response.status, href).toBe(200)
+    expect(response.headers.get('Content-Type'), href).toBe('text/markdown; charset=utf-8')
+  }
+  // Home pages and the corpus page are covered too, not only articles.
+  expect(indexable).toEqual(expect.arrayContaining(['dist/index.html', 'dist/zh/index.html', 'dist/en/index.html', 'dist/zh/corpus/index.html', 'dist/en/corpus/index.html']))
+  // Reverse direction: the sitemap lists only real pages, and every llms.txt link resolves.
+  const locs = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m => m[1])
+  expect(new Set(locs).size).toBe(locs.length)
+  for (const loc of locs) await resolves(loc, '/')
+  for (const [lang, index] of Object.entries(llms)) {
+    expect(index, `${lang} llms.txt explains how to use the site`).toMatch(lang === 'zh' ? /\n## 怎么用/ : /\n## How to use/)
+    for (const [, href] of index.matchAll(/\]\(([^)\s]+)\)/g)) await resolves(href, '/')
+    for (const url of index.match(/https?:\/\/[^\s)`，。；]+/g) ?? []) if (!url.includes('/api/')) await resolves(url, '/')
+  }
+})
+it('robots.txt blocks no crawler and points to the sitemap', async () => {
+  const robots = await readFile('dist/robots.txt', 'utf8')
+  expect(robots).toMatch(/^User-agent: \*$/m)
+  expect(robots).not.toMatch(/^\s*Disallow:\s*\S/im)
+  expect(robots).toContain(`Sitemap: ${site()}/sitemap.xml`)
+  for (const path of ['/robots.txt', '/sitemap.xml']) {
+    const response = await app.request(path)
+    expect(response.status, path).toBe(200)
+  }
+  expect(new JSDOM(await readFile('dist/sitemap.xml', 'utf8'), { contentType: 'application/xml' }).window.document.querySelector('parsererror')).toBeNull()
+})
+it('files written for agents carry no addresses, local paths or key-shaped strings', async () => {
+  const targets = ['dist/llms.txt', 'dist/llms-full.txt', 'dist/zh/llms.txt', 'dist/zh/llms-full.txt', 'dist/robots.txt', 'dist/sitemap.xml', ...(await walk('dist', '.md'))]
+  for (const file of targets) {
+    const text = await readFile(file, 'utf8')
+    expect(text, `${file}: IPv4 address`).not.toMatch(/\b(?:\d{1,3}\.){3}\d{1,3}\b/)
+    expect(text, `${file}: email address`).not.toMatch(/[\w.+-]+@[\w-]+\.[\w.-]+/)
+    expect(text, `${file}: local path`).not.toMatch(/(?:^|[\s"'(])\/(?:workspace|home|root|srv|Users)\//m)
+    expect(text, `${file}: key-shaped string`).not.toMatch(/\b(?:sk|ghp|gho|xox[bp])[-_][A-Za-z0-9_-]{16,}/)
   }
 })
 

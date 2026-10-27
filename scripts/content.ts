@@ -3,13 +3,14 @@ import { join } from 'node:path'
 import { outputPath, writeOutput } from './output-path.mjs'
 import { parse } from 'yaml'
 import { marked, type Token, type Tokens } from 'marked'
-import { sections, type Page, type Section } from '../src/lib/content'
+import { sections, sectionLabel, type Page, type Section } from '../src/lib/content'
 import type { Lang } from '../src/lib/lang'
 import { codeHtml } from './code'
 import { siteUrl } from '../src/lib/site'
 import { figureHtml, figureMarkdown, figureById, escapeHtml, buildFigures } from './figures'
 import { licenceBlock, embedsArchify, archifyAppendix } from './licences.mjs'
 import { renderArrows } from './arrows'
+import { agentPrompt, llmsFullPath, llmsPath } from '../src/lib/agent'
 
 const languages = ['en', 'zh'] as const
 const componentNames = ['cards', 'quote', 'exercise', 'figure', 'note', 'licence']
@@ -137,6 +138,47 @@ export async function readPages(contentDir: string): Promise<Page[]> {
   return pages.sort((a, b) => a.order - b.order || a.slug.localeCompare(b.slug))
 }
 
+// What a coding agent reads first: llms.txt (how to use the site + a grouped index), llms-full.txt
+// (every page in one file) and the home page's Markdown twin. One language per call.
+export function agentFiles(lang: Lang, localized: Page[], site: string) {
+  const zh = lang === 'zh', t = (cn: string, en: string) => zh ? cn : en
+  const title = t('Matt Pocock 学习笔记', 'Matt Pocock study notes')
+  const summary = t('独立整理，非官方、非商业；原作品版权归原作者。', 'Independent, unofficial, non-commercial notes. Original works belong to their authors.')
+  const full = `# ${title}\n\n> ${summary}\n\n${localized.map(page => `## ${page.title}\n\n${page.markdown}`).join('\n---\n\n')}`
+  const fullKb = Math.max(1, Math.round(Buffer.byteLength(full) / 1024))
+  const example = localized.find(page => page.slug === 'review-and-pr') ?? localized[0]
+  const groups = Object.keys(sections).flatMap(section => {
+    const items = localized.filter(page => page.section === section)
+    return items.length ? [`### ${sectionLabel(section, lang)}\n\n${items.map(page => `- [${page.title}](${site}/${lang}/${page.slug}.md): ${page.summary}`).join('\n')}`] : []
+  }).join('\n\n')
+  const homeLine = `- [${t('首页', 'Home')}](${site}/${lang}/index.md): ${t('网站介绍、从哪儿开始、全部笔记目录。', 'What the site is, where to start, and the list of all notes.')}`
+  const howTo = zh ? `## 怎么用（写给 Coding Agent）
+
+1. 在下面的目录里找到要学的主题，每行冒号后面写了这页讲什么。
+2. 读那页的 \`.md\` 链接：整页的 Markdown 原文，不用渲染 HTML，也不用跑 JS。
+3. 每个网页都有对应的 \`.md\`，路径后面加 \`.md\` 就行（\`/zh/${example.slug}\` → \`/zh/${example.slug}.md\`）；首页是 \`/zh/index.md\`。
+4. 想一次读完：${site}${llmsFullPath(lang)} 是全部页面合在一起，约 ${fullKb} KB。
+5. 找 Matt 的原帖、文章或仓库：\`GET ${site}/api/corpus?q=关键词&limit=20\` 返回 JSON，带日期、本站摘要和原文链接；还能加 \`type=post|article|repo|web\`、\`tag=\`、\`from=\`/\`to=\`（YYYY-MM-DD）、\`sort=date\`。
+6. 小节标题的锚点是固定的，引用时可以写 \`/zh/<slug>#<锚点>\`。
+
+全站公开、只读，不用登录，也不用 API key。引用时附上页面链接；引 Matt 原话时附上原文链接。` : `## How to use this site (for coding agents)
+
+1. Find the topic you were asked about in the index below. The text after each link says what that page answers.
+2. Read that page's \`.md\` link: the whole page as plain Markdown. No HTML rendering or JS needed.
+3. Every HTML page has a Markdown twin: add \`.md\` to the path (\`/en/${example.slug}\` → \`/en/${example.slug}.md\`). The home page is \`/en/index.md\`.
+4. Want it all at once? ${site}${llmsFullPath(lang)} has every page in one file, about ${fullKb} KB.
+5. Looking for Matt's original post, article or repo? \`GET ${site}/api/corpus?q=<words>&limit=20\` returns JSON with dates, our summaries and links to the originals. It also takes \`type=post|article|repo|web\`, \`tag=\`, \`from=\`/\`to=\` (YYYY-MM-DD) and \`sort=date\`.
+6. Section headings keep stable anchors, so you can cite \`/en/<slug>#<heading-id>\`.
+
+The site is public and read-only: no login, no API key. Cite the page URL, and link to Matt's original when you quote him.`
+  const intro = t('用我们自己的话整理 Matt Pocock 的公开分享：AI coding 工作流、给 agent 立规矩、TypeScript、写作与教学。',
+    'Notes in our own words on Matt Pocock\'s public teaching: AI coding workflow, rules for agents, TypeScript, and writing to teach.')
+  const otherLanguage = t(`English: ${site}${llmsPath('en')}`, `中文版：${site}${llmsPath('zh')}`)
+  const index = `# ${title}\n\n> ${summary}\n\n${intro}${zh ? '' : ' '}${otherLanguage}\n\n${howTo}\n\n## ${t('页面', 'Pages')}\n\n${groups}\n\n### ${t('网站', 'Site')}\n\n${homeLine}\n`
+  const home = `# ${title}\n\n${summary}\n\n${intro}\n\n## ${t('让你的 Coding Agent 来读', 'Let your coding agent read it')}\n\n${t('把这句话发给你的 Coding Agent，「拆大 PR」换成你想学的：', 'Paste this into your coding agent and swap in whatever you want to learn:')}\n\n> ${agentPrompt(lang, site)}\n\n- ${t('用法和目录：', 'How to use the site, with the index: ')}${site}${llmsPath(lang)}\n- ${t('全部页面合在一起：', 'Every page in one file: ')}${site}${llmsFullPath(lang)}${localized.some(page => page.slug === 'corpus') ? `\n- ${t('语料库（Matt 公开资料的索引）：', 'The corpus (an index of Matt\'s public work): ')}${site}/${lang}/corpus.md` : ''}\n\n## ${t('全部笔记', 'All notes')}\n\n${groups}\n`
+  return { index, full, home }
+}
+
 export async function buildContent(contentDir: string, outputDir: string, clean = true): Promise<Page[]> {
   const pages = await readPages(contentDir)
   await mkdir(outputPath(outputDir), { recursive: true })
@@ -144,15 +186,14 @@ export async function buildContent(contentDir: string, outputDir: string, clean 
     if (clean) await rm(outputPath(outputDir, lang), { recursive: true, force: true })
     await mkdir(outputPath(outputDir, lang), { recursive: true })
     const localized = pages.filter(page => page.lang === lang)
+    // index.md is the home page's Markdown twin.
+    if (localized.some(page => page.slug === 'index')) throw new Error(`content/${lang}/index.md would replace the home page's Markdown`)
     for (const page of localized) await writeOutput(outputPath(outputDir, lang), `${page.slug}.md`, `# ${page.title}\n\n${page.summary}\n\n${page.markdown}`)
-    const title = lang === 'en' ? 'Matt Pocock study notes' : 'Matt Pocock 学习笔记'
-    const summary = lang === 'en' ? 'Independent, unofficial, non-commercial notes. Original works belong to their authors.' : '独立整理，非官方、非商业；原作品版权归原作者。'
-    const links = localized.map(page => `- [${page.title}](${siteUrl()}/${lang}/${page.slug}.md): ${page.summary}`).join('\n')
-    const index = `# ${title}\n\n> ${summary}\n\n## ${lang === 'en' ? 'Pages' : '页面'}\n\n${links}\n`
-    const full = `# ${title}\n\n> ${summary}\n\n${localized.map(page => `## ${page.title}\n\n${page.markdown}`).join('\n---\n\n')}`
+    const { index, full, home } = agentFiles(lang, localized, siteUrl())
     const base = lang === 'en' ? outputDir : outputPath(outputDir, 'zh')
     await writeOutput(base, 'llms.txt', index)
     await writeOutput(base, 'llms-full.txt', full)
+    await writeOutput(outputPath(outputDir, lang), 'index.md', home)
   }
   await writeOutput(outputDir, 'content.json', JSON.stringify(pages))
   await writeOutput(outputDir, 'figures.json', JSON.stringify(await buildFigures(outputDir)))

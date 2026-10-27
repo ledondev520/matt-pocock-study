@@ -84,6 +84,7 @@ Server, SSR and client use the same route grammar: `/`, `/zh`, `/en`, and `/<lan
 - `GET /api/corpus/tags` → sorted unique tags.
 - `GET /api/health`, `/api/pages?lang=zh`, `/api/search?lang=en&q=...`, `/api/lang-hint`.
 - `/<lang>/<slug>.md`, `/llms.txt`, `/llms-full.txt`, `/zh/llms.txt`, `/zh/llms-full.txt`. Quotes keep attribution, source URL and date. Components become readable Markdown.
+- Agent-readable: `llms.txt` (per language) starts with a how-to for coding agents, then the pages grouped by section. Every indexable HTML route has a Markdown twin linked from its `<head>` (`<link rel="alternate" type="text/markdown">`): `/<lang>/<slug>.md`, and `/<lang>/index.md` for the homes (`/` uses `/en/index.md`). `robots.txt` blocks nothing and points to `sitemap.xml` (canonical URLs with `hreflang` twins). `tests/static.test.tsx` derives the routes from `dist/` and fails when a page lacks its `.md`, its `llms.txt` line or its sitemap entry, so a new route must add all three. The home-page copy line comes from `src/lib/agent.ts`.
 - `/` selects saved language, then `navigator.language` (`zh*` → Chinese, otherwise English). `/zh` and `/en` are homes. Language switching preserves the page; theme uses localStorage and defaults to the OS preference.
 
 ## Deployment
