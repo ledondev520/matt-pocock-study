@@ -43,8 +43,6 @@ When instructions look vague, stale or repetitive, identify the behaviour they a
 
 Keep platform requirements in force. Splitting documentation also has costs: people maintain more files and agents follow more pointers. Observe both lookup effort and maintenance effort when deciding how far to split.
 
-Checklist structure adapted from [Matt Pocock's skills repository][skills], MIT: `skills/productivity/writing-for-agents/SKILL.md`. Example wording is ours.
-
 ```cards
 - **Clear triggers** Each pointer identifies the task that needs it.
 - **One factual source** Read configuration facts from configuration.
@@ -91,14 +89,11 @@ Move executable constraints into the process described in [standards and checks]
 - Matt Pocock, [pointers and pruning](https://x.com/mattpocockuk/status/2073473197991715246), 2026-07-04.
 - [Public AGENTS.md guide](https://www.aihero.dev/a-complete-guide-to-agents-md), independently interpreted.
 - [Minimal instruction files](https://www.aihero.dev/never-run-claude-init), independently interpreted.
-- [skills repository][skills]: checklist adaptation identified above; Copyright (c) 2026 Matt Pocock.
-- [Site copyright details](/en/about-and-copyright). The complete MIT licence follows at the end of this page.
-
-[skills]: https://github.com/mattpocock/skills
+- [Site copyright details](/en/about-and-copyright).
 
 ## skills MIT notice
 
-The structure adapted here comes from [mattpocock/skills](https://github.com/mattpocock/skills), MIT licence, Copyright (c) 2026 Matt Pocock. The complete licence follows, identical to [the repository LICENSE](https://github.com/mattpocock/skills/blob/main/LICENSE).
+The structure adapted here comes from [mattpocock/skills](https://github.com/mattpocock/skills), MIT licence, Copyright (c) 2026 Matt Pocock. The complete licence follows, identical to [the repository LICENSE](https://github.com/mattpocock/skills/blob/2817544484ea89558aabd8a0360e042888fad713/LICENSE).
 
 ```licence
 id: mattpocock-skills

@@ -45,8 +45,6 @@ Inspect the example’s input and expected outcome separately. Without an input,
 
 ## Close the explanation
 
-Adapted from Matt Pocock's [skills repository](https://github.com/mattpocock/skills), MIT; source file: `skills/productivity/teach/SKILL.md`.
-
 ```cards
 - **Retrieval** Close the explanation and answer unaided.
 - **Spacing** Return later and record what you forgot.
@@ -57,7 +55,7 @@ Adapted from Matt Pocock's [skills repository](https://github.com/mattpocock/ski
 id: d16-practice-loop
 ```
 
-Teach one small concept, then ask for a decision. Define completion as handling an unfamiliar input. Reading smoothly is insufficient evidence. The complete licence follows at the end of this page; see also the [copyright page](/en/about-and-copyright).
+Teach one small concept, then ask for a decision. Define completion as handling an unfamiliar input. Reading smoothly is insufficient evidence.
 
 ## Check the teaching too
 
@@ -91,11 +89,10 @@ Done means another reader can predict the feedback from your explanation and jus
 ## Sources
 
 - [Matt on teaching examples, 2025-11-28](https://x.com/mattpocockuk/status/1994475432763113845)
-- [skills, MIT source for the teaching structure](https://github.com/mattpocock/skills); file identified above.
 
 ## skills MIT notice
 
-The structure adapted here comes from [mattpocock/skills](https://github.com/mattpocock/skills), MIT licence, Copyright (c) 2026 Matt Pocock. The complete licence follows, identical to [the repository LICENSE](https://github.com/mattpocock/skills/blob/main/LICENSE).
+The structure adapted here comes from [mattpocock/skills](https://github.com/mattpocock/skills), MIT licence, Copyright (c) 2026 Matt Pocock. The complete licence follows, identical to [the repository LICENSE](https://github.com/mattpocock/skills/blob/2817544484ea89558aabd8a0360e042888fad713/LICENSE).
 
 ```licence
 id: mattpocock-skills

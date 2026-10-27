@@ -93,6 +93,10 @@ Run `node scripts/contrast.mjs --write` after palette changes to refresh this ta
 | Light | Hero accent / surface | #5B3FB8 | #F1EEF8 | 6.43:1 | PASS |
 | Light | Hero button & final node | #FFFFFF | #5B3FB8 | 7.37:1 | PASS |
 | Light | Corpus entry / outlined row | #241B35 | #F8F7FC | 15.35:1 | PASS |
+| Light | Footer note & link / page | #6B607B | #F8F7FC | 5.50:1 | PASS |
+| Light | Licences page text / page | #6B607B | #F8F7FC | 5.50:1 | PASS |
+| Light | Licences page links / page | #5B3FB8 | #F8F7FC | 6.92:1 | PASS |
+| Light | Licence text / card | #6B607B | #FFFFFF | 5.86:1 | PASS |
 | Dark | Body / page | #EAE5F4 | #0E0A1F | 15.73:1 | PASS |
 | Dark | Body / card | #EAE5F4 | #171128 | 14.83:1 | PASS |
 | Dark | Body / corpus, reading | #EAE5F4 | #1A132D | 14.48:1 | PASS |
@@ -125,6 +129,10 @@ Run `node scripts/contrast.mjs --write` after palette changes to refresh this ta
 | Dark | Hero accent / surface | #B4A3EC | #151024 | 8.30:1 | PASS |
 | Dark | Hero button & final node | #140C28 | #B4A3EC | 8.44:1 | PASS |
 | Dark | Corpus entry / outlined row | #EAE5F4 | #211932 | 13.61:1 | PASS |
+| Dark | Footer note & link / page | #AEA4C0 | #0E0A1F | 8.20:1 | PASS |
+| Dark | Licences page text / page | #AEA4C0 | #0E0A1F | 8.20:1 | PASS |
+| Dark | Licences page links / page | #B4A3EC | #0E0A1F | 8.68:1 | PASS |
+| Dark | Licence text / card | #AEA4C0 | #171128 | 7.73:1 | PASS |
 | Both | Code: Text | #E9E4F5 | #171126 | 14.75:1 | PASS |
 | Both | Code: Keyword / operator | #D5ADFF | #171126 | 9.83:1 | PASS |
 | Both | Code: String | #C6F432 | #171126 | 14.32:1 | PASS |

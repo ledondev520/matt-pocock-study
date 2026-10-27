@@ -1,0 +1,206 @@
+# Deploy matt.withkeya.com through the restricted deploy key.
+# - Automatic: after CI succeeds for a push to main (only the newest main commit is deployed).
+# - Manual: Actions → Deploy → Run workflow (from main) with a commit on main, or action=rollback.
+# Server side (deploy user, forced command, sudoers) is in deploy/; secrets live in the
+# production-matt environment. On a failed health check or smoke test the previous release is
+# restored and the job fails.
+
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      action:
+        description: deploy a commit, or roll back to the previous good release
+        type: choice
+        options: [deploy, rollback]
+        default: deploy
+      ref:
+        description: commit sha on main, or "main" (ignored for rollback)
+        type: string
+        default: main
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: deploy-matt-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to production
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'push' &&
+       github.event.workflow_run.head_branch == 'main' &&
+       github.event.workflow_run.head_repository.full_name == github.repository)
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    environment:
+      name: production-matt
+      url: https://matt.withkeya.com
+    env:
+      SITE_URL: https://matt.withkeya.com
+      GH_TOKEN: ${{ github.token }}
+      EVENT: ${{ github.event_name }}
+      ACTION: ${{ github.event_name == 'workflow_dispatch' && inputs.action || 'deploy' }}
+      REQUESTED: ${{ github.event_name == 'workflow_dispatch' && inputs.ref || github.event.workflow_run.head_sha }}
+    steps:
+      - name: Only from main
+        if: github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/main'
+        run: |
+          echo "::error::Run this workflow from main (got $GITHUB_REF)."
+          exit 1
+
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Resolve commit and check it is on main with green CI
+        id: target
+        if: env.ACTION == 'deploy'
+        run: |
+          set -euo pipefail
+          [[ $REQUESTED =~ ^(main|[0-9a-f]{7,40})$ ]] || { echo "::error::ref must be main or a hex sha"; exit 1; }
+          git fetch -q origin main
+          main_head=$(git rev-parse origin/main)
+          if [ "$REQUESTED" = main ]; then sha=$main_head; else sha=$(git rev-parse --verify --quiet "$REQUESTED^{commit}") || { echo "::error::unknown commit $REQUESTED"; exit 1; }; fi
+          [[ $sha =~ ^[0-9a-f]{40}$ ]] || exit 1
+          git merge-base --is-ancestor "$sha" origin/main || { echo "::error::$sha is not on main"; exit 1; }
+          if [ "$EVENT" = workflow_run ] && [ "$sha" != "$main_head" ]; then
+            echo "main moved on to $main_head; the newer CI run deploys it. Skipping $sha."
+            echo "skip=true" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          ok=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow ci.yml --branch main --event push --commit "$sha" \
+                 --json status,conclusion --limit 20 \
+               | jq '[.[] | select(.status == "completed" and .conclusion == "success")] | length')
+          [ "$ok" -ge 1 ] || { echo "::error::no successful CI run on main for $sha"; exit 1; }
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+          echo "Deploying $sha"
+
+      - name: Check out the commit
+        if: env.ACTION == 'deploy' && steps.target.outputs.skip == 'false'
+        run: git checkout -q --detach "${{ steps.target.outputs.sha }}"
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        if: env.ACTION == 'deploy' && steps.target.outputs.skip == 'false'
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Build (same commands as the manual deploy)
+        if: env.ACTION == 'deploy' && steps.target.outputs.skip == 'false'
+        env:
+          SHA: ${{ steps.target.outputs.sha }}
+        run: |
+          set -euo pipefail
+          sudo apt-get update -q && sudo apt-get install -y -q fontconfig fonts-noto-cjk
+          npm ci
+          npm run build
+          echo "$SHA" > DEPLOYED_COMMIT
+          tar --exclude=./.git --owner=0 --group=0 --numeric-owner -czf "$RUNNER_TEMP/release.tar.gz" .
+          ls -l "$RUNNER_TEMP/release.tar.gz"
+
+      - name: Prepare deploy key
+        if: env.ACTION == 'rollback' || steps.target.outputs.skip == 'false'
+        env:
+          KEY: ${{ secrets.MATT_DEPLOY_SSH_KEY }}
+          KNOWN_HOSTS: ${{ secrets.MATT_DEPLOY_KNOWN_HOSTS }}
+          HOST: ${{ secrets.MATT_DEPLOY_HOST }}
+          PORT: ${{ secrets.MATT_DEPLOY_PORT }}
+        run: |
+          set -euo pipefail
+          for v in KEY KNOWN_HOSTS HOST PORT; do [ -n "${!v}" ] || { echo "::error::secret for $v is not set"; exit 1; }; done
+          umask 077
+          printf '%s\n' "$KEY" > "$RUNNER_TEMP/deploy_key"
+          printf '%s\n' "$KNOWN_HOSTS" > "$RUNNER_TEMP/known_hosts"
+          {
+            echo "DEPLOY_KEY_FILE=$RUNNER_TEMP/deploy_key"
+            echo "DEPLOY_KNOWN_HOSTS_FILE=$RUNNER_TEMP/known_hosts"
+          } >> "$GITHUB_ENV"
+
+      - name: Upload and activate the release
+        id: activate
+        if: env.ACTION == 'deploy' && steps.target.outputs.skip == 'false'
+        env:
+          SHA: ${{ steps.target.outputs.sha }}
+          MATT_DEPLOY_HOST: ${{ secrets.MATT_DEPLOY_HOST }}
+          MATT_DEPLOY_PORT: ${{ secrets.MATT_DEPLOY_PORT }}
+          MATT_DEPLOY_USER: mattdeploy
+        run: |
+          set -euo pipefail
+          sum=$(sha256sum "$RUNNER_TEMP/release.tar.gz" | cut -d' ' -f1)
+          rc=0
+          deploy/remote.sh deploy "$SHA" "$sum" < "$RUNNER_TEMP/release.tar.gz" | tee "$RUNNER_TEMP/activate.out" || rc=$?
+          # matt-release prints release=<new> before it switches, so the name is known even when
+          # activation fails half way (the restore step below then checks what is live).
+          release=$(sed -n 's/^release=//p' "$RUNNER_TEMP/activate.out" | tail -n 1)
+          if [[ $release =~ ^[0-9]{8}-[0-9]{6}-[0-9a-f]{12}$ ]]; then echo "release=$release" >> "$GITHUB_OUTPUT"; fi
+          if [ "$rc" -ne 0 ]; then
+            restored=$(sed -n 's/^restored=//p' "$RUNNER_TEMP/activate.out" | tail -n 1)
+            echo "::error::activation of ${release:-the upload} failed (exit $rc); server switched back to: ${restored:-unknown}"
+            exit "$rc"
+          fi
+          grep -qx 'result=ok' "$RUNNER_TEMP/activate.out" || { echo "::error::server did not confirm the new release"; exit 1; }
+          [ -n "$release" ] || { echo "::error::server did not report the new release"; exit 1; }
+
+      - name: Roll back on request
+        if: env.ACTION == 'rollback'
+        env:
+          MATT_DEPLOY_HOST: ${{ secrets.MATT_DEPLOY_HOST }}
+          MATT_DEPLOY_PORT: ${{ secrets.MATT_DEPLOY_PORT }}
+          MATT_DEPLOY_USER: mattdeploy
+        run: |
+          set -euo pipefail
+          current=$(deploy/remote.sh status < /dev/null | sed -n 's/^release=//p')
+          [ -n "$current" ] || { echo "::error::could not read the current release"; exit 1; }
+          deploy/remote.sh rollback "$current" < /dev/null
+
+      - name: Smoke test
+        id: smoke
+        if: env.ACTION == 'rollback' || steps.target.outputs.skip == 'false'
+        env:
+          SHA: ${{ steps.target.outputs.sha }}
+          MATT_DEPLOY_HOST: ${{ secrets.MATT_DEPLOY_HOST }}
+          MATT_DEPLOY_PORT: ${{ secrets.MATT_DEPLOY_PORT }}
+          MATT_DEPLOY_USER: mattdeploy
+        run: |
+          set -euo pipefail
+          deploy/remote.sh status < /dev/null | tee "$RUNNER_TEMP/status.out"
+          if [ "$ACTION" = deploy ]; then
+            grep -qx "commit=$SHA" "$RUNNER_TEMP/status.out" || { echo "::error::server reports a different commit"; exit 1; }
+          fi
+          deploy/smoke.sh "$SITE_URL"
+
+      - name: Restore the previous release after a failed or cancelled deploy
+        if: (failure() || cancelled()) && steps.activate.outputs.release != ''
+        env:
+          RELEASE: ${{ steps.activate.outputs.release }}
+          MATT_DEPLOY_HOST: ${{ secrets.MATT_DEPLOY_HOST }}
+          MATT_DEPLOY_PORT: ${{ secrets.MATT_DEPLOY_PORT }}
+          MATT_DEPLOY_USER: mattdeploy
+        run: |
+          set -euo pipefail
+          current=$(deploy/remote.sh status < /dev/null | sed -n 's/^release=//p')
+          if [ "$current" = "$RELEASE" ]; then
+            echo "::error::Deploy of $RELEASE failed; rolling back."
+            deploy/remote.sh rollback "$RELEASE" < /dev/null
+          else
+            echo "::error::Deploy of $RELEASE failed; the server already switched back to ${current:-unknown}."
+          fi
+          deploy/remote.sh status < /dev/null
+          deploy/smoke.sh "$SITE_URL"
+
+      - name: Remove deploy key
+        if: always()
+        run: rm -f "$RUNNER_TEMP/deploy_key" "$RUNNER_TEMP/known_hosts" "$RUNNER_TEMP/release.tar.gz"

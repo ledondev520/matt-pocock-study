@@ -1,0 +1,222 @@
+#!/bin/bash
+# Root-side release switcher for matt.withkeya.com (installed as /usr/local/sbin/matt-release,
+# owned by root, mode 755). The deploy user may run only this file through sudo; every argument
+# is validated again here because this is the privilege boundary.
+#
+#   matt-release activate <commit-sha-40>     unpack incoming/<sha>.tar.gz into a new release,
+#                                             switch `current`, restart, health-check; if the
+#                                             restart or the health check fails, switch back to
+#                                             the previous release, restart it and exit 1
+#   matt-release rollback <current-release>   switch to the newest earlier good release
+#   matt-release status                       print release=<name> commit=<sha>
+#
+# activate prints `release=<new>` and `previous=<old>` before switching, then `result=ok`, or
+# `result=failed`, `failed=<new>`, `restored=<old>` and `restored_healthy=true|false`.
+#
+# Release directories: releases/<UTCYYYYmmdd-HHMMSS>-<sha12>. Only names in that exact form are
+# pruned: failed releases go first and do not count, the newest 5 good ones are kept, and the
+# current and the previous good release are never deleted; hand-made releases are never deleted.
+set -euo pipefail
+umask 022
+export LC_ALL=C PATH=/usr/sbin:/usr/bin:/sbin:/bin
+
+readonly ROOT=/srv/matt-site
+readonly RELEASES=$ROOT/releases
+readonly INCOMING=$ROOT/incoming
+readonly STATE=$ROOT/deploy-state
+readonly SERVICE=matt-site
+# Optional AI Q&A service that reads the same release; restarted only if it is running.
+readonly ASK_SERVICE=matt-ask
+readonly RUN_USER=mattsite
+readonly HEALTH_URL=http://127.0.0.1:8787/api/health
+readonly KEEP=5
+readonly NEW_NAME='^[0-9]{8}-[0-9]{6}-[0-9a-f]{12}$'
+# Older hand-made releases look like 20261022-1548-3af3984; they are valid rollback targets.
+readonly ANY_NAME='^[0-9]{8}-[0-9]{4,6}-[0-9a-f]{7,40}$'
+
+# Output must never abort a switch half way: if the SSH client goes away, writes fail (SIGPIPE
+# and SIGHUP are ignored) and the script carries on to a consistent state.
+trap '' HUP PIPE
+out() { printf '%s\n' "$*" 2>/dev/null || true; }
+log() { printf 'matt-release: %s\n' "$*" >&2 2>/dev/null || true; }
+die() { log "$*"; exit 2; }
+
+[ "$(id -u)" -eq 0 ] || die "must run as root"
+install -d -m 700 "$STATE"
+exec 8>"$STATE/lock"
+flock -w 600 8 || die "another deploy is running"
+
+current_name() {
+  local target
+  target=$(readlink -- "$ROOT/current") || return 1
+  target=${target#releases/}
+  [[ $target =~ $ANY_NAME ]] || return 1
+  printf '%s\n' "$target"
+}
+
+# A release name is usable only if it is a real directory directly under releases/.
+valid_release() {
+  local name=$1
+  [[ $name =~ $ANY_NAME ]] || return 1
+  if [ ! -d "$RELEASES/$name" ] || [ -L "$RELEASES/$name" ]; then return 1; fi
+  [ "$(realpath -e -- "$RELEASES/$name")" = "$(realpath -e -- "$RELEASES")/$name" ]
+}
+
+switch_to() {
+  local name=$1
+  valid_release "$name" || die "not a release: $name"
+  # Explicit checks: callers run this inside `if`, where `set -e` does not apply.
+  ln -sfn -- "releases/$name" "$ROOT/current.new" || return 1
+  mv -Tf -- "$ROOT/current.new" "$ROOT/current" || return 1
+  printf '%s\n' "$name" >> "$STATE/history" || log "could not record $name in the history"
+}
+
+# A failed restart is reported, not fatal: the caller decides (together with the health check)
+# whether to switch back.
+restart() {
+  local rc=0
+  systemctl restart "$SERVICE" || { rc=$?; log "systemctl restart $SERVICE failed (exit $rc)"; }
+  systemctl try-restart "$ASK_SERVICE" 2>/dev/null || log "note: $ASK_SERVICE restart failed or not installed"
+  return "$rc"
+}
+
+# Switch to a release and bring it up; succeeds only if the restart and the health check pass.
+go_live() {
+  switch_to "$1" || { log "could not switch current to $1"; return 1; }
+  restart || return 1
+  healthy
+}
+
+healthy() {
+  local _ body
+  for _ in $(seq 1 30); do
+    if body=$(curl -fsS --max-time 3 "$HEALTH_URL" 2>/dev/null) && [[ $body == *'"ok":true'* ]]; then return 0; fi
+    sleep 1
+  done
+  return 1
+}
+
+mark_failed() { printf '%s\n' "$1" >> "$STATE/failed"; }
+is_failed() { [ -s "$STATE/failed" ] && grep -qxF -- "$1" "$STATE/failed"; }
+
+# Newest release in the activation history that is not current, not failed and still on disk.
+previous_good() {
+  local cur=$1 name
+  [ -s "$STATE/history" ] || return 1
+  while IFS= read -r name; do
+    [ "$name" = "$cur" ] && continue
+    is_failed "$name" && continue
+    valid_release "$name" || continue
+    printf '%s\n' "$name"; return 0
+  done < <(tac -- "$STATE/history")
+  return 1
+}
+
+# Failed releases are deleted first and never count towards KEEP, so a run of failed deploys
+# cannot push the last good release out; the current and the previous good one always stay.
+prune() {
+  local cur=$1 prev name n=0
+  prev=$(previous_good "$cur") || prev=
+  while IFS= read -r name; do
+    [[ $name =~ $NEW_NAME ]] || continue
+    if [ "$name" = "$cur" ] || [ "$name" = "$prev" ]; then n=$((n + 1)); continue; fi
+    if ! is_failed "$name"; then
+      n=$((n + 1))
+      [ "$n" -le "$KEEP" ] && continue
+    fi
+    valid_release "$name" || continue
+    log "pruning $name"
+    rm -rf --one-file-system -- "${RELEASES:?}/$name"
+  done < <(find "$RELEASES" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort -r)
+}
+
+unpack() {
+  local tarball=$1 dest=$2
+  python3 - "$tarball" "$dest" <<'PY'
+import os, sys, tarfile
+src, dest = sys.argv[1], sys.argv[2]
+if not hasattr(tarfile, "data_filter"):
+    sys.exit("python3 tarfile has no extraction filters; refusing to unpack")
+fd = os.open(src, os.O_RDONLY | os.O_NOFOLLOW)
+with os.fdopen(fd, "rb") as fh, tarfile.open(fileobj=fh, mode="r:gz") as tar:
+    # "data" refuses absolute paths, "..", links leaving dest, devices, and setuid bits.
+    tar.extractall(dest, filter="data")
+PY
+}
+
+cmd_activate() {
+  local sha=$1 tarball name stage old
+  [[ $sha =~ ^[0-9a-f]{40}$ ]] || die "bad commit sha"
+  tarball=$INCOMING/$sha.tar.gz
+  if [ ! -f "$tarball" ] || [ -L "$tarball" ]; then die "no upload for $sha"; fi
+  name=$(date -u +%Y%m%d-%H%M%S)-${sha:0:12}
+  stage=$RELEASES/.staging-$name
+  old=$(current_name) || die "current does not point at a release; fix by hand first"
+  # Record the live release before switching unless it is already the last entry: `current`
+  # may have been switched by hand, and a later rollback must return to it, not to an older one.
+  [ "$(tail -n 1 -- "$STATE/history" 2>/dev/null)" = "$old" ] || printf '%s\n' "$old" >> "$STATE/history"
+
+  rm -rf -- "$stage"; install -d -m 700 "$stage"
+  if ! unpack "$tarball" "$stage"; then rm -rf -- "$stage" "$tarball"; die "unpack failed"; fi
+  rm -f -- "$tarball"
+  [ "$(cat -- "$stage/DEPLOYED_COMMIT" 2>/dev/null)" = "$sha" ] || { rm -rf -- "$stage"; die "DEPLOYED_COMMIT does not match"; }
+  if [ ! -f "$stage/package.json" ] || [ ! -d "$stage/dist" ] || [ ! -d "$stage/node_modules" ]; then
+    rm -rf -- "$stage"; die "release is incomplete"
+  fi
+  install -d "$stage/generated"
+  chown -R root:root -- "$stage"
+  chmod -R a+rX,go-w -- "$stage"
+  chown -R "$RUN_USER:$RUN_USER" -- "$stage/dist" "$stage/generated"
+  chmod 755 -- "$stage"
+  mv -T -- "$stage" "$RELEASES/$name"
+
+  log "switching $old -> $name"
+  out "release=$name"
+  out "previous=$old"
+  if go_live "$name"; then
+    prune "$name"
+    out "result=ok"
+    return 0
+  fi
+  log "restart or health check failed for $name; switching back to $old"
+  mark_failed "$name"
+  out "result=failed"
+  out "failed=$name"
+  out "restored=$old"
+  if go_live "$old"; then
+    out "restored_healthy=true"
+  else
+    log "WARNING: $old is not healthy either"
+    out "restored_healthy=false"
+  fi
+  exit 1
+}
+
+cmd_rollback() {
+  local expected=$1 cur target
+  [[ $expected =~ $ANY_NAME ]] || die "bad release name"
+  cur=$(current_name) || die "current does not point at a release"
+  [ "$cur" = "$expected" ] || die "current is $cur, not $expected; refusing"
+  target=$(previous_good "$cur") || die "no earlier good release to roll back to"
+  log "rolling back $cur -> $target"
+  mark_failed "$cur"
+  out "release=$target"
+  out "previous=$cur"
+  go_live "$target" || { log "WARNING: $target is not healthy after rollback"; exit 1; }
+}
+
+cmd_status() {
+  local cur commit
+  cur=$(current_name) || die "current does not point at a release"
+  commit=$(cat -- "$RELEASES/$cur/DEPLOYED_COMMIT" 2>/dev/null || echo unknown)
+  [[ $commit =~ ^[0-9a-f]{7,40}$ ]] || commit=unknown
+  out "release=$cur"
+  out "commit=$commit"
+}
+
+case ${1:-} in
+  activate) [ $# -eq 2 ] || die "usage: activate <sha>"; cmd_activate "$2" ;;
+  rollback) [ $# -eq 2 ] || die "usage: rollback <current-release>"; cmd_rollback "$2" ;;
+  status)   [ $# -eq 1 ] || die "usage: status"; cmd_status ;;
+  *) die "usage: activate <sha> | rollback <current-release> | status" ;;
+esac
