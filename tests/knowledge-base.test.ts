@@ -278,6 +278,7 @@ describe('rendering', () => {
   })
   it('metadata, scoping and navigation', () => {
     expect(metadata(model, '/zh/knowledge')).toMatchObject({ url: 'https://example.test/zh/knowledge', alternate: 'https://example.test/en/knowledge' })
+    expect(metadata(model, '/en/knowledge')).toMatchObject({ url: 'https://example.test/en/knowledge', alternate: 'https://example.test/zh/knowledge', xDefault: 'https://example.test/zh/knowledge' })
     expect(pageModel(model, [], '/zh/knowledge').knowledge).toEqual(feed.entries)
     expect(pageModel(model, [], '/zh').knowledge).toBeUndefined()
     expect(renderToString(createElement(Site, { model, path: '/zh' }))).toContain('href="/zh/knowledge"')

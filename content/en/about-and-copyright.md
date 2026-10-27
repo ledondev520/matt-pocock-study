@@ -73,7 +73,7 @@ The following structures adapt Matt Pocock's [skills repository](https://github.
 
 The PR source credits Dex Horthy / HumanLayer's [upstream work](https://github.com/humanlayer/skills/blob/main/plugins/show-me/skills/show-me/SKILL.md). We retain that credit without taking upstream content or assuming its licence.
 
-Our added examples and explanations are our writing. This register covers both languages, single-page Markdown and language-specific bundles. Exports must retain authorship, source files and full notices. The complete MIT licences for skills and Archify follow at the end of this page.
+Our added examples and explanations are our writing. This register covers both languages, single-page Markdown and language-specific bundles. Exports must retain authorship, source files and full notices. The complete MIT licences for skills and Archify are on the [Licenses](/en/licenses) page.
 
 ## Known gaps and corrections
 
@@ -104,11 +104,11 @@ Done means you can separate original wording, translation, judgement and adaptat
 
 - [Attribution request quoted here, 2026-07-06](https://x.com/mattpocockuk/status/2074147715210997924)
 - [Matt on X](https://x.com/mattpocockuk) · [GitHub](https://github.com/mattpocock) · [AI Hero](https://aihero.dev/skills)
-- [skills source repository](https://github.com/mattpocock/skills) · [upstream LICENSE](https://github.com/mattpocock/skills/blob/main/LICENSE)
+- [skills source repository](https://github.com/mattpocock/skills) · [upstream LICENSE](https://github.com/mattpocock/skills/blob/2817544484ea89558aabd8a0360e042888fad713/LICENSE)
 
 ## skills MIT notice
 
-The structure adapted here comes from [mattpocock/skills](https://github.com/mattpocock/skills), MIT licence, Copyright (c) 2026 Matt Pocock. The complete licence follows, identical to [the repository LICENSE](https://github.com/mattpocock/skills/blob/main/LICENSE).
+The structure adapted here comes from [mattpocock/skills](https://github.com/mattpocock/skills), MIT licence, Copyright (c) 2026 Matt Pocock. The complete licence follows, identical to [the repository LICENSE](https://github.com/mattpocock/skills/blob/2817544484ea89558aabd8a0360e042888fad713/LICENSE).
 
 ```licence
 id: mattpocock-skills
@@ -116,7 +116,7 @@ id: mattpocock-skills
 
 CSS fragments inside this site's diagrams are adapted from [Archify](https://github.com/tt-a1i/archify), MIT licence, Copyright (c) 2026 tt-a1i (Archify); Copyright (c) 2025 Cocoon AI.
 
-Archify's complete licence follows, identical to [the repository LICENSE](https://github.com/tt-a1i/archify/blob/main/LICENSE).
+Archify's complete licence follows, identical to [the upstream LICENSE as it stood when the material was taken](https://github.com/tt-a1i/archify/blob/7a16d30322f5bd09c832386faa95d8c9a933f0c0/LICENSE).
 
 ```licence
 id: archify

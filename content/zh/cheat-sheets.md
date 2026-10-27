@@ -56,8 +56,6 @@ id: d19-rule-placement
 
 ## 验证与交接
 
-以下字段压缩自 Matt Pocock 的 [skills 仓库](https://github.com/mattpocock/skills)，MIT 改编；完整许可附后（见页末），另见[版权页](/zh/about-and-copyright)。
-
 <!-- compare -->
 | 字段 | 留下什么 | 回到原课 |
 | --- | --- | --- |
@@ -66,14 +64,6 @@ id: d19-rule-placement
 | 未验证项 | 缺什么证据与风险 | [评审与 PR](/zh/review-and-pr) |
 | 产物链接 | 既有文件位置，避免重抄 | [上下文与交接](/zh/context-and-handoff) |
 | 下一步 | 接手任务与验证方式 | [上下文与交接](/zh/context-and-handoff) |
-
-源文件：`skills/productivity/handoff/SKILL.md`。
-
-评审来源：`skills/engineering/code-review/SKILL.md` 与 `skills/engineering/pr/SKILL.md`。
-
-文档导航结构另据 `skills/productivity/writing-for-agents/SKILL.md`；练习与复习结构据 `skills/productivity/teach/SKILL.md` 改编。
-
-PR 来源保留对 Dex Horthy / HumanLayer 的[上游致谢](https://github.com/humanlayer/skills/blob/main/plugins/show-me/skills/show-me/SKILL.md)。本站不从该上游取内容。
 
 交接里的「未验证」不是空白栏。写出尚未运行的行为、缺少的环境与可能影响，让接手者知道哪些结论仍不能采用。已有证据给位置，不把旧结果当成新一轮验证。
 
@@ -116,11 +106,11 @@ answer: 打开实现与反馈，运行目标行为并记录预期与实际；交
 ## 来源
 
 - [Matt 的速查表短引文，2023-09-12](https://x.com/mattpocockuk/status/1701619240686485799)
-- 各行链接为本站完整解释；MIT 来源文件与上游致谢列于对应块旁。
+- 各行链接为本站完整解释。
 
 ## skills MIT 许可声明
 
-本页改编的结构来自 [mattpocock/skills](https://github.com/mattpocock/skills)，MIT 许可，Copyright (c) 2026 Matt Pocock。完整许可附后，与[原仓库 LICENSE](https://github.com/mattpocock/skills/blob/main/LICENSE)一字不差。
+本页改编的结构来自 [mattpocock/skills](https://github.com/mattpocock/skills)，MIT 许可，Copyright (c) 2026 Matt Pocock。完整许可附后，与[原仓库 LICENSE](https://github.com/mattpocock/skills/blob/2817544484ea89558aabd8a0360e042888fad713/LICENSE)一字不差。
 
 ```licence
 id: mattpocock-skills

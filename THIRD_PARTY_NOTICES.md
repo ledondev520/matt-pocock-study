@@ -12,12 +12,12 @@ Copyright (c) 2025 Cocoon AI
 ```
 
 The full upstream license is preserved at [third_party/archify/LICENSE](third_party/archify/LICENSE).
-Every page that embeds these diagrams, and every diagram SVG file, carries that full text
-(see "Files in this repository" below).
+The site's licences page (`/zh/licenses`, `/en/licenses`, linked from every page footer) shows that
+full text, and every diagram SVG file carries it (see "Files in this repository" below).
 The reused rules, as shipped after theme mapping and scoping, are kept in
 [third_party/archify/diagram-css.css](third_party/archify/diagram-css.css).
 SVG 内嵌的 CSS 片段来自 Archify 并作主题适配，遵循 MIT 许可；图表文字和例子
-由本站编写。原始版权行如上，许可全文保存在该文件中；含这些图的页面页末、
+由本站编写。原始版权行如上，许可全文保存在该文件中；站点的许可页（页脚「许可」链接）、
 每个图表 SVG 文件开头的注释里都附有完整许可。
 
 ## Quotations · 引用
@@ -75,11 +75,11 @@ The registry above records licence observations, not permission to reuse these e
 
 | File | Upstream | Copyright line | Used by |
 |---|---|---|---|
-| `third_party/mattpocock-skills/LICENSE` | [skills/LICENSE](https://github.com/mattpocock/skills/blob/main/LICENSE), byte-identical | Copyright (c) 2026 Matt Pocock | Full licence text at the end of the 7 pages (zh + en) that adapt skills structures; the text is not retyped, the build reads this file and checks its sha256 (`scripts/licences.mjs`) |
-| `third_party/archify/LICENSE` | [archify/LICENSE](https://github.com/tt-a1i/archify/blob/main/LICENSE), byte-identical | Copyright (c) 2026 tt-a1i (Archify); Copyright (c) 2025 Cocoon AI | Full licence text on the copyright page (zh + en) and at the end of every page whose HTML embeds an Archify diagram (inline `<svg>` with an `arch-*` class; this includes both home pages), its `.md` download and `llms-full.txt`; each `public/diagrams/*.svg` starts with an XML comment holding the full text, committed as part of the file and checked byte for byte by tests. All copies are generated from this file after its sha256 check (`scripts/licences.mjs`) |
+| `third_party/mattpocock-skills/LICENSE` | [skills/LICENSE](https://github.com/mattpocock/skills/blob/2817544484ea89558aabd8a0360e042888fad713/LICENSE), byte-identical | Copyright (c) 2026 Matt Pocock | Full licence text on the licences page (`/zh/licenses`, `/en/licenses`, linked from every page footer) and at the end of the `.md` export and `llms-full.txt` section of the 7 pages (zh + en) that adapt skills structures; the text is not retyped, the build reads this file and checks its sha256 (`scripts/licences.mjs`) |
+| `third_party/archify/LICENSE` | [archify/LICENSE @ 7a16d30](https://github.com/tt-a1i/archify/blob/7a16d30322f5bd09c832386faa95d8c9a933f0c0/LICENSE), byte-identical (upstream switched to Apache-2.0 on 2026-10-25; this is the last MIT version, the one taken) | Copyright (c) 2026 tt-a1i (Archify); Copyright (c) 2025 Cocoon AI | Full licence text on the licences page (`/zh/licenses`, `/en/licenses`, linked from every page footer, including every page whose HTML embeds an Archify diagram), and at the end of the `.md` export and `llms-full.txt` section of every page that embeds one; each `public/diagrams/*.svg` starts with an XML comment holding the full text, committed as part of the file and checked byte for byte by tests. All copies are generated from this file after its sha256 check (`scripts/licences.mjs`) |
 
 The adapted skills structures themselves are rewritten in the pages, not copied files.
-被改编的 skills 结构在页面中重写，不是整份复制的文件；对应页面页末附完整 MIT 许可。
+被改编的 skills 结构在页面中重写，不是整份复制的文件；完整 MIT 许可见站点许可页，对应页面的 .md 导出末尾也附有全文。
 
 ## Other open-source code · 其他开源代码
 
@@ -98,4 +98,4 @@ Fonts are distributed through these @fontsource packages under the SIL Open Font
 The electric design, hand-written SVGs and sample lesson are project-authored assets,
 ported into this platform. No additional upstream repository code was vendored.
 
-The complete package OFL notices are included in `public/font-licenses/` and distributed with the site.
+The complete package OFL notices are included in `public/font-licenses/`, distributed with the site and shown verbatim on the licences page.
