@@ -19,7 +19,7 @@ Details: [LICENSE](LICENSE) and [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)
 
 ## Run it locally
 
-Node 20.19+ (20.x):
+Node 22.23.4+ (22.x):
 
 ```sh
 npm ci
