@@ -9,12 +9,14 @@ import { readFileSync } from 'node:fs'
 export const licences = {
   'mattpocock-skills': {
     name: 'mattpocock/skills',
+    short: 'mattpocock/skills',
     repo: 'https://github.com/mattpocock/skills',
     file: 'third_party/mattpocock-skills/LICENSE',
     sha256: '0e7ac423bf2c6e223b7c5b156f8cf72da49d748e56a1641402c31f22ad07dbb5',
   },
   archify: {
     name: 'Archify (tt-a1i/archify)',
+    short: 'Archify',
     repo: 'https://github.com/tt-a1i/archify',
     file: 'third_party/archify/LICENSE',
     sha256: 'b799ab081703e7821ae5096d2c1abdf14bbdc75e8ea1c4045998c36ed6db9706',
@@ -32,12 +34,17 @@ export function licenceText(id, read = file => readFileSync(file, 'utf8')) {
 
 const escape = value => value.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c])
 
-/** The licence block as page HTML and as exported Markdown. */
+/**
+ * The licence block as page HTML and as exported Markdown. On the page the full text sits in a
+ * native <details>, closed by default: a one-line summary names the source, and the verbatim text
+ * opens on click, Enter or Space. The .md export keeps the heading and the text in the open.
+ */
 export function licenceBlock(id, lang) {
   const text = licenceText(id)
   const label = `${lang === 'zh' ? '完整许可：' : 'Full licence: '}${licences[id].name}`
+  const summary = lang === 'zh' ? `完整许可：${licences[id].short}（MIT）` : `Full licence: ${licences[id].short} (MIT)`
   return {
-    html: `<section class="licence-text"><h3>${escape(label)}</h3><pre lang="en">${escape(text)}</pre></section>`,
+    html: `<details class="licence-text"><summary>${escape(summary)}</summary><pre lang="en">${escape(text)}</pre></details>`,
     markdown: `### ${label}\n\n\`\`\`text\n${text.trimEnd()}\n\`\`\``,
   }
 }
