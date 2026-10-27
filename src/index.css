@@ -469,14 +469,12 @@ html[lang="en"] .full-article p, html[lang="en"] .article-body { line-height: 1.
 .article-body ul, .article-body ol { padding-left: 24px; }
 .article-body a { color: var(--link); text-decoration: underline; text-underline-offset: 4px; }
 .article-updated { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: -12px 0 28px; font-size: 14px; color: var(--muted-foreground); }
-.article-updated a { margin-left: auto; color: var(--link); }
 .article-sidebar ul, .page-toc ol { list-style: none; padding: 0; margin-block: 18px; }
 .article-sidebar .eyebrow { display: block; margin-top: 30px; }
 .article-sidebar li, .page-toc li { margin-block: 10px; font-size: 14px; line-height: 1.7; }
 .article-sidebar, .page-toc { align-self: start; position: sticky; top: 28px; }
 .page-toc { color: var(--muted-foreground); font-size: 14px; }
 .page-toc a:hover, .article-sidebar a:hover { color: var(--link); }
-.page-toc > a { color: var(--link); }
 .breadcrumb, .article-end { display: flex; margin-left: 0; }
 .key-point, .callout { background: var(--muted); border-left: 4px solid var(--card-accent); padding: 22px; border-radius: 0 8px 8px 0; margin-block: 25px; }
 .key-point strong, .callout strong { font-size: 15px; color: var(--link); }

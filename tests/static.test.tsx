@@ -227,6 +227,15 @@ it('home pages show a copyable agent line with a labelled button', async () => {
     if (lang === 'en') expect(doc.querySelector('.agent-prompt')!.textContent, file).not.toMatch(/[\u3000-\u9fff\uff00-\uffef]/)
   }
 })
+// The .md twins are for agents (head link, llms.txt, sitemap); pages show no Markdown download link.
+it('pages show no visible link to their Markdown twins', async () => {
+  for (const file of await files('dist')) {
+    const doc = new JSDOM(await readFile(file, 'utf8')).window.document
+    const visible = [...doc.querySelectorAll('body a[href]')].map(a => a.getAttribute('href')!).filter(href => /^\/(?:zh|en)\/[^#?]*\.md$/.test(href) || href.startsWith(siteUrl()) && href.endsWith('.md'))
+    expect(visible, file).toEqual([])
+    expect(doc.querySelectorAll('body a[download]').length, file).toBe(0)
+  }
+})
 it('robots.txt blocks no crawler and points to the sitemap', async () => {
   const robots = await readFile('dist/robots.txt', 'utf8')
   expect(robots).toMatch(/^User-agent: \*$/m)
