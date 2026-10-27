@@ -3,6 +3,7 @@ import { Zap, Github, Sun, Moon, Menu, Search } from 'lucide-react'
 import { Arrow, ArrowText } from './Arrow'
 import { sectionLabel, type Model, type Page, type PageSummary } from './lib/content'
 import { routeInfo, type Lang } from './lib/lang'
+import { agentPrompt } from './lib/agent'
 import { kbSlug, licensesSlug } from './lib/metadata'
 import type { CorpusRecord } from '../server/corpus'
 import { byDate, SOURCES, type KbEntry, type Segment } from '../scripts/kb/feed'
@@ -41,6 +42,34 @@ export function Site({ model, path, dark = false, onTheme, onLanguage }: {
     <footer className="site-footer wrap"><div className="footer-main"><div className="footer-brand"><Zap size={20} /><strong>Matt · {t('学习笔记', 'Study notes')}</strong></div><a href={sourceUrl}><Github size={18} /> {t('查看源码', 'View source')} <Arrow dir="up-right" /></a></div><p className="footer-note">{t('非官方、非商业的学习整理，与 Matt Pocock 无隶属或背书关系；所引作品版权归原作者。', 'Unofficial, non-commercial study notes; not affiliated with or endorsed by Matt Pocock. Quoted works belong to their authors.')} <a href={`/${lang}/${licensesSlug}`}>{t('许可', 'Licenses')}</a></p></footer>
   </>
 }
+// One line to paste into a coding agent. Copy uses the Clipboard API; where that is unavailable or
+// refused, the line is selected so the reader can copy it by hand. The Chinese wording only uses
+// characters whose Noto Sans SC slices the home page already loads: one new character cost an
+// extra font request and a layout shift.
+function AgentPrompt({ lang, site }: { lang: Lang; site: string }) {
+  const zh = lang === 'zh', t = (cn: string, en: string) => zh ? cn : en
+  const [copied, setCopied] = useState(false)
+  const text = agentPrompt(lang, site)
+  useEffect(() => {
+    if (!copied) return
+    const timer = setTimeout(() => setCopied(false), 2000)
+    return () => clearTimeout(timer)
+  }, [copied])
+  function select() {
+    const node = document.getElementById('agent-prompt-text')
+    const selection = window.getSelection()
+    if (!node || !selection) return
+    const range = document.createRange()
+    range.selectNodeContents(node)
+    selection.removeAllRanges()
+    selection.addRange(range)
+  }
+  function copy() {
+    if (!navigator.clipboard) return select()
+    navigator.clipboard.writeText(text).then(() => setCopied(true), select)
+  }
+  return <div className="agent-prompt"><span className="eyebrow">{t('给你的 Coding Agent', 'FOR YOUR CODING AGENT')}</span><div className="agent-prompt-row"><p id="agent-prompt-text" className="agent-prompt-text">{text}</p><button type="button" className="agent-prompt-copy" data-longest={t('已复制', 'Copied')} onClick={copy} aria-label={copied ? t('已复制这句话', 'Copied the line for your agent') : t('复制这句话', 'Copy the line for your agent')} aria-describedby="agent-prompt-text"><span>{copied ? t('已复制', 'Copied') : t('复制', 'Copy')}</span></button></div><p className="agent-prompt-hint" aria-live="polite">{copied ? t('已复制，发给 agent 就行。', 'Copied. Paste it into your agent.') : t('想学别的，把中间那句换掉就行。', 'Swap in whatever you want to learn.')}</p></div>
+}
 function Home({ model, lang, pages }: { model: Model; lang: Lang; pages: PageSummary[] }) {
   const zh = lang === 'zh', t = (cn: string, en: string) => zh ? cn : en
   const routes = [
@@ -49,7 +78,7 @@ function Home({ model, lang, pages }: { model: Model; lang: Lang; pages: PageSum
     ['writing-to-teach', t('写作与教学', 'Writing & teaching'), t('从一个具体困惑开始，把方法讲清楚。', 'Start with a concrete problem and make the method clear.')],
   ]
   return <>
-    <section className="hero"><div className="hero-grid" /><div className="wrap hero-inner"><div className="hero-copy"><div className="hero-eyebrow"><span className="status-dot" /> INDEPENDENT STUDY NOTES <span>LEARN IN PUBLIC</span></div><h1>{t('想清楚，', 'Think clearly.')}<br /><span className="lime-word">{t('再动手。', 'Build better.')}</span></h1><p className="hero-deck">{t('向 Matt Pocock 学习：用更清晰的思考、更短的反馈回路，做出可验证的改变。', 'Learning from Matt Pocock: clearer thinking, shorter feedback loops, and changes you can verify.')}</p><div className="hero-actions"><a className="hero-primary" href={pageHref(model, lang, 'learn-from-matt')}>{t('从这里开始', 'Start here')} <Arrow dir="up-right" /></a><a className="hero-secondary" href={`/${lang}/corpus`}>{t('探索语料库', 'Explore the corpus')} <Arrow dir="up-right" /></a></div><div className="tribute"><p>{t('Matt Pocock 是开发者教育者，他的公开教学涉及 TypeScript、AI 工程与 agent 工作流。这里用我们自己的话整理学习笔记，向他的分享致敬。', 'Matt Pocock is a developer educator whose public teaching spans TypeScript, AI engineering and agent workflows. These independently written notes are a tribute to his sharing.')}</p><p>{t('欢迎关注他，直接从原作学习。', 'Follow Matt and learn directly from his work.')}</p><div className="author-links"><a href="https://x.com/mattpocockuk">X / @mattpocockuk <Arrow dir="up-right" /></a><a href="https://github.com/mattpocock">GitHub <Arrow dir="up-right" /></a><a href="https://www.aihero.dev">AI Hero <Arrow dir="up-right" /></a></div></div></div><Figure id="home-hero" lang={lang} model={model} /></div><div className="wrap hero-bottom"><span>{t('非官方 · 非商业 · 独立整理', 'UNOFFICIAL · NON-COMMERCIAL · INDEPENDENT')}</span><span>TYPE / BUILD / TEACH <span className="pink-star">✳</span></span></div></section>
+    <section className="hero"><div className="hero-grid" /><div className="wrap hero-inner"><div className="hero-copy"><div className="hero-eyebrow"><span className="status-dot" /> INDEPENDENT STUDY NOTES <span>LEARN IN PUBLIC</span></div><h1>{t('想清楚，', 'Think clearly.')}<br /><span className="lime-word">{t('再动手。', 'Build better.')}</span></h1><p className="hero-deck">{t('向 Matt Pocock 学习：用更清晰的思考、更短的反馈回路，做出可验证的改变。', 'Learning from Matt Pocock: clearer thinking, shorter feedback loops, and changes you can verify.')}</p><div className="hero-actions"><a className="hero-primary" href={pageHref(model, lang, 'learn-from-matt')}>{t('从这里开始', 'Start here')} <Arrow dir="up-right" /></a><a className="hero-secondary" href={`/${lang}/corpus`}>{t('探索语料库', 'Explore the corpus')} <Arrow dir="up-right" /></a></div><AgentPrompt lang={lang} site={model.siteUrl} /><div className="tribute"><p>{t('Matt Pocock 是开发者教育者，他的公开教学涉及 TypeScript、AI 工程与 agent 工作流。这里用我们自己的话整理学习笔记，向他的分享致敬。', 'Matt Pocock is a developer educator whose public teaching spans TypeScript, AI engineering and agent workflows. These independently written notes are a tribute to his sharing.')}</p><p>{t('欢迎关注他，直接从原作学习。', 'Follow Matt and learn directly from his work.')}</p><div className="author-links"><a href="https://x.com/mattpocockuk">X / @mattpocockuk <Arrow dir="up-right" /></a><a href="https://github.com/mattpocock">GitHub <Arrow dir="up-right" /></a><a href="https://www.aihero.dev">AI Hero <Arrow dir="up-right" /></a></div></div></div><Figure id="home-hero" lang={lang} model={model} /></div><div className="wrap hero-bottom"><span>{t('非官方 · 非商业 · 独立整理', 'UNOFFICIAL · NON-COMMERCIAL · INDEPENDENT')}</span><span>TYPE / BUILD / TEACH <span className="pink-star">✳</span></span></div></section>
     <section className="wrap corpus-section"><div className="corpus-panel"><div className="corpus-heading"><div><span className="eyebrow">THE PUBLIC LEARNING INDEX</span><h2>{t('一份持续生长的语料库', 'A growing public corpus')}</h2></div><div className="corpus-count"><strong>{model.corpusCount.toLocaleString()}</strong><span>{t('条公开资料', 'PUBLIC SOURCES')}</span></div></div><p className="corpus-description">{t('持续更新 Matt 的公开精华：帖子、文章、仓库与网站。只收索引和本站摘要，每一条都通向原文。', 'A continuously updated index of Matt’s best public posts, articles, repositories and websites. Our summaries help you find the original.')}</p><a className="corpus-enter" href={`/${lang}/corpus`}><Search size={19} />{t('搜索、筛选，找到当前需要的原始资料', 'Search and filter the sources you need')}<Arrow dir="up-right" /></a><div className="home-corpus-figure"><Figure id="home-corpus" model={model} lang={lang} /></div></div></section>
     <section className="wrap topics-section"><div className="section-heading"><div><span className="eyebrow">CHOOSE YOUR STARTING POINT</span><h2>{t('从你现在的卡点开始', 'Start where you are stuck')}</h2></div></div><div className="route-overview"><Figure id="home-routes" model={model} lang={lang} /></div><div className="topic-grid">{routes.map(([slug, title, summary], i) => <div className={`topic-card accent-${['lime', 'pink', 'violet'][i]}`} key={slug}><a href={pageHref(model, lang, slug)}><img className="entry-spot art-light" src={`/art/spot-entry-${['workflow', 'typescript', 'writing'][i]}.svg`} alt="" aria-hidden="true" width={480} height={340} /><img className="entry-spot art-dark" src={`/art/spot-entry-${['workflow', 'typescript', 'writing'][i]}-dark.svg`} alt="" aria-hidden="true" width={480} height={340} /><span className="eyebrow">0{i + 1} / {t('学习入口', 'ENTRY POINT')}</span><h3>{title}<Arrow dir="up-right" /></h3><p>{summary}</p>{!pages.some(p => p.slug === slug) && <span className="coming-soon">{t('课程整理中 · 先浏览已完成笔记', 'In preparation · browse available notes')}</span>}</a></div>)}</div></section>
     <section className="reading-section" id="topics"><div className="wrap"><span className="eyebrow">THE FIELD NOTES</span><h2>{t('把方法带回工作现场', 'Take the methods back to work')}</h2>{Array.from(new Set(pages.map(p => p.section))).map(section => <div className="section-group" id={`section-${section}`} key={section}><h3>{sectionLabel(section, lang)}</h3><div className="topic-grid">{pages.filter(p => p.section === section).map(p => <div className="topic-card" key={p.slug}><a href={`/${lang}/${p.slug}`}><span className="eyebrow">{String(p.number).padStart(2, '0')}</span><h3><ArrowText>{p.title}</ArrowText> <Arrow dir="up-right" /></h3><p><ArrowText>{p.summary}</ArrowText></p></a></div>)}</div></div>)}</div></section>

@@ -75,6 +75,10 @@ it('writes complete, localized HTML and absolute metadata for all routes', async
     expect(doc.querySelector('meta[property="og:url"]')?.getAttribute('content')).toBe(siteUrl() + path)
     expect(doc.querySelector('meta[property="og:image"]')?.getAttribute('content')).toMatch(new RegExp('^' + siteUrl().replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '/og/'))
     // hreflang: this language, the other language and x-default (the Chinese twin), all absolute.
+    // Exactly three hreflang links (no duplicate collapsed by fromEntries) plus one Markdown twin.
+    expect(doc.querySelectorAll('link[rel="alternate"][hreflang]')).toHaveLength(3)
+    expect(doc.querySelectorAll('link[rel="alternate"][type="text/markdown"]')).toHaveLength(1)
+    expect(doc.querySelector('link[rel="alternate"][type="text/markdown"]')!.getAttribute('href')).toBe(`/${lang}/${slug || 'index'}.md`)
     const alternates = Object.fromEntries([...doc.querySelectorAll('link[rel="alternate"][hreflang]')].map(link => [link.getAttribute('hreflang'), link.getAttribute('href')]))
     const twin = `/${lang === 'zh' ? 'en' : 'zh'}${slug ? '/' + slug : ''}`
     expect(alternates).toEqual({ [lang]: siteUrl() + path, [lang === 'zh' ? 'en' : 'zh']: siteUrl() + twin, 'x-default': siteUrl() + `/zh${slug ? '/' + slug : ''}` })
@@ -135,6 +139,204 @@ it('serves static pages, downloads and assets and gives unknown paths a real 404
     const response = await app.request(path)
     expect(response.status).toBe(404)
     expect(await response.text()).toContain(path.startsWith('/zh/') ? '这个地址没有页面' : 'Page not found')
+  }
+})
+
+// Agent-readable gate, derived from dist/ (no route list here): every indexable HTML page links its
+// Markdown twin, the twin exists and is plain Markdown, it is listed in that language's llms.txt, and
+// the page's canonical URL is in sitemap.xml. A new route that skips any of these fails the build.
+const site = () => siteUrl()
+const stripCode = (markdown: string) => markdown.replace(/```[\s\S]*?```/g, '').replace(/`[^`\n]*`/g, '')
+it('every indexable page has a Markdown twin that is in llms.txt and sitemap.xml', async () => {
+  const sitemap = await readFile('dist/sitemap.xml', 'utf8')
+  const llms = { en: await readFile('dist/llms.txt', 'utf8'), zh: await readFile('dist/zh/llms.txt', 'utf8') }
+  const indexable: string[] = []
+  for (const file of await files('dist')) {
+    const doc = new JSDOM(await readFile(file, 'utf8')).window.document
+    if (doc.querySelector('meta[name="robots"][content~="noindex"]')) continue
+    indexable.push(file)
+    const lang = doc.documentElement.lang === 'zh' ? 'zh' : 'en'
+    const links = doc.querySelectorAll('link[rel="alternate"][type="text/markdown"]')
+    expect(links, `${file} links its .md`).toHaveLength(1)
+    const href = links[0].getAttribute('href')!
+    expect(href, file).toMatch(/^\/(zh|en)\/[a-z0-9-]+\.md$/)
+    const markdown = await readFile(`dist${href}`, 'utf8').catch(() => '')
+    expect(markdown, `${file}: dist${href}`).toMatch(/^# \S/)
+    expect(stripCode(markdown), `${href} has no HTML tags outside code`).not.toMatch(/<\/?(?:div|span|p|a|img|svg|section|aside|details|summary|table|tr|td|th|br|figure|script|style)\b[^>]*>/i)
+    expect(llms[lang], `${href} in ${lang} llms.txt`).toContain(`](${site()}${href})`)
+    const canonical = doc.querySelector('link[rel="canonical"]')!.getAttribute('href')!
+    expect(sitemap, `${canonical} in sitemap.xml`).toContain(`<loc>${canonical}</loc>`)
+    const response = await app.request(href)
+    expect(response.status, href).toBe(200)
+    expect(response.headers.get('Content-Type'), href).toBe('text/markdown; charset=utf-8')
+  }
+  // Home pages, the corpus, licences and knowledge base pages are covered too, not only articles.
+  expect(indexable).toEqual(expect.arrayContaining(['dist/index.html', 'dist/zh/index.html', 'dist/en/index.html', 'dist/zh/corpus/index.html', 'dist/en/corpus/index.html', 'dist/zh/licenses/index.html', 'dist/en/licenses/index.html', 'dist/zh/knowledge/index.html', 'dist/en/knowledge/index.html']))
+  // "/" is the Chinese home: its Markdown twin is the Chinese one.
+  expect(new JSDOM(await readFile('dist/index.html', 'utf8')).window.document.querySelector('link[rel="alternate"][type="text/markdown"]')!.getAttribute('href')).toBe('/zh/index.md')
+  // Reverse direction: the sitemap lists only real pages, and every llms.txt link resolves.
+  const locs = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m => m[1])
+  expect(new Set(locs).size).toBe(locs.length)
+  for (const loc of locs) await resolves(loc, '/')
+  for (const [lang, index] of Object.entries(llms)) {
+    expect(index, `${lang} llms.txt explains how to use the site`).toMatch(lang === 'zh' ? /\n## 怎么用/ : /\n## How to use/)
+    for (const [, href] of index.matchAll(/\]\(([^)\s]+)\)/g)) await resolves(href, '/')
+    for (const url of index.match(/https?:\/\/[^\s)`，。；]+/g) ?? []) if (!url.includes('/api/')) await resolves(url, '/')
+  }
+})
+// The .md twin says what the page says: same title, same headings in the same order, and every plain
+// paragraph of the article body appears in the Markdown. Home twins list every note the home page links;
+// the licences twins repeat the licences page's text, links and every licence verbatim; the knowledge
+// base twins repeat its dates, notes and links (the English one: dates and original posts only).
+// Arrows (→ ← ↗ …) are drawn as SVG on the page, so they are left out of the comparison.
+const plain = (text: string) => text.replace(/[\u2190-\u21ff]/g, ' ').replace(/\s+/g, ' ').trim()
+const markdownText = (markdown: string) => plain(markdown.replace(/```[\s\S]*?```/g, ' ').replace(/!?\[([^\]]*)\](?:\([^)]*\)|\[[^\]]*\])/g, '$1').replace(/[*`]/g, '').replace(/^>\s?/gm, ''))
+const markdownHeadings = (markdown: string, depth: RegExp) => markdown.replace(/```[\s\S]*?```/g, '').split('\n').flatMap(line => { const m = line.match(depth); return m ? [plain(m[1].replace(/!?\[([^\]]*)\]\([^)]*\)/g, '$1').replace(/[*`]/g, ''))] : [] })
+// Where a page link points in a twin: site pages become their .md twin, other links stay absolute.
+const twinHref = (href: string) => /^\/(zh|en)(\/[a-z0-9-]+)?$/.test(href) ? `${site()}${href}${href.split('/').length === 2 ? '/index' : ''}.md` : new URL(href, site() + '/').href
+it('every Markdown twin matches its HTML page', async () => {
+  let articles = 0, homes = 0, licenses = 0, knowledge = 0
+  for (const file of await files('dist')) {
+    const doc = new JSDOM(await readFile(file, 'utf8')).window.document
+    const href = doc.querySelector('link[rel="alternate"][type="text/markdown"]')?.getAttribute('href')
+    if (!href) continue
+    const markdown = await readFile(`dist${href}`, 'utf8')
+    const h1 = plain(doc.querySelector('h1')?.textContent ?? '')
+    const body = doc.querySelector('.article-body')
+    if (body) {
+      articles++
+      expect(markdownHeadings(markdown, /^# (.+)$/)[0], `${href} title`).toBe(h1)
+      const htmlHeadings = [...body.querySelectorAll('h2[id], h3[id]')].filter(h => !h.closest('figure, aside, details')).map(h => plain(h.textContent ?? ''))
+      expect(markdownHeadings(markdown, /^#{2,3} (.+)$/).filter(h => htmlHeadings.includes(h)), `${href} headings`).toEqual(htmlHeadings)
+      const text = markdownText(markdown)
+      for (const p of body.querySelectorAll(':scope > p')) expect(text, `${href} paragraph`).toContain(plain(p.textContent ?? ''))
+    } else if (doc.querySelector('.hero')) {
+      homes++
+      const lang = doc.documentElement.lang === 'zh' ? 'zh' : 'en'
+      const linked = [...doc.querySelectorAll('.reading-section .topic-card a')].map(a => a.getAttribute('href')!)
+      expect(linked.length, file).toBeGreaterThan(10)
+      for (const page of linked) expect(markdown, `${href} lists ${page}`).toContain(`](${site()}${page}.md)`)
+      expect(markdown, `${href} carries the copy line`).toContain(doc.getElementById('agent-prompt-text')!.textContent!)
+      expect(markdown.startsWith(`# ${lang === 'zh' ? 'Matt Pocock 学习笔记' : 'Matt Pocock study notes'}\n`), href).toBe(true)
+    } else if (doc.querySelector('.licenses-page')) {
+      // The licences twin: same title, intro, headings in order, links, and every licence text verbatim.
+      licenses++
+      const page = doc.querySelector('.licenses-page')!
+      expect(markdownHeadings(markdown, /^# (.+)$/)[0], `${href} title`).toBe(h1)
+      expect(markdownHeadings(markdown, /^#{2,3} (.+)$/), `${href} headings`).toEqual([...page.querySelectorAll('h2, h3')].map(h => plain(h.textContent ?? '')))
+      const text = markdownText(markdown)
+      for (const p of page.querySelectorAll(':scope > p, .license-entry > p')) expect(text, `${href} paragraph`).toContain(plain(p.textContent ?? ''))
+      for (const a of page.querySelectorAll('a[href]')) expect(markdown, `${href} links ${a.getAttribute('href')}`).toContain(`](${twinHref(a.getAttribute('href')!)})`)
+      const fences = [...markdown.matchAll(/```text\n([\s\S]*?)\n```/g)].map(m => m[1])
+      expect(fences, `${href} licence texts`).toEqual([...page.querySelectorAll('pre.license-text')].map(pre => (pre.textContent ?? '').trimEnd()))
+    } else if (doc.querySelector('.kb-reader')) {
+      // The knowledge base twin: same title, lede, dates and note titles in order, every note body,
+      // and every link in the lede and the notes (original posts and links inside the notes; the
+      // "back home" link is navigation, not content).
+      knowledge++
+      const page = doc.querySelector('.kb-reader')!
+      expect(markdownHeadings(markdown, /^# (.+)$/)[0], `${href} title`).toBe(h1)
+      expect(markdownHeadings(markdown, /^#{2,3} (.+)$/), `${href} headings`).toEqual([...page.querySelectorAll('h2, h3')].map(h => plain(h.textContent ?? '')))
+      const text = markdownText(markdown)
+      for (const p of page.querySelectorAll('p')) expect(text, `${href} paragraph`).toContain(plain(p.textContent ?? ''))
+      for (const a of page.querySelectorAll('.kb-lede a[href], .kb-list a[href]')) expect(markdown, `${href} links ${a.getAttribute('href')}`).toContain(`](${twinHref(a.getAttribute('href')!)})`)
+      expect(page.querySelectorAll('.kb-entry').length, `${href} has notes`).toBeGreaterThan(0)
+      expect(markdown.split('](https://x.com/').length - 1, `${href} links every original post`).toBeGreaterThanOrEqual(page.querySelectorAll('.kb-source').length)
+      // Each note's own original-post link, with its label, right under that note (not only links in the body).
+      const zh = doc.documentElement.lang === 'zh'
+      for (const [i, link] of [...page.querySelectorAll('.kb-entry .kb-source')].entries()) {
+        const entry = link.closest('.kb-entry')!
+        const line = zh ? `[查看原帖](${link.getAttribute('href')})` : `- [${plain(link.textContent ?? '')}](${link.getAttribute('href')})`
+        expect(plain(link.textContent ?? ''), `${href} note ${i} link text`).toMatch(zh ? /^查看原帖$/ : /^(?:Matt notes|Team notes): original post \d+$/)
+        if (zh) {
+          const title = plain(entry.querySelector('h3')!.textContent ?? '')
+          const sections = markdown.split(/^### /m).filter(part => plain(part.split('\n')[0]) === title)
+          expect(sections.length, `${href} has a section for ${title}`).toBeGreaterThan(0)
+          expect(sections.some(part => part.split('\n').includes(line)), `${href} "${title}" carries its original-post link`).toBe(true)
+        } else expect(markdown.split('\n'), `${href} lists ${line}`).toContain(line)
+      }
+    } else expect(markdownHeadings(markdown, /^# (.+)$/)[0], `${href} title`).toBe(h1)
+  }
+  expect(articles).toBeGreaterThan(30)
+  expect(homes).toBe(3)
+  expect(licenses).toBe(2)
+  expect(knowledge).toBe(2)
+})
+// The home page's copy line: the same text in both languages' HTML, a real button with an accessible
+// name, and no CJK characters anywhere in the English home (a single one would load the Chinese font).
+it('home pages show a copyable agent line with a labelled button', async () => {
+  for (const [file, lang] of [['dist/zh/index.html', 'zh'], ['dist/en/index.html', 'en'], ['dist/index.html', 'zh']] as const) {
+    const doc = new JSDOM(await readFile(file, 'utf8')).window.document
+    const text = doc.getElementById('agent-prompt-text')?.textContent ?? ''
+    expect(text, file).toContain(`${site()}${lang === 'zh' ? '/zh/llms.txt' : '/llms.txt'}`)
+    expect(text, file).toMatch(lang === 'zh' ? /^去 / : /^Go read /)
+    const button = doc.querySelector('.agent-prompt button')!
+    expect(button.getAttribute('type'), file).toBe('button')
+    expect(button.getAttribute('aria-label'), file).toBe(lang === 'zh' ? '复制这句话' : 'Copy the line for your agent')
+    expect(button.getAttribute('aria-label'), 'visible label is part of the accessible name').toContain(button.textContent)
+    expect(button.getAttribute('aria-describedby'), file).toBe('agent-prompt-text')
+    if (lang === 'en') expect(doc.querySelector('.agent-prompt')!.textContent, file).not.toMatch(/[\u3000-\u9fff\uff00-\uffef]/)
+  }
+})
+// The .md twins are for agents (head link, llms.txt, sitemap); pages show no Markdown download link.
+it('pages show no visible link to their Markdown twins', async () => {
+  for (const file of await files('dist')) {
+    const doc = new JSDOM(await readFile(file, 'utf8')).window.document
+    const visible = [...doc.querySelectorAll('body a[href]')].map(a => a.getAttribute('href')!).filter(href => /^\/(?:zh|en)\/[^#?]*\.md$/.test(href) || href.startsWith(siteUrl()) && href.endsWith('.md'))
+    expect(visible, file).toEqual([])
+    expect(doc.querySelectorAll('body a[download]').length, file).toBe(0)
+  }
+})
+it('robots.txt blocks no crawler and points to the sitemap', async () => {
+  const robots = await readFile('dist/robots.txt', 'utf8')
+  expect(robots).toMatch(/^User-agent: \*$/m)
+  expect(robots).not.toMatch(/^\s*Disallow:\s*\S/im)
+  expect(robots).toContain(`Sitemap: ${site()}/sitemap.xml`)
+  for (const path of ['/robots.txt', '/sitemap.xml']) {
+    const response = await app.request(path)
+    expect(response.status, path).toBe(200)
+  }
+  expect(new JSDOM(await readFile('dist/sitemap.xml', 'utf8'), { contentType: 'application/xml' }).window.document.querySelector('parsererror')).toBeNull()
+})
+// Every sitemap entry names itself in its own language, its twin in the other language and x-default
+// (the Chinese page, same as the page's <head>), and the twin names it back. The language is the one the page itself declares in <html lang>.
+it('sitemap hreflang pairs point at each other across languages', async () => {
+  const doc = new JSDOM(await readFile('dist/sitemap.xml', 'utf8'), { contentType: 'application/xml' }).window.document
+  const entries = new Map<string, Record<string, string>>()
+  for (const url of doc.getElementsByTagName('url')) {
+    const links = Object.fromEntries([...url.getElementsByTagName('xhtml:link')].map(link => [link.getAttribute('hreflang')!, link.getAttribute('href')!]))
+    entries.set(url.getElementsByTagName('loc')[0].textContent!, links)
+  }
+  expect(entries.size).toBeGreaterThan(40)
+  for (const [loc, links] of entries) {
+    const html = await (await app.request(new URL(loc).pathname)).text()
+    const lang = new JSDOM(html).window.document.documentElement.lang
+    const other = lang === 'zh' ? 'en' : 'zh'
+    expect(Object.keys(links).sort(), loc).toEqual(['en', 'x-default', 'zh'])
+    // x-default is the Chinese page, as in the page's own <head>.
+    expect(links['x-default'], `${loc} x-default`).toBe(links.zh)
+    expect(new JSDOM(html).window.document.querySelector('link[hreflang="x-default"]')!.getAttribute('href'), `${loc} x-default matches <head>`).toBe(links['x-default'])
+    expect(links[lang], `${loc} names itself as ${lang}`).toBe(loc)
+    expect(links[other], `${loc} twin is a different page`).not.toBe(loc)
+    expect(entries.has(links[other]), `${loc} twin ${links[other]} is in the sitemap`).toBe(true)
+    expect(entries.get(links[other])![lang], `${links[other]} points back to ${loc}`).toBe(loc)
+    expect(entries.get(links[other])![other], `${links[other]} names itself as ${other}`).toBe(links[other])
+  }
+})
+// English agent files stay English: a stray CJK character means a Chinese string leaked into the English build.
+it('English agent files contain no CJK characters', async () => {
+  const targets = ['dist/llms.txt', 'dist/llms-full.txt', ...(await walk('dist/en', '.md'))]
+  expect(targets).toEqual(expect.arrayContaining(['dist/en/index.md', 'dist/en/licenses.md', 'dist/en/knowledge.md']))
+  for (const file of targets) expect(await readFile(file, 'utf8'), file).not.toMatch(/[\u3000-\u9fff\uff00-\uffef]/)
+})
+it('files written for agents carry no addresses, local paths or key-shaped strings', async () => {
+  const targets = ['dist/llms.txt', 'dist/llms-full.txt', 'dist/zh/llms.txt', 'dist/zh/llms-full.txt', 'dist/robots.txt', 'dist/sitemap.xml', ...(await walk('dist', '.md'))]
+  for (const file of targets) {
+    const text = await readFile(file, 'utf8')
+    expect(text, `${file}: IPv4 address`).not.toMatch(/\b(?:\d{1,3}\.){3}\d{1,3}\b/)
+    expect(text, `${file}: email address`).not.toMatch(/[\w.+-]+@[\w-]+\.[\w.-]+/)
+    expect(text, `${file}: local path`).not.toMatch(/(?:^|[\s"'(])\/(?:workspace|home|root|srv|Users)\//m)
+    expect(text, `${file}: key-shaped string`).not.toMatch(/\b(?:sk|ghp|gho|xox[bp])[-_][A-Za-z0-9_-]{16,}/)
   }
 })
 

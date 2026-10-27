@@ -118,6 +118,19 @@ nav a:hover { color: var(--link); }
 .hero-secondary { display: flex; align-items: center; gap: 11px; font-size: 14px; font-weight: 500; color: var(--hero-text); }
 .tribute { margin-top: 30px; padding-top: 21px; border-top: 1px solid #FFFFFF28; max-width: 540px; border-top-color: var(--border); }
 .tribute p { font-size: 17px; line-height: 1.8; color: var(--hero-text); }
+.agent-prompt { margin-top: 26px; max-width: 540px; }
+.agent-prompt .eyebrow { font-family: 'Space Grotesk', 'Noto Sans SC', 'Noto Sans CJK SC', sans-serif; }
+.agent-prompt-row { margin-top: 9px; display: flex; align-items: stretch; border: 1px solid var(--hero-border); border-radius: 8px; background: var(--card); overflow: hidden; }
+.agent-prompt-text { flex: 1; min-width: 0; margin: 0; padding: 10px 13px; font-size: 15px; line-height: 1.6; color: var(--hero-text); overflow-wrap: anywhere; }
+/* The button is as wide as its longest label (data-longest, laid in the same grid cell but hidden), so "Copy" → "Copied" does not rewrap the line. */
+.agent-prompt-copy { flex: none; display: grid; place-items: center; padding-inline: 16px; border-left: 1px solid var(--hero-border); background: var(--muted); color: var(--foreground); font-size: 14px; font-weight: 600; cursor: pointer; }
+.agent-prompt-copy > span, .agent-prompt-copy::after { grid-area: 1 / 1; }
+.agent-prompt-copy::after { content: attr(data-longest); visibility: hidden; }
+.agent-prompt-copy:hover { background: var(--border); }
+.agent-prompt-copy:focus-visible { outline: 2px solid var(--ring); outline-offset: -2px; }
+.agent-prompt-hint { margin-top: 7px; font-size: 13px; color: var(--hero-muted); }
+/* Phones: keep room for three lines so the box does not shrink when web fonts replace the fallback (a layout shift at 412px). */
+@media (max-width: 480px) { .agent-prompt-text { min-height: calc(3 * 1.6em + 20px); } }
 .author-links { display: flex; gap: 23px; margin-top: 12px; }
 .author-links a { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--hero-text); }
 .author-links a:hover { color: var(--link); }
