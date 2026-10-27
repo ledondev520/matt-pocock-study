@@ -356,3 +356,25 @@ it('every built page and SVG file that embeds Archify CSS carries the Archify li
   expect(committed.length).toBeGreaterThan(0)
   for (const name of committed) expect(svgFiles).toContain(`dist/diagrams/${name}`)
 })
+
+// Licence texts are folded: each block on a built page is a closed native <details> whose only
+// summary names the source, and whose <pre> is still the exact upstream text.
+it('every licence block on a built page is a closed <details> with a one-line summary and the verbatim text', async () => {
+  const texts = await Promise.all(['third_party/mattpocock-skills/LICENSE', 'third_party/archify/LICENSE'].map(file => readFile(file, 'utf8')))
+  const summaries = { zh: ['完整许可：mattpocock/skills（MIT）', '完整许可：Archify（MIT）'], en: ['Full licence: mattpocock/skills (MIT)', 'Full licence: Archify (MIT)'] }
+  let count = 0
+  for (const file of await files('dist')) {
+    const doc = new JSDOM(await readFile(file, 'utf8')).window.document
+    const lang = doc.documentElement.lang.startsWith('zh') ? 'zh' : 'en'
+    for (const block of doc.querySelectorAll('.licence-text')) {
+      count++
+      expect(block.tagName, file).toBe('DETAILS')
+      expect(block.hasAttribute('open'), `${file} licence starts closed`).toBe(false)
+      expect([...block.children].map(child => child.tagName), file).toEqual(['SUMMARY', 'PRE'])
+      const index = texts.indexOf(block.querySelector('pre')!.textContent ?? '')
+      expect(index, `${file} licence text is verbatim`).toBeGreaterThanOrEqual(0)
+      expect(block.querySelector('summary')!.textContent, file).toBe(summaries[lang][index])
+    }
+  }
+  expect(count).toBeGreaterThan(0)
+})

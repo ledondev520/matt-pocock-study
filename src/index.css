@@ -533,10 +533,12 @@ code { font-family: 'JetBrains Mono', monospace; font-size: .88em; }p code, li c
 }
 
 /* Full upstream licence texts (MIT) at page ends: verbatim, wrapped, readable size. */
-.licence-text { margin-block: 20px 28px; padding: 18px 20px; border: 1px solid var(--border); border-radius: 12px; background: var(--card); }
-.licence-text h3 { margin: 0 0 10px; font-size: 18px; line-height: 1.5; }
+.licence-text { margin-block: 20px 28px; padding: 12px 20px; border: 1px solid var(--border); border-radius: 12px; background: var(--card); }
+.licence-text summary { cursor: pointer; padding-block: 4px; font: 600 15px/1.5 'Space Grotesk', 'Noto Sans SC', 'Noto Sans CJK SC', sans-serif; color: var(--link); border-radius: 4px; }
+.licence-text summary:focus-visible { outline: 2px solid var(--ring); outline-offset: 5px; }
+.licence-text[open] summary { margin-bottom: 10px; }
 .licence-text pre { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; font: 17px/1.7 'JetBrains Mono', ui-monospace, monospace; color: var(--foreground); }
-@media (max-width: 600px) { .licence-text { padding: 14px; } }
+@media (max-width: 600px) { .licence-text { padding: 10px 14px; } }
 .licence-appendix > p { margin-block: 28px 0; color: var(--muted-foreground); }
 .page-licence { padding-block: 8px 40px; }
 
