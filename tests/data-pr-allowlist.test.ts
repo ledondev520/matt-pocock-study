@@ -172,7 +172,7 @@ describe('data PR policy', () => {
 
 // The checks that decide auto-merge must come from the base branch and never run PR code.
 describe('data PR policy workflow', () => {
-  type Step = { uses?: string; run?: string; with?: Record<string, unknown> }
+  type Step = { uses?: string; run?: string; with?: Record<string, unknown>; env?: Record<string, string> }
   type Job = { name: string; permissions?: Record<string, string>; steps: Step[] }
   const workflow = parse(readFileSync(resolve('.github/workflows/data-pr-policy.yml'), 'utf8')) as {
     on: Record<string, unknown>; permissions: unknown; jobs: Record<string, Job>
@@ -198,6 +198,14 @@ describe('data PR policy workflow', () => {
           expect(step.run).not.toMatch(/git (checkout|switch|worktree|reset)\b/)
         }
       }
+    }
+  })
+
+  it('passes secrets only to same-repository PRs', () => {
+    const uses = jobs.flatMap(j => j.steps).flatMap(s => Object.values(s.env ?? {})).filter(v => String(v).includes('secrets.'))
+    expect(uses.length).toBeGreaterThan(0)
+    for (const value of uses) {
+      expect(value).toMatch(/^\$\{\{ github\.event\.pull_request\.head\.repo\.full_name == github\.repository && secrets\.[A-Z_]+ \|\| '' \}\}$/)
     }
   })
 

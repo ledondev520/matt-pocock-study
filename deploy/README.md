@@ -40,7 +40,10 @@ secrets: `MATT_DEPLOY_SSH_KEY`, `MATT_DEPLOY_HOST`, `MATT_DEPLOY_PORT`,
 ## Rollback
 
 - Actions → Deploy → Run workflow → `action=rollback`: switches to the newest earlier release that
-  is still on disk and has not failed, restarts and smoke-tests it.
+  is still on disk and has not failed, restarts and smoke-tests it. "Earlier" means the release
+  that was live before the last deploy, even if root had switched `current` to it by hand:
+  `matt-release activate` appends the live release to the history before every switch unless it
+  is already the last entry.
 - By hand on the server: `sudo /usr/local/sbin/matt-release status`, then
   `sudo /usr/local/sbin/matt-release rollback <current-release>`.
 - To undo code, revert the merge commit in a PR; the next CI run on `main` deploys it.

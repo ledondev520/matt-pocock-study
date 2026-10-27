@@ -152,7 +152,9 @@ cmd_activate() {
   name=$(date -u +%Y%m%d-%H%M%S)-${sha:0:12}
   stage=$RELEASES/.staging-$name
   old=$(current_name) || die "current does not point at a release; fix by hand first"
-  [ -s "$STATE/history" ] || printf '%s\n' "$old" > "$STATE/history"
+  # Record the live release before switching unless it is already the last entry: `current`
+  # may have been switched by hand, and a later rollback must return to it, not to an older one.
+  [ "$(tail -n 1 -- "$STATE/history" 2>/dev/null)" = "$old" ] || printf '%s\n' "$old" >> "$STATE/history"
 
   rm -rf -- "$stage"; install -d -m 700 "$stage"
   if ! unpack "$tarball" "$stage"; then rm -rf -- "$stage" "$tarball"; die "unpack failed"; fi

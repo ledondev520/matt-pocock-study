@@ -158,6 +158,18 @@ describe('matt-release rollback', () => {
     expect(current()).toBe(HANDMADE)
   })
 
+  it('does not go back to a release it just rolled back from', () => {
+    const a = deploy(32).fields.release
+    const b = deploy(33).fields.release
+    expect(run('rollback', b).status).toBe(0)
+    expect(current()).toBe(a)
+    // b is now in the history after a, but it was rolled back, so it is not a target.
+    const again = run('rollback', a)
+    expect(again.status).toBe(0)
+    expect(current()).toBe(HANDMADE)
+    expect(failedList()).toEqual([b, a])
+  })
+
   it.each(['../../etc', 'releases/../x', `${HANDMADE}/..`, '-rf', ''])('rejects %j', bad => {
     expect(run('rollback', bad).status).not.toBe(0)
     expect(current()).toBe(HANDMADE)
@@ -169,3 +181,45 @@ it('status prints the current release and commit', () => {
   expect(run('status').fields).toEqual({ release: r.fields.release, commit: sha(41) })
 })
 
+// The server as it really is before the first channel deploy: the history holds only older
+// releases (a trial run), and root switched `current` by hand to a release the history lacks.
+describe('matt-release with a hand-switched current release', () => {
+  const TRIAL = '20261027-151657-3af3984d5d8b'
+  const MANUAL = '20261027-153211-fe9bdab'
+  const history = () => readFileSync(join(root, 'deploy-state/history'), 'utf8').split('\n').filter(Boolean)
+
+  beforeEach(() => {
+    for (const name of [TRIAL, MANUAL]) {
+      mkdirSync(join(root, 'releases', name, 'dist'), { recursive: true })
+      writeFileSync(join(root, 'releases', name, 'DEPLOYED_COMMIT'), `${name.slice(-7)}\n`)
+    }
+    mkdirSync(join(root, 'deploy-state'), { mode: 0o700 })
+    writeFileSync(join(root, 'deploy-state/history'), `${HANDMADE}\n${TRIAL}\n${HANDMADE}\n`)
+    writeFileSync(join(root, 'deploy-state/failed'), `${TRIAL}\n`)
+    rmSync(join(root, 'current'))
+    symlinkSync(`releases/${MANUAL}`, join(root, 'current'))
+  })
+
+  it('rolls back to the hand-switched release after a deploy whose smoke test fails', () => {
+    const r = deploy(51)
+    expect(r.status).toBe(0)
+    expect(r.fields.previous).toBe(MANUAL)
+    const back = run('rollback', r.fields.release)
+    expect(back.status).toBe(0)
+    expect(back.fields).toMatchObject({ release: MANUAL, previous: r.fields.release })
+    expect(current()).toBe(MANUAL)
+  })
+
+  it('switches back to the hand-switched release when the new one is unhealthy', () => {
+    const r = deploy(52, { broken: true })
+    expect(r.status).toBe(1)
+    expect(r.fields).toMatchObject({ restored: MANUAL, restored_healthy: 'true' })
+    expect(current()).toBe(MANUAL)
+  })
+
+  it('records the live release once, and not again when it is already the last entry', () => {
+    const a = deploy(53).fields.release
+    const b = deploy(54).fields.release
+    expect(history()).toEqual([HANDMADE, TRIAL, HANDMADE, MANUAL, a, b])
+  })
+})
