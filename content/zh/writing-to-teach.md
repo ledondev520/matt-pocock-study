@@ -46,8 +46,6 @@ note: 本站译意：有时教会一个概念，只需找到恰当的例子。
 
 ## 看懂之后，关掉答案
 
-根据 Matt Pocock 的 [skills 仓库](https://github.com/mattpocock/skills)改编，MIT；来源文件：`skills/productivity/teach/SKILL.md`。
-
 ```cards
 - **独立提取** 合上说明，自己解释或完成一道题。
 - **间隔重试** 过一段时间再答，记录遗忘的位置。
@@ -58,7 +56,7 @@ note: 本站译意：有时教会一个概念，只需找到恰当的例子。
 id: d16-practice-loop
 ```
 
-先教一个小概念，再做需要判断的练习。把完成标准写成「能处理一个没见过的输入」，不要用「刚读完很顺畅」替代。完整许可附后（见页末），另见[版权页](/zh/about-and-copyright)。
+先教一个小概念，再做需要判断的练习。把完成标准写成「能处理一个没见过的输入」，不要用「刚读完很顺畅」替代。
 
 ## 教学也要核验
 
@@ -92,11 +90,10 @@ answer: 示例：导入表有一行缺姓名，怎样定位？返回行号与字
 ## 来源
 
 - [Matt 谈教学例子，2025-11-28](https://x.com/mattpocockuk/status/1994475432763113845)
-- [skills：教学结构的 MIT 来源](https://github.com/mattpocock/skills)，文件见上文。
 
 ## skills MIT 许可声明
 
-本页改编的结构来自 [mattpocock/skills](https://github.com/mattpocock/skills)，MIT 许可，Copyright (c) 2026 Matt Pocock。完整许可附后，与[原仓库 LICENSE](https://github.com/mattpocock/skills/blob/main/LICENSE)一字不差。
+本页改编的结构来自 [mattpocock/skills](https://github.com/mattpocock/skills)，MIT 许可，Copyright (c) 2026 Matt Pocock。完整许可附后，与[原仓库 LICENSE](https://github.com/mattpocock/skills/blob/2817544484ea89558aabd8a0360e042888fad713/LICENSE)一字不差。
 
 ```licence
 id: mattpocock-skills

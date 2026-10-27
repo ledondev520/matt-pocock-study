@@ -52,6 +52,10 @@ for (const [mode, selector] of [['Light', ':root'], ['Dark', '\\.dark']]) {
   check(mode, 'Hero accent / surface', t['hero-accent'], t['hero-bg']);
   check(mode, 'Hero button & final node', t['hero-accent-ink'], t['hero-accent']);
   check(mode, 'Corpus entry / outlined row', t.foreground, t['panel-inner']);
+  check(mode, 'Footer note & link / page', t['muted-foreground'], t.background);
+  check(mode, 'Licences page text / page', t['muted-foreground'], t.background);
+  check(mode, 'Licences page links / page', t.link, t.background);
+  check(mode, 'Licence text / card', t['muted-foreground'], t.card);
 }
 for (const [role, fg] of [['Text', '#E9E4F5'], ['Keyword / operator', '#D5ADFF'], ['String', '#C6F432'], ['Function', '#FF91CB'], ['Type', '#9DDFFF'], ['Punctuation', '#C2B7D6'], ['Comment', '#B4A7C8'], ['Line number', '#A394B8']]) {
   check('Both', `Code: ${role}`, fg, '#171126');

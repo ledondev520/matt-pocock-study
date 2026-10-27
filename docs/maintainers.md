@@ -84,7 +84,7 @@ Server, SSR and client use the same route grammar: `/`, `/zh`, `/en`, and `/<lan
 - `GET /api/corpus/tags` → sorted unique tags.
 - `GET /api/health`, `/api/pages?lang=zh`, `/api/search?lang=en&q=...`, `/api/lang-hint`.
 - `/<lang>/<slug>.md`, `/llms.txt`, `/llms-full.txt`, `/zh/llms.txt`, `/zh/llms-full.txt`. Quotes keep attribution, source URL and date. Components become readable Markdown.
-- `/` selects saved language, then `navigator.language` (`zh*` → Chinese, otherwise English). `/zh` and `/en` are homes. Language switching preserves the page; theme uses localStorage and defaults to the OS preference.
+- `/` is the Chinese home page, pre-rendered (canonical `/zh`, `x-default` → Chinese); there is no client-side language redirect. Only a saved English choice (`localStorage.lang === 'en'`, set by the language switch) sends `/` to `/en`, from an inline `<head>` script before the body is parsed. `/zh` and `/en` are homes; `/zh/licenses` and `/en/licenses` hold every licence text. Language switching preserves the page; theme uses localStorage and defaults to the OS preference.
 
 ## Deployment
 
