@@ -63,7 +63,7 @@ async function resolves(href: string, base: string) {
   }
 }
 it('writes complete, localized HTML and absolute metadata for all routes', async () => {
-  for (const lang of ['zh', 'en']) for (const slug of ['', ...model.pages.filter(p => p.lang === lang).map(p => p.slug)]) {
+  for (const lang of ['zh', 'en']) for (const slug of ['', ...model.pages.filter(p => p.lang === lang).map(p => p.slug), 'knowledge']) {
     const path = `/${lang}${slug ? '/' + slug : ''}`
     const html = await readFile(`dist${path}/index.html`, 'utf8')
     const doc = new JSDOM(html).window.document
@@ -98,7 +98,7 @@ it('resolves every internal href in generated and React-rendered HTML', async ()
     const doc = new JSDOM(html).window.document
     for (const node of doc.querySelectorAll('[href]')) await resolves(node.getAttribute('href')!, base)
   }
-  for (const path of ['/', '/zh', '/en', '/zh/corpus', '/en/corpus', ...model.pages.map(p => `/${p.lang}/${p.slug}`)]) {
+  for (const path of ['/', '/zh', '/en', '/zh/corpus', '/en/corpus', '/zh/knowledge', '/en/knowledge', ...model.pages.map(p => `/${p.lang}/${p.slug}`)]) {
     const dataFile = path === '/' || path === '/zh' || path === '/en' ? `dist${path}/index.json` : `dist${path}.json`
     const scoped: Model = JSON.parse(await readFile(dataFile, 'utf8'))
     const doc = new JSDOM(renderToString(<Site model={scoped} path={path} />)).window.document
@@ -170,8 +170,8 @@ it('every indexable page has a Markdown twin that is in llms.txt and sitemap.xml
     expect(response.status, href).toBe(200)
     expect(response.headers.get('Content-Type'), href).toBe('text/markdown; charset=utf-8')
   }
-  // Home pages, the corpus pages and the licences pages are covered too, not only articles.
-  expect(indexable).toEqual(expect.arrayContaining(['dist/index.html', 'dist/zh/index.html', 'dist/en/index.html', 'dist/zh/corpus/index.html', 'dist/en/corpus/index.html', 'dist/zh/licenses/index.html', 'dist/en/licenses/index.html']))
+  // Home pages, the corpus, licences and knowledge base pages are covered too, not only articles.
+  expect(indexable).toEqual(expect.arrayContaining(['dist/index.html', 'dist/zh/index.html', 'dist/en/index.html', 'dist/zh/corpus/index.html', 'dist/en/corpus/index.html', 'dist/zh/licenses/index.html', 'dist/en/licenses/index.html', 'dist/zh/knowledge/index.html', 'dist/en/knowledge/index.html']))
   // "/" is the Chinese home: its Markdown twin is the Chinese one.
   expect(new JSDOM(await readFile('dist/index.html', 'utf8')).window.document.querySelector('link[rel="alternate"][type="text/markdown"]')!.getAttribute('href')).toBe('/zh/index.md')
   // Reverse direction: the sitemap lists only real pages, and every llms.txt link resolves.
@@ -186,13 +186,16 @@ it('every indexable page has a Markdown twin that is in llms.txt and sitemap.xml
 })
 // The .md twin says what the page says: same title, same headings in the same order, and every plain
 // paragraph of the article body appears in the Markdown. Home twins list every note the home page links;
-// the licences twins repeat the licences page's text, links and every licence verbatim.
+// the licences twins repeat the licences page's text, links and every licence verbatim; the knowledge
+// base twins repeat its dates, notes and links (the English one: dates and original posts only).
 // Arrows (→ ← ↗ …) are drawn as SVG on the page, so they are left out of the comparison.
 const plain = (text: string) => text.replace(/[\u2190-\u21ff]/g, ' ').replace(/\s+/g, ' ').trim()
 const markdownText = (markdown: string) => plain(markdown.replace(/```[\s\S]*?```/g, ' ').replace(/!?\[([^\]]*)\](?:\([^)]*\)|\[[^\]]*\])/g, '$1').replace(/[*`]/g, '').replace(/^>\s?/gm, ''))
 const markdownHeadings = (markdown: string, depth: RegExp) => markdown.replace(/```[\s\S]*?```/g, '').split('\n').flatMap(line => { const m = line.match(depth); return m ? [plain(m[1].replace(/!?\[([^\]]*)\]\([^)]*\)/g, '$1').replace(/[*`]/g, ''))] : [] })
+// Where a page link points in a twin: site pages become their .md twin, other links stay absolute.
+const twinHref = (href: string) => /^\/(zh|en)(\/[a-z0-9-]+)?$/.test(href) ? `${site()}${href}${href.split('/').length === 2 ? '/index' : ''}.md` : new URL(href, site() + '/').href
 it('every Markdown twin matches its HTML page', async () => {
-  let articles = 0, homes = 0, licenses = 0
+  let articles = 0, homes = 0, licenses = 0, knowledge = 0
   for (const file of await files('dist')) {
     const doc = new JSDOM(await readFile(file, 'utf8')).window.document
     const href = doc.querySelector('link[rel="alternate"][type="text/markdown"]')?.getAttribute('href')
@@ -223,14 +226,28 @@ it('every Markdown twin matches its HTML page', async () => {
       expect(markdownHeadings(markdown, /^#{2,3} (.+)$/), `${href} headings`).toEqual([...page.querySelectorAll('h2, h3')].map(h => plain(h.textContent ?? '')))
       const text = markdownText(markdown)
       for (const p of page.querySelectorAll(':scope > p, .license-entry > p')) expect(text, `${href} paragraph`).toContain(plain(p.textContent ?? ''))
-      for (const a of page.querySelectorAll('a[href]')) expect(markdown, `${href} links ${a.getAttribute('href')}`).toContain(`](${new URL(a.getAttribute('href')!.replace(/^\/(zh|en)\/about-and-copyright$/, '/$1/about-and-copyright.md'), site() + '/').href})`)
+      for (const a of page.querySelectorAll('a[href]')) expect(markdown, `${href} links ${a.getAttribute('href')}`).toContain(`](${twinHref(a.getAttribute('href')!)})`)
       const fences = [...markdown.matchAll(/```text\n([\s\S]*?)\n```/g)].map(m => m[1])
       expect(fences, `${href} licence texts`).toEqual([...page.querySelectorAll('pre.license-text')].map(pre => (pre.textContent ?? '').trimEnd()))
+    } else if (doc.querySelector('.kb-reader')) {
+      // The knowledge base twin: same title, lede, dates and note titles in order, every note body,
+      // and every link in the lede and the notes (original posts and links inside the notes; the
+      // "back home" link is navigation, not content).
+      knowledge++
+      const page = doc.querySelector('.kb-reader')!
+      expect(markdownHeadings(markdown, /^# (.+)$/)[0], `${href} title`).toBe(h1)
+      expect(markdownHeadings(markdown, /^#{2,3} (.+)$/), `${href} headings`).toEqual([...page.querySelectorAll('h2, h3')].map(h => plain(h.textContent ?? '')))
+      const text = markdownText(markdown)
+      for (const p of page.querySelectorAll('p')) expect(text, `${href} paragraph`).toContain(plain(p.textContent ?? ''))
+      for (const a of page.querySelectorAll('.kb-lede a[href], .kb-list a[href]')) expect(markdown, `${href} links ${a.getAttribute('href')}`).toContain(`](${twinHref(a.getAttribute('href')!)})`)
+      expect(page.querySelectorAll('.kb-entry').length, `${href} has notes`).toBeGreaterThan(0)
+      expect(markdown.split('](https://x.com/').length - 1, `${href} links every original post`).toBeGreaterThanOrEqual(page.querySelectorAll('.kb-source').length)
     } else expect(markdownHeadings(markdown, /^# (.+)$/)[0], `${href} title`).toBe(h1)
   }
   expect(articles).toBeGreaterThan(30)
   expect(homes).toBe(3)
   expect(licenses).toBe(2)
+  expect(knowledge).toBe(2)
 })
 // The home page's copy line: the same text in both languages' HTML, a real button with an accessible
 // name, and no CJK characters anywhere in the English home (a single one would load the Chinese font).
@@ -296,7 +313,7 @@ it('sitemap hreflang pairs point at each other across languages', async () => {
 // English agent files stay English: a stray CJK character means a Chinese string leaked into the English build.
 it('English agent files contain no CJK characters', async () => {
   const targets = ['dist/llms.txt', 'dist/llms-full.txt', ...(await walk('dist/en', '.md'))]
-  expect(targets).toContain('dist/en/index.md')
+  expect(targets).toEqual(expect.arrayContaining(['dist/en/index.md', 'dist/en/licenses.md', 'dist/en/knowledge.md']))
   for (const file of targets) expect(await readFile(file, 'utf8'), file).not.toMatch(/[\u3000-\u9fff\uff00-\uffef]/)
 })
 it('files written for agents carry no addresses, local paths or key-shaped strings', async () => {
@@ -346,6 +363,17 @@ it('round-trips replacement tokens through metadata, rendered HTML and embedded 
     expect(embedded.currentPage!.title).toBe(special)
     expect(embedded.currentPage!.summary).toBe(special)
     expect(JSON.parse(await readFile(join(root, 'en/specs-and-tickets.json'), 'utf8'))).toEqual(embedded)
+  } finally { await rm(root, { recursive: true, force: true }) }
+})
+it('static rendering refuses a knowledge base feed with a gate finding', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'static-kb-'))
+  try {
+    await writeFile(join(root, 'content.json'), await readFile('dist/content.json'))
+    await writeFile(join(root, 'figures.json'), await readFile('dist/figures.json'))
+    await writeFile(join(root, 'index.html'), '<!doctype html><html lang="en"><head><!--page-meta--></head><body><div id="root"></div><!--site-data--></body></html>')
+    const post = 'https://x.com/mattpocockuk/status/1'
+    await writeFile(join(root, 'kb.json'), JSON.stringify({ version: 2, entries: [{ id: 'matt-notes-2099-01-02-1', date: '2099-01-02', source: 'matt-notes', title: '样例 a@b.co', url: post, body: [{ text: '原帖', href: post }] }] }))
+    await expect(staticPages(root, join(root, 'kb.json'))).rejects.toThrow(/gate findings/)
   } finally { await rm(root, { recursive: true, force: true }) }
 })
 it.each(['/zh/a/b', '/zh/a_b', '/zh/不存在'])('shares Chinese 404 rendering and metadata for %s', async path => {

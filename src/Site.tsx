@@ -4,8 +4,9 @@ import { Arrow, ArrowText } from './Arrow'
 import { sectionLabel, type Model, type Page, type PageSummary } from './lib/content'
 import { routeInfo, type Lang } from './lib/lang'
 import { agentPrompt } from './lib/agent'
-import { licensesSlug } from './lib/metadata'
+import { kbSlug, licensesSlug } from './lib/metadata'
 import type { CorpusRecord } from '../server/corpus'
+import { byDate, SOURCES, type KbEntry, type Segment } from '../scripts/kb/feed'
 
 export const sourceUrl = 'https://github.com/ledondev520/matt-pocock-study'
 export function pageHref(model: Model, lang: Lang, slug: string) {
@@ -23,20 +24,20 @@ export function Site({ model, path, dark = false, onTheme, onLanguage }: {
   const t = (cn: string, en: string) => zh ? cn : en
   const pages = model.pages.filter(p => p.lang === lang && p.slug !== 'corpus')
   const page = model.currentPage?.lang === lang && model.currentPage.slug === slug ? model.currentPage : undefined
-  const corpus = slug === 'corpus', licenses = slug === licensesSlug && !!model.licences
-  const otherPath = `/${other}${page ? `/${page.slug}` : licenses ? `/${licensesSlug}` : ''}`
+  const corpus = slug === 'corpus', licenses = slug === licensesSlug && !!model.licences, kb = slug === kbSlug
+  const otherPath = `/${other}${page ? `/${page.slug}` : licenses ? `/${licensesSlug}` : kb ? `/${kbSlug}` : ''}`
   useEffect(() => { setMenu(false) }, [path])
   return <>
     <a className="skip-link" href="#main">{t('跳至正文', 'Skip to content')}</a>
     <header className="site-header"><div className="wrap header-inner">
       <a className="brand" href={`/${lang}`}><span className="brand-icon"><Zap size={25} fill="currentColor" /></span><span><strong>Matt<span className="brand-dot">.</span>{t('学习笔记', 'Study notes')}</strong><span className="brand-sub">THINK CLEARLY. BUILD BETTER.</span></span></a>
       <nav className={menu ? 'main-nav open' : 'main-nav'} aria-label={t('主导航', 'Main navigation')}>
-        <a href={`/${lang}#topics`}>{t('学习笔记', 'Notes')}</a><a href={`/${lang}/corpus`}>{t('语料库', 'Corpus')}</a><a href={pageHref(model, lang, 'learn-from-matt')}>{t('关于', 'About')}</a>
+        <a href={`/${lang}#topics`}>{t('学习笔记', 'Notes')}</a><a href={`/${lang}/corpus`}>{t('语料库', 'Corpus')}</a><a href={`/${lang}/${kbSlug}`}>{t('知识库', 'Knowledge')}</a><a href={pageHref(model, lang, 'learn-from-matt')}>{t('关于', 'About')}</a>
       </nav>
       <div className="header-tools"><a className="language-toggle" href={otherPath} hrefLang={other} lang={other === 'zh' ? 'zh-Hans' : 'en'} onClick={() => onLanguage?.(other)}>{t('EN', '中文')}</a><span className="tool-divider" /><button className="icon-button" onClick={onTheme} aria-label={t(dark ? '切换浅色主题' : '切换深色主题', dark ? 'Switch to light theme' : 'Switch to dark theme')} aria-pressed={dark}>{dark ? <Sun size={19} /> : <Moon size={19} />}</button><a className="github-link" href={sourceUrl} aria-label="GitHub source"><Github size={21} /></a><button className="icon-button mobile-menu" aria-label={t('打开导航', 'Toggle navigation')} aria-expanded={menu} onClick={() => setMenu(!menu)}><Menu size={22} /></button></div>
     </div></header>
     <main id="main" tabIndex={-1}>
-      {home ? <Home model={model} lang={lang} pages={pages} /> : licenses ? <Licenses model={model} lang={lang} /> : corpus ? <Corpus model={model} lang={lang} intro={page} /> : page ? <Article model={model} page={page} pages={pages} /> : <div className="wrap missing-page"><span className="eyebrow">404</span><h1>{t('这个地址没有页面', 'Page not found')}</h1><Figure id="spot-404" model={model} lang={lang} /><div className="hero-actions"><a className="primary-button" href={`/${lang}`}>{t('回到首页', 'Back home')}</a><a href={`/${lang}/corpus`}>{t('搜索语料库', 'Search the corpus')} <Arrow dir="up-right" /></a></div></div>}
+      {home ? <Home model={model} lang={lang} pages={pages} /> : licenses ? <Licenses model={model} lang={lang} /> : corpus ? <Corpus model={model} lang={lang} intro={page} /> : kb ? <KnowledgeBase entries={model.knowledge ?? []} lang={lang} /> : page ? <Article model={model} page={page} pages={pages} /> : <div className="wrap missing-page"><span className="eyebrow">404</span><h1>{t('这个地址没有页面', 'Page not found')}</h1><Figure id="spot-404" model={model} lang={lang} /><div className="hero-actions"><a className="primary-button" href={`/${lang}`}>{t('回到首页', 'Back home')}</a><a href={`/${lang}/corpus`}>{t('搜索语料库', 'Search the corpus')} <Arrow dir="up-right" /></a></div></div>}
     </main>
     <footer className="site-footer wrap"><div className="footer-main"><div className="footer-brand"><Zap size={20} /><strong>Matt · {t('学习笔记', 'Study notes')}</strong></div><a href={sourceUrl}><Github size={18} /> {t('查看源码', 'View source')} <Arrow dir="up-right" /></a></div><p className="footer-note">{t('非官方、非商业的学习整理，与 Matt Pocock 无隶属或背书关系；所引作品版权归原作者。', 'Unofficial, non-commercial study notes; not affiliated with or endorsed by Matt Pocock. Quoted works belong to their authors.')} <a href={`/${lang}/${licensesSlug}`}>{t('许可', 'Licenses')}</a></p></footer>
   </>
@@ -123,4 +124,35 @@ function Corpus({ model, lang, intro }: { model: Model; lang: Lang; intro?: Page
   const resetPage = (setter: (value: string) => void, value: string) => { setter(value); setOffset(0) }
   function submit(event: FormEvent) { event.preventDefault(); setVersion(v => v + 1) }
   return <div className="wrap corpus-reader"><div className="corpus-page-intro"><a href={`/${lang}`}><Arrow dir="left" /> {t('返回首页', 'Back home')}</a><span className="eyebrow">THE PUBLIC LEARNING INDEX</span><h1>{intro?.title ?? t('语料库', 'Corpus')}</h1></div><section className="corpus-panel"><form role="search" onSubmit={submit}><label htmlFor="corpus-q">{t('搜索中英文摘要与标签', 'Search bilingual summaries and tags')}</label><div className="search-row"><div className="search-box"><Search size={20} /><input id="corpus-q" type="search" maxLength={200} value={q} onChange={e => resetPage(setQ, e.target.value)} placeholder={t('例如：typescript、工作流…', 'Try typescript or workflow…')} /></div><button className="primary-button">{t('搜索', 'Search')}</button></div><div className="corpus-filter-row"><label>{t('类型', 'Type')}<select aria-label={t('类型', 'Type')} value={type} onChange={e => resetPage(setType, e.target.value)}><option value="">{t('全部', 'All')}</option>{['post', 'article', 'repo', 'web'].map(value => <option key={value}>{value}</option>)}</select></label><label>{t('起始日期', 'From')}<input type="date" value={from} onChange={e => resetPage(setFrom, e.target.value)} /></label><label>{t('截止日期', 'To')}<input type="date" value={to} onChange={e => resetPage(setTo, e.target.value)} /></label><label>{t('排序', 'Sort')}<select aria-label={t('排序', 'Sort')} value={sort} onChange={e => resetPage(setSort, e.target.value)}><option value="engagement">{t('互动数', 'Engagement')}</option><option value="date">{t('最新', 'Newest')}</option></select></label></div><fieldset className="tag-filters"><legend>{t('主题标签', 'Topic tags')}</legend><button type="button" aria-pressed={!tag} onClick={() => resetPage(setTag, '')}>{t('全部', 'All')}</button>{model.corpusTags.map(value => <button type="button" key={value} aria-pressed={tag === value} onClick={() => resetPage(setTag, tag === value ? '' : value)}>{value}</button>)}</fieldset></form><p className="result-count" role="status">{loading ? t('搜索中…', 'Searching…') : `${total} ${t('条结果', 'results')}`}</p>{error ? <div role="alert"><p>{error === 'invalid' ? t('请检查日期范围与筛选条件。', 'Check the date range and filters.') : t('暂时无法读取语料，请重试。', 'The corpus is unavailable. Please retry.')}</p><button onClick={() => setVersion(v => v + 1)}>{t('重试', 'Retry')}</button></div> : rows.length ? <div aria-busy={loading}>{rows.map(record => <div className="corpus-record" key={record.id}><span className="type-badge">{record.type}</span><div className="record-main"><a className="record-title" href={record.url} target="_blank" rel="noreferrer"><ArrowText>{record.summary[lang]}</ArrowText> <Arrow dir="up-right" /></a><div className="record-detail"><time dateTime={record.date}>{record.date.slice(0, 10)}</time><span>{record.tags.join(' · ')}</span></div><div className="record-metrics">{Object.entries(record.metrics).map(([name, value]) => <span key={name}>{name}: {value?.toLocaleString()}</span>)}</div></div></div>)}</div> : <div className="empty-state"><h2>{t('没有匹配的记录', 'No matching sources')}</h2><Figure model={model} lang={lang} id="spot-empty" /><p>{t('换个关键词，去掉类型或标签筛选，或放宽日期范围。', 'Try another keyword, remove a type or tag filter, or widen the date range.')}</p><button onClick={() => { setQ(''); setType(''); setTag(''); setFrom(''); setTo(''); setOffset(0) }}>{t('清除筛选', 'Clear filters')}</button></div>}<div className="pagination"><button disabled={!offset || loading} onClick={() => setOffset(Math.max(0, offset - 20))}><Arrow dir="left" /><span>{t('上一页', 'Previous')}</span></button><span>{total ? `${offset + 1}–${Math.min(offset + 20, total)} / ${total}` : '0 / 0'}</span><button disabled={offset + 20 >= total || loading} onClick={() => setOffset(offset + 20)}><span>{t('下一页', 'Next')}</span><Arrow dir="right" /></button></div></section>{intro && <div className="intro-prose corpus-intro-prose" dangerouslySetInnerHTML={{ __html: intro.html }} />}</div>
+}
+
+// Knowledge base. Every string comes from data/knowledge-base.json, which the build validates and
+// gate-checks; React escapes all text and links point only at allow-listed hosts. A link and the
+// punctuation right after it stay on one line, so no line starts with a closing mark.
+function KbText({ segments }: { segments: Segment[] }) {
+  const out = []
+  for (let i = 0; i < segments.length; i++) {
+    const s = segments[i]
+    if (!s.href) { out.push(<ArrowText key={i}>{s.text}</ArrowText>); continue }
+    const next = segments[i + 1], lead = next && !next.href ? /^[。，、；：！？）」』”’,.;:!?)\]]+/.exec(next.text)?.[0] ?? '' : ''
+    out.push(<span className="kb-keep" key={i}><a href={s.href} target="_blank" rel="noreferrer"><ArrowText>{s.text}</ArrowText></a>{lead}</span>)
+    if (lead) { segments = [...segments.slice(0, i + 1), { text: next.text.slice(lead.length) }, ...segments.slice(i + 2)] }
+  }
+  return <>{out}</>
+}
+function KnowledgeBase({ entries, lang }: { entries: KbEntry[]; lang: Lang }) {
+  const zh = lang === 'zh', days = byDate(entries)
+  const back = <a href={`/${lang}`}><Arrow dir="left" /> {zh ? '返回首页' : 'Back home'}</a>
+  if (!zh) {
+    // The notes are written in Chinese; this page stays free of Chinese text (English pages never
+    // load the Chinese font), so it lists the dates and original posts only.
+    return <div className="wrap kb-reader"><div className="corpus-page-intro">{back}<span className="eyebrow">KNOWLEDGE BASE</span><h1>Knowledge base</h1>
+      <p className="kb-lede">Our daily study notes: what we learned from Matt Pocock’s public posts, and what the team picked up elsewhere, in our own words. The notes are in Chinese: read them on the <a href={`/zh/${kbSlug}`} hrefLang="zh">Chinese page</a>, or open the original posts below. Our reading is not the authors’ view.</p></div>
+      {days.length ? days.map(day => <section className="kb-day" key={day.date} aria-labelledby={`day-${day.date}`}><h2 id={`day-${day.date}`}><time dateTime={day.date}>{day.date}</time></h2><ol className="kb-list">{day.entries.map((entry, i) => <li className="kb-entry" id={entry.id} key={entry.id}><a className="kb-source" href={entry.url} target="_blank" rel="noreferrer">{SOURCES[entry.source].label[1]}: original post {i + 1} <Arrow dir="up-right" /></a></li>)}</ol></section>)
+        : <div className="empty-state"><h2>No notes yet</h2></div>}</div>
+  }
+  return <div className="wrap kb-reader"><div className="corpus-page-intro">{back}<span className="eyebrow">KNOWLEDGE BASE</span><h1>学习知识库</h1>
+    <p className="kb-lede">我们每天的学习笔记：从 Matt Pocock 的公开帖子里挑出值得学的，加上团队在别处学到的东西，用我们自己的话记下来，每条都附原帖链接。原话和语境以原帖为准，本站解读不代表原作者观点。</p></div>
+    {days.length ? days.map(day => <section className="kb-day" key={day.date} aria-labelledby={`day-${day.date}`}><h2 id={`day-${day.date}`}><time dateTime={day.date}>{day.date}</time></h2><ol className="kb-list">{day.entries.map(entry => <li className="kb-entry" id={entry.id} key={entry.id}><span className="kb-badge">{SOURCES[entry.source].label[0]}</span><h3><ArrowText>{entry.title}</ArrowText></h3><p><KbText segments={entry.body} /></p><a className="kb-source" href={entry.url} target="_blank" rel="noreferrer">查看原帖 <Arrow dir="up-right" /></a></li>)}</ol></section>)
+      : <div className="empty-state"><h2>还没有笔记</h2></div>}</div>
 }

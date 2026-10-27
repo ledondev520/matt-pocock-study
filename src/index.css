@@ -561,3 +561,11 @@ svg.inline-arrow { display: inline-block; width: 1em; height: 1em; vertical-alig
 .article-end > a, .pagination button { display: inline-flex; align-items: center; gap: 0.4em; }
 .language-toggle[lang="zh-Hans"] { font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", system-ui, sans-serif; }
 .entry-spot { display: block; width: 100%; height: auto; margin-bottom: 18px; }
+/* Knowledge base */
+.kb-reader { padding-bottom: 65px; }.kb-lede { max-width: 45em; margin-top: 14px; font-size: 17px; line-height: 1.8; color: var(--muted-foreground); }
+.kb-day { border-top: 1px solid var(--border); padding-top: 26px; margin-top: 30px; }.kb-day h2 { font: 600 15px 'JetBrains Mono', monospace; letter-spacing: 1px; color: var(--muted-foreground); }
+.kb-list { list-style: none; padding: 0; margin: 14px 0 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 26px; }.kb-entry { max-width: 45em; min-width: 0; }
+.kb-badge { display: inline-block; font: 11px 'JetBrains Mono', monospace; letter-spacing: 1px; color: var(--muted-foreground); border: 1px solid var(--border); border-radius: 4px; padding: 1px 6px; }
+.kb-entry h3 { margin-top: 6px; font-size: 20px; line-height: 1.5; }.kb-entry p { margin-top: 8px; font-size: 17px; line-height: 1.8; overflow-wrap: break-word; }
+.kb-entry p a, .kb-lede a { color: var(--link); text-decoration: underline; text-underline-offset: 3px; overflow-wrap: anywhere; }.kb-keep { white-space: nowrap; }.kb-keep a { white-space: normal; }
+.kb-source { display: inline-flex; align-items: center; gap: 0.4em; margin-top: 8px; font-size: 14px; color: var(--link); }

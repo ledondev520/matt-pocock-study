@@ -9,7 +9,7 @@ import { codeHtml } from './code'
 import { siteUrl } from '../src/lib/site'
 import { figureHtml, figureMarkdown, figureById, escapeHtml, buildFigures } from './figures'
 import { licenceMarkdown, embedsArchify, archifyAppendix, licencesView } from './licences.mjs'
-import { licensesSlug } from '../src/lib/metadata'
+import { kbSlug, licensesSlug } from '../src/lib/metadata'
 import { renderArrows } from './arrows'
 import { agentPrompt, llmsFullPath, llmsPath } from '../src/lib/agent'
 
@@ -160,7 +160,8 @@ export async function readPages(contentDir: string): Promise<Page[]> {
 
 // What a coding agent reads first: llms.txt (how to use the site + a grouped index), llms-full.txt
 // (every page in one file) and the home page's Markdown twin. One language per call. The licences
-// view's twin (/<lang>/licenses.md) comes from licensesMarkdown and is listed under "Site".
+// view's twin (/<lang>/licenses.md) comes from licensesMarkdown; the knowledge base twin
+// (/<lang>/knowledge.md) is written by static.tsx from the feed. Both are listed under "Site".
 export function agentFiles(lang: Lang, localized: Page[], site: string) {
   const zh = lang === 'zh', t = (cn: string, en: string) => zh ? cn : en
   const title = t('Matt Pocock 学习笔记', 'Matt Pocock study notes')
@@ -173,6 +174,7 @@ export function agentFiles(lang: Lang, localized: Page[], site: string) {
     return items.length ? [`### ${sectionLabel(section, lang)}\n\n${items.map(page => `- [${page.title}](${site}/${lang}/${page.slug}.md): ${page.summary}`).join('\n')}`] : []
   }).join('\n\n')
   const homeLine = `- [${t('首页', 'Home')}](${site}/${lang}/index.md): ${t('网站介绍、从哪儿开始、全部笔记目录。', 'What the site is, where to start, and the list of all notes.')}`
+  const knowledgeLine = `- [${t('学习知识库', 'Knowledge base')}](${site}/${lang}/${kbSlug}.md): ${t('每天的学习笔记：Matt Pocock 的公开分享和团队学到的知识，每条附原帖链接。', 'Our daily study notes, by date, each linked to the original post (the notes themselves are in Chinese).')}`
   const licensesLine = `- [${t('许可', 'Licenses')}](${site}/${lang}/${licensesSlug}.md): ${t('本站复用的 MIT 项目和自托管字体的版权声明与许可全文。', 'Copyright notices and full licence texts for the MIT projects and self-hosted fonts this site reuses.')}`
   const howTo = zh ? `## 怎么用（写给 Coding Agent）
 
@@ -196,7 +198,7 @@ The site is public and read-only: no login, no API key. Cite the page URL, and l
   const intro = t('用我们自己的话整理 Matt Pocock 的公开分享：AI coding 工作流、给 agent 立规矩、TypeScript、写作与教学。',
     'Notes in our own words on Matt Pocock\'s public teaching: AI coding workflow, rules for agents, TypeScript, and writing to teach.')
   const otherLanguage = t(`English: ${site}${llmsPath('en')}`, `Chinese version: ${site}${llmsPath('zh')}`)
-  const index = `# ${title}\n\n> ${summary}\n\n${intro}${zh ? '' : ' '}${otherLanguage}\n\n${howTo}\n\n## ${t('页面', 'Pages')}\n\n${groups}\n\n### ${t('网站', 'Site')}\n\n${homeLine}\n${licensesLine}\n`
+  const index = `# ${title}\n\n> ${summary}\n\n${intro}${zh ? '' : ' '}${otherLanguage}\n\n${howTo}\n\n## ${t('页面', 'Pages')}\n\n${groups}\n\n### ${t('网站', 'Site')}\n\n${homeLine}\n${knowledgeLine}\n${licensesLine}\n`
   const home = `# ${title}\n\n${summary}\n\n${intro}\n\n## ${t('让你的 Coding Agent 来读', 'Let your coding agent read it')}\n\n${t('把这句话发给你的 Coding Agent，想学别的就把中间那句换掉：', 'Paste this into your coding agent and swap in whatever you want to learn:')}\n\n> ${agentPrompt(lang, site)}\n\n- ${t('用法和目录：', 'How to use the site, with the index: ')}${site}${llmsPath(lang)}\n- ${t('全部页面合在一起：', 'Every page in one file: ')}${site}${llmsFullPath(lang)}${localized.some(page => page.slug === 'corpus') ? `\n- ${t('语料库（Matt 公开资料的索引）：', 'The corpus (an index of Matt\'s public work): ')}${site}/${lang}/corpus.md` : ''}\n\n## ${t('全部笔记', 'All notes')}\n\n${groups}\n`
   return { index, full, home }
 }
