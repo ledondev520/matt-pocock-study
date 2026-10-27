@@ -44,7 +44,7 @@ Our suggestion: retain steps, expected and actual behaviour, environment and rec
 
 ## Credit recommendations and adaptations
 
-When recommending a skill, keep its author and original link. When adapting it, identify what you reused and what you changed. MIT reuse also requires the accurate copyright notice and full licence; a thank-you list cannot replace them.
+When recommending a skill, keep its author and original link. When adapting it, identify what you reused and what you changed. Reusing openly licensed material also requires the accurate copyright notice and full licence; a thank-you list cannot replace them.
 
 ```figure
 id: s17-attribution

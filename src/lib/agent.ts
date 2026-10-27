@@ -7,7 +7,7 @@ export function agentPrompt(lang: Lang, site: string) {
     : `Go read ${site}/llms.txt and teach me how to split up a big PR.`
 }
 
-/** Where the Markdown twin of an HTML route lives: /zh → /zh/index.md, /en/x → /en/x.md, / → /en/index.md. */
+/** Where the Markdown twin of an HTML route lives: /zh → /zh/index.md, /en/x → /en/x.md, / (the Chinese home) → /zh/index.md. */
 export function markdownPath(path: string) {
   const { lang, slug, home } = routeInfo(path)
   return home ? `/${lang}/index.md` : `/${lang}/${slug}.md`
