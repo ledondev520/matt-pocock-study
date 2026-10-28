@@ -14,8 +14,9 @@ import { timelineSlug } from '../src/lib/timeline'
 import { renderArrows } from './arrows'
 import { agentPrompt, llmsFullPath, llmsPath } from '../src/lib/agent'
 import { siteNotice } from '../src/lib/notice'
-import { byDomain, domainLabel, methodPath, methodsTitle, type MethodSummary } from '../src/lib/methods'
-import { listMethodologies } from './methods'
+import { byDomain, domainLabel, forDisplay, methodMarkdown, methodPath, methodsTitle, summarize, type Methodology } from '../src/lib/methods'
+import { loadMethodologies } from './methods'
+import { learnSource, todayItems } from './learn/source'
 
 const languages = ['en', 'zh'] as const
 const componentNames = ['cards', 'quote', 'exercise', 'figure', 'note', 'licence']
@@ -189,21 +190,25 @@ export async function readPages(contentDir: string): Promise<Page[]> {
 }
 
 // What a coding agent reads first: llms.txt (how to use the site + a grouped index), llms-full.txt
-// (every page in one file) and the home page's Markdown twin. One language per call. The licences
+// (all study notes and methods in one file) and the home page's Markdown twin. One language per call. The licences
 // view's twin (/<lang>/licenses.md) comes from licensesMarkdown; the knowledge base twin
 // (/<lang>/knowledge.md) and the timeline twin (/<lang>/timeline.md) are written by static.tsx from
 // the feed. All are listed under "Site".
-export function agentFiles(lang: Lang, localized: Page[], site: string, methods: MethodSummary[] = []) {
+export function agentFiles(lang: Lang, localized: Page[], site: string, sets: Methodology[]) {
   const zh = lang === 'zh', t = (cn: string, en: string) => zh ? cn : en
   const title = t('Matt Pocock 学习笔记', 'Matt Pocock study notes')
-  const full = `# ${title}\n\n${localized.map(page => `## ${page.title}\n\n${page.markdown}`).join('\n---\n\n')}`
+  const methods = sets.map(m => summarize(m, lang))
+  const full = `# ${title}\n\n${[
+    ...localized.map(page => `## ${page.title}\n\n${page.markdown}`),
+    ...sets.map(m => methodMarkdown(m, lang, site, methods, localized)),
+  ].join('\n---\n\n')}`
   const fullKb = Math.max(1, Math.round(Buffer.byteLength(full) / 1024))
   const example = localized.find(page => page.slug === 'review-and-pr') ?? localized[0]
   const groups = Object.keys(sections).flatMap(section => {
     const items = localized.filter(page => page.section === section)
     return items.length ? [`### ${sectionLabel(section, lang)}\n\n${items.map(page => `- [${page.title}](${site}/${lang}/${page.slug}.md): ${page.summary}`).join('\n')}`] : []
   }).join('\n\n')
-  const homeLine = `- [${t('首页', 'Home')}](${site}/${lang}/index.md): ${t('今天学什么和全部笔记目录。', 'What to learn today and the list of all notes.')}`
+  const homeLine = `- [${t('首页', 'Home')}](${site}/${lang}/index.md): ${t('今日方法论和学习笔记目录。', 'Today’s methods and the study notes index.')}`
   const knowledgeLine = `- [${t('学习知识库', 'Knowledge base')}](${site}/${lang}/${kbSlug}.md): ${t('每天的学习笔记：Matt Pocock 的公开分享和团队学到的知识，每条附原帖链接。', 'Our daily study notes, by date, each linked to the original post (the notes themselves are in Chinese).')}`
   const timelineLine = `- [${t('时间轴', 'Timeline')}](${site}/${lang}/${timelineSlug}.md): ${t('按年份排列的学习要点：课程引用按原帖日期，知识库笔记按记录日期。', 'What we learned, by year: lesson quotes by the original post’s date, notes by the day they were written.')}`
   // Methods: the list, then one line per set with the question it answers, grouped by domain.
@@ -214,7 +219,7 @@ export function agentFiles(lang: Lang, localized: Page[], site: string, methods:
 1. 在下面的目录里找到要学的主题，每行冒号后面写了这页讲什么。
 2. 读那页的 \`.md\` 链接：整页的 Markdown 原文，不用渲染 HTML，也不用跑 JS。
 3. 每个网页都有对应的 \`.md\`，路径后面加 \`.md\` 就行（\`/zh/${example.slug}\` → \`/zh/${example.slug}.md\`）；首页是 \`/zh/index.md\`。
-4. 想一次读完：${site}${llmsFullPath(lang)} 是全部页面合在一起，约 ${fullKb} KB。
+4. 想一次读完：${site}${llmsFullPath(lang)} 收录全部学习笔记和方法论正文，约 ${fullKb} KB。
 5. 找 Matt 的原帖、文章或仓库：\`GET ${site}/api/corpus?q=关键词&limit=20\` 返回 JSON，带日期、本站摘要和原文链接；还能加 \`type=post|article|repo|web\`、\`tag=\`、\`from=\`/\`to=\`（YYYY-MM-DD）、\`sort=date\`。
 6. 小节标题的锚点是固定的，引用时可以写 \`/zh/<slug>#<锚点>\`。
 
@@ -223,7 +228,7 @@ export function agentFiles(lang: Lang, localized: Page[], site: string, methods:
 1. Find the topic you were asked about in the index below. The text after each link says what that page answers.
 2. Read that page's \`.md\` link: the whole page as plain Markdown. No HTML rendering or JS needed.
 3. Every HTML page has a Markdown twin: add \`.md\` to the path (\`/en/${example.slug}\` → \`/en/${example.slug}.md\`). The home page is \`/en/index.md\`.
-4. Want it all at once? ${site}${llmsFullPath(lang)} has every page in one file, about ${fullKb} KB.
+4. Want it all at once? ${site}${llmsFullPath(lang)} has every study note and method in one file, about ${fullKb} KB.
 5. Looking for Matt's original post, article or repo? \`GET ${site}/api/corpus?q=<words>&limit=20\` returns JSON with dates, our summaries and links to the originals. It also takes \`type=post|article|repo|web\`, \`tag=\`, \`from=\`/\`to=\` (YYYY-MM-DD) and \`sort=date\`.
 6. Section headings keep stable anchors, so you can cite \`/en/<slug>#<heading-id>\`.
 
@@ -232,7 +237,9 @@ The site is public and read-only: no login, no API key. Cite the page URL, and l
     'Notes in our own words on Matt Pocock\'s public teaching: AI coding workflow, rules for agents, TypeScript, and writing to teach.')
   const otherLanguage = t(`English: ${site}${llmsPath('en')}`, `Chinese version: ${site}${llmsPath('zh')}`)
   const index = `# ${title}\n\n> ${intro}${zh ? '' : ' '}${otherLanguage}\n\n${howTo}\n\n## ${t('页面', 'Pages')}\n\n${groups}\n\n${methodsGroup}### ${t('网站', 'Site')}\n\n${homeLine}\n${knowledgeLine}\n${timelineLine}\n${licensesLine}\n`
-  const home = `# ${title}\n\n> ${agentPrompt(lang, site)}\n\n## ${t('今天学什么', 'What to learn today')}\n\n- [${t('学习知识库', 'Knowledge base')}](${site}/${lang}/${kbSlug}.md)\n\n## ${t('学习笔记', 'Notes')}\n\n${groups}\n`
+  const today = todayItems(learnSource({ knowledge: [], pages: localized }), lang)
+    .map(item => `- [${item.title}](${site}${item.href}.md): ${item.label ? `${item.label} · ` : ''}${item.question}`).join('\n')
+  const home = `# ${title}\n\n> ${agentPrompt(lang, site)}\n\n## ${t('今天学什么', 'What to learn today')}\n\n${today}\n\n## ${t('学习笔记', 'Notes')}\n\n${groups}\n`
   return { index, full, home }
 }
 
@@ -252,6 +259,7 @@ export function licensesMarkdown(lang: Lang, site: string) {
 
 export async function buildContent(contentDir: string, outputDir: string, clean = true): Promise<Page[]> {
   const pages = await readPages(contentDir)
+  const sets = loadMethodologies().map(forDisplay)
   await mkdir(outputPath(outputDir), { recursive: true })
   for (const lang of languages) {
     if (clean) await rm(outputPath(outputDir, lang), { recursive: true, force: true })
@@ -260,7 +268,7 @@ export async function buildContent(contentDir: string, outputDir: string, clean 
     // index.md is the home page's Markdown twin.
     if (localized.some(page => page.slug === 'index')) throw new Error(`content/${lang}/index.md would replace the home page's Markdown`)
     for (const page of localized) await writeOutput(outputPath(outputDir, lang), `${page.slug}.md`, `# ${page.title}\n\n${page.summary}\n\n${page.markdown}`)
-    const { index, full, home } = agentFiles(lang, localized, siteUrl(), listMethodologies(lang))
+    const { index, full, home } = agentFiles(lang, localized, siteUrl(), sets)
     const base = lang === 'en' ? outputDir : outputPath(outputDir, 'zh')
     await writeOutput(base, 'llms.txt', index)
     await writeOutput(base, 'llms-full.txt', full)

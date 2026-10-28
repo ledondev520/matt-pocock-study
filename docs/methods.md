@@ -67,12 +67,7 @@ above 800 characters) and `evolution` per set. Fields: `key` (`<lang>:<chunk_id>
 
 ```sh
 npm run check:quotes -- --dataset <dir>
-npm run build:ask-chunks -- --dataset <dir> --out <dir> [--rules <file.json>]
 ```
 
 `check:quotes` checks that every quote is word for word in Matt's text at its URL, at most 25
-words, with the right date, and that repository licences match. `build:ask-chunks` writes the
-server-only chunk file for `/api/ask` (methodology chunks plus Matt's own posts, each with
-methodology id, step, year, source link and one short quote), after scanning every chunk for
-emails, phone numbers and third-party quotes and re-checking every quote. The output is never
-committed.
+words, with the right date, and that repository licences match.

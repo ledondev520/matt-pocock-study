@@ -1,5 +1,5 @@
 // The methodology sets in data/methods/<slug>.json, read and validated once per directory.
-// This is the module other code uses (home page, static search, /api/ask, the build); see
+// This is the module other code uses (home page, static search, the build); see
 // docs/methods.md. Adding a set is adding a file: an invalid file fails the build with every
 // problem and its JSON path.
 import { readdirSync, readFileSync } from 'node:fs'
