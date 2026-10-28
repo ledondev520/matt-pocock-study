@@ -1,0 +1,78 @@
+{
+  "title": {
+    "zh": "用 AI SDK 构建 LLM 应用方法论",
+    "en": "Building LLM apps with the AI SDK"
+  },
+  "question": {
+    "zh": "用 TypeScript 做一个 LLM 应用(聊天、结构化提取、agent),应该怎样组织代码?",
+    "en": "When you build an LLM app in TypeScript (chat, structured extraction, agents), how should the code be organised?"
+  },
+  "claim.text": {
+    "zh": "用一层薄薄的库(他选的是 AI SDK)解决两件难事:和各家模型通信、把结果流式传到前端。其余部分自己掌握:用结构化输出把文本变成对象,agent 自己用「循环 + 工具调用」写出来,检索到的数据放进用户消息,并在入口加上快速的安全检查。",
+    "en": "Use a thin library (his pick is the AI SDK) for the two hard parts: talking to every model provider and streaming results to the front end. Own the rest yourself: structured output turns text into objects, you write the agent yourself as a loop plus tool calls, retrieved data goes into the user message, and a quick safety check sits at the entrance."
+  },
+  "steps.0.title": {
+    "zh": "用统一接口隔离模型供应商",
+    "en": "Isolate model providers behind one interface"
+  },
+  "steps.0.how": {
+    "zh": "业务代码只依赖统一的模型接口,换供应商只是换一个参数,不用为每家 API 写胶水代码;流式输出、结构化输出、工具调用都走同一套接口。",
+    "en": "Business code depends only on a single model interface, so switching providers is one parameter rather than glue code for every API; streaming, structured output and tool calls all go through the same interface."
+  },
+  "steps.1.title": {
+    "zh": "要对象就用结构化输出",
+    "en": "When you need an object, use structured output"
+  },
+  "steps.1.how": {
+    "zh": "需要数据而不是文本时,先用 zod 定义 schema,让模型按这个格式返回。LLM 最有价值的用途之一,就是把原始文本或数据变成结构化、可搜索的对象。小模型偶尔会返回不合法的 JSON,可以加一步修复。",
+    "en": "When you need data rather than text, define a schema with zod and have the model return that shape. Turning raw text or data into structured, searchable objects is one of the most valuable uses of an LLM. Small models sometimes return invalid JSON; add a repair step."
+  },
+  "steps.2.title": {
+    "zh": "agent 就是循环加工具调用",
+    "en": "An agent is a loop plus tool calls"
+  },
+  "steps.2.how": {
+    "zh": "给模型定义好工具(描述、参数 schema、执行函数),让它根据工具结果继续下一步,并设好步数上限。不需要重型框架,逐行写出来更好理解和调试。",
+    "en": "Define the tools for the model (description, parameter schema, execute function), let it take the next step from the tool results, and set a step limit. No heavy framework needed; written out line by line it is easier to follow and debug."
+  },
+  "steps.3.title": {
+    "zh": "检索数据放进用户消息,用 XML 包起来",
+    "en": "Put retrieved data in the user message, wrapped in XML"
+  },
+  "steps.3.how": {
+    "zh": "检索或抓取来的内容不要放进系统提示词,恶意网页内容很容易借此改变模型行为。应放进用户消息,并用 XML 标签包裹;做 RAG 时也别只想到向量库,BM25 这类传统检索同样好用。",
+    "en": "Don't put retrieved or scraped content in the system prompt, where malicious web content can easily change the model's behaviour. Put it in the user message wrapped in XML tags. For RAG, don't think only of vector stores; classic retrieval such as BM25 works well too."
+  },
+  "steps.4.title": {
+    "zh": "入口加快速护栏,UI 加生产级模式",
+    "en": "A quick guardrail at the entrance, production patterns in the UI"
+  },
+  "steps.4.how": {
+    "zh": "用一个很快的小模型先判断请求是否安全,只让它输出 0 或 1,再用普通代码做判断;在界面上用流式输出加入「建议的下一个问题」这类生产级功能。",
+    "en": "Use a very fast small model to decide first whether a request is safe, outputting only 0 or 1, and make the decision in ordinary code. In the UI, use streaming to add production features such as suggested next questions."
+  },
+  "pitfalls.0.text": {
+    "zh": "把检索到的网页内容直接塞进系统提示词。",
+    "en": "Putting retrieved web content straight into the system prompt."
+  },
+  "pitfalls.1.text": {
+    "zh": "以为必须用框架才能做 agent。",
+    "en": "Thinking you need a framework to build an agent."
+  },
+  "pitfalls.2.text": {
+    "zh": "把应用绑定在单一供应商的 API 上。",
+    "en": "Tying the app to one provider's API."
+  },
+  "evolution.0.stance": {
+    "zh": "发布免费 AI SDK 教程:文本生成、流式、结构化输出、工具调用、agent。",
+    "en": "He publishes a free AI SDK tutorial: text generation, streaming, structured output, tool calls, agents."
+  },
+  "evolution.1.stance": {
+    "zh": "押注 AI SDK;陆续发布生产级模式:护栏、建议问题、检索数据的放置;强调 agent 不需要框架;讲解检索与分块。",
+    "en": "He bets on the AI SDK and publishes production patterns one after another: guardrails, suggested questions, where to put retrieved data; he stresses agents need no framework and explains retrieval and chunking."
+  },
+  "evolution.2.stance": {
+    "zh": "此后重心转向 AI 编程,关于应用构建的新帖很少;评价其他 SDK 时仍以「不被厂商锁定」为标准。",
+    "en": "His focus then moves to AI coding and new posts about building apps become rare; when judging other SDKs he still asks whether they avoid vendor lock-in."
+  }
+}

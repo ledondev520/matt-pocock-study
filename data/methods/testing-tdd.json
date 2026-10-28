@@ -1,0 +1,337 @@
+{
+  "id": "m.testing-tdd",
+  "domain": "delivery",
+  "title": {
+    "zh": "测试与 TDD 方法论",
+    "en": "Testing and TDD"
+  },
+  "question": {
+    "zh": "怎样让 agent 写出真正有用的测试,而不是一堆凑数的测试?",
+    "en": "How do you get an agent to write tests that are actually useful rather than a pile of filler?"
+  },
+  "claim": {
+    "text": {
+      "zh": "先写失败的测试:按垂直切片做「红→绿→重构」,一次只做一个行为。测试只放在事先约定好的公共边界上,验证真实行为,不重复描述实现。测试和代码一样是要长期维护的负债,宁少而精。",
+      "en": "Write the failing test first: red, green, refactor in vertical slices, one behaviour at a time. Put tests only on public boundaries agreed in advance, check real behaviour, and don't restate the implementation. Tests, like code, are a liability you maintain for a long time, so fewer and better."
+    },
+    "anchors": [
+      {
+        "url": "https://x.com/mattpocockuk/status/2025935480609468862",
+        "date": "2026-02-23",
+        "quote": "Write a failing test first.",
+        "quote_zh": "先写一个失败的测试。"
+      },
+      {
+        "url": "https://x.com/mattpocockuk/status/1983274277450453214",
+        "date": "2025-10-28",
+        "quote": "Lossless feedback loops are the way to great code, AI or not.",
+        "quote_zh": "无损的反馈回路是通往好代码的路,不管有没有 AI。"
+      }
+    ],
+    "evidence": "Direct"
+  },
+  "steps": [
+    {
+      "id": "m.testing-tdd#s1",
+      "order": 1,
+      "title": {
+        "zh": "先约定测试接缝",
+        "en": "Agree on the test seams first"
+      },
+      "how": {
+        "zh": "写测试之前,先列出准备在哪些公共边界(接口、请求/响应契约)上测试,确认后再动手。测试精力有限,应该花在关键路径上。",
+        "en": "Before writing tests, list the public boundaries (interfaces, request/response contracts) you plan to test, confirm them, then start. Testing effort is limited and belongs on the critical paths."
+      },
+      "anchors": [
+        {
+          "url": "https://www.aihero.dev/skills-tdd",
+          "date": "2026-08-24",
+          "quote": "It writes no test at a seam you have not agreed to first.",
+          "quote_zh": "它不会在你事先没同意的接缝上写任何测试。"
+        },
+        {
+          "url": "https://www.aihero.dev/skills-tdd",
+          "date": "2026-08-24",
+          "quote": "Testing effort is finite",
+          "quote_zh": "测试精力是有限的"
+        }
+      ],
+      "evidence": "Direct",
+      "since": "2026"
+    },
+    {
+      "id": "m.testing-tdd#s2",
+      "order": 2,
+      "title": {
+        "zh": "垂直切片:一次一个行为",
+        "en": "Vertical slices: one behaviour at a time"
+      },
+      "how": {
+        "zh": "不要先把所有测试写完再写全部实现。每次写一个失败的测试,用刚好够的代码让它通过,再写下一个。批量写出的测试验证的是想象中的行为,不是观察到的行为。",
+        "en": "Don't write all the tests and then all the implementation. Write one failing test, add just enough code to pass it, then write the next. Tests written in bulk check imagined behaviour, not observed behaviour."
+      },
+      "anchors": [
+        {
+          "url": "https://www.aihero.dev/skill-test-driven-development-claude-code",
+          "date": "2026-02-10",
+          "quote": "It writes the entire feature first, then writes tests for that feature afterward.",
+          "quote_zh": "它先写完整个功能,然后才为这个功能写测试。"
+        },
+        {
+          "url": "https://www.aihero.dev/skills-tdd",
+          "date": "2026-08-24"
+        }
+      ],
+      "evidence": "Direct",
+      "since": "2026"
+    },
+    {
+      "id": "m.testing-tdd#s3",
+      "order": 3,
+      "title": {
+        "zh": "测试验证行为,不复述实现",
+        "en": "Tests check behaviour, not a restatement of the implementation"
+      },
+      "how": {
+        "zh": "测试应该在重构后依然成立。不要写只是把实现重新说一遍的「同义反复测试」,也不要只验证 mock;这类测试给不了任何信心。",
+        "en": "A test should still hold after a refactor. Don't write tautological tests that just repeat the implementation, and don't test only mocks; such tests give no confidence at all."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2057389140623208493",
+          "date": "2026-05-21",
+          "quote": "Do not add tests which simply restate the implementation. These provide zero confidence.",
+          "quote_zh": "不要添加只是复述实现的测试。它们提供零信心。"
+        }
+      ],
+      "evidence": "Direct",
+      "since": "2026"
+    },
+    {
+      "id": "m.testing-tdd#s4",
+      "order": 4,
+      "title": {
+        "zh": "把测试规则写进编码规范",
+        "en": "Put test rules into the coding standards"
+      },
+      "how": {
+        "zh": "把「禁止同义反复测试」这类规则写进编码规范文件,让代码评审 skill 自动检查;评审 AI 写的 PR 时,把 TDD 过程作为证据之一。",
+        "en": "Write rules like \"no tautological tests\" into the coding standards file so the code review skill checks them automatically; when reviewing AI-written PRs, treat the TDD process as part of the evidence."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2093068185830347088",
+          "date": "2026-08-27",
+          "quote": "Tautological tests considered harmful.",
+          "quote_zh": "同义反复的测试有害。"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2096666329495257563",
+          "date": "2026-09-06",
+          "quote": "Evidence of TDD",
+          "quote_zh": "TDD 的证据"
+        }
+      ],
+      "evidence": "Direct",
+      "since": "2026"
+    },
+    {
+      "id": "m.testing-tdd#s5",
+      "order": 5,
+      "title": {
+        "zh": "多想集成测试,选对工具",
+        "en": "Think more about integration tests and pick the right tools"
+      },
+      "how": {
+        "zh": "AI 写全部代码时,更多地考虑集成测试;后端和库代码用 Vitest,前端用 Playwright,让 agent 能检查自己的工作。",
+        "en": "When AI writes all the code, lean more on integration tests; use Vitest for back-end and library code and Playwright for the front end, so the agent can check its own work."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2024049581529460839",
+          "date": "2026-02-18",
+          "quote": "WAY more time thinking about integration testing"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/1902755644966670425",
+          "date": "2025-03-20",
+          "quote": "\"How do I allow this agent to check its own work?\"",
+          "quote_zh": "「我怎样让这个 agent 检查自己的工作?」"
+        }
+      ],
+      "evidence": "Direct",
+      "since": "2025"
+    }
+  ],
+  "examples": [
+    {
+      "origin": "site",
+      "title": {
+        "zh": "本站示例:一个垂直切片",
+        "en": "Our example: one vertical slice"
+      },
+      "lang": "text",
+      "body": {
+        "zh": "RED   test(\"草稿标题为空时拒绝发布\")  → 失败\nGREEN publish() 加一条校验           → 通过\nREFACTOR 提取 validateDraft()        → 仍通过\n下一个行为:RED test(\"发布后不可再编辑\")",
+        "en": "RED   test(\"rejects publishing a draft with an empty title\") -> fails\nGREEN add one check to publish()                         -> passes\nREFACTOR extract validateDraft()                         -> still passes\nNext behaviour: RED test(\"a published draft can no longer be edited\")"
+      }
+    }
+  ],
+  "pitfalls": [
+    {
+      "text": {
+        "zh": "让 LLM 先写一大批测试,再一次性实现。",
+        "en": "Having the LLM write a big batch of tests first and implement everything at once."
+      },
+      "anchors": [
+        {
+          "url": "https://www.aihero.dev/skill-test-driven-development-claude-code",
+          "date": "2026-02-10",
+          "quote": "Tests verify mocks instead of real code paths",
+          "quote_zh": "测试验证的是 mock,而不是真实代码路径"
+        }
+      ],
+      "evidence": "Direct"
+    },
+    {
+      "text": {
+        "zh": "上下文快满时,agent 改测试去迁就实现。",
+        "en": "With the context nearly full, the agent edits the tests to fit the implementation."
+      },
+      "anchors": [
+        {
+          "url": "https://www.aihero.dev/skill-test-driven-development-claude-code",
+          "date": "2026-02-10",
+          "quote": "it might just rewrite the test to make it pass instead of writing real implementation",
+          "quote_zh": "它可能直接改写测试让它通过,而不是写真正的实现"
+        }
+      ],
+      "evidence": "Direct"
+    },
+    {
+      "text": {
+        "zh": "为了证明走过红绿重构而堆垃圾测试。坏测试是一笔债,不只是评审问题。",
+        "en": "Piling up junk tests to prove red-green-refactor happened. A bad test is a debt, not just a review issue."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2057389140623208493",
+          "date": "2026-05-21",
+          "quote": "Getting sick of shit tests just to provide evidence of RGR."
+        },
+        {
+          "url": "https://www.aihero.dev/skill-test-driven-development-claude-code",
+          "date": "2026-02-10",
+          "quote": "Bad tests aren't just a review problem, they're a debt problem.",
+          "quote_zh": "坏测试不只是评审问题,而是债务问题。"
+        }
+      ],
+      "evidence": "Direct"
+    }
+  ],
+  "evolution": [
+    {
+      "period": "2020–2024",
+      "change": "first",
+      "stance": {
+        "zh": "人类时代:偏向集成测试;用 declare 先设计 API 再写测试,走红绿重构;看好 Vitest。",
+        "en": "Before AI: he leans towards integration tests, designs the API with declare before writing tests, works red-green-refactor, and likes Vitest."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/1304765848289267712",
+          "date": "2020-09-12"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/1730171578946613659",
+          "date": "2023-11-30",
+          "quote": "A lovely red-green-refactor flow.",
+          "quote_zh": "一个漂亮的红-绿-重构流程。"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/1869686273184858395",
+          "date": "2024-12-19"
+        }
+      ]
+    },
+    {
+      "period": "2025-03–2026-02",
+      "change": "refine",
+      "stance": {
+        "zh": "AI 时代:让 agent 能检查自己的工作;强烈建议理解 TDD;发布 TDD skill,强调垂直切片。",
+        "en": "AI era: let the agent check its own work; he strongly recommends understanding TDD and publishes a TDD skill that stresses vertical slices."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/1902755644966670425",
+          "date": "2025-03-20"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/1983274277450453214",
+          "date": "2025-10-28"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2022036754648166527",
+          "date": "2026-02-12"
+        },
+        {
+          "url": "https://www.aihero.dev/skill-test-driven-development-claude-code",
+          "date": "2026-02-10"
+        }
+      ]
+    },
+    {
+      "period": "2026-05–2026-09",
+      "change": "refine",
+      "stance": {
+        "zh": "打击同义反复测试;写进编码规范,由代码评审自动检查;skill 增加「先约定接缝」这一步。",
+        "en": "He goes after tautological tests, writes the rule into the coding standards for code review to check, and adds an \"agree on the seams first\" step to the skill."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2057389140623208493",
+          "date": "2026-05-21"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2093068185830347088",
+          "date": "2026-08-27"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2102088071244054697",
+          "date": "2026-09-21"
+        },
+        {
+          "url": "https://www.aihero.dev/skills-tdd",
+          "date": "2026-08-24"
+        }
+      ],
+      "current": true
+    }
+  ],
+  "related": [
+    "m.feedback-loops",
+    "m.debugging",
+    "m.pr-review",
+    "m.codebase-design"
+  ],
+  "prerequisites": [],
+  "site_pages": [
+    "implementation-and-feedback"
+  ],
+  "repos": [
+    {
+      "url": "https://github.com/mattpocock/skills",
+      "license": "MIT",
+      "reuse": "mit-with-notice"
+    }
+  ],
+  "sources_count": {
+    "keyword_hits": 86,
+    "curated": 14
+  },
+  "evidence": "Direct",
+  "date_first": "2020-09-12",
+  "date_last": "2026-09-21",
+  "status": "draft",
+  "updated": "2026-10-28"
+}

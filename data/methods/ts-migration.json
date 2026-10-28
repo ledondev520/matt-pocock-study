@@ -1,0 +1,199 @@
+{
+  "id": "m.ts-migration",
+  "domain": "delivery",
+  "title": {
+    "zh": "迁移到 TypeScript 方法论(薄)",
+    "en": "Migrating to TypeScript (thin data)"
+  },
+  "question": {
+    "zh": "把一个现有的 JavaScript 项目迁到 TypeScript,怎样才能真正迁完,又不拖垮功能开发?",
+    "en": "How do you move an existing JavaScript project to TypeScript all the way without dragging down feature work?"
+  },
+  "claim": {
+    "text": {
+      "zh": "说明:这一条的数据很少。语料里明确讲迁移方法的只有一条帖子,其余多是提问和设想,所以本页只整理他明确说过的内容,不做补充。核心主张:很多迁移失败,是因为一直没上线、阻塞了功能开发,或者上线了但到处是 any。做法是先定计划,按依赖顺序推进,拆成小 PR,和功能开发交织进行。",
+      "en": "Note: there is little data for this one. Only one post in the corpus states a migration method; the rest are questions and ideas, so this page only collects what he said explicitly and adds nothing. Core claim: many migrations fail because they never ship and block feature work, or ship full of any. The way through is a plan first, progress in dependency order, small PRs, woven in with feature work."
+    },
+    "anchors": [
+      {
+        "url": "https://x.com/mattpocockuk/status/1658145266082480129",
+        "date": "2023-05-15",
+        "quote": "A lot of TypeScript migrations fail.",
+        "quote_zh": "很多 TypeScript 迁移都失败了。"
+      },
+      {
+        "url": "https://x.com/mattpocockuk/status/1658145266082480129",
+        "date": "2023-05-15",
+        "quote": "Make a plan. Go dependency by dependency. Make small PR's. Weave it in with feature work.",
+        "quote_zh": "做计划。按依赖逐个推进。提小 PR。和功能开发交织进行。"
+      }
+    ],
+    "evidence": "Direct"
+  },
+  "steps": [
+    {
+      "id": "m.ts-migration#s1",
+      "order": 1,
+      "title": {
+        "zh": "先做计划,按依赖顺序迁移",
+        "en": "Plan first and migrate in dependency order"
+      },
+      "how": {
+        "zh": "先理清模块之间的依赖关系,从被依赖最多的底层开始,沿着依赖链一个一个迁。这样每迁完一个文件,它的类型就能马上被上层使用。原帖只说了「按依赖逐个推进」,具体顺序是本站根据这句话做的推断。",
+        "en": "Map the dependencies between modules first, start from the low-level modules that most others depend on, and move up the chain one at a time, so each migrated file's types are usable by the layer above straight away. The post only says to go through the dependencies one by one; the exact order is our inference from that line."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/1658145266082480129",
+          "date": "2023-05-15",
+          "quote": "Go dependency by dependency.",
+          "quote_zh": "按依赖逐个推进。"
+        }
+      ],
+      "evidence": "Supported",
+      "since": "2023"
+    },
+    {
+      "id": "m.ts-migration#s2",
+      "order": 2,
+      "title": {
+        "zh": "小 PR,和功能开发交织",
+        "en": "Small PRs woven in with feature work"
+      },
+      "how": {
+        "zh": "每次只迁一小块,单独提 PR,和正常的功能开发并行,不要搞一个长期冻结功能的大迁移分支。他提问时也列过另一种选择:用工具一次性改后缀、先用 any 兜底再慢慢清理;他没有给出明确的结论。",
+        "en": "Migrate one small piece at a time in its own PR, alongside normal feature work, rather than a long-running migration branch that freezes features. When asking the question he also listed the other option: rename every file at once with a tool, cover gaps with any and clean up slowly; he gave no clear verdict."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/1658145266082480129",
+          "date": "2023-05-15",
+          "quote": "Make small PR's. Weave it in with feature work."
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/1653316261789458433",
+          "date": "2023-05-02",
+          "quote": "Option 2: Do it file-by-file, over many small PR's.",
+          "quote_zh": "选项 2:逐个文件迁移,分成很多小 PR。"
+        }
+      ],
+      "evidence": "Direct",
+      "since": "2023"
+    },
+    {
+      "id": "m.ts-migration#s3",
+      "order": 3,
+      "title": {
+        "zh": "别让 CI 必须全绿成为迁移的拦路虎",
+        "en": "Don't let an all-green CI block the migration"
+      },
+      "how": {
+        "zh": "迁移过程中,如果要求 CI 一直全绿,会让人很痛苦。他希望只拦住「PR 新引入的错误」;本站推断的做法是:对存量错误设基线,只阻止新增的错误。",
+        "en": "Requiring CI to stay fully green during a migration makes it painful. He wants to block only errors a PR newly introduces; our inferred approach is to set a baseline for existing errors and block only new ones."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/1607415559963942912",
+          "date": "2022-12-26",
+          "quote": "I wish there was an option for only erroring if the PR introduces errors not on main.",
+          "quote_zh": "我希望有个选项:只在 PR 引入了 main 上没有的错误时才报错。"
+        }
+      ],
+      "evidence": "Inferred",
+      "since": "2022"
+    }
+  ],
+  "examples": [],
+  "pitfalls": [
+    {
+      "text": {
+        "zh": "迁移一直不上线、阻塞功能开发数周,或者上线了却到处是 any。",
+        "en": "The migration never ships and blocks feature work for weeks, or ships full of any."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/1658145266082480129",
+          "date": "2023-05-15",
+          "quote": "They don't ever get shipped. Or they block feature work for weeks.",
+          "quote_zh": "它们永远没上线。或者阻塞功能开发好几周。"
+        }
+      ],
+      "evidence": "Direct"
+    },
+    {
+      "text": {
+        "zh": "把「CI 全绿」当作迁移成功的前提。",
+        "en": "Treating an all-green CI as a precondition for a successful migration."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/1607415559963942912",
+          "date": "2022-12-26",
+          "quote": "Migrating to TS can be painful because it can feel like your CI MUST run green",
+          "quote_zh": "迁移到 TS 可能很痛苦,因为你会觉得 CI 必须全绿"
+        }
+      ],
+      "evidence": "Direct"
+    }
+  ],
+  "evolution": [
+    {
+      "period": "2022–2023",
+      "change": "first",
+      "stance": {
+        "zh": "以提问和设想为主:构想过迁移 CLI,在「一次性改后缀」和「逐文件小 PR」之间征求意见;2023-05 给出唯一一条明确的方法帖。",
+        "en": "Mostly questions and ideas: he sketched a migration CLI and asked for opinions on renaming everything at once versus small per-file PRs; in 2023-05 he posted the one clear method post."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/1625093418803245056",
+          "date": "2023-02-13"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/1653316261789458433",
+          "date": "2023-05-02"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/1658145266082480129",
+          "date": "2023-05-15"
+        }
+      ]
+    },
+    {
+      "period": "2023-11–2026",
+      "change": "unclear",
+      "stance": {
+        "zh": "之后只有零星提及:如何从非 strict 迁到 strict(提问)、设想做一个 JS→TS 迁移 skill。没有新的系统性观点。",
+        "en": "After that only scattered mentions: how to move from non-strict to strict (a question), and the idea of a JS-to-TS migration skill. No new systematic view."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/1726621876729041213",
+          "date": "2023-11-20"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2018306028702416972",
+          "date": "2026-02-02"
+        }
+      ],
+      "current": true
+    }
+  ],
+  "related": [
+    "m.feedback-loops",
+    "m.spec-tickets"
+  ],
+  "prerequisites": [],
+  "site_pages": [],
+  "repos": [],
+  "sources_count": {
+    "keyword_hits": 10,
+    "curated": 6
+  },
+  "evidence": "Direct",
+  "date_first": "2022-12-26",
+  "date_last": "2026-02-02",
+  "status": "draft",
+  "updated": "2026-10-28",
+  "thin": true
+}

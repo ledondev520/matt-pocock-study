@@ -20,18 +20,23 @@ import { escapeHtml } from './figures'
 import { outputPath, writeOutput } from './output-path.mjs'
 import { createIndex } from '../server/db'
 import { importCorpus, loadCorpus, queryCorpus, corpusTags } from '../server/corpus'
+import { loadMethodologies } from './methods'
+import { forDisplay, methodMarkdown, methodPath, methodsIndexMarkdown, methodsSlug, summarize, type Methodology } from '../src/lib/methods'
 
-export function pageModel(model: Model, pages: Page[], path: string): Model {
-  const { lang, slug, home } = routeInfo(path)
+export function pageModel(model: Model, pages: Page[], path: string, sets: Methodology[] = []): Model {
+  const { lang, slug, method, home } = routeInfo(path)
   const currentPage = pages.find(p => p.lang === lang && p.slug === slug)
   const licenses = slug === licensesSlug, kb = slug === kbSlug, timeline = slug === timelineSlug
-  const ids = home ? [] : slug === 'corpus' ? ['spot-empty'] : currentPage || licenses || kb || timeline ? [] : ['spot-404']
+  // Methods views carry the list (navigation) and, on a set's page, that set.
+  const current = method ? sets.find(m => methodPath(lang, m.id) === path) : undefined
+  const methods = slug === methodsSlug && (!method || current) ? { list: sets.map(m => summarize(m, lang)), current } : undefined
+  const ids = home ? [] : slug === 'corpus' ? ['spot-empty'] : currentPage || licenses || kb || timeline || methods ? [] : ['spot-404']
   const figures = Object.fromEntries(ids.map(id => [id, model.figures[lang][id]]))
   // Every licence text is shown on /licenses only; other views link to it from the footer.
   return { ...model, currentPage, licences: licenses ? licencesView() : undefined,
     figures: { zh: {}, en: {}, [lang]: figures },
     corpusItems: slug === 'corpus' ? model.corpusItems : [], corpusTags: slug === 'corpus' ? model.corpusTags : [],
-    knowledge: kb ? model.knowledge : undefined,
+    knowledge: kb ? model.knowledge : undefined, methods,
     today: home ? todayItems(learnSource({ knowledge: model.knowledge ?? [], pages: model.pages }), lang) : undefined,
     // Built from the lessons' quotes and the knowledge base; only the timeline views carry it.
     timeline: timeline ? timelineItems(lang, pages, model.knowledge ?? []) : undefined,
@@ -50,10 +55,12 @@ export async function staticPages(root = 'dist', kbFile = 'data/knowledge-base.j
     knowledge: validateFeed(JSON.parse(await readFile(kbFile, 'utf8'))).entries.map(dropCounts) }
   db.close()
   const learn = learnSource({ knowledge: model.knowledge ?? [], pages: summaries })
-  for (const view of [kbSlug, timelineSlug]) if (pages.some(p => p.slug === view)) throw new Error(`content/*/${view}.md would collide with the ${view} view`)
-  const paths = ['/', '/zh', '/en', ...pages.map(p => `/${p.lang}/${p.slug}`), `/zh/${licensesSlug}`, `/en/${licensesSlug}`, `/zh/${kbSlug}`, `/en/${kbSlug}`, `/zh/${timelineSlug}`, `/en/${timelineSlug}`, '/404', '/zh/404', '/en/404']
+  const sets = loadMethodologies().map(forDisplay)
+  for (const view of [kbSlug, timelineSlug, methodsSlug]) if (pages.some(p => p.slug === view)) throw new Error(`content/*/${view}.md would collide with the ${view} view`)
+  const paths = ['/', '/zh', '/en', ...pages.map(p => `/${p.lang}/${p.slug}`), `/zh/${licensesSlug}`, `/en/${licensesSlug}`, `/zh/${kbSlug}`, `/en/${kbSlug}`, `/zh/${timelineSlug}`, `/en/${timelineSlug}`,
+    ...(['zh', 'en'] as const).flatMap(lang => [methodPath(lang), ...sets.map(m => methodPath(lang, m.id))]), '/404', '/zh/404', '/en/404']
   for (const path of paths) {
-    const scoped = pageModel(model, pages, path)
+    const scoped = pageModel(model, pages, path, sets)
     const m = metadata(scoped, path)
     const e = escapeHtml
     const meta = `<title>${e(m.title)}</title><meta name="description" content="${e(m.description)}"><link rel="canonical" href="${e(m.url)}"><link rel="alternate" hreflang="${m.lang}" href="${e(m.url)}"><link rel="alternate" hreflang="${m.lang === 'zh' ? 'en' : 'zh'}" href="${e(m.alternate)}"><link rel="alternate" hreflang="x-default" href="${e(m.xDefault)}"><meta property="og:title" content="${e(m.title)}"><meta property="og:description" content="${e(m.description)}"><meta property="og:url" content="${e(m.url)}"><meta property="og:image" content="${e(m.image)}"><meta name="twitter:card" content="summary_large_image">${path.endsWith('/404') ? '<meta name="robots" content="noindex">' : `<link rel="alternate" type="text/markdown" href="${e(markdownPath(path))}">`}`
@@ -70,13 +77,20 @@ export async function staticPages(root = 'dist', kbFile = 'data/knowledge-base.j
     await writeOutput(root, outputPath(root, lang, `${kbSlug}.md`), knowledgeMarkdown(lang, model.knowledge ?? []))
     await writeOutput(root, outputPath(root, lang, `${timelineSlug}.md`), timelineMarkdown(lang, timelineItems(lang, pages, model.knowledge ?? []), model.siteUrl))
   }
+  // The methods views' Markdown twins.
+  for (const lang of ['zh', 'en'] as const) {
+    const list = sets.map(m => summarize(m, lang)), localized = pages.filter(p => p.lang === lang)
+    await writeOutput(root, outputPath(root, lang, `${methodsSlug}.md`), methodsIndexMarkdown(list, lang, model.siteUrl))
+    for (const m of sets) await writeOutput(root, outputPath(root, methodPath(lang, m.id).slice(1) + '.md'), methodMarkdown(m, lang, model.siteUrl, list, localized))
+  }
   // Crawlers and agents: every indexable route (by its canonical URL) with its other-language twin and
   // x-default (the Chinese page, as in each page's <head>). "/" shares /zh's canonical, so it is listed once.
   const entries = new Map<string, { alternate: string; xDefault: string; lang: string; updated?: string }>()
   for (const path of paths.filter(p => !p.endsWith('/404'))) {
-    const m = metadata(pageModel(model, pages, path), path)
-    const { slug } = routeInfo(path)
-    const updated = slug === kbSlug ? model.knowledge?.map(e => e.date).sort().at(-1) : slug === timelineSlug ? timelineItems(m.lang, pages, model.knowledge ?? []).map(e => e.date).sort().at(-1) : slug ? pages.find(p => p.lang === m.lang && p.slug === slug)?.updated : pages.filter(p => p.lang === m.lang).map(p => p.updated).sort().at(-1)
+    const m = metadata(pageModel(model, pages, path, sets), path)
+    const { slug, method } = routeInfo(path)
+    const set = method ? sets.find(s => methodPath(m.lang, s.id) === path) : undefined
+    const updated = slug === methodsSlug ? set ? set.updated ?? set.date_last : sets.map(s => s.updated ?? s.date_last).sort().at(-1) : slug === kbSlug ? model.knowledge?.map(e => e.date).sort().at(-1) : slug === timelineSlug ? timelineItems(m.lang, pages, model.knowledge ?? []).map(e => e.date).sort().at(-1) : slug ? pages.find(p => p.lang === m.lang && p.slug === slug)?.updated : pages.filter(p => p.lang === m.lang).map(p => p.updated).sort().at(-1)
     entries.set(m.url, { alternate: m.alternate, xDefault: m.xDefault, lang: m.lang, updated })
   }
   const x = (value: string) => value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')

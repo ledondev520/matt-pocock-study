@@ -1,0 +1,78 @@
+{
+  "question": {
+    "zh": "TypeScript 类型在运行时不存在,外部数据(环境变量、API 请求、fetch 返回)该怎么校验?",
+    "en": "TypeScript types don't exist at runtime. How should outside data (environment variables, API requests, fetch responses) be validated?"
+  },
+  "claim.text": {
+    "zh": "类型只管你自己写的代码;从外部进来的数据要在边界处用 schema 库(他最常用 Zod)解析一次,之后整个应用依靠从 schema 推断出的类型。是否需要校验,取决于你对数据来源的信任程度。",
+    "en": "Types only cover the code you write. Data coming in from outside should be parsed once at the boundary with a schema library (Zod is his usual pick), and the rest of the app then relies on the types inferred from the schema. Whether you need validation depends on how much you trust the source."
+  },
+  "steps.0.title": {
+    "zh": "先判断数据从哪里来、你信不信它",
+    "en": "First ask where the data comes from and whether you trust it"
+  },
+  "steps.0.how": {
+    "zh": "自己代码里产生的数据靠类型就够;来自用户、网络、配置、第三方服务的数据,你控制不了,就需要运行时校验。他把「何时用 Zod」归结为信任、把握和控制(原帖串在归档里只有开头,细节看原链接)。",
+    "en": "Data your own code produces is covered by types; data from users, the network, config or third-party services is out of your control and needs runtime validation. He boils \"when to use Zod\" down to trust, certainty and control (only the start of that thread is in the archive; see the original link for details)."
+  },
+  "steps.1.title": {
+    "zh": "环境变量:启动时解析一次,并禁止直接访问 process.env",
+    "en": "Environment variables: parse once at startup and forbid direct process.env access"
+  },
+  "steps.1.how": {
+    "zh": "在入口处用 schema 解析环境变量,缺了就立即失败;再用 declare global 让 process.env 带上推断出的类型,或者干脆禁止直接访问,让团队都走解析后的对象。",
+    "en": "Parse environment variables with a schema at the entry point and fail immediately if any are missing; then use declare global to give process.env the inferred types, or forbid direct access so the whole team goes through the parsed object."
+  },
+  "steps.2.title": {
+    "zh": "API 与 fetch:在入口和出口包一层校验",
+    "en": "APIs and fetch: wrap validation around the way in and the way out"
+  },
+  "steps.2.how": {
+    "zh": "服务端每个接口用 schema 校验请求,校验失败自动返回 400,处理函数的参数类型从 schema 推断;客户端 fetch 的结果也先解析再用。他为此写过 zod-fetch 这样的小包装。",
+    "en": "On the server, validate each endpoint's request with a schema, return 400 automatically on failure, and infer the handler's parameter types from the schema; on the client, parse fetch results before using them. He wrote small wrappers such as zod-fetch for this."
+  },
+  "steps.3.title": {
+    "zh": "外部数据的 schema 用 strict,schema 与类型同名导出",
+    "en": "Strict schemas for outside data; export the schema and type under one name"
+  },
+  "steps.3.how": {
+    "zh": "处理外部数据的对象 schema 大多应该用 z.strict(),多出来的字段直接报错,避免脏数据悄悄流进系统。schema 和它推断出的类型可以用同一个名字导出,使用处更自然。",
+    "en": "Object schemas for outside data should mostly use z.strict(), so unexpected fields raise an error instead of letting dirty data slip in. A schema and its inferred type can be exported under the same name, which reads more naturally where they are used."
+  },
+  "examples.0.title": {
+    "zh": "本站示例:解析一次环境变量",
+    "en": "Our example: parse environment variables once"
+  },
+  "examples.0.body": {
+    "zh": "import { z } from \"zod\";\n\nconst Env = z.object({ DATABASE_URL: z.string().url(), PORT: z.coerce.number() });\nexport const env = Env.parse(process.env); // 缺失或格式不对 → 启动即失败\n// 之后到处用 env.PORT(number),不再直接读 process.env",
+    "en": "import { z } from \"zod\";\n\nconst Env = z.object({ DATABASE_URL: z.string().url(), PORT: z.coerce.number() });\nexport const env = Env.parse(process.env); // missing or malformed -> fails at startup\n// from here on use env.PORT (number), never process.env directly"
+  },
+  "examples.1.title": {
+    "zh": "aihero:用 Zod schema 让 LLM 输出结构化数据",
+    "en": "aihero: structured LLM output with a Zod schema"
+  },
+  "pitfalls.0.text": {
+    "zh": "只写类型、不做校验就相信外部数据——类型在运行时不存在。",
+    "en": "Trusting outside data with types and no validation: types don't exist at runtime."
+  },
+  "pitfalls.1.text": {
+    "zh": "让缺失的环境变量「带默认值继续跑」;他多次要求 agent 在缺少环境变量时直接 throw。",
+    "en": "Letting a missing environment variable carry on with a default; he has repeatedly told agents to throw when one is missing."
+  },
+  "pitfalls.2.text": {
+    "zh": "前端引入完整 Zod 担心包体积:2025 年的 zod/mini 大幅缩小了体积。",
+    "en": "Worrying about bundle size when using full Zod on the front end: zod/mini in 2025 cut the size a lot."
+  },
+  "evolution.0.stance": {
+    "zh": "爱上 Zod,做了免费 Zod 教程;z.coerce 用于解析查询参数。",
+    "en": "He falls for Zod and makes a free Zod tutorial; z.coerce for parsing query parameters."
+  },
+  "evolution.1.stance": {
+    "zh": "形成固定做法:环境变量解析一次、API 自动 400、zod-fetch、strict schema;比较 Zod、Valibot、Arktype 等。",
+    "en": "A settled practice: parse env vars once, automatic 400s for APIs, zod-fetch, strict schemas; he compares Zod, Valibot, Arktype and others."
+  },
+  "evolution.2.stance": {
+    "zh": "Zod 4 与 zod/mini 发布;AI 应用里 schema 同时用于结构化输出;仍强调缺环境变量要 fail fast。",
+    "en": "Zod 4 and zod/mini are released; in AI apps the schema doubles as the structured-output format; he still stresses failing fast on missing env vars."
+  }
+}

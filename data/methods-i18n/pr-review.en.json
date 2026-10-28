@@ -1,0 +1,110 @@
+{
+  "question": {
+    "zh": "一个 PR 该怎么切、怎么写、怎么评审?AI 写的代码越来越多时又该怎么办?",
+    "en": "How should a PR be sliced, written and reviewed, and what changes when AI writes more of the code?"
+  },
+  "claim.text": {
+    "zh": "PR 的目的是让评审又快又可靠:改动要小、爆炸半径要小;合并前先让机器把关;PR 正文要展示改动的样子、给出能工作的证据、说明合并风险;人类的评审时间按风险来分配。AI 时代人类评审成了瓶颈,这一点更加重要。",
+    "en": "A PR exists so review can be fast and reliable: keep the change and its blast radius small, let machines check it before anyone merges, make the body show the shape of the change, the evidence that it works and the merge risk, and spend human review time by risk. With AI writing more code, human review is the bottleneck, so this matters more."
+  },
+  "steps.0.title": {
+    "zh": "先对齐,再动手",
+    "en": "Align before you build"
+  },
+  "steps.0.how": {
+    "zh": "PR 描述写不清,往往是因为动手前没想清楚要做什么。先和人或 agent 把需求对齐(grilling),描述自然就清楚了。",
+    "en": "An unclear PR description usually means the work started before anyone knew what it was for. Align with the person or the agent first (grilling) and the description follows."
+  },
+  "steps.1.title": {
+    "zh": "把改动切小,控制爆炸半径",
+    "en": "Keep changes small and the blast radius small"
+  },
+  "steps.1.how": {
+    "zh": "大改动(例如 TS 迁移)要拆成很多个小 PR,和功能开发穿插进行;每个 PR 只修一件事,出了问题影响面也小。",
+    "en": "Split big changes (a TypeScript migration, say) into many small PRs woven in with feature work. One PR fixes one thing, so a mistake stays contained."
+  },
+  "steps.2.title": {
+    "zh": "人看之前,先让机器把关",
+    "en": "Let machines check before people do"
+  },
+  "steps.2.how": {
+    "zh": "合入 main 的 PR 必须通过类型检查。AI 时代再加一层自动评审:把团队规范写进 CODING_STANDARDS.md,由评审 agent 按它检查;人类评审仍然保留。",
+    "en": "PRs to main must pass the type check. With AI, add automated review: write the team's standards into CODING_STANDARDS.md and let a review agent enforce them. Human review stays."
+  },
+  "steps.3.title": {
+    "zh": "PR 正文:摘要、证据、合并风险",
+    "en": "PR body: summary, evidence, merge risk"
+  },
+  "steps.3.how": {
+    "zh": "正文分三块。摘要用最小的视图(伪代码、调用树、文件树等)展示改动的形状,不写大段文字;证据给出改动前后对比,例如一个先失败后通过的测试或截图;合并风险说明这是单向门还是双向门,以及爆炸半径有多大。用词沿用项目的领域语言。",
+    "en": "Three parts. The summary shows the shape of the change in the smallest view (pseudocode, a call tree, a file tree), not a paragraph. Evidence shows before and after, such as a test that failed and now passes, or a screenshot. Merge risk says whether it is a one-way or two-way door and how big the blast radius is. Use the project's domain language."
+  },
+  "steps.4.title": {
+    "zh": "按风险分配人类评审精力",
+    "en": "Spend human review by risk"
+  },
+  "steps.4.how": {
+    "zh": "单向门(例如昂贵的数据迁移、难以撤回的改动)要细看;双向门、爆炸半径小的可以快速浏览。「要不要读代码」不是二选一,而是一个从逐行读到抽查的刻度。",
+    "en": "Read one-way doors closely (costly data migrations, changes that are hard to undo); skim two-way doors with a small blast radius. Reading the code is not yes or no but a scale, from every line to spot checks."
+  },
+  "steps.5.title": {
+    "zh": "把评审意见沉淀成规则",
+    "en": "Turn review comments into rules"
+  },
+  "steps.5.how": {
+    "zh": "个人层面:为提交 PR 列一份清单,并不断改进它。团队层面:定期让 agent 汇总 PR 评审评论,提议更新 CODING_STANDARDS.md,让同样的意见下次由自动评审提出。",
+    "en": "For yourself: keep a checklist for submitting PRs and keep improving it. For the team: have an agent collect PR review comments now and then and propose updates to CODING_STANDARDS.md, so automated review raises the same point next time."
+  },
+  "examples.0.title": {
+    "zh": "本站示例:一个按三段结构写的 PR 正文",
+    "en": "Our example: a PR body in three parts"
+  },
+  "examples.0.body": {
+    "zh": "## Summary\n```text\nsaveDraft\n  if content unchanged -> return cached\n  write -> return fresh\n```\n## Evidence\n- Before: `saves twice on double click` 测试失败\n- After: 同一测试通过\n## Merge Danger\n**Door:** two-way(纯前端逻辑,可直接 revert)\n**Blast Radius:** 草稿保存",
+    "en": "## Summary\n```text\nsaveDraft\n  if content unchanged -> return cached\n  write -> return fresh\n```\n## Evidence\n- Before: `saves twice on double click` fails\n- After: the same test passes\n## Merge Danger\n**Door:** two-way (front-end logic only, revert directly)\n**Blast Radius:** draft saving"
+  },
+  "examples.0.license_ref": {
+    "zh": "结构参考 mattpocock/skills 的 pr 技能(MIT,Copyright (c) 2026 Matt Pocock);内容为本站自写",
+    "en": "Structure based on the pr skill in mattpocock/skills (MIT, Copyright (c) 2026 Matt Pocock); content is ours"
+  },
+  "examples.1.title": {
+    "zh": "从慢查询告警到人类评审的 agent 循环",
+    "en": "The agent loop from a slow-query alert to human review"
+  },
+  "pitfalls.0.text": {
+    "zh": "为了小事拒绝 PR:拒绝本身会损耗士气和速度。",
+    "en": "Rejecting a PR over small things: the rejection itself costs morale and speed."
+  },
+  "pitfalls.1.text": {
+    "zh": "直接用模型默认写出的 PR 正文。",
+    "en": "Shipping the PR body a model writes by default."
+  },
+  "pitfalls.2.text": {
+    "zh": "只依赖自动评审,或者只依赖人类评审。",
+    "en": "Relying only on automated review, or only on human review."
+  },
+  "pitfalls.3.text": {
+    "zh": "把「不要做 X」写成给 agent 的否定指令。评审会把否定指令变成可以检查的肯定标准。",
+    "en": "Writing \"don't do X\" as a negative instruction for the agent. Review turns negative instructions into positive standards that can be checked."
+  },
+  "pitfalls.4.text": {
+    "zh": "产出的代码太多。他在考虑让评审持续削减代码量。",
+    "en": "Producing too much code. He is considering review that keeps cutting the amount of code."
+  },
+  "evolution.0.stance": {
+    "zh": "人类团队阶段:PR 是协作单元。要小、要便宜(写脚本加快提 PR)、不要为小事拒绝、类型检查作为合并门槛、自己有一份提交清单。",
+    "en": "Human teams: the PR is the unit of collaboration. Keep it small and cheap (a script to open PRs faster), don't reject over small things, make the type check a merge gate, keep your own submit checklist."
+  },
+  "evolution.1.stance": {
+    "zh": "background agents 出现后,他觉得多年优化 CI、评审 PR 的经验正好派上用场;同时强调不会读代码会严重受限。",
+    "en": "Once background agents arrive, he finds years of tuning CI and reviewing PRs pay off, and stresses that not being able to read code is a serious limit."
+  },
+  "evolution.2.stance": {
+    "zh": "开始怀疑 PR 这种形式本身:转介 GitHub 演讲称 PR \"no longer fit for purpose\",设想用 feature flag 作为替代;把人类评审看作 agent 产出之后的另一个队列;认为读代码是一个刻度。",
+    "en": "He questions the PR as a form: he passes on a GitHub talk arguing the PR has stopped doing its job, floats feature flags as an alternative, sees human review as another queue after agent output, and treats reading code as a scale."
+  },
+  "evolution.3.stance": {
+    "zh": "PR 仍然保留,但要为人类评审优化。规范交给自动评审(CODING_STANDARDS.md + /code-review),正文用 /pr 三段结构,按合并风险分配评审精力,用 /retro 把评审意见沉淀为规则。他在 AI Engineer Paris 的演讲题目是 \"Fixing The PR Bottleneck\"。",
+    "en": "The PR stays but is tuned for human review: standards go to automated review (CODING_STANDARDS.md plus /code-review), the body follows the three parts of /pr, review effort follows merge risk, and /retro turns review comments into rules. His AI Engineer Paris talk is called \"Fixing The PR Bottleneck\"."
+  }
+}

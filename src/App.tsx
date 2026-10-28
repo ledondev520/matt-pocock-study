@@ -5,7 +5,12 @@ import type { Model, Page } from './lib/content'
 import { markdownPath } from './lib/agent'
 import { kbSlug, licensesSlug, metadata } from './lib/metadata'
 import { routeInfo } from './lib/lang'
+<<<<<<< ours
 import { timelineSlug } from './lib/timeline'
+||||||| base
+=======
+import { methodsSlug } from './lib/methods'
+>>>>>>> theirs
 import { savePreference } from './lib/preferences'
 
 export function App({ model: initialModel }: { model: Model }) {
@@ -19,14 +24,15 @@ export function App({ model: initialModel }: { model: Model }) {
     async function navigate(target: string, push = false) {
       const version = ++navigation
       const url = new URL(target, location.href)
-      const { lang, slug, home } = routeInfo(url.pathname)
+      const { lang, slug, method, home } = routeInfo(url.pathname)
       try {
         let next: Model
-        if (import.meta.env.DEV) {
+        // Methodology views are only pre-rendered (no dev content.json for them).
+        if (import.meta.env.DEV && slug !== methodsSlug) {
           const pages: Page[] = await (await fetch('/content.json')).json()
           next = { ...initialModel, pages, currentPage: pages.find(p => p.lang === lang && p.slug === slug) }
         } else {
-          const response = await fetch(home ? `/${lang}/index.json` : `/${lang}/${slug}.json`)
+          const response = await fetch(home ? `/${lang}/index.json` : `/${lang}/${slug}${method ? `/${method}` : ''}.json`)
           if (!response.ok) throw new Error('Page data unavailable')
           next = await response.json()
         }
@@ -81,10 +87,25 @@ export function App({ model: initialModel }: { model: Model }) {
     // Language alternates only (this language, the other one, x-default → Chinese). The Markdown
     // alternate has no hreflang and points at this page's .md twin.
     document.querySelectorAll('link[rel="alternate"][hreflang]').forEach(link => link.setAttribute('href', link.getAttribute('hreflang') === 'x-default' ? m.xDefault : link.getAttribute('hreflang') === m.lang ? m.url : m.alternate))
+<<<<<<< ours
     // Homes, pages and the three views (licences, knowledge base, timeline) have a twin; unknown routes (404) do not.
     const { lang, slug, home } = routeInfo(path)
+||||||| base
+    // Homes, pages and the two views (licences, knowledge base) have a twin; unknown routes (404) do not.
+    const { lang, slug, home } = routeInfo(path)
+=======
+    // Homes, pages and the views (licences, knowledge base, methods) have a twin; unknown routes (404) do not.
+    const { lang, slug, method, home } = routeInfo(path)
+    const methodsView = slug === methodsSlug && !!model.methods && (!method || !!model.methods.current)
+>>>>>>> theirs
     let twin = document.querySelector('link[rel="alternate"][type="text/markdown"]')
+<<<<<<< ours
     if (!home && slug !== licensesSlug && slug !== kbSlug && slug !== timelineSlug && !model.pages.some(p => p.lang === lang && p.slug === slug)) twin?.remove()
+||||||| base
+    if (!home && slug !== licensesSlug && slug !== kbSlug && !model.pages.some(p => p.lang === lang && p.slug === slug)) twin?.remove()
+=======
+    if (!home && slug !== licensesSlug && slug !== kbSlug && !methodsView && !model.pages.some(p => p.lang === lang && p.slug === slug)) twin?.remove()
+>>>>>>> theirs
     else {
       if (!twin) { twin = Object.assign(document.createElement('link'), { rel: 'alternate', type: 'text/markdown' }); document.head.append(twin) }
       twin.setAttribute('href', markdownPath(path))

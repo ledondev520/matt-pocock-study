@@ -1,0 +1,74 @@
+{
+  "question": {
+    "zh": "怎样在 X 上写一条有人读、读完能学会东西的技术帖或 thread?",
+    "en": "How do you write a technical post or thread on X that people read and learn something from?"
+  },
+  "claim.text": {
+    "zh": "他的技术帖有固定的形状:开头一句话点出一个反直觉的点并承诺「读完你就懂」,正文一帖一个点、配代码图,结尾给可执行的结论;零散的帖子定期汇总成按难度排序的合集,或沉淀成文章、newsletter。这一条主要是本站从他的大量帖子归纳出的写法(Supported),他本人直接谈写帖方法的帖子不多。",
+    "en": "His technical posts have a fixed shape: an opening line that names a counter-intuitive point and promises you'll get it by the end, one point per post with a code image in the body, and an actionable conclusion. Scattered posts are regularly gathered into collections ordered by difficulty, or turned into articles and newsletters. This entry is mainly our summary of the pattern across many of his posts (Supported); he has posted little directly about how he writes posts."
+  },
+  "steps.0.title": {
+    "zh": "开头:一个反直觉的点 + 一个承诺",
+    "en": "Open with a counter-intuitive point and a promise"
+  },
+  "steps.0.how": {
+    "zh": "第一句话说清楚这条帖子讲什么,并制造一点张力(「看起来很疯狂」「你可能从没听说过」),紧接着承诺读者读完就能理解。读者在第一屏就知道值不值得读下去。",
+    "en": "The first sentence says what the post is about and adds a little tension (\"looks crazy\", \"you've probably never heard of\"), then promises the reader will understand by the end. Readers know on the first screen whether it is worth continuing."
+  },
+  "steps.1.title": {
+    "zh": "一帖一个点,配代码图",
+    "en": "One point per post, with a code image"
+  },
+  "steps.1.how": {
+    "zh": "每条帖子(或 thread 的每一条)只讲一个点,用一张代码截图或示意图承载细节,文字只负责说明「为什么」。2022 年他用编号的「TypeScript Tip」系列固定了这个格式,并保持工作日更新的节奏。",
+    "en": "Each post (or each part of a thread) covers one point, with a code screenshot or diagram carrying the detail and the text only explaining why. In 2022 his numbered \"TypeScript Tip\" series fixed this format and kept a weekday rhythm."
+  },
+  "steps.2.title": {
+    "zh": "把零散帖子汇总成有序的合集",
+    "en": "Gather scattered posts into ordered collections"
+  },
+  "steps.2.how": {
+    "zh": "积累到一定数量后,发一条「合集」thread,把过去的内容按从入门到高级排好顺序——单条帖子的生命很短,合集能被反复收藏和转发。",
+    "en": "Once enough have built up, post a collection thread that orders past content from beginner to advanced. A single post lives briefly; a collection gets bookmarked and shared again and again."
+  },
+  "steps.3.title": {
+    "zh": "把值得长期保留的内容搬出信息流",
+    "en": "Move content worth keeping out of the feed"
+  },
+  "steps.3.how": {
+    "zh": "平台算法会逼人降低质量;值得长期查阅的内容写成面向搜索的文章,或放进自己掌控的 newsletter。",
+    "en": "Platform algorithms push people to lower quality; content worth looking up later becomes search-oriented articles or goes into a newsletter you control."
+  },
+  "examples.0.title": {
+    "zh": "本站示例:一条 thread 的骨架",
+    "en": "Our example: the skeleton of a thread"
+  },
+  "examples.0.body": {
+    "zh": "1/ 反直觉的点 + 承诺:「T[number] 看起来很疯狂,读完你就懂。」\n2/ 最小例子(代码图)\n3/ 心智模型(一句话)\n4/ 实际用途(代码图)\n5/ 结论 + 链接到长文或合集",
+    "en": "1/ Counter-intuitive point + promise: \"T[number] looks crazy; by the end you'll get it.\"\n2/ Smallest example (code image)\n3/ Mental model (one sentence)\n4/ Real use (code image)\n5/ Conclusion + link to the long article or collection"
+  },
+  "examples.1.title": {
+    "zh": "泛型 thread(2023,他互动最高的 TS 帖之一)",
+    "en": "The generics thread (2023, one of his most engaged TS posts)"
+  },
+  "pitfalls.0.text": {
+    "zh": "为了迎合算法降低内容质量——他 2024 年因此转向站外 newsletter。",
+    "en": "Lowering quality to please the algorithm; in 2024 this pushed him to an off-platform newsletter."
+  },
+  "pitfalls.1.text": {
+    "zh": "只发不汇总:单条技巧很快被信息流淹没,读者找不到学习顺序。",
+    "en": "Posting without collecting: single tips sink fast in the feed and readers can't find a learning order."
+  },
+  "evolution.0.stance": {
+    "zh": "编号的「TypeScript Tip」系列,工作日更新;发按难度排序的合集 thread。",
+    "en": "The numbered \"TypeScript Tip\" series on weekdays; collection threads ordered by difficulty."
+  },
+  "evolution.1.stance": {
+    "zh": "thread 数量高峰(2023 年 36 条、2024 年 30 条命中);同时写面向搜索的文章;2024-03 认为算法逼人降质,转向 newsletter。",
+    "en": "Peak thread count (36 hits in 2023, 30 in 2024) alongside search-oriented articles; in 2024-03 he says the algorithm pushes quality down and turns to a newsletter."
+  },
+  "evolution.2.stance": {
+    "zh": "thread 明显减少(2025 年 5 条、2026 年 8 条命中),帖子转向 AI 编程工作流的短帖和清单;本站未见他再系统谈写帖方法。",
+    "en": "Far fewer threads (5 hits in 2025, 8 in 2026); posts shift to short posts and checklists about AI coding workflows; we have not seen him discuss how he writes posts systematically again."
+  }
+}

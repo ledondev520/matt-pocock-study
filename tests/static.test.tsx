@@ -1,9 +1,14 @@
 import { execFileSync } from 'node:child_process'
 import { readdir, readFile, stat, mkdtemp, writeFile, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
+<<<<<<< HEAD
 import { createRequire } from 'node:module'
 import { dirname, join, resolve } from 'node:path'
 import { beforeAll, afterAll, expect, it } from 'vitest'
+=======
+import { join, resolve } from 'node:path'
+import { beforeAll, afterAll, expect, it, vi } from 'vitest'
+>>>>>>> origin/feat/methodology
 import { JSDOM } from 'jsdom'
 import { renderToString } from 'react-dom/server'
 import { staticPages } from '../scripts/static'
@@ -21,6 +26,10 @@ import { searchItems, type SearchItem } from '../src/lib/search'
 import registry from '../data/figures.json'
 import { collectCharacters, fontWeights } from '../scripts/fonts.mjs'
 import { parseFontFaces, type NotoFace } from './font-faces'
+
+// Tests that read every built page grow with the page count (62 methodology pages); 5 s is too
+// little on CI runners.
+vi.setConfig({ testTimeout: 60000 })
 
 let model: Model
 const db = createIndex([])
@@ -165,7 +174,7 @@ it('every indexable page has a Markdown twin that is in llms.txt and sitemap.xml
     const links = doc.querySelectorAll('link[rel="alternate"][type="text/markdown"]')
     expect(links, `${file} links its .md`).toHaveLength(1)
     const href = links[0].getAttribute('href')!
-    expect(href, file).toMatch(/^\/(zh|en)\/[a-z0-9-]+\.md$/)
+    expect(href, file).toMatch(/^\/(zh|en)\/(?:methods\/)?[a-z0-9-]+\.md$/)
     const markdown = await readFile(`dist${href}`, 'utf8').catch(() => '')
     expect(markdown, `${file}: dist${href}`).toMatch(/^# \S/)
     expect(stripCode(markdown), `${href} has no HTML tags outside code`).not.toMatch(/<\/?(?:div|span|p|a|img|svg|section|aside|details|summary|table|tr|td|th|br|figure|script|style)\b[^>]*>/i)
@@ -336,12 +345,13 @@ it('sitemap hreflang pairs point at each other across languages', async () => {
   expect(entries.size).toBeGreaterThan(40)
   for (const [loc, links] of entries) {
     const html = await (await app.request(new URL(loc).pathname)).text()
-    const lang = new JSDOM(html).window.document.documentElement.lang
+    const page = new JSDOM(html).window.document
+    const lang = page.documentElement.lang
     const other = lang === 'zh' ? 'en' : 'zh'
     expect(Object.keys(links).sort(), loc).toEqual(['en', 'x-default', 'zh'])
     // x-default is the Chinese page, as in the page's own <head>.
     expect(links['x-default'], `${loc} x-default`).toBe(links.zh)
-    expect(new JSDOM(html).window.document.querySelector('link[hreflang="x-default"]')!.getAttribute('href'), `${loc} x-default matches <head>`).toBe(links['x-default'])
+    expect(page.querySelector('link[hreflang="x-default"]')!.getAttribute('href'), `${loc} x-default matches <head>`).toBe(links['x-default'])
     expect(links[lang], `${loc} names itself as ${lang}`).toBe(loc)
     expect(links[other], `${loc} twin is a different page`).not.toBe(loc)
     expect(entries.has(links[other]), `${loc} twin ${links[other]} is in the sitemap`).toBe(true)

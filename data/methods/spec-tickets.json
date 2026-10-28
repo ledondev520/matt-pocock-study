@@ -1,0 +1,339 @@
+{
+  "id": "m.spec-tickets",
+  "domain": "ai-coding",
+  "title": {
+    "zh": "从 Spec 到 Tickets 方法论",
+    "en": "From spec to tickets"
+  },
+  "question": {
+    "zh": "对齐之后,怎样把需求写成 spec,再拆成 agent 能独立完成的 tickets?",
+    "en": "Once aligned, how do you write the requirements as a spec and split it into tickets an agent can finish on its own?"
+  },
+  "claim": {
+    "text": {
+      "zh": "把「要去哪里」和「怎么走过去」分开:spec(早期叫 PRD)写目的地和用户故事,本身不是可执行的步骤;tickets 是一张张端到端的小切片,写明彼此之间的阻塞关系,好让多个 agent 并行领取。工作量大小决定流程的轻重,小改动不需要这一整套。",
+      "en": "Separate where you are going from how you get there. The spec (earlier called a PRD) describes the destination and the user stories; it is not a list of steps to execute. Tickets are small end-to-end slices that state which other tickets block them, so several agents can pick them up in parallel. The size of the work sets how heavy the process is; small changes don't need all of this."
+    },
+    "anchors": [
+      {
+        "url": "https://x.com/mattpocockuk/status/2048159313357598989",
+        "date": "2026-04-25",
+        "quote": "The PRD is a ticket, but it's not an actionable step.",
+        "quote_zh": "PRD 是一张票,但它不是一个可执行的步骤。"
+      }
+    ],
+    "evidence": "Direct"
+  },
+  "steps": [
+    {
+      "id": "m.spec-tickets#s1",
+      "order": 1,
+      "title": {
+        "zh": "先判断要不要走这套流程",
+        "en": "Decide whether to use this process at all"
+      },
+      "how": {
+        "zh": "改动很小时直接让 agent 一次写完;中大型改动先做一轮对齐;规划明显失控时再升级成地图式的规划(/wayfinder)。不要一开始就上最重的流程。",
+        "en": "For a tiny change, let the agent write it in one go; for medium and large changes, align first; when planning clearly gets out of hand, step up to map-style planning (/wayfinder). Don't start with the heaviest process."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2108216899439894574",
+          "date": "2026-10-08",
+          "quote": "If the diff is tiny, DON'T grill",
+          "quote_zh": "如果 diff 很小,别做拷问"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2108216899439894574",
+          "date": "2026-10-08",
+          "quote": "Never start with /wayfinder",
+          "quote_zh": "永远别从 /wayfinder 开始"
+        }
+      ],
+      "evidence": "Direct",
+      "since": "2026"
+    },
+    {
+      "id": "m.spec-tickets#s2",
+      "order": 2,
+      "title": {
+        "zh": "把对齐结果写成一份 spec",
+        "en": "Write the alignment up as a spec"
+      },
+      "how": {
+        "zh": "spec 记录对话里已经定下来的东西:目标、用户故事、关键决定。它作为一张单独的 issue 放进 issue tracker,是「目的地」,不是施工步骤。",
+        "en": "The spec records what the conversation settled: goals, user stories, key decisions. It goes into the issue tracker as a single issue and is the destination, not the construction steps."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2048159313357598989",
+          "date": "2026-04-25",
+          "quote": "create a PRD (the destination) and implementation steps as separate tickets",
+          "quote_zh": "创建一份 PRD(目的地),再把实现步骤拆成独立的票"
+        },
+        {
+          "url": "https://www.aihero.dev/skills-to-spec",
+          "date": "2026-08-24"
+        }
+      ],
+      "evidence": "Direct",
+      "since": "2026"
+    },
+    {
+      "id": "m.spec-tickets#s3",
+      "order": 3,
+      "title": {
+        "zh": "把 spec 拆成端到端的小切片",
+        "en": "Split the spec into small end-to-end slices"
+      },
+      "how": {
+        "zh": "每张 ticket 都是一颗「曳光弹」:一小块从头到尾都能跑通的功能,做完就能拿到反馈。不要按「先写完所有数据层」这种横向分层来拆。",
+        "en": "Each ticket is a tracer bullet: a small piece of functionality that works from end to end and gives feedback as soon as it is done. Don't split by horizontal layers like \"finish the whole data layer first\"."
+      },
+      "anchors": [
+        {
+          "url": "https://www.aihero.dev/tracer-bullets",
+          "date": "2026-01-22",
+          "quote": "small pieces of functionality that get built end-to-end",
+          "quote_zh": "能端到端构建起来的小块功能"
+        }
+      ],
+      "evidence": "Direct",
+      "since": "2026"
+    },
+    {
+      "id": "m.spec-tickets#s4",
+      "order": 4,
+      "title": {
+        "zh": "写明阻塞关系,方便并行",
+        "en": "State what blocks what, so work can run in parallel"
+      },
+      "how": {
+        "zh": "每张 ticket 标出必须先完成的其他 ticket。这样规划 agent 能判断哪些现在就可以做,并同时派给多个实现 agent。",
+        "en": "Each ticket lists the tickets that must be done first. A planning agent can then tell which can start now and hand them to several implementation agents at once."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2045110469426323900",
+          "date": "2026-04-17",
+          "quote": "/to-issues - create issues with blocking",
+          "quote_zh": "/to-issues:创建带阻塞关系的 issue"
+        },
+        {
+          "url": "https://www.aihero.dev/skills-to-tickets",
+          "date": "2026-08-24"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2048159313357598989",
+          "date": "2026-04-25",
+          "quote": "which can be grabbed in parallel",
+          "quote_zh": "可以被并行领取"
+        }
+      ],
+      "evidence": "Direct",
+      "since": "2026"
+    },
+    {
+      "id": "m.spec-tickets#s5",
+      "order": 5,
+      "title": {
+        "zh": "让 tickets 进入实现和评审",
+        "en": "Send the tickets on to implementation and review"
+      },
+      "how": {
+        "zh": "tickets 交给实现流程:单个 agent 逐张实现,或者多 agent 并发实现,最后对照 spec 评审。issue tracker 就是任务队列。",
+        "en": "Tickets go into implementation: one agent works through them in turn, or several agents work at once, and the result is reviewed against the spec. The issue tracker is the task queue."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2075856898142740821",
+          "date": "2026-07-11",
+          "quote": "/wayfinder -> /to-spec -> /to-tickets -> /implement"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2090744569960824949",
+          "date": "2026-08-21",
+          "quote": "Reviews the final code against the spec",
+          "quote_zh": "对照 spec 评审最终代码"
+        }
+      ],
+      "evidence": "Direct",
+      "since": "2026"
+    }
+  ],
+  "examples": [
+    {
+      "origin": "site",
+      "title": {
+        "zh": "本站示例:一张 ticket 的骨架",
+        "en": "Our example: the skeleton of a ticket"
+      },
+      "lang": "markdown",
+      "body": {
+        "zh": "# 草稿自动保存:保存按钮端到端可用\n被阻塞于:#12(草稿表结构)\n验收:点击保存 → 刷新后内容仍在;对应的测试先失败后通过\n不在本票范围:离线同步",
+        "en": "# Draft autosave: save button works end to end\nBlocked by: #12 (draft table schema)\nAcceptance: click save -> content is still there after reload; the matching test fails first, then passes\nOut of scope: offline sync"
+      }
+    }
+  ],
+  "pitfalls": [
+    {
+      "text": {
+        "zh": "把 spec 当成施工步骤直接交给 agent。",
+        "en": "Handing the spec to the agent as construction steps."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2048159313357598989",
+          "date": "2026-04-25",
+          "quote": "The PRD is a ticket, but it's not an actionable step."
+        }
+      ],
+      "evidence": "Direct"
+    },
+    {
+      "text": {
+        "zh": "小改动也走全流程,白白付出规划成本。",
+        "en": "Running the full process for small changes and paying the planning cost for nothing."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2108216899439894574",
+          "date": "2026-10-08",
+          "quote": "So one-shotting is absolutely fine when you're only making small changes.",
+          "quote_zh": "所以只做小改动时,一次写完完全没问题。"
+        }
+      ],
+      "evidence": "Direct"
+    },
+    {
+      "text": {
+        "zh": "一上来就做大地图,结果发现方案比想象的简单得多,地图和 tickets 都白做了。",
+        "en": "Starting with a big map, then finding the solution is much simpler than expected, so the map and tickets were wasted."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2108216899439894574",
+          "date": "2026-10-08",
+          "quote": "you've created the map and tickets, and you realise you don't need them.",
+          "quote_zh": "你已经建好了地图和 tickets,才发现根本不需要它们。"
+        }
+      ],
+      "evidence": "Direct"
+    }
+  ],
+  "evolution": [
+    {
+      "period": "2026-01–2026-03",
+      "change": "first",
+      "stance": {
+        "zh": "PRD → issues → Ralph 循环:用 /write-a-prd 和 /prd-to-issues 两个 skill。",
+        "en": "PRD to issues to a Ralph loop, with two skills: /write-a-prd and /prd-to-issues."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2024874219662905676",
+          "date": "2026-02-20"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2033647563627212953",
+          "date": "2026-03-16"
+        },
+        {
+          "url": "https://www.aihero.dev/tracer-bullets",
+          "date": "2026-01-22"
+        }
+      ]
+    },
+    {
+      "period": "2026-04",
+      "change": "refine",
+      "stance": {
+        "zh": "issues 带阻塞关系;明确 PRD 是目的地、tickets 是路线,用于并行的夜班。",
+        "en": "Issues carry blocking relationships; the PRD is the destination and the tickets the route, for a parallel night shift."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2045110469426323900",
+          "date": "2026-04-17"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2048159313357598989",
+          "date": "2026-04-25"
+        }
+      ]
+    },
+    {
+      "period": "2026-06–2026-07",
+      "change": "refine",
+      "stance": {
+        "zh": "觉得 PRD 之前的阶段需要更多结构;改名为 /to-spec、/to-tickets;大型工作先做 /wayfinder 地图,再转成 spec。",
+        "en": "He feels the stage before the PRD needs more structure; the skills become /to-spec and /to-tickets; large work starts with a /wayfinder map that is then turned into a spec."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2066451514672009337",
+          "date": "2026-06-15",
+          "quote": "the pre-PRD phase needs more structure",
+          "quote_zh": "PRD 之前的阶段需要更多结构"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2072623114219835733",
+          "date": "2026-07-02",
+          "quote": "/to-prd is changing to /to-spec"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2075856898142740821",
+          "date": "2026-07-11"
+        }
+      ]
+    },
+    {
+      "period": "2026-08–2026-10",
+      "change": "refine",
+      "stance": {
+        "zh": "用 /implement-spec 多 agent 并发实现 tickets 并对照 spec 评审;按改动大小选择流程,小改动直接一次写完。",
+        "en": "/implement-spec runs several agents on tickets at once and reviews against the spec; the process is chosen by the size of the change, and small changes are written in one go."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2090744569960824949",
+          "date": "2026-08-21"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2107062474914550098",
+          "date": "2026-10-05"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2108216899439894574",
+          "date": "2026-10-08"
+        }
+      ],
+      "current": true
+    }
+  ],
+  "related": [
+    "m.align-grill",
+    "m.afk-loops",
+    "m.pr-review"
+  ],
+  "prerequisites": [],
+  "site_pages": [
+    "specs-and-tickets"
+  ],
+  "repos": [
+    {
+      "url": "https://github.com/mattpocock/skills",
+      "license": "MIT",
+      "reuse": "mit-with-notice"
+    }
+  ],
+  "sources_count": {
+    "keyword_hits": 127,
+    "curated": 13
+  },
+  "evidence": "Direct",
+  "date_first": "2026-01-22",
+  "date_last": "2026-10-08",
+  "status": "draft",
+  "updated": "2026-10-28"
+}

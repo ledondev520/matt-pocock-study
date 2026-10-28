@@ -7,6 +7,8 @@ import { routeInfo, type Lang } from './lib/lang'
 import { agentPrompt } from './lib/agent'
 import { siteNotice } from './lib/notice'
 import { kbSlug, licensesSlug } from './lib/metadata'
+import { methodPath, methodsSlug, methodsTitle } from './lib/methods'
+import { MethodPage, MethodsIndex } from './Methods'
 import type { CorpusRecord } from '../server/corpus'
 import { byDate, SOURCES, type KbEntry } from '../scripts/kb/feed'
 import { KbText } from './KbText'
@@ -24,25 +26,48 @@ export function Site({ model, path, dark = false, onTheme, onLanguage }: {
   model: Model; path: string; dark?: boolean; onTheme?: () => void; onLanguage?: (lang: Lang) => void;
 }) {
   const [menu, setMenu] = useState(false)
-  const { lang, slug, home } = routeInfo(path)
+  const { lang, slug, method, home } = routeInfo(path)
   const zh = lang === 'zh', other = zh ? 'en' : 'zh'
   const t = (cn: string, en: string) => zh ? cn : en
   const pages = model.pages.filter(p => p.lang === lang && p.slug !== 'corpus')
   const page = model.currentPage?.lang === lang && model.currentPage.slug === slug ? model.currentPage : undefined
+<<<<<<< ours
   const corpus = slug === 'corpus', licenses = slug === licensesSlug && !!model.licences, kb = slug === kbSlug, timeline = slug === timelineSlug
   const otherPath = `/${other}${page ? `/${page.slug}` : licenses ? `/${licensesSlug}` : kb ? `/${kbSlug}` : timeline ? `/${timelineSlug}` : ''}`
+||||||| base
+  const corpus = slug === 'corpus', licenses = slug === licensesSlug && !!model.licences, kb = slug === kbSlug
+  const otherPath = `/${other}${page ? `/${page.slug}` : licenses ? `/${licensesSlug}` : kb ? `/${kbSlug}` : ''}`
+=======
+  const corpus = slug === 'corpus', licenses = slug === licensesSlug && !!model.licences, kb = slug === kbSlug
+  const methods = slug === methodsSlug && model.methods ? model.methods : undefined
+  const methodSet = method && methods?.current && methodPath(lang, methods.current.id) === `/${lang}/${methodsSlug}/${method}` ? methods.current : undefined
+  const methodsView = !!methods && (!method || !!methodSet)
+  const otherPath = methodsView ? methodPath(other, methodSet?.id) : `/${other}${page ? `/${page.slug}` : licenses ? `/${licensesSlug}` : kb ? `/${kbSlug}` : ''}`
+>>>>>>> theirs
   useEffect(() => { setMenu(false) }, [path])
   return <>
     <a className="skip-link" href="#main">{t('跳至正文', 'Skip to content')}</a>
     <header className="site-header"><div className="wrap header-inner">
       <a className="brand" href={`/${lang}`}><span className="brand-icon"><Zap size={25} fill="currentColor" /></span><span><strong>Matt<span className="brand-dot">.</span>{t('学习笔记', 'Study notes')}</strong></span></a>
       <nav className={menu ? 'main-nav open' : 'main-nav'} aria-label={t('主导航', 'Main navigation')}>
+<<<<<<< ours
         <a href={`/${lang}#topics`}>{t('学习笔记', 'Notes')}</a><a href={`/${lang}/corpus`}>{t('语料库', 'Corpus')}</a><a href={`/${lang}/${kbSlug}`}>{t('知识库', 'Knowledge')}</a><a href={`/${lang}/${timelineSlug}`}>{t('时间轴', 'Timeline')}</a>
+||||||| base
+        <a href={`/${lang}#topics`}>{t('学习笔记', 'Notes')}</a><a href={`/${lang}/corpus`}>{t('语料库', 'Corpus')}</a><a href={`/${lang}/${kbSlug}`}>{t('知识库', 'Knowledge')}</a><a href={pageHref(model, lang, 'learn-from-matt')}>{t('关于', 'About')}</a>
+=======
+        <a href={`/${lang}#topics`}>{t('学习笔记', 'Notes')}</a><a href={methodPath(lang)}>{methodsTitle(lang)}</a><a href={`/${lang}/corpus`}>{t('语料库', 'Corpus')}</a><a href={`/${lang}/${kbSlug}`}>{t('知识库', 'Knowledge')}</a><a href={pageHref(model, lang, 'learn-from-matt')}>{t('关于', 'About')}</a>
+>>>>>>> theirs
       </nav>
       <div className="header-tools"><a className="language-toggle" href={otherPath} hrefLang={other} lang={other === 'zh' ? 'zh-Hans' : 'en'} onClick={() => onLanguage?.(other)}>{t('EN', '中文')}</a><span className="tool-divider" /><button className="icon-button" onClick={onTheme} aria-label={t(dark ? '切换浅色主题' : '切换深色主题', dark ? 'Switch to light theme' : 'Switch to dark theme')} aria-pressed={dark}>{dark ? <Sun size={19} /> : <Moon size={19} />}</button><a className="github-link" href={sourceUrl} aria-label="GitHub source"><Github size={21} /></a><button className="icon-button mobile-menu" aria-label={t('打开导航', 'Toggle navigation')} aria-expanded={menu} onClick={() => setMenu(!menu)}><Menu size={22} /></button></div>
     </div></header>
     <main id="main" tabIndex={-1}>
+<<<<<<< ours
       {home ? <Home model={model} lang={lang} pages={pages} /> : licenses ? <Licenses model={model} lang={lang} /> : corpus ? <Corpus model={model} lang={lang} intro={page} /> : kb ? <KnowledgeBase entries={model.knowledge ?? []} lang={lang} /> : timeline ? <Timeline items={model.timeline ?? []} lang={lang} /> : page ? <Article model={model} page={page} pages={pages} /> : <div className="wrap missing-page"><h1>{t('这个地址没有页面', 'Page not found')}</h1><Figure id="spot-404" model={model} lang={lang} /><div className="hero-actions"><a className="primary-button" href={`/${lang}`}>{t('回到首页', 'Back home')}</a><a href={`/${lang}/corpus`}>{t('搜索语料库', 'Search the corpus')} <Arrow dir="up-right" /></a></div></div>}
+||||||| base
+      {home ? <Home model={model} lang={lang} pages={pages} /> : licenses ? <Licenses model={model} lang={lang} /> : corpus ? <Corpus model={model} lang={lang} intro={page} /> : kb ? <KnowledgeBase entries={model.knowledge ?? []} lang={lang} /> : page ? <Article model={model} page={page} pages={pages} /> : <div className="wrap missing-page"><span className="eyebrow">404</span><h1>{t('这个地址没有页面', 'Page not found')}</h1><Figure id="spot-404" model={model} lang={lang} /><div className="hero-actions"><a className="primary-button" href={`/${lang}`}>{t('回到首页', 'Back home')}</a><a href={`/${lang}/corpus`}>{t('搜索语料库', 'Search the corpus')} <Arrow dir="up-right" /></a></div></div>}
+=======
+      {home ? <Home model={model} lang={lang} pages={pages} /> : methodsView ? methodSet ? <MethodPage m={methodSet} view={methods!} lang={lang} pages={pages} /> : <MethodsIndex view={methods!} lang={lang} /> : licenses ? <Licenses model={model} lang={lang} /> : corpus ? <Corpus model={model} lang={lang} intro={page} /> : kb ? <KnowledgeBase entries={model.knowledge ?? []} lang={lang} /> : page ? <Article model={model} page={page} pages={pages} /> : <div className="wrap missing-page"><span className="eyebrow">404</span><h1>{t('这个地址没有页面', 'Page not found')}</h1><Figure id="spot-404" model={model} lang={lang} /><div className="hero-actions"><a className="primary-button" href={`/${lang}`}>{t('回到首页', 'Back home')}</a><a href={`/${lang}/corpus`}>{t('搜索语料库', 'Search the corpus')} <Arrow dir="up-right" /></a></div></div>}
+>>>>>>> theirs
     </main>
     <footer className="site-footer wrap"><a className="footer-licenses" href={`/${lang}/${licensesSlug}`}>{t('许可', 'Licenses')}</a></footer>
   </>

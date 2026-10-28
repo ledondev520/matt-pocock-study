@@ -1,0 +1,70 @@
+{
+  "question": {
+    "zh": "独立教育者怎样安排免费内容和付费产品?发布时怎么判断需求、怎么做促销?",
+    "en": "How does an independent educator balance free content and paid products? At launch, how do you judge demand and run promotions?"
+  },
+  "claim.text": {
+    "zh": "他的节奏是:先大量放出真正有用的免费内容(教程、整本书、部分课程模块),付费产品聚焦更具体的价值(例如工作效率);发布前用隐藏链接、报名表、软发布来验证需求;折扣少而集中,配合大型发布日;也重视团队批量购买。本条只整理他公开谈到的做法,不复述具体销售额。",
+    "en": "His rhythm: give away plenty of truly useful free content first (tutorials, a whole book, some course modules), and point paid products at a specific value (such as being more effective at work). Before launch, test demand with hidden links, sign-up forms and soft launches; keep discounts few and concentrated around big launch days; take team purchases seriously. This entry covers only practices he has discussed publicly and does not repeat sales figures."
+  },
+  "steps.0.title": {
+    "zh": "免费内容要真有分量",
+    "en": "Make the free content substantial"
+  },
+  "steps.0.how": {
+    "zh": "免费的不是边角料:完整的入门教程、花了数月写的书、课程的第一个模块。超出付费课范围的高阶内容,他也倾向于免费放出。",
+    "en": "The free material is not scraps: complete beginner tutorials, a book that took months, a course's first module. He also tends to give away advanced material that goes beyond the paid course."
+  },
+  "steps.1.title": {
+    "zh": "付费产品聚焦一个具体价值",
+    "en": "Point the paid product at one specific value"
+  },
+  "steps.1.how": {
+    "zh": "付费内容围绕一个清楚的结果设计,比如「让你在工作中更高效」;受众也要说清楚(转型的老手、从零开始的新人)。",
+    "en": "Design paid content around a clear result, such as being more effective at work, and be clear about the audience (experienced people switching over, newcomers starting from zero)."
+  },
+  "steps.2.title": {
+    "zh": "先验证需求,再投入",
+    "en": "Test demand before investing"
+  },
+  "steps.2.how": {
+    "zh": "对没把握的选题,先放报名表看有多少人感兴趣;产品正式公布前,有人通过还没公开的链接下单,就是强烈的信号;cohort 可以先软发布。",
+    "en": "For a topic you are unsure about, put up a sign-up form and see how many are interested. People buying through a link that has not been announced yet is a strong signal. A cohort can start with a soft launch."
+  },
+  "steps.3.title": {
+    "zh": "把发布做成一个集中的「发布日」",
+    "en": "Make the launch one concentrated launch day"
+  },
+  "steps.3.how": {
+    "zh": "大发布时把多件事放在同一天:免费书、新课程、给老用户的福利、降价和限时折扣一起推出,形成一个话题。",
+    "en": "For a big launch, put several things on the same day: a free book, a new course, a perk for existing customers, price cuts and a time-limited discount, so it becomes one story."
+  },
+  "steps.4.title": {
+    "zh": "折扣少而集中;重视团队采购",
+    "en": "Few, concentrated discounts; take team purchases seriously"
+  },
+  "steps.4.how": {
+    "zh": "平时很少打折,促销集中在少数节点(如黑五、季节性促销),并提供购买力平价(PPP)定价;课程如果适合团队协作,团队批量购买会成为重要渠道。",
+    "en": "Discounts are rare and concentrated at a few moments (Black Friday, seasonal sales), with purchasing power parity (PPP) pricing. When a course suits teams, team purchases become an important channel."
+  },
+  "pitfalls.0.text": {
+    "zh": "太早公开产品名:他说过 ts-reset 因为过早发推,名字被人抢注(这条是开源包,但对产品命名同样适用)。",
+    "en": "Announcing a product name too early: he said ts-reset's name was taken by someone else because he tweeted it too soon (an open-source package, but the lesson applies to product names)."
+  },
+  "pitfalls.1.text": {
+    "zh": "只顾做内容、忘了告诉大家产品存在。",
+    "en": "Making content and forgetting to tell people the product exists."
+  },
+  "evolution.0.stance": {
+    "zh": "离职全职做课;大量免费教程和免费模块开路;与课程平台团队合作发售;首次公开 workshop 快速售罄。",
+    "en": "He leaves his job to make courses full time; lots of free tutorials and free modules lead the way; launches with a course platform team; his first public workshop sells out fast."
+  },
+  "evolution.1.stance": {
+    "zh": "大型发布日;免费整本书;用隐藏链接、报名表和软发布验证需求;少量集中的促销。",
+    "en": "Big launch days; a whole book for free; hidden links, sign-up forms and soft launches to test demand; a few concentrated promotions."
+  },
+  "evolution.2.stance": {
+    "zh": "AI 编程:常年在售的速成课(带 PPP)与 cohort 并行;团队采购成为重点。",
+    "en": "AI coding: an always-on crash course (with PPP) alongside cohorts; team purchases become a focus."
+  }
+}

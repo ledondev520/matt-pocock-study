@@ -1,0 +1,78 @@
+{
+  "question": {
+    "zh": "用 AI 写文章、课程文案或长文档时,怎样分工才能写得好、又保留自己的声音?",
+    "en": "When writing articles, course copy or long documents with AI, how do you split the work to write well and keep your own voice?"
+  },
+  "claim.text": {
+    "zh": "AI 不擅长从空白页开始,但擅长改写、更新和按计划展开。他的做法是:人先提供大量原始材料(口述、碎片),先对齐要写什么再动笔,让 AI 按逐句计划展开,用禁用词表和「dead prose」压掉 AI 腔;需要整体把控的规划工作(如排课程顺序),纸笔可能比 AI 更好。",
+    "en": "AI is poor at starting from a blank page but good at rewriting, updating and expanding to a plan. His approach: the human supplies plenty of raw material (dictation, fragments), agrees on what to write before drafting, lets the AI expand a sentence-by-sentence plan, and suppresses AI tone with a banned-phrase list and \"dead prose\". For planning that needs a view of the whole (like ordering a course), pen and paper may beat AI."
+  },
+  "steps.0.title": {
+    "zh": "先对齐要写什么,再让 AI 动笔",
+    "en": "Agree on what to write before the AI drafts"
+  },
+  "steps.0.how": {
+    "zh": "写长文档(PRD、文章、长邮件)分两个阶段:先做一轮松散的追问,对齐目标和内容;然后才生成文档。一上来就让 AI 写,它会急着交稿、不问关键问题,糟糕的初稿还会占满后续上下文。",
+    "en": "Long documents (PRDs, articles, long emails) take two phases: a loose round of questions to align on goals and content, then generating the document. Ask the AI to write straight away and it rushes to deliver, skips the key questions, and a bad first draft fills the context for what follows."
+  },
+  "steps.1.title": {
+    "zh": "人提供原材料:口述和碎片",
+    "en": "The human supplies raw material: dictation and fragments"
+  },
+  "steps.1.how": {
+    "zh": "他的输入主要靠口述:对着听写工具讲十分钟,或者先写出一堆零散的片段并亲自打磨,让它们听起来像自己。AI 的工作是在这些材料之上组织,而不是替你想。",
+    "en": "His input is mostly dictated: ten minutes talking to a dictation tool, or a pile of loose fragments he polishes himself so they sound like him. The AI's job is to organise on top of that material, not to think for you."
+  },
+  "steps.2.title": {
+    "zh": "先出逐句计划,再按计划写",
+    "en": "A sentence-by-sentence plan first, then write to it"
+  },
+  "steps.2.how": {
+    "zh": "让 AI 根据原材料先生成逐句(或逐段)的计划,确认结构后再展开成正文。写创意类内容时及时清空上下文——他发现写作的「聪明区」比写代码小得多。",
+    "en": "Have the AI produce a sentence-by-sentence (or paragraph-by-paragraph) plan from the raw material, confirm the structure, then expand it into prose. Clear the context promptly for creative work; he finds the smart zone for writing is much smaller than for code."
+  },
+  "steps.3.title": {
+    "zh": "压掉 AI 腔:禁用词表 + 「dead prose」",
+    "en": "Squash the AI tone: a banned-phrase list plus \"dead prose\""
+  },
+  "steps.3.how": {
+    "zh": "维护一份禁用短语清单(各种「关键洞见」「真相是」式的套话),并用「dead prose」这类引导词让模型去掉修饰,写成平实的技术文字。",
+    "en": "Keep a list of banned phrases (all the \"key insight\" and \"the truth is\" boilerplate) and use cue words like \"dead prose\" so the model strips ornament and writes plain technical text."
+  },
+  "steps.4.title": {
+    "zh": "让 AI 做它擅长的:更新旧文",
+    "en": "Let AI do what it is good at: updating old articles"
+  },
+  "steps.4.how": {
+    "zh": "信息变了需要更新已有文章时,把旧文、新信息、风格指南一起给 AI,并明确要求不改变篇幅——这是 AI 写作里效果最好的场景之一。",
+    "en": "When an existing article needs updating because the facts changed, give the AI the old article, the new information and the style guide together, and say explicitly not to change the length. It is one of the best uses of AI for writing."
+  },
+  "steps.5.title": {
+    "zh": "需要整体把控时,放下 AI",
+    "en": "Put AI down when you need a view of the whole"
+  },
+  "steps.5.how": {
+    "zh": "排课程顺序这类「改一处牵动全局」的规划,他用 agent 时感觉失控,换成卡片、纸和剪刀反而稳步推进。判断标准是:是否需要同时看住整个产出。",
+    "en": "For planning where one change ripples everywhere, such as ordering a course, he felt out of control with agents and made steady progress with cards, paper and scissors instead. The test: whether you have to keep the whole output in view at once."
+  },
+  "pitfalls.0.text": {
+    "zh": "一开始就让 AI 写全文:它不问关键问题,初稿偏离目标还污染上下文。",
+    "en": "Having the AI write the whole piece from the start: it skips the key questions, and an off-target first draft pollutes the context."
+  },
+  "pitfalls.1.text": {
+    "zh": "让 agent 主导规划:问无关问题、过早下结论、过快生成复杂材料。",
+    "en": "Letting the agent lead planning: it asks irrelevant questions, concludes too early and produces complex material too fast."
+  },
+  "evolution.0.stance": {
+    "zh": "LLM 不擅长空白页,擅长总结、改写和更新旧文;找到口述 → 逐句计划 → 写作的流程。",
+    "en": "LLMs are poor at blank pages and good at summarising, rewriting and updating old articles; he settles on dictation, a sentence-by-sentence plan, then writing."
+  },
+  "evolution.1.stance": {
+    "zh": "自建写作助手;禁用短语表;碎片 → 清空上下文 → 逐拍展开的三步流程;先对齐再写;「dead prose」。",
+    "en": "His own writing assistant; a banned-phrase list; a three-step flow of fragments, clear context, expand beat by beat; align before writing; \"dead prose\"."
+  },
+  "evolution.2.stance": {
+    "zh": "知识工作(课程规划)用 LLM wiki + 口述 + 夜间检查;同时发现整体规划用纸笔更好,AI 不是处处适用。",
+    "en": "Knowledge work (course planning) with an LLM wiki, dictation and nightly checks; he also finds overall planning works better on paper, so AI is not right everywhere."
+  }
+}
