@@ -403,7 +403,147 @@ describe('answer character intervals', () => {
   }
 })
 
+describe('review-5 character substring regressions', () => {
+  const chinesePrefix = '清晰文档让维护边界更加稳定，字符级检查让各字段之间的引用保持一致'
+  for (const fixture of [
+    { lang: 'en', source: punctuationSource, word: 'interoperability', cut: 7, query: 'configuration' },
+    { lang: 'zh', source: chinesePrefix + '，；：、'.repeat(60).slice(0, 248 - chinesePrefix.length) + '。', word: '维护边界', cut: 2, query: '文档' },
+  ]) {
+    const unit = { ...shortPost, text: fixture.source }
+    const cut = fixture.source.indexOf(fixture.word) + fixture.cut
+    const split = (text: string) => [text.slice(0, cut), text.slice(cut)]
+    const model = (fields: string[]) => answer([{ title: '', text: fields[1], sources: ['S1'] }], fields[0])
+    const cases = [
+      ...[240, 241, 249].map(length => ({ name: `split-${length}`, fields: split(fixture.source.slice(0, length)), allowed: length === 240 })),
+      ...['X', 'ｘ'].map(suffix => ({ name: `suffix-${suffix}`, fields: ['', fixture.source.replace(fixture.word, fixture.word + suffix)], allowed: false })),
+    ]
+
+    for (const sample of cases) {
+      it(`checks source substrings at the parser and shared entry (${fixture.lang}, ${sample.name})`, () => {
+        expect([...fixture.source]).toHaveLength(249)
+        if (sample.name.startsWith('split-')) {
+          expect(sample.fields.join('')).toBe(fixture.source.slice(0, Number(sample.name.slice(6))))
+          expect(sample.fields[0].endsWith(fixture.word.slice(0, fixture.cut))).toBe(true)
+          expect(sample.fields[1].startsWith(fixture.word.slice(fixture.cut))).toBe(true)
+        } else {
+          const suffix = sample.name.slice(7)
+          expect(sample.fields[1].replace(fixture.word + suffix, fixture.word)).toBe(fixture.source)
+        }
+        expect(withinExcerptBudget(sample.fields, [unit], [], [url])).toBe(sample.allowed)
+        const chunks: Unit[] = [fixture.source.slice(0, 180), fixture.source.slice(80)].map((text, i) => ({
+          ...unit, id: `method:substring:${i}`, kind: 'method', text: 'Our interpretation.',
+          quotes: [{ text, url: i ? `${url}?s=20#part` : url }],
+        }))
+        expect(withinExcerptBudget(sample.fields, chunks, [], [url])).toBe(sample.allowed)
+        if (sample.allowed) expect(parse(model(sample.fields), [unit])).toMatchObject({ found: true, title: sample.fields[0], points: [{ text: sample.fields[1] }] })
+        else expect(parse(model(sample.fields), [unit])).toBeUndefined()
+      })
+
+      it(`checks the API and cache (${fixture.lang}, ${sample.name})`, async () => {
+        const store = openStore(':memory:')
+        try {
+          let calls = 0
+          const app = createAskApp({ config: config(), units: [unit], store, log: () => {}, fetch: (async () => {
+            calls++
+            return fetchAnswer(model(sample.fields))('unused')
+          }) as typeof fetch })
+          for (let i = 0; i < 2; i++) {
+            const response = await app.request('/api/ask', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ q: fixture.query, lang: fixture.lang }) })
+            expect(response.status).toBe(200)
+            const body = await response.json()
+            if (sample.allowed) expect(body).toMatchObject({ mode: 'answer', title: sample.fields[0], points: [{ text: sample.fields[1] }], cached: i === 1 })
+            else expect(body).toEqual({ mode: 'search', reason: 'unverified', message: '', cached: false, citations: [{ n: 1, kind: 'post', sourceUrl: url }] })
+          }
+          expect(calls).toBe(sample.allowed ? 1 : 2)
+        } finally { store.close() }
+      })
+    }
+  }
+
+  it('normalizes case, width, quotes, apostrophes, dashes and whitespace without losing source characters', () => {
+    const prefix = 'ＣＬＥＡＲ “docs” aren’t fragile—'
+    for (const length of [240, 241]) {
+      const source = prefix + '；'.repeat(length - prefix.length - 3) + ' \t\n'
+      const output = 'clear "docs" aren\'t fragile-' + ';'.repeat(length - prefix.length - 3) + ' '
+      expect([...source]).toHaveLength(length)
+      expect(withinExcerptBudget([output], [{ ...shortPost, text: source }], [], [url])).toBe(length === 240)
+    }
+    // A composed answer still covers both original code points of a decomposed grapheme.
+    for (const length of [240, 241]) {
+      const source = 'e\u0301' + '—'.repeat(length - 2)
+      expect([...source]).toHaveLength(length)
+      expect(withinExcerptBudget(['é' + '-'.repeat(length - 2)], [{ ...shortPost, text: source }], [], [url])).toBe(length === 240)
+    }
+  })
+
+  it('maps contextual lowercase, corner quotes and modifier apostrophes back to the source', () => {
+    for (const [sourcePrefix, outputPrefix] of [['ΟΣ', 'ος'], ['接口「Ａ」—', '接口"a"-'], ['canʼt', "can't"]]) {
+      for (const length of [240, 241]) {
+        const source = sourcePrefix + '；'.repeat(length - sourcePrefix.length)
+        const output = outputPrefix + ';'.repeat(length - sourcePrefix.length)
+        expect([...source]).toHaveLength(length)
+        expect(withinExcerptBudget([output], [{ ...shortPost, text: source }], [], [url])).toBe(length === 240)
+      }
+    }
+  })
+
+  for (const fixture of [
+    { lang: 'en', quote: 'Keep boundaries small. Test changes early.', text: 'Automate a narrow check before expanding the task so feedback arrives while revisions are cheap.', query: 'boundaries' },
+    { lang: 'zh', quote: '先拆分。再验证。', text: '每次只处理一个可以撤回的改动，确认依赖后继续推进。', query: '拆分' },
+  ]) {
+    it(`accepts and caches a normal short quote with our own explanation (${fixture.lang})`, async () => {
+      const unit = { ...shortPost, text: fixture.quote }
+      const content = answer([{ title: '', text: fixture.text, quote: fixture.quote, sources: ['S1'] }], '')
+      expect([...fixture.quote].length).toBeLessThanOrEqual(240)
+      expect(checkQuote(fixture.quote, [unit])).toEqual({ text: fixture.quote, url })
+      expect(parse(content, [unit])).toMatchObject({ found: true, points: [{ text: fixture.text, quote: fixture.quote }] })
+      const store = openStore(':memory:')
+      try {
+        let calls = 0
+        const app = createAskApp({ config: config(), units: [unit], store, log: () => {}, fetch: (async () => {
+          calls++
+          return fetchAnswer(content)('unused')
+        }) as typeof fetch })
+        for (let i = 0; i < 2; i++) {
+          const response = await app.request('/api/ask', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ q: fixture.query, lang: fixture.lang }) })
+          expect(response.status).toBe(200)
+          expect(await response.json()).toMatchObject({ mode: 'answer', cached: i === 1, points: [{ text: fixture.text, quote: fixture.quote, quoteUrl: url }] })
+        }
+        expect(calls).toBe(1)
+      } finally { store.close() }
+    })
+  }
+})
+
 describe('persistent answer content version', () => {
+  it('isolates review-5 word-boundary answers cached under the v5 policy', async () => {
+    const store = openStore(':memory:')
+    try {
+      const cfg = config()
+      const unit = { ...shortPost, text: punctuationSource }
+      const digest = createHash('sha256').update(JSON.stringify([[
+        unit.id, 'post', '', unit.text, null, url, null, [],
+      ]])).digest('hex')
+      const oldKey = cacheKey('configuration', 'en', `${digest}:${cfg.model}:methodology-v5-excerpt-ranges`)
+      const cut = punctuationSource.indexOf('interoperability') + 7
+      const fields = [punctuationSource.slice(0, cut), punctuationSource.slice(cut)]
+      store.putCache(oldKey, JSON.stringify({ mode: 'answer', title: fields[0], points: [{ text: fields[1] }], citations: [], cached: false }), 86_400_000, Date.now())
+      let calls = 0
+      const content = answer([{ title: '', text: fields[1], sources: ['S1'] }], fields[0])
+      const app = createAskApp({ config: cfg, units: [unit], store, log: () => {}, fetch: (async () => {
+        calls++
+        return fetchAnswer(content)('unused')
+      }) as typeof fetch })
+      for (let i = 0; i < 2; i++) {
+        expect(await (await request(app, 'configuration')).json()).toEqual({
+          mode: 'search', reason: 'unverified', message: '', cached: false,
+          citations: [{ n: 1, kind: 'post', sourceUrl: url }],
+        })
+      }
+      expect(calls).toBe(2)
+    } finally { store.close() }
+  })
+
   it('isolates review-4 punctuation answers cached under the v4 policy', async () => {
     const store = openStore(':memory:')
     try {
