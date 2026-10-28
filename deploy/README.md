@@ -61,10 +61,11 @@ default port 8788) and serves `POST /api/ask`; `GET /healthz` is for local check
 - Optional private sources, read on the server only and never published: `ASK_DATASET_DIR`
   (a directory of `matt-posts-<year>.jsonl`) and `ASK_CHUNKS_FILE` (methodology chunks, JSON or
   JSON Lines; format adapter in `server/ask/methodology-adapter.ts`). Responses carry only short
-  checked quotes (≤ 25 words) and links.
+  checked quotes (at most two sentences, 25 words / 60 Han characters per original across the response) and links. Copied answer prose is checked against the same budget; unsafe output falls back to bounded search excerpts or links alone.
 - Off by default: answers need `ASK_ENABLED=1` and `DEEPSEEK_API_KEY` in the environment. Without
   them the endpoint still returns the closest passages (`mode: "search"`).
 - Logs are one JSON line per request with hashes only (question hash, daily-salted client hash),
   status, token counts and latency; the question text is never logged or stored.
+- The answer cache version includes a hash of retrieval text, quotes and source metadata, plus the exit policy version. Deploy corrected inputs and restart to invalidate old answers without resetting rate counters. When rolling back to older code, use an empty answer cache (clear only the SQLite `cache` table while the service is stopped); preserve `counters` and `meta`.
 - `matt-release` already runs `systemctl try-restart matt-ask` after switching releases.
 - Turn answers off: `systemctl stop matt-ask` (nginx then returns 502 and the page shows search).

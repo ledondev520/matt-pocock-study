@@ -7,6 +7,7 @@ import { createHash, createHmac } from 'node:crypto'
 import { isIP } from 'node:net'
 import { Hono, type Context } from 'hono'
 import { buildMessages, citationFor, notFoundMessage, parseAnswer, PROMPT_VERSION, type AskResponse, type Citation, type Lang } from './answer'
+import { shortExcerpt, withinExcerptBudget } from './excerpts'
 import type { AskConfig } from './config'
 import { callDeepSeek, chatRequest, CircuitBreaker, UpstreamError } from './deepseek'
 import { createRetriever, relevant } from './retrieve'
@@ -68,7 +69,10 @@ export function createAskApp(deps: AskDeps) {
   const log = deps.log ?? ((line: string) => process.stdout.write(`${line}\n`))
   const peer = deps.peer ?? ((c: Context) => (c.env as { incoming?: { socket?: { remoteAddress?: string } } } | undefined)?.incoming?.socket?.remoteAddress)
   const retriever = createRetriever(deps.units)
-  const indexVersion = sha256(JSON.stringify(deps.units.map(u => [u.id, u.sitePath ?? null]))).slice(0, 12)
+  const indexVersion = sha256(JSON.stringify(deps.units.map(u => [
+    u.id, u.kind, u.title, u.text, u.date ?? null, u.sourceUrl ?? null, u.sitePath ?? null,
+    u.quotes?.map(q => [q.text, q.url, q.date ?? null]) ?? [],
+  ])))
   const version = `${indexVersion}:${config.model}:${PROMPT_VERSION}`
   const breaker = new CircuitBreaker(config.breakerFailures, config.breakerCoolDownMs)
   const inFlight = new Map<string, number>()
@@ -135,7 +139,10 @@ export function createAskApp(deps: AskDeps) {
     if (!units.length) return finish({ mode: 'not_found', message: notFoundMessage(lang), citations: [], cached: false })
 
     const fallback = (reason: string, extra: Record<string, unknown> = {}): Response => {
-      const citations: Citation[] = units.map((u, i) => ({ ...citationFor(u, i + 1, config.siteUrl), snippet: snippet(u) }))
+      let citations: Citation[] = units.map((u, i) => ({ ...citationFor(u, i + 1, config.siteUrl), snippet: shortExcerpt(u.text) }))
+      if (!withinExcerptBudget(citations.flatMap(c => [c.title ?? '', c.snippet ?? '']), units, [], citations.flatMap(c => c.sourceUrl ? [c.sourceUrl] : []))) {
+        citations = citations.map(c => ({ ...c, title: undefined, snippet: undefined }))
+      }
       return finish({ mode: 'search', reason, message: '', citations, cached: false }, { reason, ...extra })
     }
     if (!config.enabled || !config.apiKey) return fallback('disabled')
@@ -191,12 +198,4 @@ function dedupe(units: Unit[]): Unit[] {
     if (!seen || rank[u.kind] < rank[seen.kind]) best.set(keyOf(u), u)
   }
   return units.filter(u => best.get(keyOf(u)) === u)
-}
-
-/** Short excerpt for the search fallback: at most 25 words or 60 CJK characters. */
-function snippet(unit: Unit) {
-  const text = unit.text
-  if (/\p{Script=Han}/u.test(text.slice(0, 40))) return [...text].length > 60 ? `${[...text].slice(0, 60).join('')}…` : text
-  const words = text.split(/\s+/)
-  return words.length > 25 ? `${words.slice(0, 25).join(' ')}…` : text
 }

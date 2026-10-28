@@ -1,11 +1,12 @@
 // Prompt and answer check. The model only ever sees our passages and one question; its output
 // is not trusted: source ids are checked, quotes must appear verbatim in one of Matt's own posts,
 // and every link is built here from the unit, never taken from the model.
+import { shortEnough, withinExcerptBudget } from './excerpts'
 import type { ChatMessage } from './deepseek'
 import { isAllowedSourceUrl, isSitePath, type Unit } from './units'
 
 export type Lang = 'zh' | 'en'
-export const PROMPT_VERSION = 'methodology-v1'
+export const PROMPT_VERSION = 'methodology-v2-excerpts'
 
 export interface Citation { n: number; kind: Unit['kind']; date?: string; sourceUrl?: string; siteUrl?: string; title?: string; snippet?: string }
 export interface Point { title: string; text: string; quote?: string; quoteUrl?: string; cites: number[] }
@@ -14,8 +15,6 @@ export type AskResponse =
   | { mode: 'not_found'; message: string; citations: Citation[]; cached: boolean }
   | { mode: 'search'; reason: string; message: string; citations: Citation[]; cached: false }
 
-const MAX_QUOTE_WORDS = 25
-const MAX_QUOTE_CJK = 60
 const MAX_POINTS = 8
 
 export const notFoundMessage = (lang: Lang) => lang === 'zh' ? '站内没找到相关内容。' : 'Nothing on this site covers that.'
@@ -67,11 +66,6 @@ export function stripLinks(text: string) {
 }
 
 const fold = (text: string) => text.normalize('NFKC').replace(/[’‘]/g, "'").replace(/[“”]/g, '"').replace(/\s+/g, ' ').trim().toLowerCase()
-const shortEnough = (quote: string) => {
-  const cjk = (quote.match(/\p{Script=Han}/gu) ?? []).length
-  return cjk ? cjk <= MAX_QUOTE_CJK : quote.split(/\s+/).filter(Boolean).length <= MAX_QUOTE_WORDS
-}
-
 /** A quote survives only if it is short and is Matt's exact words: one of a cited chunk's
  * checked quotes, or a verbatim part of a cited post. Returns the quote and its original post. */
 export function checkQuote(quote: unknown, cited: Unit[]): { text: string; url?: string } | undefined {
@@ -80,8 +74,8 @@ export function checkQuote(quote: unknown, cited: Unit[]): { text: string; url?:
   if (!q || !shortEnough(q)) return undefined
   for (const u of cited) {
     const anchor = u.quotes?.find(a => fold(a.text).includes(fold(q)))
-    if (anchor) return { text: q, url: anchor.url }
-    if (u.kind === 'post' && fold(u.text).includes(fold(q))) return { text: q, url: u.sourceUrl }
+    if (anchor && isAllowedSourceUrl(anchor.url)) return { text: q, url: anchor.url }
+    if (u.kind === 'post' && isAllowedSourceUrl(u.sourceUrl) && fold(u.text).includes(fold(q))) return { text: q, url: u.sourceUrl }
   }
   return undefined
 }
@@ -113,5 +107,11 @@ export function parseAnswer(content: string, units: Unit[], siteUrl: string): { 
   }
   if (!points.length) return undefined
   const citations = [...numbering].map(([i, n]) => citationFor(units[i], n, siteUrl))
-  return { found: true, title: typeof value.title === 'string' ? stripLinks(value.title) : '', points, citations }
+  const title = typeof value.title === 'string' ? stripLinks(value.title) : ''
+  if (!withinExcerptBudget(
+    [title, ...points.flatMap(p => [p.title, p.text]), ...citations.map(c => c.title ?? '')], units,
+    points.flatMap(p => p.quote && p.quoteUrl ? [{ text: p.quote, url: p.quoteUrl }] : []),
+    [...citations.flatMap(c => c.sourceUrl ? [c.sourceUrl] : []), ...points.flatMap(p => p.quoteUrl ? [p.quoteUrl] : [])],
+  )) return undefined
+  return { found: true, title, points, citations }
 }

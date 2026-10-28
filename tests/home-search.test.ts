@@ -69,6 +69,7 @@ it('uses all methodologies for today and search, with localized step links and n
     expect(today).toHaveLength(6)
     expect(today.map(m => m.dateLast)).toEqual(today.map(m => m.dateLast).sort().reverse())
     const index = searchIndex(source, lang)
+    expect(index.some(c => c.kind === 'overview' && c.href === `/${lang}/methods/pr-review`)).toBe(true)
     expect(index.some(c => c.kind === 'step' && c.href === `/${lang}/methods/pr-review#s1`)).toBe(true)
     expect(index.every(c => c.href.startsWith(`/${lang}/`))).toBe(true)
     expect(index.map(c => c.text).join('\n')).not.toMatch(/\bMIT\b/)
