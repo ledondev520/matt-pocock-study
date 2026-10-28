@@ -704,13 +704,18 @@ it('no built page shows a deleted notice, statistic, self-description or instruc
 // The site notice is said once: on the licences page (HTML and its .md twin), next to the MIT texts.
 // Every other built text (pages, .md twins, llms.txt, llms-full.txt, index.md) carries none of it.
 it('the site notice appears once, on the licences page and its twin, next to the MIT texts', async () => {
+  const notices = {
+    zh: '本站是非官方、非商业的学习整理，与 Matt Pocock 无隶属或背书关系。引文和链接的作品版权归原作者；本站解读不代表原作者观点，原话与语境以原文为准。',
+    en: 'Unofficial, non-commercial study notes, not affiliated with or endorsed by Matt Pocock. Quoted and linked works belong to their authors; our reading is not their view, and the originals are authoritative.',
+  }
   const mit = await readFile('third_party/mattpocock-skills/LICENSE', 'utf8')
   for (const lang of ['zh', 'en'] as const) {
+    expect(siteNotice(lang)).toBe(notices[lang])
     const page = new JSDOM(await readFile(`dist/${lang}/licenses/index.html`, 'utf8')).window.document.querySelector('.licenses-page')!
-    expect(page.querySelector('.licenses-note')!.textContent).toBe(siteNotice(lang))
+    expect(page.querySelector('.licenses-note')!.textContent).toBe(notices[lang])
     expect(page.textContent).toContain(mit.trimEnd())
     const twin = await readFile(`dist/${lang}/licenses.md`, 'utf8')
-    expect(twin.split(siteNotice(lang)).length - 1, `${lang}/licenses.md`).toBe(1)
+    expect(twin.split(notices[lang]).length - 1, `${lang}/licenses.md`).toBe(1)
     expect(twin).toContain(mit.trimEnd())
   }
   // Generated agent texts only (dist/font-licenses/*.txt are the fonts' own licence files).

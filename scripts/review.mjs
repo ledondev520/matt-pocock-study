@@ -132,7 +132,7 @@ try {
     const afterToc = jsonRequests.length
     await page.locator('.article-sidebar > a').click()
     await page.waitForURL(`**/${lang}`)
-    await page.locator('.chain-figure a').first().waitFor()
+    await page.locator('#site-search').waitFor()
     await page.goBack()
     await page.waitForURL('**#*')
     await atFragment(second)
@@ -140,7 +140,7 @@ try {
     // Exercise percent-encoded Chinese (and English) cross-page fragments.
     await page.locator('.article-sidebar > a').click()
     await page.waitForURL(`**/${lang}`)
-    await page.locator('.chain-figure a').first().waitFor()
+    await page.locator('#site-search').waitFor()
     await page.evaluate(({ lang, id }) => {
       const link = document.createElement('a')
       link.id = 'review-fragment-link'
@@ -160,8 +160,13 @@ try {
     await page.locator('#site-search-results a').first().waitFor()
     await page.keyboard.press('ArrowDown')
     assert.equal(await page.locator('#site-search-results a').first().evaluate(node => document.activeElement === node), true)
+    const href = await page.locator('#site-search-results a').first().getAttribute('href')
+    assert.match(href, new RegExp(`^/${lang}/[a-z0-9-]+$`))
     await page.keyboard.press('Enter')
-    await page.waitForURL(url => url.pathname.startsWith(`/${lang}/`) && url.pathname !== `/${lang}`)
+    await page.waitForURL(url => url.pathname === href)
+    const heading = await page.locator('h1').innerText()
+    assert.match(heading, lang === 'zh' ? /规格/ : /Specs/)
+    assert.doesNotMatch(heading, /404|找不到|Not found/i)
   }
   checks.push({ regressions: 'aliases return stable 404; zh/en TOC, history, cross-page fragments and keyboard home search passed' })
   checks.push({ interactions: 'mobile menu, SPA language switch, saved language/theme, corpus query/type, empty/reset, localized 404 passed' })
