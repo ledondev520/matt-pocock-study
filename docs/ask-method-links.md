@@ -1,0 +1,19 @@
+问答入口在首页搜索旁，点击「提问 / Ask」才加载面板。接口不可用或触发限流时，问题回填到本地搜索。
+
+`npm run build` 在静态页面生成成功后写出 `dist/page-manifest.json`（`version: 1`、`paths` 数组）。其中只有实际生成的页面路径，不含 404。清单不包含切片、原帖或检索文本。
+
+`matt-ask` 启动时读取并校验清单，默认位置为 `dist/page-manifest.json`，可用 `ASK_PAGE_MANIFEST` 指定。清单丢失或格式错误会阻止启动。部署时应使用同一次构建的站点、清单与服务端索引，并重启服务。
+
+方法论检索单元和指向 `/zh/methods/…`、`/en/methods/…` 的原帖单元，只有目标页面在清单内才保留站内链接。片段不参与页面匹配；清单外的目标只保留原帖链接。站内链接变化会更新答案缓存键。
+
+只读检查（在仓库根目录运行，切片路径从环境变量读取）：
+
+```sh
+scripts/check-ask-method-links dist/page-manifest.json
+# 或
+npm run check:ask-method-links -- dist/page-manifest.json
+```
+
+先设置 `ASK_CHUNKS_FILE`。脚本只输出去重后的 method 站内链接及 `OK` / `MISSING`，末行是链接数和缺失数，不打印切片正文。退出码：0 无缺失，1 有缺失，2 输入不可读或无效。省略清单参数时使用 `ASK_PAGE_MANIFEST`，再回退到默认路径。
+
+无需改变切片格式或重建切片。适配器兼容已有 `chunk_id`，也接受 `key`、`lang`、`sitePath`、`source_url` 和单个 `quote` 字段；优先使用切片自带路径。当前分支尚未包含方法论页面时，相应链接会被省略。切片和 kb-dataset 不进入构建产物或提交。

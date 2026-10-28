@@ -72,6 +72,8 @@ export async function staticPages(root = 'dist', kbFile = 'data/knowledge-base.j
     await writeOutput(root, target, html)
     await writeOutput(root, path.endsWith('/404') ? target.replace(/\.html$/, '.json') : path === '/' || path === '/zh' || path === '/en' ? outputPath(root, path.slice(1), 'index.json') : outputPath(root, path.slice(1) + '.json'), JSON.stringify(scoped))
   }
+  // Only routes whose HTML was successfully generated belong in the ask link allowlist.
+  await writeOutput(root, 'page-manifest.json', JSON.stringify({ version: 1, paths: paths.filter(path => !path.endsWith('/404')) }))
   // Home page search: one static index per language, fetched on first focus.
   for (const lang of ['zh', 'en'] as const) await writeOutput(root, outputPath(root, searchIndexPath(lang).slice(1)), JSON.stringify(searchIndex(learn, lang)))
   // The knowledge base and timeline views' Markdown twins (the feed is only read here, not in build:content).
