@@ -2,7 +2,7 @@ import { execFileSync } from 'node:child_process'
 import { readdir, readFile, stat, mkdtemp, writeFile, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
-import { beforeAll, afterAll, expect, it } from 'vitest'
+import { beforeAll, afterAll, expect, it, vi } from 'vitest'
 import { JSDOM } from 'jsdom'
 import { renderToString } from 'react-dom/server'
 import { staticPages } from '../scripts/static'
@@ -14,6 +14,10 @@ import { siteUrl } from '../src/lib/site'
 import { createApp } from '../server/app'
 import { createIndex } from '../server/db'
 import registry from '../data/figures.json'
+
+// Tests that read every built page grow with the page count (62 methodology pages); 5 s is too
+// little on CI runners.
+vi.setConfig({ testTimeout: 60000 })
 
 let model: Model
 const db = createIndex([])
@@ -310,12 +314,13 @@ it('sitemap hreflang pairs point at each other across languages', async () => {
   expect(entries.size).toBeGreaterThan(40)
   for (const [loc, links] of entries) {
     const html = await (await app.request(new URL(loc).pathname)).text()
-    const lang = new JSDOM(html).window.document.documentElement.lang
+    const page = new JSDOM(html).window.document
+    const lang = page.documentElement.lang
     const other = lang === 'zh' ? 'en' : 'zh'
     expect(Object.keys(links).sort(), loc).toEqual(['en', 'x-default', 'zh'])
     // x-default is the Chinese page, as in the page's own <head>.
     expect(links['x-default'], `${loc} x-default`).toBe(links.zh)
-    expect(new JSDOM(html).window.document.querySelector('link[hreflang="x-default"]')!.getAttribute('href'), `${loc} x-default matches <head>`).toBe(links['x-default'])
+    expect(page.querySelector('link[hreflang="x-default"]')!.getAttribute('href'), `${loc} x-default matches <head>`).toBe(links['x-default'])
     expect(links[lang], `${loc} names itself as ${lang}`).toBe(loc)
     expect(links[other], `${loc} twin is a different page`).not.toBe(loc)
     expect(entries.has(links[other]), `${loc} twin ${links[other]} is in the sitemap`).toBe(true)
