@@ -1,12 +1,12 @@
 // Prompt and answer check. The model only ever sees our passages and one question; its output
 // is not trusted: source ids are checked, quotes must appear verbatim in one of Matt's own posts,
 // and every link is built here from the unit, never taken from the model.
-import { contextFits, explanationsAreIndependent, quotesWithinBudget, shortEnough } from './excerpts'
+import { contextFits, explanationsAreIndependent, quotesWithinBudget, removeFormatCharacters, shortEnough } from './excerpts'
 import type { ChatMessage } from './deepseek'
 import { isAllowedSourceUrl, isSitePath, originalPost, type Unit } from './units'
 
 export type Lang = 'zh' | 'en'
-export const PROMPT_VERSION = 'methodology-v8-combined-overlap'
+export const PROMPT_VERSION = 'methodology-v9-normalized-overlap'
 
 export interface Citation { n: number; kind: Unit['kind']; date?: string; sourceUrl?: string; siteUrl?: string; title?: string; snippet?: string }
 export interface Point { title: string; text: string; quote?: string; quoteUrl?: string; cites: number[] }
@@ -64,7 +64,7 @@ export function citationFor(unit: Unit, n: number, siteUrl: string): Citation {
 
 /** Removes URLs, Markdown links and HTML from model text. */
 export function stripLinks(text: string) {
-  return text.replace(/!?\[([^[\]\n]*)\]\([^()[\]\n]*\)/g, '$1').replace(/<[^<>]*>/g, '')
+  return removeFormatCharacters(text).replace(/!?\[([^[\]\n]*)\]\([^()[\]\n]*\)/g, '$1').replace(/<[^<>]*>/g, '')
     .replace(/\b(?:https?:\/\/|www\.)\S+/gi, '').replace(/[^\s()[\]<>]+/g, token => /\.(?:com|dev|io|net|org|ai|example)(?:\/|$)/i.test(token) ? '' : token)
     .replace(/\s+/g, ' ').trim()
 }

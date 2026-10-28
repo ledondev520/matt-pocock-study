@@ -41,7 +41,8 @@ export const shortEnough = (text: string) => quotesWithinBudget([{ text, url: 'e
 // format characters catches inserted punctuation/zero-width characters. Hash collisions can
 // only cause a conservative downgrade. A separate symbol stream protects punctuation-only
 // sources; it is never used to calculate an excerpt allowance.
-const normalize = (text: string) => text.normalize('NFKC').toLowerCase().replace(/ς/g, 'σ')
+export const removeFormatCharacters = (text: string) => text.replace(/\p{Cf}/gu, '')
+const normalize = (text: string) => removeFormatCharacters(text.normalize('NFKC')).toLowerCase().replace(/ς/g, 'σ')
   .replace(/[‘’‚‛ʼ`´‹›]/gu, "'").replace(/[“”„‟«»「」『』\u301d\u301e\u301f]/gu, '"')
   .replace(/[\p{Dash_Punctuation}−]/gu, '-')
 const letters = (text: string) => text.replace(/[^\p{L}\p{N}]/gu, '')
@@ -79,17 +80,24 @@ export function contextFits(units: Unit[]): boolean {
   return true
 }
 
+// All evidence uses this normalization, with small raw slices even when NFKC expands.
+// Reject ambiguous seams rather than silently dropping a combining mark or surrogate.
+async function* normalizedSlices(raw: string): AsyncGenerator<string | undefined> {
+  for (let offset = 0; offset < raw.length; offset += 256) {
+    await yieldToRequests()
+    if (offset && /[\p{M}\uDC00-\uDFFF]/u.test(raw[offset])) { yield undefined; return }
+    yield normalize(raw.slice(offset, offset + 256))
+  }
+}
+
 // Keep the entire normalized output bounded, including compatibility-character expansion.
-// Reject ambiguous seams and over-limit expansion; never validate only a truncated prefix.
 async function normalizedProse(fields: string[]): Promise<string | undefined> {
   if (fields.reduce((sum, text) => sum + text.length, 0) > MAX_PROSE_UNITS) return undefined
-  const raw = fields.join('') // A source word can be split between response fields.
   const parts: string[] = []
   let size = 0
-  for (let offset = 0; offset < raw.length; offset += 1024) {
-    await yieldToRequests()
-    if (offset && /[\p{M}\uDC00-\uDFFF]/u.test(raw[offset])) return undefined
-    const part = normalize(raw.slice(offset, offset + 1024))
+  // A source word can be split between response fields.
+  for await (const part of normalizedSlices(fields.join(''))) {
+    if (part === undefined) return undefined
     size += part.length
     if (size > MAX_PROSE_UNITS) return undefined
     parts.push(part)
@@ -97,7 +105,7 @@ async function normalizedProse(fields: string[]): Promise<string | undefined> {
   return parts.join('')
 }
 
-// Short whole words supplement the five-character stream. A capped tail preserves token
+// Source short words supplement the five-character stream. A capped tail preserves token
 // boundaries across slices without repeatedly copying an arbitrarily long source word.
 function* shortWords(text: string, state: { tail: string }, final = false): Generator<string> {
   const joined = state.tail + text
@@ -109,10 +117,41 @@ function* shortWords(text: string, state: { tail: string }, final = false): Gene
   }
 }
 
+// Complete source sentences supply direct sentence-budget evidence, including very short
+// sentences and prose repeating a sentence already quoted. Chunk arrays avoid quadratic tails.
+function* sentences(text: string, state: { parts: string[]; size: number }, final = false): Generator<string> {
+  const parts = text.split(/[.!?。！？\n]+/u)
+  for (const [i, part] of parts.entries()) {
+    if (state.size <= MAX_PROSE_UNITS) state.parts.push(part)
+    state.size += part.length
+    if (i === parts.length - 1 && !final) continue
+    if (state.size <= MAX_PROSE_UNITS) {
+      const sentence = letters(state.parts.join(''))
+      if (sentence) yield sentence
+    }
+    state.parts = []
+    state.size = 0
+  }
+}
+
+// At most four candidates per character, including affixed short source words.
+function* fragmentsAt(word: string, start: number): Generator<string> {
+  for (let size = Math.min(4, word.length - start); size > 0; size--) {
+    // One- and two-letter words are too common inside unrelated words; retain their
+    // prefix matches so suffixes cannot hide them, and scan longer fragments anywhere.
+    if (size >= 3 || start === 0) yield word.slice(start, start + size)
+  }
+}
+function* shortFragments(word: string): Generator<string> {
+  for (let i = 0; i < word.length; i++) yield* fragmentsAt(word, i)
+}
+
 interface Hits { ordinary: number; han: number; singleHan: number }
 interface QuotedEvidence {
   bonus: Hits
   matched: Set<number>
+  matchedSentences: Set<string>
+  sentenceCount: number
   hits: Hits
   words: Set<string>
   wordCount: number
@@ -142,8 +181,17 @@ export async function explanationsAreIndependent(fields: string[], units: Unit[]
   const linked = linkedUrls && new Set(linkedUrls.map(sourceKey))
   const output = await normalizedProse(fields)
   if (output === undefined) return false
-  const outputWords = [...shortWords(output, { tail: '' }, true)]
-  const wantedWords = new Set(outputWords)
+  const outputSentences = [...sentences(output, { parts: [], size: 0 }, true)]
+  const wantedSentences = new Set(outputSentences)
+  const outputWords = output.match(/[a-z0-9]+/g) ?? []
+  const wantedWords = new Set<string>()
+  let work = 0
+  for (const word of outputWords) {
+    for (const fragment of shortFragments(word)) {
+      wantedWords.add(fragment)
+      if (++work % QUANTUM === 0) await yieldToRequests()
+    }
+  }
   const matchedWords = new Set<string>()
   const streams = [letters, symbols]
   for (const [index, stream] of streams.entries()) {
@@ -164,33 +212,40 @@ export async function explanationsAreIndependent(fields: string[], units: Unit[]
       const url = sourceKey(quote.url)
       let evidence = quoted.get(url)
       if (!evidence) {
-        evidence = { bonus: emptyHits(), hits: emptyHits(), matched: new Set(), words: new Set(), wordCount: 0, charCount: 0 }
+        evidence = { bonus: emptyHits(), hits: emptyHits(), matched: new Set(), matchedSentences: new Set(), sentenceCount: 0, words: new Set(), wordCount: 0, charCount: 0 }
         quoted.set(url, evidence)
       }
       const count = measure(quote.text)
       evidence.wordCount += count.words
       evidence.charCount += count.chars
-      // Even a one-character marker consumes an extract and its sentence allowance.
-      // Cap this evidence below every threshold so an independent explanation still fits.
+      evidence.sentenceCount += count.sentences
+      // Fingerprints remain conservative partial-overlap evidence. Complete sentences
+      // below share the actual sentence allowance with every extracted quote.
       evidence.bonus.ordinary += count.chars
       evidence.bonus.han += count.sentences
       evidence.bonus.singleHan += count.cjk
     }
     for (const evidence of quoted.values()) {
       evidence.bonus.ordinary = Math.min(4, evidence.bonus.ordinary)
-      evidence.bonus.han = Math.min(1, evidence.bonus.han)
+      evidence.bonus.han = Math.min(2, evidence.bonus.han)
       evidence.bonus.singleHan = Math.min(8, evidence.bonus.singleHan)
     }
+    let normalizedSize = 0
     for (const { text: source, url } of sources) {
       let tail: number[] = []
       const wordState = { tail: '' }
+      const sentenceState = { parts: [] as string[], size: 0 }
       const evidence = url ? quoted.get(sourceKey(url)) : undefined
-      for (let offset = 0; offset < source.length; offset += QUANTUM) {
-        await yieldToRequests()
-        // Fail closed at ambiguous Unicode seams rather than losing half a grapheme.
-        if (offset && /[\p{M}\uDC00-\uDFFF]/u.test(source[offset])) return false
-        const normalized = normalize(source.slice(offset, offset + QUANTUM))
+      for await (const normalized of normalizedSlices(source)) {
+        if (normalized === undefined) return false
+        normalizedSize += normalized.length
+        if (normalizedSize > MAX_SOURCE_UNITS) return false
         if (index === 0) {
+          if (evidence) {
+            for (const sentence of sentences(normalized, sentenceState)) {
+              if (wantedSentences.has(sentence)) evidence.matchedSentences.add(sentence)
+            }
+          }
           for (const word of shortWords(normalized, wordState)) {
             if (!wantedWords.has(word)) continue
             matchedWords.add(word)
@@ -208,6 +263,11 @@ export async function explanationsAreIndependent(fields: string[], units: Unit[]
         tail = text.slice(-4)
       }
       if (index === 0) {
+        if (evidence) {
+          for (const sentence of sentences('', sentenceState, true)) {
+            if (wantedSentences.has(sentence)) evidence.matchedSentences.add(sentence)
+          }
+        }
         for (const word of shortWords('', wordState, true)) {
           if (!wantedWords.has(word)) continue
           matchedWords.add(word)
@@ -234,19 +294,39 @@ export async function explanationsAreIndependent(fields: string[], units: Unit[]
       }
     }
     if (index === 0) {
+      for (const sentence of outputSentences) {
+        if (++work % QUANTUM === 0) await yieldToRequests()
+        for (const evidence of quoted.values()) {
+          if (evidence.matchedSentences.has(sentence) && ++evidence.sentenceCount > MAX_SENTENCES) return false
+        }
+      }
       let words = 0
       let chars = 0
-      // Count emitted positions, including repetitions, across all same-source anchors.
+      // Count non-overlapping emitted matches, including repetitions within one token,
+      // across same-source anchors. Affixes cannot hide repeated source words.
       for (const word of outputWords) {
-        if (!matchedWords.has(word)) continue
-        words++
-        chars += word.length
-        if (words > MAX_WORDS || chars > MAX_QUOTE_CHARS) return false
-        for (const evidence of quoted.values()) {
-          if (!evidence.words.has(word)) continue
-          evidence.wordCount++
-          evidence.charCount += word.length
-          if (evidence.wordCount > MAX_WORDS || evidence.charCount > MAX_QUOTE_CHARS) return false
+        let next = 0
+        const quotedNext = new Map<QuotedEvidence, number>()
+        for (let position = 0; position < word.length; position++) {
+          let length = 0
+          const quotedLengths = new Map<QuotedEvidence, number>()
+          for (const fragment of fragmentsAt(word, position)) {
+            if (++work % QUANTUM === 0) await yieldToRequests()
+            if (!matchedWords.has(fragment)) continue
+            length = Math.max(length, fragment.length)
+            for (const evidence of quoted.values()) {
+              if (evidence.words.has(fragment)) quotedLengths.set(evidence, Math.max(quotedLengths.get(evidence) ?? 0, fragment.length))
+            }
+          }
+          if (length && position >= next) { words++; chars += length; next = position + length }
+          if (words > MAX_WORDS || chars > MAX_QUOTE_CHARS) return false
+          for (const [evidence, length] of quotedLengths) {
+            if (position < (quotedNext.get(evidence) ?? 0)) continue
+            quotedNext.set(evidence, position + length)
+            evidence.wordCount++
+            evidence.charCount += length
+            if (evidence.wordCount > MAX_WORDS || evidence.charCount > MAX_QUOTE_CHARS) return false
+          }
         }
       }
     }

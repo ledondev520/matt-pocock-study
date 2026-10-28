@@ -55,3 +55,25 @@ it('carries fingerprints across slice seams and arbitrarily long removed symbol 
   const seam = 'x'.repeat(4096) + '\u0301' + 'y'.repeat(10)
   expect(await explanationsAreIndependent(['Our own explanation.'], units(seam))).toBe(false)
 })
+
+it('bounds normalized short-fragment preparation and expanded source scans with four concurrent guards', async () => {
+  let last = performance.now()
+  let maxDelay = 0
+  let ticks = 0
+  const timer = setInterval(() => {
+    const now = performance.now()
+    maxDelay = Math.max(maxDelay, now - last)
+    last = now
+    ticks++
+  }, 1)
+  const started = performance.now()
+  try {
+    const sources = units('\ufdfa'.repeat(120_000))
+    const results = await Promise.all(Array.from({ length: 4 }, () => explanationsAreIndependent(['x'.repeat(24_000)], sources)))
+    maxDelay = Math.max(maxDelay, performance.now() - last)
+    expect(results).toEqual([false, false, false, false])
+    expect(performance.now() - started).toBeLessThan(1500)
+    expect(maxDelay).toBeLessThan(100)
+    expect(ticks).toBeGreaterThan(0)
+  } finally { clearInterval(timer) }
+})
