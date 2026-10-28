@@ -93,5 +93,3 @@ Take confirmed results into [specs and tickets](/en/specs-and-tickets) so the ne
 
 - [Matt Pocock · 2026-10-01](https://x.com/mattpocockuk/status/2105628270930845990)
 - [Public discussion](https://www.aihero.dev/things-people-get-wrong-with-grill-me-and-grill-with-docs)
-
-Independent, unofficial, noncommercial study notes. This site has no affiliation with or endorsement from Matt Pocock. Referenced works belong to their authors; MIT reuse carries separate copyright and license notices.

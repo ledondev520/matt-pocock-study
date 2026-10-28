@@ -1,6 +1,6 @@
 import type { Licences } from '../src/lib/content'
 export type LicenceId = 'mattpocock-skills' | 'archify'
-export const licences: Record<LicenceId, { name: string; repo: string; licenseUrl: string; file: string; sha256: string }>
+export const licences: Record<LicenceId, { name: string; repo: string; licenseUrl: string; file: string; sha256: string; adapted?: { file: string; pages: string[] }[] }>
 export function licenceText(id: string, read?: (file: string) => string): string
 export function licenceMarkdown(id: string, lang: 'zh' | 'en'): string
 export function embedsArchify(markup: string): boolean

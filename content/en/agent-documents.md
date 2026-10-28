@@ -89,7 +89,6 @@ Move executable constraints into the process described in [standards and checks]
 - Matt Pocock, [pointers and pruning](https://x.com/mattpocockuk/status/2073473197991715246), 2026-07-04.
 - [Public AGENTS.md guide](https://www.aihero.dev/a-complete-guide-to-agents-md), independently interpreted.
 - [Minimal instruction files](https://www.aihero.dev/never-run-claude-init), independently interpreted.
-- [Site copyright details](/en/about-and-copyright).
 
 ## skills MIT notice
 
@@ -98,5 +97,3 @@ The structure adapted here comes from [mattpocock/skills](https://github.com/mat
 ```licence
 id: mattpocock-skills
 ```
-
-Unofficial, non-commercial study notes, with no affiliation with or endorsement by Matt Pocock. Quoted works belong to their authors; MIT reuse carries separate copyright and licence notices.

@@ -40,7 +40,7 @@ Set `SITE_URL` to the public HTTPS origin when building (default: `https://matt.
 Paired Chinese/English Archify candidates live in `diagrams/src/<id>.{zh,en}.json`.
 Install Archify separately, then run `ARCHIFY_HOME=… npm run diagrams` with Node 22.23.4+ (22.x)
 and headless Chrome (`CHROME_BIN` defaults to `google-chrome`). An optional list
-of diagram IDs limits the build, for example `npm run diagrams -- home-corpus`.
+of diagram IDs limits the build, for example `npm run diagrams -- d02-failure-sort`.
 This maintainer command runs showcase finalization, then Chrome extracts static
 SVG nodes and styles into `public/diagrams/`. Wide layouts are reflowed into a
 390px reading column with wrapped labels of at least 14px; timeline exports use

@@ -13,6 +13,7 @@ import { kbSlug, licensesSlug } from '../src/lib/metadata'
 import { timelineSlug } from '../src/lib/timeline'
 import { renderArrows } from './arrows'
 import { agentPrompt, llmsFullPath, llmsPath } from '../src/lib/agent'
+import { siteNotice } from '../src/lib/notice'
 
 const languages = ['en', 'zh'] as const
 const componentNames = ['cards', 'quote', 'exercise', 'figure', 'note', 'licence']
@@ -35,9 +36,8 @@ const md = (text: string) => marked.parse(text, { async: false, renderer: compon
 const headingId = (text: string) => text.toLowerCase().replace(/<[^>]*>/g, '').replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-|-$/g, '') || 'section'
 
 // Notices that stay in the Markdown exports but not on the page: every "## …" section holding a
-// licence fence (the per-page MIT notice; the texts live on /licenses), and the closing disclaimer
-// paragraph (the footer carries it). Run on the lexed tokens, before components are transformed.
-export const disclaimerPattern = /^(?:非官方、非商业|Independent, unofficial|Unofficial, non-?commercial)/
+// licence fence (the per-page MIT notice; the texts live on /licenses). Run on the lexed tokens,
+// before components are transformed.
 export function pageTokens(tokens: TokensList): TokensList {
   const hidden = new Set<Token>()
   let section: Token[] = []
@@ -47,8 +47,6 @@ export function pageTokens(tokens: TokensList): TokensList {
     section.push(token)
   }
   close()
-  const last = tokens.filter(t => t.type !== 'space').at(-1)
-  if (last?.type === 'paragraph' && disclaimerPattern.test((last as Tokens.Paragraph).text)) hidden.add(last)
   return Object.assign(tokens.filter(t => !hidden.has(t)), { links: tokens.links })
 }
 
@@ -126,14 +124,15 @@ export async function renderMarkdown(source: string, lang: Lang) {
       html = `<aside class="callout ${f.kind}"><strong>${label}</strong>${md(body)}</aside>`
       readable = `> **${label}**\n${body.split('\n').map(line => `> ${line}`).join('\n')}`
     }
-    exports.set(token.raw, readable)
+    // Keyed without trailing whitespace: a fence at the end of the file has no blank line after it.
+    exports.set(token.raw.trimEnd(), readable)
     Object.assign(token, { type: 'html', text: html, block: true, raw: token.raw })
   }
   // walkTokens handles components nested in lists as well as top-level fences.
   const pending: Promise<void>[] = []
   marked.walkTokens(tokens, token => { pending.push(transform(token)) })
   await Promise.all(pending)
-  const markdown = source.replace(/```(cards|quote|exercise|figure|note|licence)\s*\n[\s\S]*?\n```/g, raw => exports.get(raw) ?? '')
+  const markdown = source.replace(/```(cards|quote|exercise|figure|note|licence)\s*\n[\s\S]*?\n```/g, raw => { const readable = exports.get(raw.trimEnd()); if (readable === undefined) throw new Error(`Component not exported: ${raw.slice(0, 40)}`); return readable })
   const html = renderArrows(marked.parser(visible, { renderer }))
   for (const quote of quotes) {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(quote.date)) throw new Error(`Quote date must be YYYY-MM-DD: ${quote.url}`)
@@ -142,11 +141,16 @@ export async function renderMarkdown(source: string, lang: Lang) {
   return { html, markdown: markdown.trim() + '\n', toc, quotes }
 }
 
+// The site's status and the authors' rights are stated once, on /licenses (src/lib/notice.ts). A
+// content page that says it again (in its body, front matter or Markdown export) fails the build.
+export const disclaimerPattern = /非官方|非商业|无隶属|背书|不代表原作者|以原(?:帖|文)为准|unofficial|non-?commercial|not affiliated|no affiliation|endorse|not the authors?[’']? view/i
 export async function readPages(contentDir: string): Promise<Page[]> {
   const pages: Page[] = []
   for (const lang of languages) {
     for (const file of (await readdir(join(contentDir, lang))).filter(file => file.endsWith('.md')).sort()) {
       const source = await readFile(join(contentDir, lang, file), 'utf8')
+      const notice = disclaimerPattern.exec(source.replace(/```licence\s*\n[\s\S]*?\n```/g, ''))
+      if (notice) throw new Error(`Site notice "${notice[0]}" belongs on /licenses only: ${lang}/${file}`)
       const match = source.match(/^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/)
       if (!match) throw new Error(`Missing front matter: ${lang}/${file}`)
       const data = parse(match[1]) as Record<string, unknown>
@@ -160,7 +164,7 @@ export async function readPages(contentDir: string): Promise<Page[]> {
       if (head !== 'card' && !figureById(String(head))) throw new Error(`Unknown figure id: ${head}`)
       const rendered = await renderMarkdown(source.slice(match[0].length), lang)
       pages.push({ lang, slug, title, subtitle, number, order, section: section as Section, summary, head, updated, ...rendered,
-        headHtml: head === 'card' ? renderArrows(`<aside class="key-point"><strong>${lang === 'zh' ? '一句话要点' : 'KEY POINT'}</strong><p>${escapeHtml(String(summary))}</p></aside>`) : await figureHtml(String(head), lang),
+        headHtml: head === 'card' ? renderArrows(`<aside class="key-point"><p>${escapeHtml(String(summary))}</p></aside>`) : await figureHtml(String(head), lang),
       } as Page)
     }
   }
@@ -190,15 +194,14 @@ export async function readPages(contentDir: string): Promise<Page[]> {
 export function agentFiles(lang: Lang, localized: Page[], site: string) {
   const zh = lang === 'zh', t = (cn: string, en: string) => zh ? cn : en
   const title = t('Matt Pocock 学习笔记', 'Matt Pocock study notes')
-  const summary = t('独立整理，非官方、非商业；原作品版权归原作者。', 'Independent, unofficial, non-commercial notes. Original works belong to their authors.')
-  const full = `# ${title}\n\n> ${summary}\n\n${localized.map(page => `## ${page.title}\n\n${page.markdown}`).join('\n---\n\n')}`
+  const full = `# ${title}\n\n${localized.map(page => `## ${page.title}\n\n${page.markdown}`).join('\n---\n\n')}`
   const fullKb = Math.max(1, Math.round(Buffer.byteLength(full) / 1024))
   const example = localized.find(page => page.slug === 'review-and-pr') ?? localized[0]
   const groups = Object.keys(sections).flatMap(section => {
     const items = localized.filter(page => page.section === section)
     return items.length ? [`### ${sectionLabel(section, lang)}\n\n${items.map(page => `- [${page.title}](${site}/${lang}/${page.slug}.md): ${page.summary}`).join('\n')}`] : []
   }).join('\n\n')
-  const homeLine = `- [${t('首页', 'Home')}](${site}/${lang}/index.md): ${t('网站介绍、从哪儿开始、全部笔记目录。', 'What the site is, where to start, and the list of all notes.')}`
+  const homeLine = `- [${t('首页', 'Home')}](${site}/${lang}/index.md): ${t('今天学什么和全部笔记目录。', 'What to learn today and the list of all notes.')}`
   const knowledgeLine = `- [${t('学习知识库', 'Knowledge base')}](${site}/${lang}/${kbSlug}.md): ${t('每天的学习笔记：Matt Pocock 的公开分享和团队学到的知识，每条附原帖链接。', 'Our daily study notes, by date, each linked to the original post (the notes themselves are in Chinese).')}`
   const timelineLine = `- [${t('时间轴', 'Timeline')}](${site}/${lang}/${timelineSlug}.md): ${t('按年份排列的学习要点：课程引用按原帖日期，知识库笔记按记录日期。', 'What we learned, by year: lesson quotes by the original post’s date, notes by the day they were written.')}`
   const licensesLine = `- [${t('许可', 'Licenses')}](${site}/${lang}/${licensesSlug}.md): ${t('本站复用的 MIT 项目和自托管字体的版权声明与许可全文。', 'Copyright notices and full licence texts for the MIT projects and self-hosted fonts this site reuses.')}`
@@ -224,8 +227,8 @@ The site is public and read-only: no login, no API key. Cite the page URL, and l
   const intro = t('用我们自己的话整理 Matt Pocock 的公开分享：AI coding 工作流、给 agent 立规矩、TypeScript、写作与教学。',
     'Notes in our own words on Matt Pocock\'s public teaching: AI coding workflow, rules for agents, TypeScript, and writing to teach.')
   const otherLanguage = t(`English: ${site}${llmsPath('en')}`, `Chinese version: ${site}${llmsPath('zh')}`)
-  const index = `# ${title}\n\n> ${summary}\n\n${intro}${zh ? '' : ' '}${otherLanguage}\n\n${howTo}\n\n## ${t('页面', 'Pages')}\n\n${groups}\n\n### ${t('网站', 'Site')}\n\n${homeLine}\n${knowledgeLine}\n${timelineLine}\n${licensesLine}\n`
-  const home = `# ${title}\n\n${summary}\n\n${intro}\n\n## ${t('让你的 Coding Agent 来读', 'Let your coding agent read it')}\n\n${t('把这句话发给你的 Coding Agent，想学别的就把中间那句换掉：', 'Paste this into your coding agent and swap in whatever you want to learn:')}\n\n> ${agentPrompt(lang, site)}\n\n- ${t('用法和目录：', 'How to use the site, with the index: ')}${site}${llmsPath(lang)}\n- ${t('全部页面合在一起：', 'Every page in one file: ')}${site}${llmsFullPath(lang)}${localized.some(page => page.slug === 'corpus') ? `\n- ${t('语料库（Matt 公开资料的索引）：', 'The corpus (an index of Matt\'s public work): ')}${site}/${lang}/corpus.md` : ''}\n\n## ${t('全部笔记', 'All notes')}\n\n${groups}\n`
+  const index = `# ${title}\n\n> ${intro}${zh ? '' : ' '}${otherLanguage}\n\n${howTo}\n\n## ${t('页面', 'Pages')}\n\n${groups}\n\n### ${t('网站', 'Site')}\n\n${homeLine}\n${knowledgeLine}\n${timelineLine}\n${licensesLine}\n`
+  const home = `# ${title}\n\n> ${agentPrompt(lang, site)}\n\n## ${t('今天学什么', 'What to learn today')}\n\n- [${t('学习知识库', 'Knowledge base')}](${site}/${lang}/${kbSlug}.md)\n\n## ${t('学习笔记', 'Notes')}\n\n${groups}\n`
   return { index, full, home }
 }
 
@@ -236,8 +239,9 @@ export function licensesMarkdown(lang: Lang, site: string) {
   const zh = lang === 'zh', t = (cn: string, en: string) => zh ? cn : en
   const { mit, fonts } = licencesView()
   const fence = (text: string) => `\`\`\`text\n${text.trimEnd()}\n\`\`\``
-  const intro = `${t('本站复用或改编了下列 MIT 项目的内容，按 MIT 要求在此保留其版权声明和许可全文（与取用时上游的 LICENSE 一字不差）。本站代码采用 MIT，自写内容采用 CC BY 4.0，见', 'This site reuses or adapts material from the MIT projects below. As MIT requires, their copyright notices and full licence texts are kept here, identical to each upstream LICENSE as it stood when the material was taken. Site code is MIT and our own writing is CC BY 4.0; see the')} [LICENSE](${repoUrl}/blob/main/LICENSE)${t('；完整登记见', '. The full register is in')} [THIRD_PARTY_NOTICES](${repoUrl}/blob/main/THIRD_PARTY_NOTICES.md)${t('，引文与改编的区别见', ', and the difference between quotes and adaptations is explained in')} [${t('关于本站与版权', 'About & copyright')}](${site}/${lang}/about-and-copyright.md)${t('。', '.')}`
-  const projects = mit.map(item => `### ${item.name}\n\n[${item.repo.replace('https://', '')}](${item.repo}) · [${t('原仓库 LICENSE', 'upstream LICENSE')}](${item.licenseUrl})\n\n${fence(item.text)}`)
+  const intro = `${siteNotice(lang)}\n\n${t('本站代码采用 MIT，自写内容采用 CC BY 4.0，见', 'Site code is MIT and our own writing is CC BY 4.0; see')} [LICENSE](${repoUrl}/blob/main/LICENSE)${t('；完整登记见', '. The full register is in')} [THIRD_PARTY_NOTICES](${repoUrl}/blob/main/THIRD_PARTY_NOTICES.md)${t('。下列 MIT 项目的版权声明和许可全文按 MIT 要求原样保留（与取用时上游的 LICENSE 一字不差）。', '. As MIT requires, the projects below keep their copyright notices and full licence texts, identical to each upstream LICENSE as it stood when the material was taken.')}`
+  const adapted = (item: (typeof mit)[number]) => item.adapted.length ? `${item.adapted.map(a => `- [${a.file}](${item.licenseUrl.replace(/LICENSE$/, a.file)})${t('：', ': ')}${a.pages.map(slug => `[${slug}](${site}/${lang}/${slug}.md)`).join(t('、', ', '))}`).join('\n')}\n\n` : ''
+  const projects = mit.map(item => `### ${item.name}\n\n[${item.repo.replace('https://', '')}](${item.repo}) · [${t('原仓库 LICENSE', 'upstream LICENSE')}](${item.licenseUrl})\n\n${adapted(item)}${fence(item.text)}`)
   const fontEntries = fonts.map(item => `### ${item.name}\n\n[${item.repo.replace('https://', '')}](${item.repo}) · ${t('经', 'via')} ${item.pkg} · [${t('许可文本', 'licence file')}](${site}${item.href})\n\n${fence(item.text)}`)
   return `# ${t('许可', 'Licenses')}\n\n${intro}\n\n## ${t('MIT 许可的上游项目', 'MIT-licensed upstream projects')}\n\n${projects.join('\n\n')}\n\n## ${t('自托管字体（SIL Open Font License 1.1）', 'Self-hosted fonts (SIL Open Font License 1.1)')}\n\n${fontEntries.join('\n\n')}\n`
 }

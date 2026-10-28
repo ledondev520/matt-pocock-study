@@ -10,8 +10,7 @@ import '@fontsource/inter/700.css'
 import '@fontsource/space-grotesk/500.css'
 import '@fontsource/space-grotesk/700.css'
 import '@fontsource/jetbrains-mono/400.css'
-import '@fontsource/noto-sans-sc/400.css'
-import '@fontsource/noto-sans-sc/700.css'
+import '../generated/fonts/noto-sans-sc.css'
 import './index.css'
 
 async function boot() {

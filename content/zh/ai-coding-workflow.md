@@ -99,5 +99,3 @@ kind: inference
 
 - [Matt Pocock · 2026-07-02](https://x.com/mattpocockuk/status/2072625252144730215)
 - [2026-10-08 · 工作流分流 / Workflow selection](https://x.com/mattpocockuk/status/2108216899439894574)
-
-非官方、非商业的学习整理，与 Matt Pocock 无隶属或背书关系。所引作品版权归原作者；MIT 复用内容另附版权与许可声明。

@@ -82,7 +82,6 @@ Carry this state into a fresh session with the [handoff lesson](/en/context-and-
 
 - Matt Pocock, [review evidence and merge risk](https://x.com/mattpocockuk/status/2107062474914550098), 2026-10-05.
 - [show-me upstream credit][showme], Dex Horthy / HumanLayer; attribution only.
-- [Site copyright details](/en/about-and-copyright).
 
 [showme]: https://github.com/humanlayer/skills/blob/main/plugins/show-me/skills/show-me/SKILL.md
 
@@ -93,5 +92,3 @@ The structure adapted here comes from [mattpocock/skills](https://github.com/mat
 ```licence
 id: mattpocock-skills
 ```
-
-Unofficial, non-commercial study notes, with no affiliation with or endorsement by Matt Pocock. Quoted works belong to their authors; MIT reuse carries separate copyright and licence notices.

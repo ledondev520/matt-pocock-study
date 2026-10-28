@@ -104,6 +104,3 @@ answer: 一选 skills，二选 evalite；都先核对根 LICENSE。前者检查�
 - [zod-fetch](https://github.com/mattpocock/zod-fetch)
 - [ts-error-translator](https://github.com/mattpocock/ts-error-translator)
 - [ai-hero-cli](https://github.com/mattpocock/ai-hero-cli)
-- [本站许可登记与边界](/zh/about-and-copyright)
-
-非官方、非商业的学习整理，与 Matt Pocock 无隶属或背书关系。所引作品版权归原作者；MIT 复用内容另附版权与许可声明。

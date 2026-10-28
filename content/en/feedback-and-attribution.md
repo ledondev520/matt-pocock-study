@@ -50,7 +50,7 @@ When recommending a skill, keep its author and original link. When adapting it, 
 id: s17-attribution
 ```
 
-Our original attribution example: the author supplied a handoff structure; this site added a failure-reproduction field and Chinese explanations. Distinguishing those contributions lets readers check the source. See the [copyright page](/en/about-and-copyright) for licence details.
+Our original attribution example: the author supplied a handoff structure; this site added a failure-reproduction field and Chinese explanations. Distinguishing those contributions lets readers check the source. See the [licences page](/en/licenses) for licence details.
 
 ## Revise experiments when evidence changes
 
@@ -83,6 +83,3 @@ Done means each reply requests or produces evidence without promising an unverif
 - [Matt on negative feedback, 2026-09-07](https://x.com/mattpocockuk/status/2096979934975565862)
 - [Follow-up on the tone experiment](https://x.com/mattpocockuk/status/2085681281795232026)
 - [skills, an entry point for checking authorship and licensing](https://github.com/mattpocock/skills)
-- [Site copyright and source notes](/en/about-and-copyright)
-
-Unofficial, non-commercial study notes. No affiliation with or endorsement by Matt Pocock. Quoted works remain their authors’ copyright; MIT reuse retains its copyright and licence notices.

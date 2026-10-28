@@ -86,7 +86,7 @@ answer: Treating code as a liability does not prove that compression helps. Name
 
 ```note
 kind: inference
-Our recommendation: when a slogan supports a change, state its conditions and a possible counterexample. This is our practice rule, not the author’s verdict on every case.
+Our recommendation: when a slogan supports a change, state its conditions and a possible counterexample.
 ```
 
 Try a second counterexample: clear error messages add code but make a failure easier to investigate. Explain why that addition earns its place. If a slogan cannot settle the question, supply the missing context and tradeoff.
@@ -107,5 +107,3 @@ Your answer addresses readability, behavior, and maintenance cost. It also ident
 - [Matt Pocock · 2026-05-01](https://x.com/mattpocockuk/status/2050167042771194226)
 - [Matt Pocock · 2026-05-01](https://x.com/mattpocockuk/status/2050173149170282674)
 - [Matt Pocock · 2026-06-12](https://x.com/mattpocockuk/status/2065499079283470810)
-
-Independent, unofficial, noncommercial study notes. This site has no affiliation with or endorsement from Matt Pocock. Referenced works belong to their authors; MIT reuse carries separate copyright and license notices.
