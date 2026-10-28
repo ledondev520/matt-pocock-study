@@ -5,6 +5,7 @@ import type { Model, Page } from './lib/content'
 import { markdownPath } from './lib/agent'
 import { kbSlug, licensesSlug, metadata } from './lib/metadata'
 import { routeInfo } from './lib/lang'
+import { timelineSlug } from './lib/timeline'
 import { savePreference } from './lib/preferences'
 
 export function App({ model: initialModel }: { model: Model }) {
@@ -80,10 +81,10 @@ export function App({ model: initialModel }: { model: Model }) {
     // Language alternates only (this language, the other one, x-default → Chinese). The Markdown
     // alternate has no hreflang and points at this page's .md twin.
     document.querySelectorAll('link[rel="alternate"][hreflang]').forEach(link => link.setAttribute('href', link.getAttribute('hreflang') === 'x-default' ? m.xDefault : link.getAttribute('hreflang') === m.lang ? m.url : m.alternate))
-    // Homes, pages and the two views (licences, knowledge base) have a twin; unknown routes (404) do not.
+    // Homes, pages and the three views (licences, knowledge base, timeline) have a twin; unknown routes (404) do not.
     const { lang, slug, home } = routeInfo(path)
     let twin = document.querySelector('link[rel="alternate"][type="text/markdown"]')
-    if (!home && slug !== licensesSlug && slug !== kbSlug && !model.pages.some(p => p.lang === lang && p.slug === slug)) twin?.remove()
+    if (!home && slug !== licensesSlug && slug !== kbSlug && slug !== timelineSlug && !model.pages.some(p => p.lang === lang && p.slug === slug)) twin?.remove()
     else {
       if (!twin) { twin = Object.assign(document.createElement('link'), { rel: 'alternate', type: 'text/markdown' }); document.head.append(twin) }
       twin.setAttribute('href', markdownPath(path))

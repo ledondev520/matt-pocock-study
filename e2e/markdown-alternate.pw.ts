@@ -2,7 +2,7 @@ import { expect, test, type Page } from '@playwright/test'
 
 // <link rel="alternate" type="text/markdown"> names the current page's .md twin, after hydration and
 // after in-site navigation (the client rewrites the language alternates in <head> on every route),
-// including "/" (the Chinese home), the licences view and the knowledge base view.
+// including "/" (the Chinese home), the licences view, the knowledge base view and the timeline view.
 const markdownHref = (page: Page) => page.evaluate(() => [...document.querySelectorAll('link[rel="alternate"][type="text/markdown"]')].map(link => link.getAttribute('href')))
 const expected = (pathname: string) => { const [, lang, slug] = pathname.split('/'); return [`/${lang || 'zh'}/${slug || 'index'}.md`] }
 // The three hreflang links: this language, the other language, and x-default (always the Chinese page).
@@ -14,7 +14,7 @@ async function expectLanguageLinks(page: Page) {
   for (const href of Object.values(links)) expect(href).not.toMatch(/\.md$/)
   expect(links['x-default'], 'x-default is the Chinese page').toBe(links.zh)
 }
-for (const start of ['/', '/zh', '/en/review-and-pr', '/en/corpus', '/zh/licenses', '/en/knowledge', '/zh/knowledge']) {
+for (const start of ['/', '/zh', '/en/review-and-pr', '/en/corpus', '/zh/licenses', '/en/knowledge', '/zh/knowledge', '/en/timeline', '/zh/timeline']) {
   test(`markdown alternate follows the page from ${start}`, async ({ page }) => {
     await page.goto(start)
     // Wait for hydration (React has attached its props to a button), then let its effects run.
@@ -43,6 +43,11 @@ for (const start of ['/', '/zh', '/en/review-and-pr', '/en/corpus', '/zh/license
     await page.locator(`header a[href="/${lang}/knowledge"]`).first().click()
     await expect(page).toHaveURL(new RegExp(`/${lang}/knowledge$`))
     await expect.poll(() => markdownHref(page)).toEqual([`/${lang}/knowledge.md`])
+    await expectLanguageLinks(page)
+    // The header's timeline link: its twin is timeline.md.
+    await page.locator(`header a[href="/${lang}/timeline"]`).first().click()
+    await expect(page).toHaveURL(new RegExp(`/${lang}/timeline$`))
+    await expect.poll(() => markdownHref(page)).toEqual([`/${lang}/timeline.md`])
     await expectLanguageLinks(page)
     await page.locator('a.brand').click()
     await expect(page).toHaveURL(new RegExp(`/${lang}$`))
