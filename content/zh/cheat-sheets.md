@@ -115,5 +115,3 @@ answer: 打开实现与反馈，运行目标行为并记录预期与实际；交
 ```licence
 id: mattpocock-skills
 ```
-
-非官方、非商业的学习整理，与 Matt Pocock 无隶属或背书关系。所引作品版权归原作者；MIT 复用内容另附版权与许可声明。

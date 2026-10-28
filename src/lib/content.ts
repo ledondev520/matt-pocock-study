@@ -26,14 +26,20 @@ export interface Page extends PageSummary {
   html: string
   headHtml: string
   toc: { id: string; title: string }[]
+  /** The page's short quotes in source order, each with the id of its "## …" section ('' before the first). */
+  quotes: { text: string; url: string; date: string; note?: string; section: string }[]
 }
 export type Figures = Record<Lang, Record<string, string>>
 export interface Model { pages: PageSummary[]; currentPage?: Page; figures: Figures; corpusCount: number; corpusItems: import('../../server/corpus').CorpusRecord[]; corpusTags: string[]; siteUrl: string
   /** Copyright and licence texts, only set on the /licenses views (build time, hash-checked). */
   licences?: Licences
   /** Knowledge base entries (newest first); only set on the knowledge base views. */
-  knowledge?: import('../../scripts/kb/feed').KbEntry[] }
+  knowledge?: import('../../scripts/kb/feed').KbEntry[]
+  /** What to learn today (newest first); only set on the home pages. */
+  today?: import('./learn').TodayItem[]
+  /** Timeline items in this view's language (newest first); only set on the timeline views. */
+  timeline?: import('./timeline').TimelineItem[] }
 export interface Licences {
-  mit: { id: string; name: string; repo: string; licenseUrl: string; text: string }[]
+  mit: { id: string; name: string; repo: string; licenseUrl: string; adapted: { file: string; pages: string[] }[]; text: string }[]
   fonts: { id: string; name: string; pkg: string; repo: string; href: string; text: string }[]
 }

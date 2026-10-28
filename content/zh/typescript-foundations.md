@@ -122,6 +122,3 @@ answer: 只有第一个返回 3，其余报错。echoWide 的声明允许返回�
 
 - Matt Pocock，[泛型讲解入口](https://x.com/mattpocockuk/status/1625838626742435842)，2023-02-15。
 - [ts-reset 仓库](https://github.com/mattpocock/ts-reset)，仅按资料采集版本独立解读，不复用代码。
-- 代码、响应数据与练习由本站编写；[版权说明](/zh/about-and-copyright)。
-
-非官方、非商业的学习整理，与 Matt Pocock 无隶属或背书关系。所引作品版权归原作者；MIT 复用内容另附版权与许可声明。

@@ -82,5 +82,3 @@ Also examine the valid request. Did the repair introduce unexplained branches or
 ## Sources
 
 - [Matt Pocock · 2026-08-17](https://x.com/mattpocockuk/status/2089336734530109837)
-
-Independent, unofficial, noncommercial study notes. This site has no affiliation with or endorsement from Matt Pocock. Referenced works belong to their authors; MIT reuse carries separate copyright and license notices.

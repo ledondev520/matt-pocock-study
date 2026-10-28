@@ -10,6 +10,7 @@ export interface AskConfig {
   model: string
   dbFile: string
   indexFile: string
+  pageManifestFile: string
   datasetDir: string | undefined
   chunksFile: string | undefined
   siteUrl: string
@@ -47,6 +48,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AskConfig {
     model: env.DEEPSEEK_MODEL || 'deepseek-flash',
     dbFile: env.ASK_DB || 'generated/ask.sqlite',
     indexFile: env.ASK_INDEX || 'server-data/ask-index.json',
+    pageManifestFile: env.ASK_PAGE_MANIFEST || 'dist/page-manifest.json',
     datasetDir: env.ASK_DATASET_DIR || undefined,
     chunksFile: env.ASK_CHUNKS_FILE || undefined,
     siteUrl: (env.SITE_URL || 'https://matt.withkeya.com').replace(/\/+$/, ''),

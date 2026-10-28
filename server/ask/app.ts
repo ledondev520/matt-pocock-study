@@ -68,7 +68,7 @@ export function createAskApp(deps: AskDeps) {
   const log = deps.log ?? ((line: string) => process.stdout.write(`${line}\n`))
   const peer = deps.peer ?? ((c: Context) => (c.env as { incoming?: { socket?: { remoteAddress?: string } } } | undefined)?.incoming?.socket?.remoteAddress)
   const retriever = createRetriever(deps.units)
-  const indexVersion = sha256(deps.units.map(u => u.id).join('\n')).slice(0, 12)
+  const indexVersion = sha256(JSON.stringify(deps.units.map(u => [u.id, u.sitePath ?? null]))).slice(0, 12)
   const version = `${indexVersion}:${config.model}:${PROMPT_VERSION}`
   const breaker = new CircuitBreaker(config.breakerFailures, config.breakerCoolDownMs)
   const inFlight = new Map<string, number>()

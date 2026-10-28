@@ -98,5 +98,3 @@ answer: 示例：导入表有一行缺姓名，怎样定位？返回行号与字
 ```licence
 id: mattpocock-skills
 ```
-
-非官方、非商业的学习整理，与 Matt Pocock 无隶属或背书关系。所引作品版权归原作者；MIT 复用内容另附版权与许可声明。

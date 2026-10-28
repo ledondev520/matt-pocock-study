@@ -26,7 +26,6 @@ describe('API (Hono app.request, no listening port)', () => {
     const pages = await response.json()
     expect(pages.map((p: { lang: string; slug: string }) => ({ lang: p.lang, slug: p.slug }))).toEqual([
       { lang: 'zh', slug: 'corpus' },
-      { lang: 'zh', slug: 'learn-from-matt' },
       { lang: 'zh', slug: 'core-principles' },
       { lang: 'zh', slug: 'punch-lines' },
       { lang: 'zh', slug: 'ai-coding-workflow' },
@@ -46,12 +45,10 @@ describe('API (Hono app.request, no listening port)', () => {
       { lang: 'zh', slug: 'open-source-guide' },
       { lang: 'zh', slug: 'cheat-sheets' },
       { lang: 'zh', slug: 'learning-path' },
-      { lang: 'zh', slug: 'about-and-copyright' },
     ])
     const english = await (await app.request('/api/pages?lang=en')).json()
     expect(english.map((p: { lang: string; slug: string }) => ({ lang: p.lang, slug: p.slug }))).toEqual([
       { lang: 'en', slug: 'corpus' },
-      { lang: 'en', slug: 'learn-from-matt' },
       { lang: 'en', slug: 'core-principles' },
       { lang: 'en', slug: 'punch-lines' },
       { lang: 'en', slug: 'ai-coding-workflow' },
@@ -71,7 +68,6 @@ describe('API (Hono app.request, no listening port)', () => {
       { lang: 'en', slug: 'open-source-guide' },
       { lang: 'en', slug: 'cheat-sheets' },
       { lang: 'en', slug: 'learning-path' },
-      { lang: 'en', slug: 'about-and-copyright' },
     ])
     expect(pages[0]).not.toHaveProperty('markdown')
   })
@@ -80,8 +76,9 @@ describe('API (Hono app.request, no listening port)', () => {
     expect(await english.json()).toMatchObject([{ lang: 'en', slug: 'specs-and-tickets' }])
     const branded = await app.request('/api/search?lang=en&q=branded')
     expect(await branded.json()).toMatchObject([{ lang: 'en', slug: 'practical-type-tools' }])
-    const chinese = await app.request(`/api/search?${new URLSearchParams({ lang: 'zh', q: '卡点' })}`)
-    expect(await chinese.json()).toMatchObject([{ lang: 'zh', slug: 'learn-from-matt' }])
+    // learn-from-matt (the old fixture for 卡点) was deleted in PR #8; 品牌类型 occurs on one page only.
+    const chinese = await app.request(`/api/search?${new URLSearchParams({ lang: 'zh', q: '品牌类型' })}`)
+    expect(await chinese.json()).toMatchObject([{ lang: 'zh', slug: 'practical-type-tools' }])
   })
   // Pages whose English title or body contains the literal character (not a LIKE wildcard).
   const literalMatches: Record<string, string[]> = {

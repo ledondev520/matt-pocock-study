@@ -87,7 +87,6 @@ Make those artifact paths easier to discover with [agent documentation](/en/agen
 ## Sources and attribution
 
 - Matt Pocock, [a contextual heuristic](https://x.com/mattpocockuk/status/2087111966854730148), 2026-08-11.
-- [Site copyright details](/en/about-and-copyright).
 
 ## skills MIT notice
 
@@ -96,5 +95,3 @@ The structure adapted here comes from [mattpocock/skills](https://github.com/mat
 ```licence
 id: mattpocock-skills
 ```
-
-Unofficial, non-commercial study notes, with no affiliation with or endorsement by Matt Pocock. Quoted works belong to their authors; MIT reuse carries separate copyright and licence notices.

@@ -51,7 +51,7 @@ kind: inference
 id: s17-attribution
 ```
 
-本站原创署名示例：作者提供交接结构；本站增加失败重现栏与中文解释。这样的说明让读者分得清贡献，也能回到来源核对。许可细节见[版权页](/zh/about-and-copyright)。
+本站原创署名示例：作者提供交接结构；本站增加失败重现栏与中文解释。这样的说明让读者分得清贡献，也能回到来源核对。许可细节见[许可页](/zh/licenses)。
 
 ## 旧实验也可以撤回
 
@@ -84,6 +84,3 @@ answer: 一：请提供任务、操作步骤及预期与实际结果。二：我
 - [Matt 谈负面反馈，2026-09-07](https://x.com/mattpocockuk/status/2096979934975565862)
 - [语气实验的后续说明](https://x.com/mattpocockuk/status/2085681281795232026)
 - [skills：核对作者与许可的入口](https://github.com/mattpocock/skills)
-- [本站版权与来源说明](/zh/about-and-copyright)
-
-非官方、非商业的学习整理，与 Matt Pocock 无隶属或背书关系。所引作品版权归原作者；MIT 复用内容另附版权与许可声明。

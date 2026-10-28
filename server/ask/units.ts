@@ -9,6 +9,7 @@ import type { Page } from '../../src/lib/content'
 import type { CorpusRecord } from '../corpus'
 import type { KbEntry } from '../../scripts/kb/feed'
 import { chunkUnits, readChunks } from './methodology-adapter'
+import { loadPageManifest, hasGeneratedPage, isMethodLink } from './page-manifest'
 
 export type UnitKind =
   /** Matt's own words, read server-side from a private dataset. The only kind quotes may come from. */
@@ -111,12 +112,18 @@ export function postUnits(dir: string): Unit[] {
  * configured, plus Matt's posts when the private dataset is configured. Switching to the
  * methodology chunks only needs ASK_CHUNKS_FILE (and, if its fields change, the adapter).
  */
-export function loadUnits(opts: { indexFile: string; datasetDir?: string; chunksFile?: string }): Unit[] {
+export function loadUnits(opts: { indexFile: string; pageManifestFile: string; datasetDir?: string; chunksFile?: string }): Unit[] {
+  const pages = loadPageManifest(opts.pageManifestFile)
   const index = JSON.parse(readFileSync(opts.indexFile, 'utf8')) as PublicIndex
   if (index.version !== 1 || !Array.isArray(index.units)) throw new Error('ask index: unexpected format')
   return [
     ...(opts.chunksFile ? chunkUnits(readChunks(opts.chunksFile)) : []),
     ...index.units,
     ...(opts.datasetDir ? postUnits(opts.datasetDir) : []),
-  ]
+  ].map(unit => {
+    if ((unit.kind === 'method' || isMethodLink(unit.sitePath)) && !hasGeneratedPage(pages, unit.sitePath)) {
+      return { ...unit, sitePath: undefined }
+    }
+    return unit
+  })
 }

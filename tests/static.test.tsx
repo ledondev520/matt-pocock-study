@@ -1,7 +1,8 @@
 import { execFileSync } from 'node:child_process'
 import { readdir, readFile, stat, mkdtemp, writeFile, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
-import { join, resolve } from 'node:path'
+import { createRequire } from 'node:module'
+import { dirname, join, resolve } from 'node:path'
 import { beforeAll, afterAll, expect, it } from 'vitest'
 import { JSDOM } from 'jsdom'
 import { renderToString } from 'react-dom/server'
@@ -13,7 +14,13 @@ import type { Model } from '../src/lib/content'
 import { siteUrl } from '../src/lib/site'
 import { createApp } from '../server/app'
 import { createIndex } from '../server/db'
+import { disclaimerPattern } from '../scripts/content'
+import { siteNotice } from '../src/lib/notice'
+import { auditSite } from '../scripts/audit/non-content-text.mjs'
+import { searchItems, type SearchItem } from '../src/lib/search'
 import registry from '../data/figures.json'
+import { collectCharacters, fontWeights } from '../scripts/fonts.mjs'
+import { parseFontFaces, type NotoFace } from './font-faces'
 
 let model: Model
 const db = createIndex([])
@@ -63,7 +70,7 @@ async function resolves(href: string, base: string) {
   }
 }
 it('writes complete, localized HTML and absolute metadata for all routes', async () => {
-  for (const lang of ['zh', 'en']) for (const slug of ['', ...model.pages.filter(p => p.lang === lang).map(p => p.slug), 'knowledge']) {
+  for (const lang of ['zh', 'en']) for (const slug of ['', ...model.pages.filter(p => p.lang === lang).map(p => p.slug), 'knowledge', 'timeline']) {
     const path = `/${lang}${slug ? '/' + slug : ''}`
     const html = await readFile(`dist${path}/index.html`, 'utf8')
     const doc = new JSDOM(html).window.document
@@ -98,7 +105,7 @@ it('resolves every internal href in generated and React-rendered HTML', async ()
     const doc = new JSDOM(html).window.document
     for (const node of doc.querySelectorAll('[href]')) await resolves(node.getAttribute('href')!, base)
   }
-  for (const path of ['/', '/zh', '/en', '/zh/corpus', '/en/corpus', '/zh/knowledge', '/en/knowledge', ...model.pages.map(p => `/${p.lang}/${p.slug}`)]) {
+  for (const path of ['/', '/zh', '/en', '/zh/corpus', '/en/corpus', '/zh/knowledge', '/en/knowledge', '/zh/timeline', '/en/timeline', ...model.pages.map(p => `/${p.lang}/${p.slug}`)]) {
     const dataFile = path === '/' || path === '/zh' || path === '/en' ? `dist${path}/index.json` : `dist${path}.json`
     const scoped: Model = JSON.parse(await readFile(dataFile, 'utf8'))
     const doc = new JSDOM(renderToString(<Site model={scoped} path={path} />)).window.document
@@ -114,8 +121,7 @@ it('inlines every placed diagram in the built pages in both languages', async ()
       const window = new JSDOM(await readFile(`dist/${lang}/${page.slug}/index.html`, 'utf8')).window
       try {
         for (const id of ids) {
-          if (id === 'home-hero') expect(window.document.querySelector('.chain-figure svg'), `${lang}/${page.slug}`).not.toBeNull()
-          else {
+          {
             const figures = window.document.querySelectorAll(`[data-figure="${id}"]`)
             expect(figures.length, `${lang}/${page.slug}: ${id}`).toBeGreaterThan(0)
             for (const figure of figures) {
@@ -128,8 +134,8 @@ it('inlines every placed diagram in the built pages in both languages', async ()
     }
     const home = new JSDOM(await readFile(`dist/${lang}/index.html`, 'utf8')).window
     try {
-      expect(home.document.querySelector('.chain-figure svg')).not.toBeNull()
-      expect(home.document.querySelector(`[data-figure="home-corpus"] svg.arch-home-corpus-${lang}`)).not.toBeNull()
+      // The home page is search, today's entries, the notes index and the copy line: no figures.
+      expect(home.document.querySelectorAll('main figure, main svg[class^="arch-"], main img').length).toBe(0)
     } finally { home.close() }
   }
 })
@@ -171,7 +177,7 @@ it('every indexable page has a Markdown twin that is in llms.txt and sitemap.xml
     expect(response.headers.get('Content-Type'), href).toBe('text/markdown; charset=utf-8')
   }
   // Home pages, the corpus, licences and knowledge base pages are covered too, not only articles.
-  expect(indexable).toEqual(expect.arrayContaining(['dist/index.html', 'dist/zh/index.html', 'dist/en/index.html', 'dist/zh/corpus/index.html', 'dist/en/corpus/index.html', 'dist/zh/licenses/index.html', 'dist/en/licenses/index.html', 'dist/zh/knowledge/index.html', 'dist/en/knowledge/index.html']))
+  expect(indexable).toEqual(expect.arrayContaining(['dist/index.html', 'dist/zh/index.html', 'dist/en/index.html', 'dist/zh/corpus/index.html', 'dist/en/corpus/index.html', 'dist/zh/licenses/index.html', 'dist/en/licenses/index.html', 'dist/zh/knowledge/index.html', 'dist/en/knowledge/index.html', 'dist/zh/timeline/index.html', 'dist/en/timeline/index.html']))
   // "/" is the Chinese home: its Markdown twin is the Chinese one.
   expect(new JSDOM(await readFile('dist/index.html', 'utf8')).window.document.querySelector('link[rel="alternate"][type="text/markdown"]')!.getAttribute('href')).toBe('/zh/index.md')
   // Reverse direction: the sitemap lists only real pages, and every llms.txt link resolves.
@@ -195,7 +201,7 @@ const markdownHeadings = (markdown: string, depth: RegExp) => markdown.replace(/
 // Where a page link points in a twin: site pages become their .md twin, other links stay absolute.
 const twinHref = (href: string) => /^\/(zh|en)(\/[a-z0-9-]+)?$/.test(href) ? `${site()}${href}${href.split('/').length === 2 ? '/index' : ''}.md` : new URL(href, site() + '/').href
 it('every Markdown twin matches its HTML page', async () => {
-  let articles = 0, homes = 0, licenses = 0, knowledge = 0
+  let articles = 0, homes = 0, licenses = 0, knowledge = 0, timeline = 0
   for (const file of await files('dist')) {
     const doc = new JSDOM(await readFile(file, 'utf8')).window.document
     const href = doc.querySelector('link[rel="alternate"][type="text/markdown"]')?.getAttribute('href')
@@ -210,10 +216,10 @@ it('every Markdown twin matches its HTML page', async () => {
       expect(markdownHeadings(markdown, /^#{2,3} (.+)$/).filter(h => htmlHeadings.includes(h)), `${href} headings`).toEqual(htmlHeadings)
       const text = markdownText(markdown)
       for (const p of body.querySelectorAll(':scope > p')) expect(text, `${href} paragraph`).toContain(plain(p.textContent ?? ''))
-    } else if (doc.querySelector('.hero')) {
+    } else if (doc.querySelector('main .home')) {
       homes++
       const lang = doc.documentElement.lang === 'zh' ? 'zh' : 'en'
-      const linked = [...doc.querySelectorAll('.reading-section .topic-card a')].map(a => a.getAttribute('href')!)
+      const linked = [...doc.querySelectorAll('.home-notes a')].map(a => a.getAttribute('href')!)
       expect(linked.length, file).toBeGreaterThan(10)
       for (const page of linked) expect(markdown, `${href} lists ${page}`).toContain(`](${site()}${page}.md)`)
       expect(markdown, `${href} carries the copy line`).toContain(doc.getElementById('agent-prompt-text')!.textContent!)
@@ -255,27 +261,47 @@ it('every Markdown twin matches its HTML page', async () => {
           expect(sections.some(part => part.split('\n').includes(line)), `${href} "${title}" carries its original-post link`).toBe(true)
         } else expect(markdown.split('\n'), `${href} lists ${line}`).toContain(line)
       }
+    } else if (doc.querySelector('.tl-page')) {
+      // The timeline twin: same title, years and item titles in order, every item's text and its
+      // link to where it is explained; like the page by default, no original posts.
+      timeline++
+      const page = doc.querySelector('.tl-page')!
+      expect(markdownHeadings(markdown, /^# (.+)$/)[0], `${href} title`).toBe(h1)
+      expect(markdownHeadings(markdown, /^#{2,3} (.+)$/), `${href} headings`).toEqual([...page.querySelectorAll('h2, h3')].map(h => plain(h.textContent ?? '')))
+      expect(page.querySelectorAll('.tl-item').length, `${href} has items`).toBeGreaterThan(0)
+      const text = markdownText(markdown)
+      for (const p of page.querySelectorAll('.tl-learned')) expect(text, `${href} item text`).toContain(plain(p.textContent ?? ''))
+      for (const a of page.querySelectorAll('.tl-from')) expect(markdown, `${href} links ${a.getAttribute('href')}`).toContain(`](${twinHref(a.getAttribute('href')!.split('#')[0])})`)
+      expect(page.querySelector('a[href*="x.com"]'), `${href} shows no original post by default`).toBeNull()
+      expect(markdown, `${href} has no original post`).not.toContain('x.com')
     } else expect(markdownHeadings(markdown, /^# (.+)$/)[0], `${href} title`).toBe(h1)
   }
   expect(articles).toBeGreaterThan(30)
   expect(homes).toBe(3)
   expect(licenses).toBe(2)
   expect(knowledge).toBe(2)
+  expect(timeline).toBe(2)
 })
-// The home page's copy line: the same text in both languages' HTML, a real button with an accessible
-// name, and no CJK characters anywhere in the English home (a single one would load the Chinese font).
-it('home pages show a copyable agent line with a labelled button', async () => {
+// The home page's copy line: one quiet hint and a real button with an accessible name; the prompt it
+// copies is ready to use (full llms.txt address, no editing instructions or placeholders) and stays
+// hidden until a manual copy needs it. No CJK characters anywhere in the English home (a single one
+// would load the Chinese font).
+const instructionWords = /替换|换掉|换成|说话就行|改成|填入|中间那句|swap|replace|placeholder|fill in|\{|\}|<|>|…|\.\.\./i
+it('home pages show a quiet copy line whose prompt is ready to paste', async () => {
   for (const [file, lang] of [['dist/zh/index.html', 'zh'], ['dist/en/index.html', 'en'], ['dist/index.html', 'zh']] as const) {
     const doc = new JSDOM(await readFile(file, 'utf8')).window.document
-    const text = doc.getElementById('agent-prompt-text')?.textContent ?? ''
-    expect(text, file).toContain(`${site()}${lang === 'zh' ? '/zh/llms.txt' : '/llms.txt'}`)
-    expect(text, file).toMatch(lang === 'zh' ? /^去 / : /^Go read /)
-    const button = doc.querySelector('.agent-prompt button')!
+    const line = doc.querySelector('.agent-copy')!
+    expect(line.querySelector('.agent-copy-hint')!.textContent, file).toBe(lang === 'zh' ? '点一下复制，丢给你的 agent' : 'Copy and paste into your agent')
+    const prompt = doc.getElementById('agent-prompt-text')!
+    expect(prompt.hasAttribute('hidden'), `${file} keeps the prompt out of sight`).toBe(true)
+    const text = prompt.textContent ?? ''
+    expect(text, file).toContain(lang === 'zh' ? 'https://matt.withkeya.com/zh/llms.txt' : 'https://matt.withkeya.com/llms.txt')
+    expect(text, file).not.toMatch(instructionWords)
+    const button = line.querySelector('button')!
     expect(button.getAttribute('type'), file).toBe('button')
-    expect(button.getAttribute('aria-label'), file).toBe(lang === 'zh' ? '复制这句话' : 'Copy the line for your agent')
+    expect(button.getAttribute('aria-label'), file).toBe(lang === 'zh' ? '复制给 agent 的提示' : 'Copy the prompt for your agent')
     expect(button.getAttribute('aria-label'), 'visible label is part of the accessible name').toContain(button.textContent)
-    expect(button.getAttribute('aria-describedby'), file).toBe('agent-prompt-text')
-    if (lang === 'en') expect(doc.querySelector('.agent-prompt')!.textContent, file).not.toMatch(/[\u3000-\u9fff\uff00-\uffef]/)
+    if (lang === 'en') expect(doc.querySelector('main')!.textContent, file).not.toMatch(/[\u3000-\u9fff\uff00-\uffef]/)
   }
 })
 // The .md twins are for agents (head link, llms.txt, sitemap); pages show no Markdown download link.
@@ -326,7 +352,7 @@ it('sitemap hreflang pairs point at each other across languages', async () => {
 // English agent files stay English: a stray CJK character means a Chinese string leaked into the English build.
 it('English agent files contain no CJK characters', async () => {
   const targets = ['dist/llms.txt', 'dist/llms-full.txt', ...(await walk('dist/en', '.md'))]
-  expect(targets).toEqual(expect.arrayContaining(['dist/en/index.md', 'dist/en/licenses.md', 'dist/en/knowledge.md']))
+  expect(targets).toEqual(expect.arrayContaining(['dist/en/index.md', 'dist/en/licenses.md', 'dist/en/knowledge.md', 'dist/en/timeline.md']))
   for (const file of targets) expect(await readFile(file, 'utf8'), file).not.toMatch(/[\u3000-\u9fff\uff00-\uffef]/)
 })
 it('files written for agents carry no addresses, local paths or key-shaped strings', async () => {
@@ -442,8 +468,9 @@ it('every built page and SVG file that embeds Archify CSS points to or carries t
       expect(await readFile(`dist/${route[1]}/${route[2]}.md`, 'utf8'), `${route[2]}.md`).toContain(licence.trimEnd())
     }
   }
-  // Both home pages show Archify diagrams; the rule above must therefore have reached them.
-  expect(pagesWithArchify).toEqual(expect.arrayContaining(['dist/index.html', 'dist/zh/index.html', 'dist/en/index.html']))
+  // Article pages in both languages show Archify diagrams; the rule above must therefore have reached them.
+  expect(pagesWithArchify.filter(file => /^dist\/zh\/[a-z0-9-]+\/index\.html$/.test(file)).length).toBeGreaterThan(0)
+  expect(pagesWithArchify.filter(file => /^dist\/en\/[a-z0-9-]+\/index\.html$/.test(file)).length).toBeGreaterThan(0)
   for (const lang of ['zh', 'en']) expect(await readFile(lang === 'en' ? 'dist/llms-full.txt' : 'dist/zh/llms-full.txt', 'utf8')).toContain(licence.trimEnd())
 
   const svgFiles: string[] = []
@@ -477,8 +504,9 @@ it('the licences pages show each MIT and font licence byte-identical to its file
     expect(doc.querySelector('meta[name="robots"]')).toBeNull()
     // The intro states what the texts match: the upstream LICENSE as it stood when the material was
     // taken (Archify's has since changed), not whatever the repository holds today.
-    expect(doc.querySelector('.licenses-page > p')!.textContent).toContain(lang === 'zh' ? '按 MIT 要求在此保留其版权声明和许可全文（与取用时上游的 LICENSE 一字不差）。' : 'their copyright notices and full licence texts are kept here, identical to each upstream LICENSE as it stood when the material was taken.')
-    expect(doc.querySelector('.licenses-page > p')!.textContent).not.toMatch(/原仓库 LICENSE 一字不差|identical to the repository LICENSE/)
+    const intro = [...doc.querySelectorAll('.licenses-page > p')].map(p => p.textContent).join('\n')
+    expect(intro).toContain(lang === 'zh' ? '下列 MIT 项目的版权声明和许可全文按 MIT 要求原样保留（与取用时上游的 LICENSE 一字不差）。' : 'the projects below keep their copyright notices and full licence texts, identical to each upstream LICENSE as it stood when the material was taken.')
+    expect(intro).not.toMatch(/原仓库 LICENSE 一字不差|identical to the repository LICENSE/)
     const shown = [...doc.querySelectorAll('pre.license-text')].map(pre => Buffer.from(pre.textContent ?? '', 'utf8'))
     expect(shown).toHaveLength(expected.length)
     shown.forEach((bytes, i) => expect(bytes.equals(expected[i]), `${lang} licence ${i} is byte-identical`).toBe(true))
@@ -500,19 +528,21 @@ it('the licences pages show each MIT and font licence byte-identical to its file
 // (pages, JSON, .md exports, llms files), not only the licences page.
 it('no built file links a licence on an upstream main branch', async () => {
   const texts = (await walk('dist', '')).filter(file => /\.(html|json|md|txt|xml|js|svg)$/i.test(file))
-  expect(texts).toEqual(expect.arrayContaining(['dist/llms-full.txt', 'dist/zh/llms-full.txt', 'dist/en/about-and-copyright.md', 'dist/zh/about-and-copyright.md']))
+  expect(texts).toEqual(expect.arrayContaining(['dist/llms-full.txt', 'dist/zh/llms-full.txt', 'dist/en/licenses.md', 'dist/zh/licenses.md']))
   for (const file of texts) {
     const text = await readFile(file, 'utf8')
     expect(text.includes('archify/blob/main/LICENSE'), `${file} links Archify's LICENSE on main`).toBe(false)
     expect(text.includes('mattpocock/skills/blob/main/LICENSE'), `${file} links skills' LICENSE on main`).toBe(false)
   }
-  for (const file of ['dist/en/about-and-copyright.md', 'dist/zh/about-and-copyright.md', 'dist/llms-full.txt', 'dist/zh/llms-full.txt']) {
+  // The pinned link now sits in the licences twins only (llms-full used to get it from the deleted
+  // about-and-copyright page; it still carries the Archify licence text itself, see the Archify test).
+  for (const file of ['dist/en/licenses.md', 'dist/zh/licenses.md']) {
     expect(await readFile(file, 'utf8'), file).toContain('https://github.com/tt-a1i/archify/blob/7a16d30322f5bd09c832386faa95d8c9a933f0c0/LICENSE')
   }
 })
 
-// Every page: the footer is one quiet line (disclaimer + a single licences link); the body shows no
-// licence text, no closing disclaimer and no Markdown download. The .md twins and llms.txt files
+// Every page: the footer is one quiet licences link and nothing else; the body shows no licence
+// text, no site notice (it lives on /licenses only) and no Markdown download. The .md twins and llms.txt files
 // stay: they are generated, served and announced to agents in <head>.
 it('every built page has a one-line footer with one licences link, and no licence text or download in the body', async () => {
   const notices = (await Promise.all([...licenceFiles, ...fontFiles].map(file => readFile(file, 'utf8')))).map(text => text.split('\n').find(line => line.length > 40)!)
@@ -520,12 +550,9 @@ it('every built page has a one-line footer with one licences link, and no licenc
     const doc = new JSDOM(await readFile(file, 'utf8')).window.document
     const zh = doc.documentElement.lang === 'zh'
     const footer = doc.querySelector('footer')!
-    const note = footer.querySelector('.footer-note')!
-    expect(note.textContent, file).toBe(zh ? '非官方、非商业的学习整理，与 Matt Pocock 无隶属或背书关系；所引作品版权归原作者。 许可' : 'Unofficial, non-commercial study notes; not affiliated with or endorsed by Matt Pocock. Quoted works belong to their authors. Licenses')
-    const links = [...note.querySelectorAll('a')]
-    expect(links.map(a => [a.getAttribute('href'), a.textContent]), file).toEqual([[zh ? '/zh/licenses' : '/en/licenses', zh ? '许可' : 'Licenses']])
-    // Only brand, source link and that line remain in the footer.
-    expect([...footer.querySelectorAll('a')].map(a => a.getAttribute('href')), file).toEqual(['https://github.com/ledondev520/matt-pocock-study', links[0].getAttribute('href')])
+    expect(footer.textContent, file).toBe(zh ? '许可' : 'Licenses')
+    expect([...footer.querySelectorAll('a')].map(a => [a.getAttribute('href'), a.textContent, a.className]), file).toEqual([[zh ? '/zh/licenses' : '/en/licenses', zh ? '许可' : 'Licenses', 'footer-licenses']])
+    expect(footer.querySelectorAll('svg, img, p, strong').length, file).toBe(0)
     const main = doc.querySelector('main')!
     const text = main.textContent ?? ''
     expect(main.querySelector('.licence-text, details.licence-text'), file).toBeNull()
@@ -533,7 +560,7 @@ it('every built page has a one-line footer with one licences link, and no licenc
       expect(text, file).not.toContain('Permission is hereby granted')
       for (const line of notices) expect(text.includes(line), `${file} shows a licence`).toBe(false)
     }
-    expect(text, file).not.toMatch(/非官方、非商业的学习整理，与|Unofficial, non-commercial study notes|Independent, unofficial, non-?commercial study notes/)
+    if (!/\/licenses\/index\.html$/.test(file)) expect(doc.body.textContent, file).not.toMatch(disclaimerPattern)
     expect(doc.querySelectorAll('a[download]'), file).toHaveLength(0)
     for (const a of doc.querySelectorAll('a[href]')) {
       const url = new URL(a.getAttribute('href')!, siteUrl() + '/')
@@ -555,12 +582,12 @@ it('every built page has a one-line footer with one licences link, and no licenc
 // saying a structure was adapted from skills (or Archify). Those live on /licenses and in the .md and
 // llms-full exports. Checked on the built HTML, so a notice section that leaks back onto a page (for
 // example "本页改编的结构来自…" / "The structure adapted here comes from…") fails here, not only in
-// a unit test. Exempt: the licences pages, about-and-copyright (the copyright register itself) and
+// a unit test. Exempt: the licences pages (which now also carry the adaptation register) and
 // open-source-guide (each repository's licence is its subject). Text inside inline <svg> diagrams is
 // left out: those files are locked byte for byte by the Archify test above.
-const noticeExempt = /^dist\/(?:zh|en)\/(?:licenses|about-and-copyright|open-source-guide)\/index\.html$/
+const noticeExempt = /^dist\/(?:zh|en)\/(?:licenses|open-source-guide)\/index\.html$/
 const adaptation = /改编|adapt/i, upstream = /\bskills\b|SKILL\.md|mattpocock|Matt Pocock|Archify/
-it('no built page outside the licences, copyright and open-source guide pages shows MIT, a copyright line or an adaptation notice', async () => {
+it('no built page outside the licences and open-source guide pages shows MIT, a copyright line or an adaptation notice', async () => {
   let checked = 0
   for (const file of await files('dist')) {
     if (noticeExempt.test(file)) continue
@@ -589,12 +616,12 @@ it('serves the Chinese home page at / with /zh as canonical and a pre-paint redi
   expect(html).toBe(await readFile('dist/index.html', 'utf8'))
   const doc = new JSDOM(html).window.document
   expect(doc.documentElement.lang).toBe('zh')
-  expect(doc.querySelector('h1')!.textContent).toBe('想清楚，再动手。')
-  expect(doc.querySelector('main')!.textContent).not.toMatch(/Think clearly|Start here|Build better/)
+  expect(doc.querySelector('h1')!.textContent).toBe('今天学什么')
+  expect(doc.querySelector('main')!.textContent).not.toMatch(/What to learn today|Copy and paste into your agent/)
   expect(doc.querySelector('link[rel="canonical"]')!.getAttribute('href')).toBe(siteUrl() + '/zh')
   expect(doc.querySelector('meta[property="og:url"]')!.getAttribute('content')).toBe(siteUrl() + '/zh')
   const scoped: Model = JSON.parse(doc.getElementById('site-data')!.textContent!)
-  expect(new JSDOM(renderToString(<Site model={scoped} path="/" />)).window.document.querySelector('h1')!.textContent).toBe('想清楚，再动手。')
+  expect(new JSDOM(renderToString(<Site model={scoped} path="/" />)).window.document.querySelector('h1')!.textContent).toBe('今天学什么')
   expect(new JSDOM(renderToString(<Site model={scoped} path="/" />)).window.document.body.textContent).toBe(doc.getElementById('root')!.textContent)
   // The redirect script is the first script in <head>, and only acts on "/" with a stored "en".
   const first = doc.head.querySelector('script')!
@@ -605,4 +632,171 @@ it('serves the Chinese home page at / with /zh as canonical and a pre-paint redi
     new Function('location', 'localStorage', first.textContent!)(scope.location, scope.localStorage)
     expect(target, `${stored} at ${path}`).toBe(redirected ? '/en' : undefined)
   }
+})
+
+it('build ships the Noto subset faces and the full Fontsource fallback slices, all self-hosted (option A)', async () => {
+  const fontsource = dirname(createRequire(import.meta.url).resolve('@fontsource/noto-sans-sc/package.json'))
+  const sheets = (await readdir('dist/assets')).filter(name => name.endsWith('.css'))
+  const faces: NotoFace[] = []
+  for (const sheet of sheets) faces.push(...parseFontFaces(await readFile(join('dist/assets', sheet), 'utf8'), '/assets/'))
+  // The HTML links the stylesheet that carries the faces (no extra request for the fallback).
+  const html = await readFile('dist/zh/index.html', 'utf8')
+  const linked = sheets.filter(sheet => html.includes(`/assets/${sheet}`))
+  expect(linked).toHaveLength(1)
+  expect(faces.length).toBeGreaterThan(0)
+  const linkedFaces = parseFontFaces(await readFile(join('dist/assets', linked[0]), 'utf8'), '/assets/')
+  expect(linkedFaces).toHaveLength(faces.length)
+  const generated = parseFontFaces(await readFile('generated/fonts/noto-sans-sc.css', 'utf8'), './')
+  const characters = await collectCharacters()
+  for (const weight of fontWeights) {
+    const own = faces.filter(face => face.weight === weight)
+    const subset = own.filter(face => face.kind === 'subset')
+    const fallbacks = own.filter(face => face.kind === 'fallback')
+    expect(subset).toHaveLength(1)
+    expect(fallbacks.length).toBeGreaterThan(50)
+    // Same faces and ranges as the generated CSS (the minifier must not drop or merge any).
+    const expected = generated.filter(face => face.weight === weight)
+    expect(own.map(face => [face.kind, face.slice, [...face.codes].sort((a, b) => a - b).join()])).toEqual(expected.map(face => [face.kind, face.slice, [...face.codes].sort((a, b) => a - b).join()]))
+    // Ranges are disjoint: a subset character can never pull a fallback slice.
+    const owner = new Map<number, string>()
+    const overlaps: string[] = []
+    for (const face of own) for (const code of face.codes) { if (owner.has(code)) overlaps.push(`U+${code.toString(16)}`); owner.set(code, face.file) }
+    expect(overlaps).toEqual([])
+    // Every collected character has a face: the subset, or a fallback slice.
+    expect([...characters].filter(character => !owner.has(character.codePointAt(0)!))).toEqual([])
+    const subsetBytes = await readFile(join('dist/assets', subset[0].file))
+    expect(subsetBytes.toString('ascii', 0, 4)).toBe('wOF2')
+    for (const face of fallbacks) {
+      // The shipped file exists and is the unmodified Fontsource slice for that id and weight.
+      const shipped = await readFile(join('dist/assets', face.file)).catch(() => null)
+      expect(shipped, face.file).not.toBeNull()
+      expect(shipped!.equals(await readFile(join(fontsource, `files/noto-sans-sc-${face.slice}-${weight}-normal.woff2`))), face.file).toBe(true)
+    }
+  }
+  // No other Noto files ship (e.g. a leftover Fontsource import with its 100+ slices and woff copies).
+  const shippedNoto = (await readdir('dist/assets')).filter(name => /^noto-sans-sc/.test(name)).sort()
+  expect(shippedNoto).toEqual(faces.map(face => face.file).sort())
+}, 60000)
+
+// ---- PR #8 batch: one site notice, a quiet home, no self-description ----
+
+// Sentences and labels this batch deleted. None may come back on any built page (HTML body or the
+// page's JSON); the site notice itself is allowed on /licenses only.
+// The old notice wording, allowed on /licenses only (its merged notice reuses some of these words).
+const oldNotice = ['原话和语境以原帖为准', '本站解读不代表原作者观点', 'not the authors’ view', 'Our reading is not']
+const deleted = [
+  '非官方 · 非商业', 'UNOFFICIAL · NON-COMMERCIAL', '独立学习笔记', 'INDEPENDENT FIELD NOTE', '一句话要点', 'KEY POINT',
+  '一份持续生长的语料库', 'A growing public corpus', '条公开资料', 'PUBLIC SOURCES', '探索语料库', 'Explore the corpus',
+  '想学别的，把中间那句换掉就行', 'Swap in whatever you want to learn', '已复制，发给 agent 就行', 'Paste it into your agent.',
+  '想清楚，', 'Think clearly.', '从这里开始', 'Start here', '给你的 Coding Agent', 'FOR YOUR CODING AGENT',
+  '向他的分享致敬', 'a tribute to his sharing', '欢迎关注他', 'Follow Matt and learn',
+  '搜索中英文摘要与标签', 'Search bilingual summaries and tags', '换个关键词，去掉类型或标签筛选', 'remove a type or tag filter',
+  '课程整理中', 'In preparation', '更新于', '关于本站与版权', 'About & copyright', '互动最高', '以上顺序由本站设计', '这是我们的实践方法',
+  "This is our practice rule", '以上字段由本站编写', 'This field list is ours', "These route sequences are this site's design",
+]
+it('no built page shows a deleted notice, statistic, self-description or instruction', async () => {
+  const corpus: Model = JSON.parse(await readFile('dist/zh/corpus.json', 'utf8'))
+  for (const file of await files('dist')) {
+    const doc = new JSDOM(await readFile(file, 'utf8')).window.document
+    doc.querySelectorAll('script, style, template').forEach(node => node.remove())
+    const text = doc.body.textContent ?? ''
+    for (const phrase of /\/licenses\/index\.html$/.test(file) ? deleted : [...oldNotice, ...deleted]) expect(text.includes(phrase) ? phrase : undefined, `${file} shows "${phrase}"`).toBeUndefined()
+    if (!/\/licenses\/index\.html$/.test(file)) expect(text.match(disclaimerPattern)?.[0], `${file} shows the site notice`).toBeUndefined()
+    // Engagement counts from the knowledge feed are dropped at build (the data file keeps them).
+    expect(text.match(/\d[\d.,]*\s*万?\s*(?:赞|浏览|转发)|\d[\d.,]*\s*(?:likes|views)\b/i)?.[0], `${file} shows an engagement count`).toBeUndefined()
+  }
+  // The home pages show no corpus block and none of its numbers.
+  for (const file of ['dist/index.html', 'dist/zh/index.html', 'dist/en/index.html']) {
+    const main = new JSDOM(await readFile(file, 'utf8')).window.document.querySelector('main')!
+    expect(main.querySelector('.corpus-section, [data-figure], .hero, .stat'), file).toBeNull()
+    expect(main.textContent, file).not.toContain(String(corpus.corpusCount ?? 441))
+    expect(main.textContent, file).not.toContain('441')
+  }
+  for (const slug of ['learn-from-matt', 'about-and-copyright']) for (const lang of ['zh', 'en']) expect((await app.request(`/${lang}/${slug}`)).status, `${lang}/${slug}`).toBe(404)
+})
+
+// The site notice is said once: on the licences page (HTML and its .md twin), next to the MIT texts.
+// Every other built text (pages, .md twins, llms.txt, llms-full.txt, index.md) carries none of it.
+it('the site notice appears once, on the licences page and its twin, next to the MIT texts', async () => {
+  const notices = {
+    zh: '本站是非官方、非商业的学习整理，与 Matt Pocock 无隶属或背书关系。引文和链接的作品版权归原作者；本站解读不代表原作者观点，原话与语境以原文为准。',
+    en: 'Unofficial, non-commercial study notes, not affiliated with or endorsed by Matt Pocock. Quoted and linked works belong to their authors; our reading is not their view, and the originals are authoritative.',
+  }
+  const mit = await readFile('third_party/mattpocock-skills/LICENSE', 'utf8')
+  for (const lang of ['zh', 'en'] as const) {
+    expect(siteNotice(lang)).toBe(notices[lang])
+    const document = new JSDOM(await readFile(`dist/${lang}/licenses/index.html`, 'utf8')).window.document
+    const page = document.querySelector('.licenses-page')!
+    expect(page.querySelector('.licenses-note')!.textContent).toBe(notices[lang])
+    expect(document.body.textContent!.split(notices[lang]).length - 1, `${lang}/licenses/index.html`).toBe(1)
+    expect(page.textContent).toContain(mit.trimEnd())
+    const twin = await readFile(`dist/${lang}/licenses.md`, 'utf8')
+    expect(twin.split(notices[lang]).length - 1, `${lang}/licenses.md`).toBe(1)
+    expect(twin).toContain(mit.trimEnd())
+  }
+  // Generated agent texts only (dist/font-licenses/*.txt are the fonts' own licence files).
+  const texts = (await walk('dist', '')).filter(file => /\.md$|\/llms(?:-full)?\.txt$/.test(file) && !/\/licenses\.md$/.test(file))
+  expect(texts).toEqual(expect.arrayContaining(['dist/llms.txt', 'dist/llms-full.txt', 'dist/zh/llms.txt', 'dist/zh/llms-full.txt', 'dist/zh/index.md', 'dist/en/knowledge.md']))
+  for (const file of texts) {
+    // Licence texts quoted in fences are legal text, not our notice (the OFL says "endorse").
+    const prose = (await readFile(file, 'utf8')).replace(/```text\n[\s\S]*?\n```/g, '')
+    expect(prose.match(disclaimerPattern)?.[0], `${file} repeats the site notice`).toBeUndefined()
+  }
+})
+
+// Home: search box on top, then "what to learn today" (each item opens the entry it names), then the
+// notes index; nothing else in <main> besides the copy line.
+it('home pages lead with search and what to learn today, then the notes', async () => {
+  for (const [file, lang] of [['dist/zh/index.html', 'zh'], ['dist/en/index.html', 'en'], ['dist/index.html', 'zh']] as const) {
+    const doc = new JSDOM(await readFile(file, 'utf8')).window.document
+    const home = doc.querySelector('main .home')!
+    expect([...home.children].map(node => node.className.split(' ')[0]), file).toEqual(['site-search', 'today', 'home-notes', 'agent-copy'])
+    const input = home.querySelector<HTMLInputElement>('form[role="search"] input[type="search"]')!
+    expect(input.getAttribute('aria-label'), file).toBe(lang === 'zh' ? '搜索' : 'Search')
+    expect(home.querySelector('.today h1')!.textContent, file).toBe(lang === 'zh' ? '今天学什么' : 'What to learn today')
+    const items = [...home.querySelectorAll('.today li')]
+    expect(items.length, file).toBeGreaterThan(0)
+    for (const item of items) {
+      const link = item.querySelector('h2 a')!
+      expect(link.getAttribute('href'), file).toMatch(lang === 'zh' ? /^\/zh\/knowledge#/ : /^https:\/\/x\.com\//)
+    }
+    // Every note page; the corpus index sits in the header navigation.
+    expect(home.querySelectorAll('.home-notes a').length, file).toBe(model.pages.filter(p => p.lang === lang && p.slug !== 'corpus').length)
+  }
+})
+
+// The static search index: one file per language, built from the same learning source as the home
+// page, found on the same origin (no CSP change) and only fetched when the box is used.
+it('builds a per-language search index that finds Chinese and English entries without word breaks', async () => {
+  const zh: SearchItem[] = JSON.parse(await readFile('dist/search/zh.json', 'utf8'))
+  const en: SearchItem[] = JSON.parse(await readFile('dist/search/en.json', 'utf8'))
+  expect(zh.some(item => item.kind === 'post') && zh.some(item => item.kind === 'note')).toBe(true)
+  expect(en.every(item => !/[\u3000-\u9fff]/.test(item.title + item.text)), 'English index has no Chinese text').toBe(true)
+  // A Chinese title fragment from the middle of a word is found; so is an English word.
+  const entry = zh.find(item => item.kind === 'post')!
+  const fragment = [...entry.title].slice(1, 4).join('')
+  expect(searchItems(zh, fragment).map(item => item.href)).toContain(entry.href)
+  expect(searchItems(en, 'review').some(item => item.href === '/en/review-and-pr')).toBe(true)
+  expect(searchItems(zh, 'zzqqxx 不存在的词')).toEqual([])
+  for (const item of [...zh, ...en]) expect(item.href, item.title).toMatch(/^\/(zh|en)\//)
+  for (const item of zh) expect((item.title + item.text).match(/\d[\d.,]*\s*万?\s*(?:赞|浏览|转发)/)?.[0], item.href).toBeUndefined()
+  const head = new JSDOM(await readFile('dist/zh/index.html', 'utf8')).window.document
+  expect(head.querySelector('link[href^="/search/"]'), 'the index is not preloaded').toBeNull()
+  expect((await app.request('/search/zh.json')).status).toBe(200)
+})
+
+// The launch check: every built page shows only content, titles, navigation, search, the copy line
+// and the footer licences link. Anything else is listed by scripts/audit/non-content-text.mjs.
+it('no built page shows non-content text', async () => {
+  const report = await auditSite('dist')
+  expect(Object.keys(report).length).toBeGreaterThan(40)
+  expect(Object.fromEntries(Object.entries(report).filter(([, items]) => items.length))).toEqual({})
+}, 60000)
+
+it('the ask page manifest matches generated HTML routes and contains no 404 pages', async () => {
+  const { loadPageManifest } = await import('../server/ask/page-manifest')
+  const paths = loadPageManifest('dist/page-manifest.json')
+  const generated = (await files('dist')).filter(file => !/\/404\.html$/.test(file))
+    .map(file => '/' + file.replace(/^dist\//, '').replace(/(?:^|\/)index\.html$/, ''))
+  expect([...paths].sort()).toEqual(generated.sort())
 })

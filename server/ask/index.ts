@@ -8,7 +8,7 @@ import { openStore } from './store'
 import { loadUnits } from './units'
 
 const config = loadConfig()
-const units = loadUnits({ indexFile: config.indexFile, datasetDir: config.datasetDir, chunksFile: config.chunksFile })
+const units = loadUnits({ indexFile: config.indexFile, pageManifestFile: config.pageManifestFile, datasetDir: config.datasetDir, chunksFile: config.chunksFile })
 mkdirSync(dirname(config.dbFile), { recursive: true })
 const store = openStore(config.dbFile)
 const app = createAskApp({ config, units, store })

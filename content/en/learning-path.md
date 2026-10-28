@@ -67,8 +67,6 @@ Done means another reader attempts a fresh example and you check the answer and 
 - **Change the context** Mix inputs and failure conditions to practise selecting a method.
 ```
 
-These route sequences are this site's design. They are not Matt's official learning path and promise no fixed completion time.
-
 ```note
 kind: inference
 Our suggestion: ask a person or another session to verify each completed segment. If you can only repeat the original example, return to the relevant lesson and change the input before adding more reading.
@@ -94,5 +92,3 @@ The structure adapted here comes from [mattpocock/skills](https://github.com/mat
 ```licence
 id: mattpocock-skills
 ```
-
-Unofficial, non-commercial study notes. No affiliation with or endorsement by Matt Pocock. Quoted works remain their authors’ copyright; MIT reuse retains its copyright and licence notices.

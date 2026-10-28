@@ -284,7 +284,8 @@ describe('config and process', () => {
     const dir = await mkdtemp(join(tmpdir(), 'ask-proc-'))
     const port = await new Promise<number>(resolve => { const s = createServer().listen(0, '127.0.0.1', () => { const p = (s.address() as { port: number }).port; s.close(() => resolve(p)) }) })
     await writeFile(join(dir, 'index.json'), JSON.stringify({ version: 1, units }))
-    const child = spawn(process.execPath, ['node_modules/tsx/dist/cli.mjs', 'server/ask/index.ts'], { env: { PATH: process.env.PATH, ASK_PORT: String(port), ASK_INDEX: join(dir, 'index.json'), ASK_DB: join(dir, 'ask.sqlite') }, stdio: ['ignore', 'pipe', 'pipe'] })
+    await writeFile(join(dir, 'pages.json'), JSON.stringify({ version: 1, paths: ['/zh', '/en'] }))
+    const child = spawn(process.execPath, ['node_modules/tsx/dist/cli.mjs', 'server/ask/index.ts'], { env: { PATH: process.env.PATH, ASK_PORT: String(port), ASK_INDEX: join(dir, 'index.json'), ASK_PAGE_MANIFEST: join(dir, 'pages.json'), ASK_DB: join(dir, 'ask.sqlite') }, stdio: ['ignore', 'pipe', 'pipe'] })
     try {
       const line = await new Promise<string>((resolve, reject) => {
         child.stdout.on('data', (d: Buffer) => resolve(d.toString()))

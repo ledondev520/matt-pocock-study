@@ -35,7 +35,8 @@ it('page heading check keeps text inside an SVG <template>', () => {
 })
 
 it('exports every present page with absolute indexes and readable components', async () => {
-  expect(pages).toHaveLength(44)
+  // 20 pages per language: learn-from-matt and about-and-copyright were deleted in PR #8 (self-description).
+  expect(pages).toHaveLength(40)
   expect(JSON.parse(await readFile(join(output, 'content.json'), 'utf8'))).toEqual(pages)
   for (const lang of ['en', 'zh']) {
     const base = lang === 'en' ? output : join(output, lang)
@@ -173,16 +174,13 @@ it('every page that cites a reused MIT source or embeds Archify CSS ships that s
 
 // The pages that adapt skills structures, written out by hand. Their visible adaptation lines are
 // gone from the pages, so the rule above no longer finds them from the source text; this list is the
-// anchor. It matches the register on about-and-copyright ("改编与覆盖页面" / "Adaptation and covered pages"),
-// cross-checked below.
+// anchor. It matches the adaptation register shown on /licenses (scripts/licences.mjs, `adapted`;
+// it moved there from the deleted about-and-copyright page), cross-checked below.
 const adaptsSkills = ['review-and-pr', 'agent-documents', 'context-and-handoff', 'cheat-sheets', 'learning-path', 'writing-to-teach'].flatMap(slug => (['zh', 'en'] as const).map(lang => `${lang}/${slug}`))
 it('the twelve pages that adapt skills keep the skills MIT notice section and full licence in their .md and llms-full exports', async () => {
   expect(adaptsSkills).toHaveLength(12)
-  for (const lang of ['zh', 'en'] as const) {
-    const register = (await readFile(`content/${lang}/about-and-copyright.md`, 'utf8')).split('\n').filter(line => line.startsWith('| skills/'))
-    const listed = new Set(register.flatMap(line => line.split('|')[2].split(/[：:]/)[1].split(/[、,]/).map(slug => slug.trim())))
-    expect([...listed].sort(), `${lang} register`).toEqual(adaptsSkills.filter(id => id.startsWith(`${lang}/`)).map(id => id.slice(3)).sort())
-  }
+  const listed = new Set(licences['mattpocock-skills'].adapted!.flatMap(item => item.pages))
+  for (const lang of ['zh', 'en'] as const) expect([...listed].sort(), `${lang} register`).toEqual(adaptsSkills.filter(id => id.startsWith(`${lang}/`)).map(id => id.slice(3)).sort())
   const text = licenceText('mattpocock-skills')
   const heading = { zh: '\n## skills MIT 许可声明\n', en: '\n## skills MIT notice\n' }
   const bundles = { en: await readFile(join(output, 'llms-full.txt'), 'utf8'), zh: await readFile(join(output, 'zh', 'llms-full.txt'), 'utf8') }
@@ -204,21 +202,31 @@ it('the twelve pages that adapt skills keep the skills MIT notice section and fu
   }
 })
 
-it('keeps the per-page licence notice and the closing disclaimer in the export but off the page', async () => {
-  const source = '## Body\n\nKept [link][ref].\n\n## skills MIT notice\n\nAdapted from skills.\n\n```licence\nid: mattpocock-skills\n```\n\nUnofficial, non-commercial study notes. No affiliation.\n\n[ref]: https://example.org/\n'
-  const result = await renderMarkdown(source, 'en')
-  expect(result.toc.map(item => item.title)).toEqual(['Body'])
-  expect(result.html).toContain('<a href="https://example.org/">link</a>')
-  for (const hidden of ['skills MIT notice', 'Adapted from skills', 'Permission is hereby granted', 'Unofficial, non-commercial']) expect(result.html).not.toContain(hidden)
-  for (const kept of ['## skills MIT notice', 'Adapted from skills.', licenceText('mattpocock-skills').trimEnd(), 'Unofficial, non-commercial study notes. No affiliation.']) expect(result.markdown).toContain(kept)
-  // A disclaimer-like paragraph that is not the last block stays on the page.
-  expect((await renderMarkdown('Unofficial, non-commercial notes first.\n\nThen more.\n', 'en')).html).toContain('Unofficial, non-commercial notes first.')
-  // Every real page ends with the disclaimer the footer now carries, so the rule reaches all of them.
-  for (const page of pages) {
-    const source = await readFile(`content/${page.lang}/${page.slug}.md`, 'utf8')
-    expect(disclaimerPattern.test(source.trimEnd().split('\n\n').at(-1)!), `${page.lang}/${page.slug} ends with the disclaimer`).toBe(true)
-    expect(page.markdown.trimEnd().endsWith(source.trimEnd().split('\n\n').at(-1)!) || page.markdown.includes(source.trimEnd().split('\n\n').at(-1)!), `${page.lang}/${page.slug}.md keeps it`).toBe(true)
+// PR #8: the closing disclaimer every page used to end with is gone; the site notice lives on
+// /licenses only. The per-page licence notice still stays in the export and off the page, also when
+// its licence fence is the last block of the file (the export lookup used to miss that case).
+it('keeps the per-page licence notice in the export but off the page, and rejects a site notice in page sources', async () => {
+  for (const tail of ['', '\n\nClosing paragraph.']) {
+    const source = `## Body\n\nKept [link][ref].\n\n## skills MIT notice\n\nAdapted from skills.\n\n\`\`\`licence\nid: mattpocock-skills\n\`\`\`${tail}\n\n[ref]: https://example.org/\n`
+    const result = await renderMarkdown(source, 'en')
+    expect(result.toc.map(item => item.title)).toEqual(['Body'])
+    expect(result.html).toContain('<a href="https://example.org/">link</a>')
+    for (const hidden of ['skills MIT notice', 'Adapted from skills', 'Permission is hereby granted']) expect(result.html).not.toContain(hidden)
+    for (const kept of ['## skills MIT notice', 'Adapted from skills.', licenceText('mattpocock-skills').trimEnd()]) expect(result.markdown).toContain(kept)
   }
+  // No real page carries the notice, and a page that brings it back fails the build.
+  for (const page of pages) {
+    const source = (await readFile(`content/${page.lang}/${page.slug}.md`, 'utf8')).replace(/```licence\s*\n[\s\S]*?\n```/g, '')
+    expect(source.match(disclaimerPattern)?.[0], `${page.lang}/${page.slug}`).toBeUndefined()
+  }
+  const root = await mkdtemp(join(tmpdir(), 'study-notice-'))
+  try {
+    for (const lang of ['zh', 'en']) {
+      await mkdir(join(root, lang))
+      await writeFile(join(root, lang, 'core-principles.md'), await readFile(`content/${lang}/core-principles.md`, 'utf8') + (lang === 'en' ? '\nUnofficial, non-commercial study notes.\n' : ''))
+    }
+    await expect(readPages(root)).rejects.toThrow(/belongs on \/licenses only: en\/core-principles\.md/)
+  } finally { await rm(root, { recursive: true, force: true }) }
 })
 
 it('licence text is fixed by hash and rejected when edited or unknown', async () => {
@@ -294,7 +302,7 @@ const x = 1;
       await writeFile(join(root, 'en', 'broken.md'), '---\nslug: broken\n---\nText')
       await expect(readPages(root)).rejects.toThrow(/front matter/)
       await rm(join(root, 'en', 'broken.md'))
-      await writeFile(join(root, 'en', 'learn-from-matt.md'), await readFile('content/en/learn-from-matt.md'))
+      await writeFile(join(root, 'en', 'core-principles.md'), await readFile('content/en/core-principles.md'))
       await expect(readPages(root)).rejects.toThrow(/same nonempty set/)
     } finally { await rm(root, { recursive: true, force: true }) }
   })
