@@ -64,7 +64,7 @@ default port 8788) and serves `POST /api/ask`; `GET /healthz` is for local check
   checked quotes and links. Per original, quotes and copied prose share hard totals of 25 words,
   50 Han characters and 240 characters across all fields and chunks. Each disconnected match
   counts as at least one sentence, with at most two sentences total even if punctuation is omitted.
-  Isolated overlapping words and Han characters also consume the word/Han totals, including
+  Isolated overlapping words and Han characters also consume the word/Han/character totals, including
   repeats and ambiguous common words.
   Rejected model output returns source links alone; other search fallbacks use checked excerpts
   or links alone if their cumulative budget is exceeded.

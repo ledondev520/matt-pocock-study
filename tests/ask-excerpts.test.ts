@@ -22,6 +22,7 @@ const request = (app: ReturnType<typeof createAskApp>, q = 'workflow review') =>
   method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ q, lang: 'en' }),
 })
 const fetchAnswer = (content: string) => (async () => new Response(JSON.stringify({ choices: [{ message: { content } }] }))) as typeof fetch
+const characterSource = 'Comprehensive documentation strengthens maintainability through predictable configuration boundaries, while characterization testing improves interoperability between independently initialized authentication, authorization, serialization, and synchronization components.'
 
 // Self-written fixtures only: none of the protected dataset is copied into these tests.
 describe('public excerpt checks', () => {
@@ -169,6 +170,69 @@ describe('public excerpt checks', () => {
     })
   }
 
+  for (const fixture of [
+    { lang: 'en', source: characterSource, aside: 'Our aside.' },
+    { lang: 'zh', source: `接口：${characterSource}`, aside: '我们另作说明。' },
+  ]) {
+    const unit = { ...shortPost, text: fixture.source }
+    const parts = fixture.source.split(/\s+/)
+    const fragment = (words: string[]) => {
+      const groups: string[] = []
+      for (let i = 0; i < words.length; i += 3) groups.push(words.slice(i, i + 3).join(' '))
+      return groups.join(` ${fixture.aside} `)
+    }
+    const text = fragment(parts)
+
+    it(`rejects scattered overlap exceeding 240 characters below word and Han limits (${fixture.lang})`, () => {
+      expect(characterSource.split(/\s+/)).toHaveLength(22)
+      expect(characterSource).toHaveLength(270)
+      expect(characterSource.replace(/[^a-z]/gi, '')).toHaveLength(244)
+      expect(shortEnough(fixture.source)).toBe(false)
+      expect(withinExcerptBudget([text], [unit], [], [url])).toBe(false)
+      expect(parse(answer([point(text)]), [unit])).toBeUndefined()
+      expect(withinExcerptBudget(parts.map(word => `${word} ${fixture.aside}`), [unit], [], [url])).toBe(false)
+      const first = parts.slice(0, 2).join(' ')
+      const rest = fragment(parts.slice(2))
+      expect(checkQuote(first, [unit])).toEqual({ text: first, url })
+      expect(withinExcerptBudget([rest], [unit], [{ text: first, url: `${url}?s=20#part` }], [url])).toBe(false)
+      expect(parse(answer([point(rest, first)]), [unit])).toBeUndefined()
+      const chunks: Unit[] = [parts.slice(0, 2), parts.slice(2)].map((words, i) => ({
+        ...unit, id: `method:chars:${i}`, kind: 'method', text: 'Our interpretation.',
+        quotes: [{ text: words.join(' '), url: i ? `${url}?s=20#part` : url }],
+      }))
+      expect(withinExcerptBudget([text], chunks, [], [url])).toBe(false)
+    })
+
+    it(`returns only links and never caches the fragmented character counterexample (${fixture.lang})`, async () => {
+      const store = openStore(':memory:')
+      try {
+        let calls = 0
+        const app = createAskApp({ config: config(), units: [unit], store, log: () => {}, fetch: (async () => {
+          calls++
+          return fetchAnswer(answer([point(text)]))('unused')
+        }) as typeof fetch })
+        for (let i = 0; i < 2; i++) {
+          const response = await app.request('/api/ask', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ q: 'documentation', lang: fixture.lang }) })
+          expect(response.status).toBe(200)
+          expect(await response.json()).toEqual({
+            mode: 'search', reason: 'unverified', message: '', cached: false,
+            citations: [{ n: 1, kind: 'post', sourceUrl: url }],
+          })
+        }
+        expect(calls).toBe(2)
+      } finally { store.close() }
+    })
+  }
+
+  it('shares the 240 character boundary between scattered overlap and explicit quotes', () => {
+    const quote = 'a'.repeat(120)
+    for (const length of [120, 121]) {
+      const text = 'b'.repeat(length)
+      const unit = { ...shortPost, text: `${quote} ${text}` }
+      expect(withinExcerptBudget([text], [unit], [{ text: quote, url }], [url])).toBe(length === 120)
+    }
+  })
+
   it('keeps the character ceiling when recording source sentence boundaries', () => {
     const text = `${'a'.repeat(110)}${'.'.repeat(30)} ${'b'.repeat(110)}`
     expect(withinExcerptBudget([text], [{ ...shortPost, text }], [], [url])).toBe(false)
@@ -243,6 +307,32 @@ describe('public excerpt checks', () => {
 })
 
 describe('persistent answer content version', () => {
+  it('does not reuse a fragmented character counterexample cached under the review-3 policy', async () => {
+    const store = openStore(':memory:')
+    try {
+      const cfg = config()
+      const unit = { ...shortPost, text: characterSource }
+      const digest = createHash('sha256').update(JSON.stringify([[
+        unit.id, 'post', '', unit.text, null, url, null, [],
+      ]])).digest('hex')
+      const oldKey = cacheKey('documentation', 'en', `${digest}:${cfg.model}:methodology-v3-excerpt-totals`)
+      const text = characterSource.split(/\s+/).map((word, i) => `${i && i % 3 === 0 ? 'Our aside. ' : ''}${word}`).join(' ')
+      store.putCache(oldKey, JSON.stringify({ mode: 'answer', title: 'Unsafe cached answer', points: [{ text }], citations: [], cached: false }), 86_400_000, Date.now())
+      let calls = 0
+      const app = createAskApp({ config: cfg, units: [unit], store, log: () => {}, fetch: (async () => {
+        calls++
+        return fetchAnswer(answer([point(text)]))('unused')
+      }) as typeof fetch })
+      for (let i = 0; i < 2; i++) {
+        expect(await (await request(app, 'documentation')).json()).toEqual({
+          mode: 'search', reason: 'unverified', message: '', cached: false,
+          citations: [{ n: 1, kind: 'post', sourceUrl: url }],
+        })
+      }
+      expect(calls).toBe(2)
+    } finally { store.close() }
+  })
+
   it('does not reuse the review-2 unsafe answer cached by the previous excerpt policy', async () => {
     const store = openStore(':memory:')
     try {

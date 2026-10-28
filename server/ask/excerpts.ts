@@ -124,7 +124,7 @@ export function withinExcerptBudget(fields: string[], units: Unit[], quotes: { t
     const vocabulary = new Set(texts.flatMap(text => tokens(normalized(text)).map(t => t[0])))
     const overlap = measure(tokens(output).filter(t => vocabulary.has(t[0])).map(t => t[0]).join(' '))
     const quoted = used.get(url)
-    if (overlap.words + (quoted?.words ?? 0) > MAX_WORDS || overlap.cjk + (quoted?.cjk ?? 0) > MAX_CJK) return false
+    if (overlap.words + (quoted?.words ?? 0) > MAX_WORDS || overlap.cjk + (quoted?.cjk ?? 0) > MAX_CJK || overlap.chars + (quoted?.chars ?? 0) > MAX_CHARS) return false
     const excerpts = copiedExcerpts(output, texts)
     if (excerpts.length && linked && !linked.has(url)) return false
     for (const excerpt of excerpts) if (!take(url, excerpt.text, excerpt.sentenceCount)) return false
