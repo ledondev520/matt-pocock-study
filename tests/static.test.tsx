@@ -813,6 +813,33 @@ it('the site notice appears once, on the licences page and its twin, next to the
 
 // Home: search box on top, then "what to learn today" (each item opens the entry it names), then the
 // notes index; nothing else in <main> besides the copy line.
+for (const lang of ['zh', 'en'] as const) {
+  it(`${lang} home Markdown has the same six methods as today's HTML`, async () => {
+    const doc = new JSDOM(await readFile(`dist/${lang}/index.html`, 'utf8')).window.document
+    const links = [...doc.querySelectorAll('.today h2 a')]
+    const expected = ['educator-career', 'state-modeling', 'align-grill', 'context-mgmt', 'domain-language', 'feedback-loops']
+      .map(slug => `/${lang}/methods/${slug}`)
+    expect(links.map(a => a.getAttribute('href'))).toEqual(expected)
+    const markdown = await readFile(`dist/${lang}/index.md`, 'utf8')
+    const today = markdown.split(`## ${lang === 'zh' ? '今天学什么' : 'What to learn today'}\n`)[1]?.split('\n## ')[0] ?? ''
+    expect([...today.matchAll(/\]\(([^)]+)\)/g)].map(match => match[1])).toEqual(expected.map(href => `${site()}${href}.md`))
+    for (const link of links) {
+      expect(today).toContain(`[${link.textContent}](${site()}${link.getAttribute('href')}.md)`)
+      expect(markdownText(today)).toContain(plain(link.closest('li')!.querySelector('p')!.textContent!))
+    }
+  })
+
+  it(`${lang} full text includes every method's complete Markdown body`, async () => {
+    const full = await readFile(lang === 'zh' ? 'dist/zh/llms-full.txt' : 'dist/llms-full.txt', 'utf8')
+    expect(methodSlugs).toHaveLength(31)
+    for (const slug of methodSlugs) {
+      const markdown = await readFile(`dist/${lang}/methods/${slug}.md`, 'utf8')
+      expect(markdown, slug).toMatch(/^# .+\n\n## /)
+      expect(full, `${lang}/${slug} includes its body, examples and source links`).toContain(markdown)
+    }
+  })
+}
+
 it('home pages lead with search and what to learn today, then the notes', async () => {
   for (const [file, lang] of [['dist/zh/index.html', 'zh'], ['dist/en/index.html', 'en'], ['dist/index.html', 'zh']] as const) {
     const doc = new JSDOM(await readFile(file, 'utf8')).window.document
