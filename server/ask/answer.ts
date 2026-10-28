@@ -3,10 +3,10 @@
 // and every link is built here from the unit, never taken from the model.
 import { contextFits, explanationsAreIndependent, quotesWithinBudget, shortEnough } from './excerpts'
 import type { ChatMessage } from './deepseek'
-import { isAllowedSourceUrl, isSitePath, type Unit } from './units'
+import { isAllowedSourceUrl, isSitePath, originalPost, type Unit } from './units'
 
 export type Lang = 'zh' | 'en'
-export const PROMPT_VERSION = 'methodology-v7-extract-markers'
+export const PROMPT_VERSION = 'methodology-v8-combined-overlap'
 
 export interface Citation { n: number; kind: Unit['kind']; date?: string; sourceUrl?: string; siteUrl?: string; title?: string; snippet?: string }
 export interface Point { title: string; text: string; quote?: string; quoteUrl?: string; cites: number[] }
@@ -74,7 +74,7 @@ interface QuoteChunk { id: string; owner: number; text: string; url: string }
 /** Ephemeral ids are scoped to this retrieval; the on-disk chunk format is unchanged. */
 export function quoteChunks(units: Unit[]): QuoteChunk[] {
   return units.flatMap((u, owner) => [
-    ...(u.kind === 'post' && isAllowedSourceUrl(u.sourceUrl) ? [{ id: `S${owner + 1}`, owner, text: u.text.replace(/^[^\n]* · Matt Pocock, \d{4}-\d{2}-\d{2}\r?\n/, ''), url: u.sourceUrl }] : []),
+    ...(u.kind === 'post' && isAllowedSourceUrl(u.sourceUrl) ? [{ id: `S${owner + 1}`, owner, text: originalPost(u).text, url: u.sourceUrl }] : []),
     ...(u.quotes ?? []).flatMap((q, i) => isAllowedSourceUrl(q.url) ? [{ id: `S${owner + 1}:Q${i + 1}`, owner, text: q.text, url: q.url }] : []),
   ])
 }
@@ -128,7 +128,8 @@ export async function parseAnswer(content: string, units: Unit[], siteUrl: strin
   const title = typeof value.title === 'string' ? stripLinks(value.title) : ''
   const quotes = points.flatMap(p => p.quote && p.quoteUrl ? [{ text: p.quote, url: p.quoteUrl }] : [])
   if (!quotesWithinBudget(quotes)) return undefined
-  if (!await explanationsAreIndependent([title, ...points.flatMap(p => [p.title, p.text]), ...citations.map(c => c.title ?? '')], units, [...citations.flatMap(c => c.sourceUrl ? [c.sourceUrl] : []), ...quotes.map(q => q.url)])) {
+  const citationTitles = [...numbering.keys()].map(i => units[i].kind === 'post' ? originalPost(units[i]).title : units[i].title)
+  if (!await explanationsAreIndependent([title, ...points.flatMap(p => [p.title, p.text]), ...citationTitles], units, [...citations.flatMap(c => c.sourceUrl ? [c.sourceUrl] : []), ...quotes.map(q => q.url)], quotes)) {
     // Discard the entire explanation, including titles and metadata. Keep only code-extracted
     // quotes and links. With no safe quote, the caller uses its links-only search response.
     const extracted = points.filter(p => p.quote).map(p => ({ ...p, title: '', text: '' }))

@@ -41,6 +41,18 @@ export interface Unit {
   quotes?: Anchor[]
 }
 
+/** The post exporter prefixes our methodology title, not the author's original title.
+ * Recognize that exact heading before excluding it from protected source text. Plain posts
+ * without this wrapper retain their real titles in the overlap check.
+ */
+export function originalPost(unit: Unit): { title: string; text: string } {
+  const heading = /^([^\n]*) · Matt Pocock, \d{4}-\d{2}-\d{2}\r?\n/.exec(unit.text)
+  if (heading && unit.title.replace(/ \((?:history|superseded)\)$/, '') === heading[1]) {
+    return { title: '', text: unit.text.slice(heading[0].length) }
+  }
+  return { title: unit.title, text: unit.text }
+}
+
 /** Public units built at build time from the site's own content (see scripts/ask-index.ts). */
 export interface PublicIndex { version: 1; units: Unit[] }
 
