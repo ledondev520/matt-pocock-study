@@ -61,7 +61,13 @@ default port 8788) and serves `POST /api/ask`; `GET /healthz` is for local check
 - Optional private sources, read on the server only and never published: `ASK_DATASET_DIR`
   (a directory of `matt-posts-<year>.jsonl`) and `ASK_CHUNKS_FILE` (methodology chunks, JSON or
   JSON Lines; format adapter in `server/ask/methodology-adapter.ts`). Responses carry only short
-  checked quotes (at most two sentences, 25 words / 60 Han characters per original across the response) and links. Copied answer prose is checked against the same budget; unsafe output falls back to bounded search excerpts or links alone.
+  checked quotes and links. Per original, quotes and copied prose share hard totals of 25 words,
+  50 Han characters and 240 characters across all fields and chunks. Each disconnected match
+  counts as at least one sentence, with at most two sentences total even if punctuation is omitted.
+  Isolated overlapping words and Han characters also consume the word/Han totals, including
+  repeats and ambiguous common words.
+  Rejected model output returns source links alone; other search fallbacks use checked excerpts
+  or links alone if their cumulative budget is exceeded.
 - Off by default: answers need `ASK_ENABLED=1` and `DEEPSEEK_API_KEY` in the environment. Without
   them the endpoint still returns the closest passages (`mode: "search"`).
 - Logs are one JSON line per request with hashes only (question hash, daily-salted client hash),

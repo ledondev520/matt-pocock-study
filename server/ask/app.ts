@@ -140,7 +140,7 @@ export function createAskApp(deps: AskDeps) {
 
     const fallback = (reason: string, extra: Record<string, unknown> = {}): Response => {
       let citations: Citation[] = units.map((u, i) => ({ ...citationFor(u, i + 1, config.siteUrl), snippet: shortExcerpt(u.text) }))
-      if (!withinExcerptBudget(citations.flatMap(c => [c.title ?? '', c.snippet ?? '']), units, [], citations.flatMap(c => c.sourceUrl ? [c.sourceUrl] : []))) {
+      if (reason === 'unverified' || !withinExcerptBudget(citations.flatMap(c => [c.title ?? '', c.snippet ?? '']), units, [], citations.flatMap(c => c.sourceUrl ? [c.sourceUrl] : []))) {
         citations = citations.map(c => ({ ...c, title: undefined, snippet: undefined }))
       }
       return finish({ mode: 'search', reason, message: '', citations, cached: false }, { reason, ...extra })

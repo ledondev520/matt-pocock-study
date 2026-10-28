@@ -27,9 +27,14 @@ function config(over: Partial<AskConfig> = {}): AskConfig {
 }
 /** Source id the server gave a unit, read from the prompt the mock received. */
 const idOf = (prompt: string, attr: string) => prompt.match(new RegExp(`<source id="(S\\d+)"[^>]*${attr.replace(/[.?#/]/g, '\\$&')}`))?.[1]
-const goodAnswer = (prompt: string) => JSON.stringify({ found: true, title: 'Split by reversibility', points: [
+const overBudgetAnswer = (prompt: string) => JSON.stringify({ found: true, title: 'Split by reversibility', points: [
   { title: 'Ship behind a flag first', text: 'Put everything in a first PR you can roll back. See https://evil.example/x and [here](https://evil.example).', quote: 'the first one ships everything behind a flag and is easy to roll back', sources: [idOf(prompt, POST_URL)] },
   { title: 'Flip in a second PR', text: 'The second PR crosses the one-way door.', quote: 'Matt never said this sentence at all', sources: [idOf(prompt, 'site="/zh/knowledge#n1"'), 'S9'] },
+  { title: 'Unlinked', text: 'No usable source.', sources: ['S42'] },
+] })
+const goodAnswer = (prompt: string) => JSON.stringify({ found: true, title: 'Manage reversibility', points: [
+  { title: 'Stage delivery', text: 'Prefer reversible increments. See https://evil.example/x and [here](https://evil.example).', quote: 'the first one ships everything behind a flag and is easy to roll back', sources: [idOf(prompt, POST_URL)] },
+  { title: 'Delay irreversible decisions', text: 'Review risk before activation.', quote: 'Matt never said this sentence at all', sources: [idOf(prompt, 'site="/zh/knowledge#n1"'), 'S9'] },
   { title: 'Unlinked', text: 'No usable source.', sources: ['S42'] },
 ] })
 function upstream(answer: string | ((prompt: string) => string) = goodAnswer) {
@@ -58,6 +63,23 @@ function setup(over: Partial<AskConfig> = {}, fetch = upstream()) {
 }
 
 describe('POST /api/ask', () => {
+  it('rejects the former success fixture whose prose and quote exceed the shared word limit', async () => {
+    const { ask, calls } = setup({}, upstream(overBudgetAnswer))
+    for (let i = 0; i < 2; i++) {
+      const response = await ask()
+      expect(response.status).toBe(200)
+      const body = await response.json()
+      expect(body).toMatchObject({ mode: 'search', reason: 'unverified', cached: false })
+      expect(body.citations.length).toBeGreaterThan(0)
+      for (const citation of body.citations) {
+        expect(citation).not.toHaveProperty('title')
+        expect(citation).not.toHaveProperty('snippet')
+      }
+      expect(body).not.toHaveProperty('points')
+    }
+    expect(calls).toHaveLength(2)
+  })
+
   it('answers as a method with verified short quotes and links built by the server', async () => {
     const { ask, calls } = setup()
     const res = await ask()

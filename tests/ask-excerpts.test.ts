@@ -6,7 +6,7 @@ import { describe, expect, it } from 'vitest'
 import { createAskApp, cacheKey } from '../server/ask/app'
 import { checkQuote, parseAnswer } from '../server/ask/answer'
 import { loadConfig } from '../server/ask/config'
-import { shortEnough, shortExcerpt } from '../server/ask/excerpts'
+import { shortEnough, shortExcerpt, withinExcerptBudget } from '../server/ask/excerpts'
 import { openStore, type Store } from '../server/ask/store'
 import type { Unit } from '../server/ask/units'
 
@@ -40,10 +40,11 @@ describe('public excerpt checks', () => {
     expect(shortExcerpt(shortPost.text)).toBe('Start small. Adjust quickly.')
     expect(shortExcerpt('先分拆。再验证。后发布。')).toBe('先分拆。再验证。')
     expect(shortExcerpt(Array.from({ length: 26 }, (_, i) => `word${i}`).join(' ')).split(' ')).toHaveLength(25)
-    expect(shortExcerpt('字'.repeat(61))).toBe('字'.repeat(60))
+    expect(shortExcerpt('字'.repeat(61))).toBe('字'.repeat(50))
     expect(shortExcerpt('a'.repeat(300))).toHaveLength(240)
     expect(shortEnough('word,'.repeat(26))).toBe(false)
     expect(shortEnough('字'.repeat(2) + ' word'.repeat(26))).toBe(false)
+    expect(shortEnough('Start small\nAdjust quickly\nBuild trust')).toBe(false)
   })
 
   for (const field of ['text', 'point title', 'answer title', 'citation title']) {
@@ -57,6 +58,120 @@ describe('public excerpt checks', () => {
 
   it('rejects three copied short sentences in explanations even without a quote field', () => {
     expect(parse(answer([point('Start small. Adjust quickly. Build trust.')]))).toBeUndefined()
+  })
+
+  for (const fixture of [
+    { lang: 'en', source: shortPost.text, fragments: ['Start small', 'Adjust quickly', 'Build trust'], explanation: 'We can inspect risk', text: 'Start small. We can inspect risk. Adjust quickly. Then review our assumptions. Build trust.', q: 'small' },
+    { lang: 'zh', source: '先分拆。再验证。后发布。', fragments: ['先分拆', '再验证', '后发布'], explanation: '我们检查风险', text: '先分拆。我们检查风险。再验证。我们检查依赖。后发布。', q: '分拆' },
+  ]) {
+    const unit = { ...shortPost, text: fixture.source }
+    it(`rejects interleaved source sentences with or without output punctuation (${fixture.lang})`, () => {
+      for (const text of [fixture.text, fixture.fragments.join(` ${fixture.explanation} `), fixture.fragments.join(' ')]) {
+        expect(withinExcerptBudget([text], [unit], [], [url])).toBe(false)
+        expect(parse(answer([point(text)]), [unit])).toBeUndefined()
+      }
+    })
+
+    it(`accumulates unpunctuated excerpts across fields, points, chunks and quotes (${fixture.lang})`, () => {
+      const [first, second, third] = fixture.fragments
+      expect(parse(answer([{ ...point(`${second} ${fixture.explanation} ${third}`), title: first }]), [unit])).toBeUndefined()
+      expect(parse(answer([{ ...point(third), title: second }], first), [unit])).toBeUndefined()
+      expect(parse(answer([point(`${second} ${fixture.explanation} ${third}`)]), [{ ...unit, title: first }])).toBeUndefined()
+      expect(parse(answer(fixture.fragments.map(text => point(text))), [unit])).toBeUndefined()
+      expect(parse(answer([point(`${first} ${fixture.explanation} ${second}`, third)]), [unit])).toBeUndefined()
+      const chunks: Unit[] = fixture.fragments.map((text, i) => ({ ...unit, id: `method:${i}`, kind: 'method', text: 'Our interpretation.', quotes: [{ text, url: i ? `${url}?s=20#part` : url }] }))
+      expect(withinExcerptBudget(fixture.fragments, chunks, [], [url])).toBe(false)
+    })
+
+    it(`rejects and never caches the report's interleaved answer (${fixture.lang})`, async () => {
+      const store = openStore(':memory:')
+      try {
+        let calls = 0
+        const app = createAskApp({ config: config(), units: [unit], store, log: () => {}, fetch: (async () => {
+          calls++
+          return fetchAnswer(answer([point(fixture.text)]))('unused')
+        }) as typeof fetch })
+        for (let i = 0; i < 2; i++) {
+          const response = await app.request('/api/ask', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ q: fixture.q, lang: fixture.lang }) })
+          expect(response.status).toBe(200)
+          const body = await response.json()
+          expect(body).toMatchObject({ mode: 'search', reason: 'unverified', cached: false, citations: [{ sourceUrl: url }] })
+          expect(body.citations[0]).not.toHaveProperty('snippet')
+          expect(body.citations[0]).not.toHaveProperty('title')
+          expect(JSON.stringify(body)).not.toContain(fixture.text)
+        }
+        expect(calls).toBe(2)
+      } finally { store.close() }
+    })
+  }
+
+  it('enforces cumulative word and Han limits without sentence punctuation', () => {
+    const words = Array.from({ length: 26 }, (_, i) => `word${i}`)
+    const han = Array.from({ length: 51 }, (_, i) => String.fromCodePoint(0x4e00 + i))
+    for (const parts of [words.slice(0, 13).join(' '), words.slice(13).join(' ')]) expect(shortEnough(parts)).toBe(true)
+    expect(withinExcerptBudget([words.slice(0, 25).join(' ')], [{ ...shortPost, text: words.join(' ') }], [], [url])).toBe(true)
+    expect(withinExcerptBudget([words.slice(0, 13).join(' '), words.slice(13).join(' ')], [{ ...shortPost, text: words.join(' ') }], [], [url])).toBe(false)
+    expect(shortEnough('字'.repeat(50))).toBe(true)
+    expect(shortEnough('字'.repeat(51))).toBe(false)
+    const parts = [han.slice(0, 25).join(''), han.slice(25, 51).join('')]
+    expect(withinExcerptBudget(parts, [{ ...shortPost, text: han.join('') }], [], [url])).toBe(false)
+  })
+
+  for (const fixture of [
+    { lang: 'en', parts: Array.from({ length: 26 }, (_, i) => `term${i}`), separator: ' ', limit: 25 },
+    { lang: 'zh', parts: Array.from({ length: 51 }, (_, i) => String.fromCodePoint(0x4e00 + i)), separator: '', limit: 50 },
+  ]) {
+    const source = fixture.parts.join(fixture.separator)
+    const unit = { ...shortPost, text: source }
+    const fragment = (parts: string[]) => {
+      const runs: string[] = []
+      for (let i = 0; i < parts.length; i += 3) runs.push(parts.slice(i, i + 3).join(fixture.separator))
+      return runs.join(' aside ')
+    }
+    const text = fragment(fixture.parts)
+
+    it(`caps even isolated overlap without source or output sentence punctuation (${fixture.lang})`, () => {
+      expect(withinExcerptBudget([fragment(fixture.parts.slice(0, fixture.limit))], [unit], [], [url])).toBe(true)
+      expect(withinExcerptBudget([text], [unit], [], [url])).toBe(false)
+      expect(parse(answer([point(text)]), [unit])).toBeUndefined()
+      expect(withinExcerptBudget(fixture.parts, [unit], [], [url])).toBe(false)
+      // Common or repeated tokens are ambiguous and must not escape the hard total.
+      expect(withinExcerptBudget([Array(fixture.limit + 1).fill(fixture.parts[0]).join(' aside ')], [unit], [], [url])).toBe(false)
+      const first = fixture.parts.slice(0, 13).join(fixture.separator)
+      const rest = fragment(fixture.parts.slice(13))
+      expect(withinExcerptBudget([rest], [unit], [{ text: first, url: `${url}?s=20#part` }], [url])).toBe(false)
+      expect(parse(answer([point(rest, first)]), [unit])).toBeUndefined()
+      const chunks: Unit[] = [fixture.parts.slice(0, 13), fixture.parts.slice(13)].map((parts, i) => ({
+        ...unit, id: `method:${i}`, kind: 'method', text: 'Our interpretation.',
+        quotes: [{ text: parts.join(fixture.separator), url: i ? `${url}?s=20#part` : url }],
+      }))
+      expect(withinExcerptBudget([text], chunks, [], [url])).toBe(false)
+    })
+
+    it(`returns only source links and never caches an over-budget fragmented answer (${fixture.lang})`, async () => {
+      const store = openStore(':memory:')
+      try {
+        let calls = 0
+        const app = createAskApp({ config: config(), units: [unit], store, log: () => {}, fetch: (async () => {
+          calls++
+          return fetchAnswer(answer([point(text)]))('unused')
+        }) as typeof fetch })
+        for (let i = 0; i < 2; i++) {
+          const response = await app.request('/api/ask', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ q: fixture.parts.slice(1, 3).join(fixture.separator), lang: fixture.lang }) })
+          expect(response.status).toBe(200)
+          expect(await response.json()).toEqual({
+            mode: 'search', reason: 'unverified', message: '', cached: false,
+            citations: [{ n: 1, kind: 'post', sourceUrl: url }],
+          })
+        }
+        expect(calls).toBe(2)
+      } finally { store.close() }
+    })
+  }
+
+  it('keeps the character ceiling when recording source sentence boundaries', () => {
+    const text = `${'a'.repeat(110)}${'.'.repeat(30)} ${'b'.repeat(110)}`
+    expect(withinExcerptBudget([text], [{ ...shortPost, text }], [], [url])).toBe(false)
   })
 
   it('counts quotes across points and chunks of the same original, including URL variants', () => {
@@ -114,19 +229,42 @@ describe('public excerpt checks', () => {
     } finally { store.close() }
   })
 
-  it('degrades copied model output to a truncated, linked search excerpt', async () => {
+  it('degrades copied model output to source links alone', async () => {
     const store = openStore(':memory:')
     try {
       const app = createAskApp({ config: config(), units: [longPost], store, log: () => {}, fetch: fetchAnswer(answer([point(longText)])) })
       const body = await (await request(app, 'workflow')).json()
       expect(body).toMatchObject({ mode: 'search', reason: 'unverified', citations: [{ sourceUrl: url }] })
-      expect(body.citations[0].snippet).toBe('A sample workflow phase 0 requires a separate confirmation. A sample workflow phase 1 requires a separate confirmation.')
+      expect(body.citations[0]).not.toHaveProperty('snippet')
+      expect(body.citations[0]).not.toHaveProperty('title')
       expect(JSON.stringify(body)).not.toContain(longText)
     } finally { store.close() }
   })
 })
 
 describe('persistent answer content version', () => {
+  it('does not reuse the review-2 unsafe answer cached by the previous excerpt policy', async () => {
+    const store = openStore(':memory:')
+    try {
+      const cfg = config()
+      // Fixed previous-policy key, with the same current content digest: only the policy changes.
+      const digest = createHash('sha256').update(JSON.stringify([[
+        shortPost.id, 'post', '', shortPost.text, null, url, null, [],
+      ]])).digest('hex')
+      const oldKey = cacheKey('small', 'en', `${digest}:${cfg.model}:methodology-v2-excerpts`)
+      store.putCache(oldKey, JSON.stringify({ mode: 'answer', title: 'Unsafe cached answer', points: [{ text: 'Start small. We can inspect risk. Adjust quickly. Then review our assumptions. Build trust.' }], citations: [], cached: false }), 86_400_000, Date.now())
+      let calls = 0
+      const app = createAskApp({ config: cfg, units: [shortPost], store, log: () => {}, fetch: (async () => {
+        calls++
+        return fetchAnswer(answer([point()]))('unused')
+      }) as typeof fetch })
+      expect(await (await request(app, 'small')).json()).toMatchObject({ mode: 'answer', cached: false, title: 'Workflow' })
+      expect(calls).toBe(1)
+      expect(await (await request(app, 'small')).json()).toMatchObject({ mode: 'answer', cached: true, title: 'Workflow' })
+      expect(calls).toBe(1)
+    } finally { store.close() }
+  })
+
   for (const field of ['text', 'quotes', 'sourceUrl'] as const) {
     it(`invalidates answers after a same-id, same-path ${field} correction and restart`, async () => {
       const dir = await mkdtemp(join(tmpdir(), 'ask-cache-regression-'))
