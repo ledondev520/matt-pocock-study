@@ -96,6 +96,3 @@ answer: 覆盖 domain 的实际依赖，解析别名后检查目标是否位于 
 
 - Matt Pocock，[确定性规则](https://x.com/mattpocockuk/status/2111735524390027405)，2026-10-18。
 - Matt Pocock，[文件阈值实例](https://x.com/mattpocockuk/status/2111708560715292675)，2026-10-18；仅解读。
-- 检查场景、提示与练习由本站编写；[版权说明](/zh/about-and-copyright)。
-
-非官方、非商业的学习整理，与 Matt Pocock 无隶属或背书关系。所引作品版权归原作者；MIT 复用内容另附版权与许可声明。

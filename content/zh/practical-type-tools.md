@@ -127,6 +127,3 @@ kind: inference
 - Matt Pocock，[PropertyKey](https://x.com/mattpocockuk/status/1830935305639145678)，2024-09-03。
 - Matt Pocock，[branded types](https://x.com/mattpocockuk/status/1625173884885401600)，2023-02-13；只链接概念来源。
 - Matt Pocock，[as const](https://x.com/mattpocockuk/status/1623262073244250112)，2023-02-09；只链接概念来源。
-- 全部代码和练习由本站另写，未临摹原帖图片；[版权说明](/zh/about-and-copyright)。
-
-非官方、非商业的学习整理，与 Matt Pocock 无隶属或背书关系。所引作品版权归原作者；MIT 复用内容另附版权与许可声明。

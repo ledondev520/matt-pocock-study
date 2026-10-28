@@ -114,6 +114,3 @@ Explain what an assertion has not validated. Predict and run valid and invalid i
 
 - Matt Pocock, [an introduction to generics](https://x.com/mattpocockuk/status/1625838626742435842), 2023-02-15.
 - [ts-reset repository](https://github.com/mattpocock/ts-reset), independently interpreted from the collected version; no code reused.
-- The code, response data and exercise are ours. [Copyright details](/en/about-and-copyright).
-
-Unofficial, non-commercial study notes, with no affiliation with or endorsement by Matt Pocock. Quoted works belong to their authors; MIT reuse carries separate copyright and licence notices.

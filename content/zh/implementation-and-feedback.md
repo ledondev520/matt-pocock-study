@@ -101,5 +101,3 @@ answer: 两次运行使用相同输入，并对照配置条件。检查要同时
 - [Matt Pocock · 2026-10-01](https://x.com/mattpocockuk/status/2105740664973775163)
 - [反馈回路 / Feedback loops](https://www.aihero.dev/essential-ai-coding-feedback-loops-for-type-script-projects)
 - [Ralph](https://x.com/mattpocockuk/status/2009276031622918474)
-
-非官方、非商业的学习整理，与 Matt Pocock 无隶属或背书关系。所引作品版权归原作者；MIT 复用内容另附版权与许可声明。

@@ -100,5 +100,3 @@ A collaborator can repeat the runs and decide whether they passed. Failure evide
 - [Matt Pocock · 2026-10-01](https://x.com/mattpocockuk/status/2105740664973775163)
 - [Feedback loops](https://www.aihero.dev/essential-ai-coding-feedback-loops-for-type-script-projects)
 - [Ralph](https://x.com/mattpocockuk/status/2009276031622918474)
-
-Independent, unofficial, noncommercial study notes. This site has no affiliation with or endorsement from Matt Pocock. Referenced works belong to their authors; MIT reuse carries separate copyright and license notices.

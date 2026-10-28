@@ -9,9 +9,9 @@
 3. 直接复制或改编文本、代码、模板，只使用已核实为 MIT 的仓库文件；保留该仓库的准确版权行、MIT 许可全文、来源与改编说明。优先读 `skills` 仓库的 MIT 文档，不能因为网页内容相似便改抄 aihero.dev 网页。
 4. 无许可证仓库、aihero.dev 页面、X 帖子与 X Articles 只做独立解读、短引用和链接；不搬词条、提示词长文、代码截图、整串帖子或 Article 全文。若未来要展示完整帖子，另走 X 官方嵌入，不能从本地归档拼成全文展示。
 5. 付费课程、cohort、工作坊、课程练习内容与 NOASSERTION 课程仓库一律不碰。公开可见的课程工具许可证不等于课程内容许可证；本站不使用它们的练习、答案、视频或讲稿。
-6. 不编造「Matt 说过……」，不替他写第一人称经历，不暗示他认可本站；不用他的名字或头像冒充我们的产品身份。致敬区将其作为学习对象介绍，并清楚标明非官方。
+6. 不编造「Matt 说过……」，不替他写第一人称经历，不暗示他认可本站；不用他的名字或头像冒充我们的产品身份。非官方身份写在许可页的本站声明里。
 7. 第三方评论属于各自作者，不能归到 Matt 名下。本版只转述评论所揭示的争议，不复制第三方评论原话。书籍概念注明原作者，不因 Matt 引用过就复制书中段落。
-8. 所有页面页脚使用本站声明：「非官方、非商业的学习整理，与 Matt Pocock 无隶属或背书关系。所引作品版权归原作者；MIT 复用内容另附版权与许可声明。」非商业性质不替代许可。
+8. 本站声明只在许可页（`/zh/licenses`、`/en/licenses`）出现一次：「本站是非官方、非商业的学习整理，与 Matt Pocock 无隶属或背书关系。引文和链接的作品版权归原作者；本站解读不代表原作者观点，原话与语境以原文为准。」页面正文、页脚、`.md` 导出和 llms 文件不再重复（构建拦截，见 `scripts/content.ts` 的 `disclaimerPattern`）；页脚只放一个「许可」链接。非商业性质不替代许可。
 
 ## 信息架构与交付约定
 
@@ -19,7 +19,7 @@
 
 | 位置 / 栏目 | 页面 slug | 阅读目的 |
 |---|---|---|
-| 顶部致敬区、首页 | `learn-from-matt` | 认识学习对象与本站边界 |
+| 首页 | —（`learn-from-matt` 已于 PR #8 删除） | 今天学什么、搜索、笔记目录 |
 | 核心理念 | `core-principles` | 从代码产量转向可维护、可验证的系统 |
 | Punch lines 精选 | `punch-lines` | 记住短句，也理解适用条件 |
 | AI coding 工作流 | `ai-coding-workflow`、`alignment-and-prototypes`、`specs-and-tickets`、`implementation-and-feedback`、`review-and-pr`、`context-and-handoff` | 按问题规模选择步骤，逐步形成反馈闭环 |
@@ -29,7 +29,7 @@
 | 开源仓库导览 | `open-source-guide` | 按需要选择入口，先看许可 |
 | 速查表 | `cheat-sheets` | 写作完成后从各课压缩出操作索引 |
 | 学习路径 | `learning-path` | 按能力与目标安排练习 |
-| 全站固定页 | `about-and-copyright` | 披露来源、许可、非官方身份与缺口 |
+| 全站固定页 | —（`about-and-copyright` 已于 PR #8 删除，声明与改编登记并入许可页） | — |
 
 - 中英共用上述 kebab-case slug；建议语言路由为 `/zh/<slug>`、`/en/<slug>`，由骨架实现者决定最终路由。这里的 slug 不因翻译改名。
 - 每页均写成完整中文与完整英文，段落不混排；下面英文仅为确定的页面标题。引文保留英文原文。
@@ -42,7 +42,7 @@
 
 ## 逐页提纲
 
-### 01 · 顶部致敬区与首页
+### 01 · 顶部致敬区与首页（已删除，PR #8；以下为历史规划）
 
 - Slug：`learn-from-matt`
 - 标题：向 Matt Pocock 学习 / Learning from Matt Pocock
@@ -413,7 +413,7 @@
 |---|---|---|
 | Want to learn TypeScript for free? | https://x.com/mattpocockuk/status/1566739592249835520 | 2022-09-05 |
 
-### 21 · 关于本站与版权
+### 21 · 关于本站与版权（已删除，PR #8；以下为历史规划）
 
 - Slug：`about-and-copyright`
 - 标题：关于本站与版权 / About This Site and Copyright
@@ -451,7 +451,7 @@
 | skills · https://github.com/mattpocock/skills | `skills/engineering/pr/SKILL.md` | `Copyright (c) 2026 Matt Pocock` | 改编概览 / 证据 / 风险模板；保留其 Dex Horthy / HumanLayer 致谢来源；`review-and-pr`、`cheat-sheets` |
 | skills · https://github.com/mattpocock/skills | `skills/productivity/teach/SKILL.md` | `Copyright (c) 2026 Matt Pocock` | 改编小课、练习与复习结构；`writing-to-teach`、`learning-path`、`cheat-sheets`；若其他页面直接套用模板，也按此来源标注 |
 
-页面正文不写「改编，MIT」、版权行或「本页改编自…」说明（2026-10-28 起；构建产物测试拦截，见 tests/static.test.tsx）：上述来源文件登记在 `about-and-copyright`，版权行与许可全文在 `/zh/licenses`、`/en/licenses`（每页页脚链接）。每份单页 Markdown 导出末尾直接带上完整声明；合集按来源保留一份完整声明，并能定位受其覆盖的页面。本站添加的例子和讲解不得因此被错误标为原作者原文。
+页面正文不写「改编，MIT」、版权行或「本页改编自…」说明（2026-10-28 起；构建产物测试拦截，见 tests/static.test.tsx）：上述来源文件登记在 `scripts/licences.mjs` 的 `adapted`，显示在许可页，版权行与许可全文在 `/zh/licenses`、`/en/licenses`（每页页脚链接）。每份单页 Markdown 导出末尾直接带上完整声明；合集按来源保留一份完整声明，并能定位受其覆盖的页面。本站添加的例子和讲解不得因此被错误标为原作者原文。
 
 PR 文件的上游致谢在本地原文件中给出 https://github.com/humanlayer/skills/blob/main/plugins/show-me/skills/show-me/SKILL.md 。这里只保留来源致谢，不从该上游取内容，也不推定它的许可。
 
@@ -527,7 +527,7 @@ PR 文件的上游致谢在本地原文件中给出 https://github.com/humanlaye
 - 每课先呈现问题，再给方法；原创例子有可检查答案，推论与实验注明边界。
 - 只使用本提纲已核实的引文，原话、URL、日期不丢失；同一来源不额外拼成长摘录。无引文也可用本站解释，不为装饰捏造语录。
 - MIT 改编范围与登记表一致，页面、下载与合集均保留准确署名与许可；新增复用先补登记，非 MIT 与课程材料不进入正文。
-- 作者入口、非官方声明、资料截止日、已知缺口和更正入口在两种语言都可见；联系渠道未定时只说明尚未提供，不编造地址。
+- 本站声明在两种语言的许可页可见；页面上只留学习内容；联系渠道未定时只说明尚未提供，不编造地址。
 
 核验完成：已用 rg 固定字符串检索核对 23 条引文的 23 个来源 URL，全部逐字存在于本地原始归档或调研笔记；并核对原帖原文与 UTC 日期，最长 18 个英文词，无引文超过 25 词。
 

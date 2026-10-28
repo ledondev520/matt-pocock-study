@@ -23,7 +23,7 @@ test('"/" shows the Chinese home page from the first paint and stays on it', asy
   await page.waitForTimeout(500)
   expect(new URL(page.url()).pathname).toBe('/')
   expect(await page.locator('html').getAttribute('lang')).toBe('zh')
-  expect(await seen(page)).toEqual(['zh|想清楚，再动手。'])
+  expect(await seen(page)).toEqual(['zh|今天学什么'])
 })
 
 test('"/" with English navigator still opens in Chinese', async ({ browser }) => {
@@ -33,7 +33,7 @@ test('"/" with English navigator still opens in Chinese', async ({ browser }) =>
   await page.goto('/')
   await page.waitForLoadState('networkidle')
   expect(new URL(page.url()).pathname).toBe('/')
-  expect(await seen(page)).toEqual(['zh|想清楚，再动手。'])
+  expect(await seen(page)).toEqual(['zh|今天学什么'])
   await context.close()
 })
 
@@ -77,6 +77,6 @@ test('a stored English choice goes to /en and the "/" document never renders Chi
   // ...and saw no heading and no Chinese text there, at any point or any frame.
   expect(root.filter(r => r.kind !== 'start')).toEqual(root.filter(r => r.kind === 'frame' && !r.cjk))
   // /en rendered English only.
-  expect(en.filter(r => r.kind === 'h1').map(r => `${r.lang}|${r.text}`)).toEqual(['en|Think clearly.Build better.'])
+  expect(en.filter(r => r.kind === 'h1').map(r => `${r.lang}|${r.text}`)).toEqual(['en|What to learn today'])
   expect(en.some(r => r.kind === 'frame')).toBe(true)
 })

@@ -26,12 +26,16 @@ for (const start of ['/', '/zh', '/en/review-and-pr', '/en/corpus', '/zh/license
     // Navigate inside the site (client-side, no reload) to an article, then back home.
     const marker = await page.evaluate(() => (window as unknown as { marker: number }).marker = Math.random())
     const lang = new URL(page.url()).pathname.split('/')[1] || 'zh'
-    await page.locator(`a[href^="/${lang}/"][href$="learn-from-matt"]`).first().click()
-    await expect(page).toHaveURL(new RegExp(`/${lang}/learn-from-matt$`))
-    await expect.poll(() => markdownHref(page)).toEqual([`/${lang}/learn-from-matt.md`])
+    // Home first (the brand link is on every page), then an article from the home notes index.
+    await page.locator('a.brand').click()
+    await expect(page).toHaveURL(new RegExp(`/${lang}$`))
+    await expect.poll(() => markdownHref(page)).toEqual([`/${lang}/index.md`])
+    await page.locator(`.home-notes a[href="/${lang}/core-principles"]`).click()
+    await expect(page).toHaveURL(new RegExp(`/${lang}/core-principles$`))
+    await expect.poll(() => markdownHref(page)).toEqual([`/${lang}/core-principles.md`])
     await expectLanguageLinks(page)
     // The footer's licences link opens the licences view in-site; its twin is licenses.md.
-    await page.locator('footer .footer-note a').click()
+    await page.locator('footer .footer-licenses').click()
     await expect(page).toHaveURL(new RegExp(`/${lang}/licenses$`))
     await expect.poll(() => markdownHref(page)).toEqual([`/${lang}/licenses.md`])
     await expectLanguageLinks(page)

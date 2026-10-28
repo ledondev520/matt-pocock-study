@@ -37,7 +37,7 @@ id: s12-adr-fields
 - **Status** Is this current, undecided or superseded by a named record?
 ```
 
-This field list is ours. Use the team's review and change process to maintain it; another person's committing habits are not a requirement. Update durable reasoning separately from current task progress.
+Use the team's review and change process to maintain it; another person's committing habits are not a requirement. Update durable reasoning separately from current task progress.
 
 ## Start a retrospective with observed evidence
 
@@ -89,6 +89,3 @@ For a lasting rule, use [standards and checks](/en/standards-and-checks) to choo
 - Matt Pocock, [code and decisions](https://x.com/mattpocockuk/status/2107560148243812772), 2026-10-06.
 - Matt Pocock, [retro prompt](https://x.com/mattpocockuk/status/2105951409887949107), 2026-10-02; independently interpreted.
 - Matt Pocock, [withdrawn style experiment](https://x.com/mattpocockuk/status/2085681281795232026), 2026-08-07; independently interpreted.
-- The ADR fields, development record and answer are ours. [Copyright details](/en/about-and-copyright).
-
-Unofficial, non-commercial study notes, with no affiliation with or endorsement by Matt Pocock. Quoted works belong to their authors; MIT reuse carries separate copyright and licence notices.
