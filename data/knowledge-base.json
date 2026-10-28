@@ -2,6 +2,91 @@
   "version": 2,
   "entries": [
     {
+      "id": "matt-notes-2026-10-28-2115368342898848021",
+      "date": "2026-10-28",
+      "source": "matt-notes",
+      "title": "从\"成功之坑\"到\"成功黑洞\"：给 agent 的约束可以拉到最大",
+      "body": [
+        {
+          "text": "以前靠好 API、测试和 lint 把人\"拖向\"正确代码，但坑不能太陡，人会烦，有社会契约；agent 不会烦，所以可以把压力开到无穷，让好代码成为必然。374 赞。"
+        },
+        {
+          "text": "原帖",
+          "href": "https://x.com/mattpocockuk/status/2115368342898848021"
+        },
+        {
+          "text": "。"
+        }
+      ],
+      "url": "https://x.com/mattpocockuk/status/2115368342898848021"
+    },
+    {
+      "id": "matt-notes-2026-10-28-2115394392273895644",
+      "date": "2026-10-28",
+      "source": "matt-notes",
+      "title": "一份好 PR 描述 = 摘要 + 证据 + 合并风险（merge danger），是他 /pr skill 的样板",
+      "body": [
+        {
+          "text": "140 赞。"
+        },
+        {
+          "text": "原帖",
+          "href": "https://x.com/mattpocockuk/status/2115394392273895644"
+        },
+        {
+          "text": "，PR 是 "
+        },
+        {
+          "text": "course-video-manager#2399",
+          "href": "https://github.com/mattpocock/course-video-manager/pull/2399"
+        },
+        {
+          "text": "（只读到链接卡片：10 个文件 +819/−116，描述里给了建议阅读顺序）。补充：评论建议 PR 附前后截图，他说 skill 的 evidence 一节就做这个，这个 PR 用不上但\"是关键工具\"（"
+        },
+        {
+          "text": "回复",
+          "href": "https://x.com/mattpocockuk/status/2115398000172269831"
+        },
+        {
+          "text": "）；还说这个 PR 第一次跑就完全可用（"
+        },
+        {
+          "text": "回复",
+          "href": "https://x.com/mattpocockuk/status/2115395935123767309"
+        },
+        {
+          "text": "），也是\"把复杂前端状态收进 reducer\"的好例子（"
+        },
+        {
+          "text": "回复",
+          "href": "https://x.com/mattpocockuk/status/2115394543281492106"
+        },
+        {
+          "text": "）。"
+        }
+      ],
+      "url": "https://x.com/mattpocockuk/status/2115394392273895644"
+    },
+    {
+      "id": "matt-notes-2026-10-28-2115095830797406478",
+      "date": "2026-10-28",
+      "source": "matt-notes",
+      "title": "\"可验证\"要到 100%：部分可验证的任务最危险，agent 会以为自己验证完了，其实只做了一半",
+      "body": [
+        {
+          "text": "接昨天\"agent 最擅长的任务类型\"的讨论。"
+        },
+        {
+          "text": "回复",
+          "href": "https://x.com/mattpocockuk/status/2115095830797406478"
+        },
+        {
+          "text": "。"
+        }
+      ],
+      "url": "https://x.com/mattpocockuk/status/2115095830797406478"
+    },
+    {
       "id": "matt-notes-2026-10-27-2114749427889979405",
       "date": "2026-10-27",
       "source": "matt-notes",
