@@ -23,6 +23,7 @@ const request = (app: ReturnType<typeof createAskApp>, q = 'workflow review') =>
 })
 const fetchAnswer = (content: string) => (async () => new Response(JSON.stringify({ choices: [{ message: { content } }] }))) as typeof fetch
 const characterSource = 'Comprehensive documentation strengthens maintainability through predictable configuration boundaries, while characterization testing improves interoperability between independently initialized authentication, authorization, serialization, and synchronization components.'
+const punctuationSource = 'Clear docs strengthen maintenance through predictable configuration boundaries, while character testing improves interoperability between independently initialized "authentication", "authorization", "serialization", and "synchronization" components.'
 
 // Self-written fixtures only: none of the protected dataset is copied into these tests.
 describe('public excerpt checks', () => {
@@ -306,7 +307,130 @@ describe('public excerpt checks', () => {
   })
 })
 
+describe('answer character intervals', () => {
+  it('rejects the review-4 punctuation counterexample at the parser', () => {
+    const words = punctuationSource.split(/\s+/)
+    const groups = Array.from({ length: 8 }, (_, i) => words.slice(i * 3, i * 3 + 3).join(' '))
+    expect(punctuationSource).toHaveLength(249)
+    expect(groups.reduce((sum, group) => sum + group.length, 0)).toBe(242)
+    const text = groups.join(' Our aside. ')
+    const unit = { ...shortPost, text: punctuationSource }
+    expect(withinExcerptBudget([text], [unit], [], [url])).toBe(false)
+    expect(parse(answer([point(text)]), [unit])).toBeUndefined()
+  })
+
+  for (const fixture of [
+    { lang: 'en', tokens: ['alpha', 'bravo', 'delta', 'echo'], aside: 'Independent explanation' },
+    { lang: 'zh', tokens: ['先', '拆', '验', '发'], aside: '我们另作说明' },
+  ]) {
+    // Each fragment has exactly 60 characters; punctuation belongs to the source.
+    const fragments = fixture.tokens.map(token => `【“${token}”】${'，；：、'.repeat(16).slice(0, 56 - token.length)}`)
+    const source = fragments.join('↦') + '、'
+    const unit = { ...shortPost, text: source }
+    const chunks: Unit[] = [0, 1].map(i => ({
+      ...unit, id: `method:interval:${i}`, kind: 'method', text: 'Our interpretation.',
+      quotes: [{ text: fragments.slice(i * 2, i * 2 + 2).join('↦') + (i ? '、' : ''), url: i ? `${url}?s=20#part` : url }],
+    }))
+    const splitAnswer = (last: string) => answer([
+      { ...point(fragments[2], last), title: fragments[1] },
+    ], fragments[0])
+
+    it(`counts punctuation, quotes and separated spans at exactly 240/241 (${fixture.lang})`, () => {
+      expect(fragments.map(part => [...part].length)).toEqual([60, 60, 60, 60])
+      for (const extra of ['', '、']) {
+        const parts = [...fragments.slice(0, 3), fragments[3] + extra]
+        // Interleave our prose so the independent sentence limit does not reject four fields.
+        const fields = parts.map(text => `${text} ${fixture.aside}`)
+        const expected = extra === ''
+        expect(withinExcerptBudget([parts.join(` ${fixture.aside} `)], [unit], [], [url])).toBe(expected)
+        expect(withinExcerptBudget(fields, [unit], [], [url])).toBe(expected)
+        expect(withinExcerptBudget(fields.slice(0, 3), [unit], [{ text: parts[3], url: `${url}?s=20#part` }], [url])).toBe(expected)
+        expect(withinExcerptBudget(fields, chunks, [], [url])).toBe(expected)
+        if (expected) expect(parse(splitAnswer(parts[3]), [unit])).toMatchObject({ found: true, title: parts[0], points: [{ title: parts[1], text: parts[2], quote: parts[3] }] })
+        else expect(parse(splitAnswer(parts[3]), [unit])).toBeUndefined()
+      }
+    })
+
+    it(`unions overlapping matches without deduplicating repeated output (${fixture.lang})`, () => {
+      const text = fragments.join('')
+      const duplicateSources = [{ ...unit, text }, { ...unit, id: 'post:duplicate', text: text.slice(30), sourceUrl: `${url}?s=20#part` }]
+      expect([...text]).toHaveLength(240)
+      expect(withinExcerptBudget([text], duplicateSources, [], [url])).toBe(true)
+      expect(withinExcerptBudget([], duplicateSources, [{ text, url }], [url])).toBe(true)
+      expect(withinExcerptBudget([text, fragments[0]], duplicateSources, [], [url])).toBe(false)
+      expect(withinExcerptBudget([text], duplicateSources, [{ text: fragments[0], url }], [url])).toBe(false)
+    })
+
+    it(`counts actual whitespace and original Unicode characters (${fixture.lang})`, () => {
+      const token = fixture.tokens[0]
+      for (const extra of ['', '\t']) {
+        const text = ` \t${token}${'，'.repeat(235 - token.length)}\n  ${extra}`
+        expect([...text]).toHaveLength(extra ? 241 : 240)
+        expect(withinExcerptBudget([text], [{ ...unit, text }], [], [url])).toBe(!extra)
+      }
+      // NFKC expands the ligature but must not inflate the actual copied character count.
+      const text = `ﬃ${'，'.repeat(239)}`
+      expect(withinExcerptBudget([text], [{ ...unit, text }], [], [url])).toBe(true)
+      expect(withinExcerptBudget([`${text}，`], [{ ...unit, text: `${text}，` }], [], [url])).toBe(false)
+      // A copied punctuation/whitespace span must also count without any word anchor.
+      for (const extra of ['', '\t']) {
+        const symbols = `“${'， '.repeat(119)}”${extra}`
+        expect([...symbols]).toHaveLength(extra ? 241 : 240)
+        expect(withinExcerptBudget([symbols], [{ ...unit, text: `${fixture.tokens[0]}${symbols}` }], [], [url])).toBe(!extra)
+      }
+    })
+
+    it(`degrades 241 copied characters to links without caching, while caching 240 (${fixture.lang})`, async () => {
+      for (const extra of ['', '、']) {
+        const store = openStore(':memory:')
+        try {
+          let calls = 0
+          const app = createAskApp({ config: config(), units: [unit], store, log: () => {}, fetch: (async () => {
+            calls++
+            return fetchAnswer(splitAnswer(fragments[3] + extra))('unused')
+          }) as typeof fetch })
+          for (let i = 0; i < 2; i++) {
+            const response = await app.request('/api/ask', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ q: fixture.tokens[0], lang: fixture.lang }) })
+            expect(response.status).toBe(200)
+            const body = await response.json()
+            if (extra) expect(body).toEqual({ mode: 'search', reason: 'unverified', message: '', cached: false, citations: [{ n: 1, kind: 'post', sourceUrl: url }] })
+            else expect(body).toMatchObject({ mode: 'answer', title: fragments[0], points: [{ title: fragments[1], text: fragments[2], quote: fragments[3] }], cached: i === 1 })
+          }
+          expect(calls).toBe(extra ? 2 : 1)
+        } finally { store.close() }
+      }
+    })
+  }
+})
+
 describe('persistent answer content version', () => {
+  it('isolates review-4 punctuation answers cached under the v4 policy', async () => {
+    const store = openStore(':memory:')
+    try {
+      const cfg = config()
+      const unit = { ...shortPost, text: punctuationSource }
+      const digest = createHash('sha256').update(JSON.stringify([[
+        unit.id, 'post', '', unit.text, null, url, null, [],
+      ]])).digest('hex')
+      const oldKey = cacheKey('configuration', 'en', `${digest}:${cfg.model}:methodology-v4-excerpt-chars`)
+      const words = punctuationSource.split(/\s+/)
+      const text = Array.from({ length: 8 }, (_, i) => words.slice(i * 3, i * 3 + 3).join(' ')).join(' Our aside. ')
+      store.putCache(oldKey, JSON.stringify({ mode: 'answer', title: 'Unsafe cached answer', points: [{ text }], citations: [], cached: false }), 86_400_000, Date.now())
+      let calls = 0
+      const app = createAskApp({ config: cfg, units: [unit], store, log: () => {}, fetch: (async () => {
+        calls++
+        return fetchAnswer(answer([point(text)]))('unused')
+      }) as typeof fetch })
+      for (let i = 0; i < 2; i++) {
+        expect(await (await request(app, 'configuration')).json()).toEqual({
+          mode: 'search', reason: 'unverified', message: '', cached: false,
+          citations: [{ n: 1, kind: 'post', sourceUrl: url }],
+        })
+      }
+      expect(calls).toBe(2)
+    } finally { store.close() }
+  })
+
   it('does not reuse a fragmented character counterexample cached under the review-3 policy', async () => {
     const store = openStore(':memory:')
     try {
