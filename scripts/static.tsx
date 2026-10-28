@@ -11,6 +11,8 @@ import { dropCounts } from './kb/counts'
 import { searchIndexPath } from '../src/lib/search'
 import { learnSource, searchIndex, todayItems } from './learn/source'
 import { knowledgeMarkdown } from './kb/markdown'
+import { timelineItems, timelineMarkdown } from './timeline'
+import { timelineSlug } from '../src/lib/timeline'
 import { routeInfo } from '../src/lib/lang'
 import { siteUrl } from '../src/lib/site'
 import { markdownPath } from '../src/lib/agent'
@@ -22,8 +24,8 @@ import { importCorpus, loadCorpus, queryCorpus, corpusTags } from '../server/cor
 export function pageModel(model: Model, pages: Page[], path: string): Model {
   const { lang, slug, home } = routeInfo(path)
   const currentPage = pages.find(p => p.lang === lang && p.slug === slug)
-  const licenses = slug === licensesSlug, kb = slug === kbSlug
-  const ids = home ? [] : slug === 'corpus' ? ['spot-empty'] : currentPage || licenses || kb ? [] : ['spot-404']
+  const licenses = slug === licensesSlug, kb = slug === kbSlug, timeline = slug === timelineSlug
+  const ids = home ? [] : slug === 'corpus' ? ['spot-empty'] : currentPage || licenses || kb || timeline ? [] : ['spot-404']
   const figures = Object.fromEntries(ids.map(id => [id, model.figures[lang][id]]))
   // Every licence text is shown on /licenses only; other views link to it from the footer.
   return { ...model, currentPage, licences: licenses ? licencesView() : undefined,
@@ -31,6 +33,8 @@ export function pageModel(model: Model, pages: Page[], path: string): Model {
     corpusItems: slug === 'corpus' ? model.corpusItems : [], corpusTags: slug === 'corpus' ? model.corpusTags : [],
     knowledge: kb ? model.knowledge : undefined,
     today: home ? todayItems(learnSource({ knowledge: model.knowledge ?? [], pages: model.pages }), lang) : undefined,
+    // Built from the lessons' quotes and the knowledge base; only the timeline views carry it.
+    timeline: timeline ? timelineItems(lang, pages, model.knowledge ?? []) : undefined,
   }
 }
 export async function staticPages(root = 'dist', kbFile = 'data/knowledge-base.json') {
@@ -46,8 +50,8 @@ export async function staticPages(root = 'dist', kbFile = 'data/knowledge-base.j
     knowledge: validateFeed(JSON.parse(await readFile(kbFile, 'utf8'))).entries.map(dropCounts) }
   db.close()
   const learn = learnSource({ knowledge: model.knowledge ?? [], pages: summaries })
-  if (pages.some(p => p.slug === kbSlug)) throw new Error(`content/*/${kbSlug}.md would collide with the knowledge base view`)
-  const paths = ['/', '/zh', '/en', ...pages.map(p => `/${p.lang}/${p.slug}`), `/zh/${licensesSlug}`, `/en/${licensesSlug}`, `/zh/${kbSlug}`, `/en/${kbSlug}`, '/404', '/zh/404', '/en/404']
+  for (const view of [kbSlug, timelineSlug]) if (pages.some(p => p.slug === view)) throw new Error(`content/*/${view}.md would collide with the ${view} view`)
+  const paths = ['/', '/zh', '/en', ...pages.map(p => `/${p.lang}/${p.slug}`), `/zh/${licensesSlug}`, `/en/${licensesSlug}`, `/zh/${kbSlug}`, `/en/${kbSlug}`, `/zh/${timelineSlug}`, `/en/${timelineSlug}`, '/404', '/zh/404', '/en/404']
   for (const path of paths) {
     const scoped = pageModel(model, pages, path)
     const m = metadata(scoped, path)
@@ -61,15 +65,18 @@ export async function staticPages(root = 'dist', kbFile = 'data/knowledge-base.j
   }
   // Home page search: one static index per language, fetched on first focus.
   for (const lang of ['zh', 'en'] as const) await writeOutput(root, outputPath(root, searchIndexPath(lang).slice(1)), JSON.stringify(searchIndex(learn, lang)))
-  // The knowledge base views' Markdown twins (the feed is only read here, not in build:content).
-  for (const lang of ['zh', 'en'] as const) await writeOutput(root, outputPath(root, lang, `${kbSlug}.md`), knowledgeMarkdown(lang, model.knowledge ?? []))
+  // The knowledge base and timeline views' Markdown twins (the feed is only read here, not in build:content).
+  for (const lang of ['zh', 'en'] as const) {
+    await writeOutput(root, outputPath(root, lang, `${kbSlug}.md`), knowledgeMarkdown(lang, model.knowledge ?? []))
+    await writeOutput(root, outputPath(root, lang, `${timelineSlug}.md`), timelineMarkdown(lang, timelineItems(lang, pages, model.knowledge ?? []), model.siteUrl))
+  }
   // Crawlers and agents: every indexable route (by its canonical URL) with its other-language twin and
   // x-default (the Chinese page, as in each page's <head>). "/" shares /zh's canonical, so it is listed once.
   const entries = new Map<string, { alternate: string; xDefault: string; lang: string; updated?: string }>()
   for (const path of paths.filter(p => !p.endsWith('/404'))) {
     const m = metadata(pageModel(model, pages, path), path)
     const { slug } = routeInfo(path)
-    const updated = slug === kbSlug ? model.knowledge?.map(e => e.date).sort().at(-1) : slug ? pages.find(p => p.lang === m.lang && p.slug === slug)?.updated : pages.filter(p => p.lang === m.lang).map(p => p.updated).sort().at(-1)
+    const updated = slug === kbSlug ? model.knowledge?.map(e => e.date).sort().at(-1) : slug === timelineSlug ? timelineItems(m.lang, pages, model.knowledge ?? []).map(e => e.date).sort().at(-1) : slug ? pages.find(p => p.lang === m.lang && p.slug === slug)?.updated : pages.filter(p => p.lang === m.lang).map(p => p.updated).sort().at(-1)
     entries.set(m.url, { alternate: m.alternate, xDefault: m.xDefault, lang: m.lang, updated })
   }
   const x = (value: string) => value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')

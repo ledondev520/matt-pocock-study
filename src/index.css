@@ -415,7 +415,7 @@ svg.inline-arrow { display: inline-block; width: 1em; height: 1em; vertical-alig
 .kb-list { list-style: none; padding: 0; margin: 14px 0 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 26px; }.kb-entry { max-width: 45em; min-width: 0; }
 .kb-badge { display: inline-block; font: 11px 'JetBrains Mono', monospace; letter-spacing: 1px; color: var(--muted-foreground); border: 1px solid var(--border); border-radius: 4px; padding: 1px 6px; }
 .kb-entry h3 { margin-top: 6px; font-size: 20px; line-height: 1.5; }.kb-entry p { margin-top: 8px; font-size: 17px; line-height: 1.8; overflow-wrap: break-word; }
-.kb-entry p a{ color: var(--link); text-decoration: underline; text-underline-offset: 3px; overflow-wrap: anywhere; }.kb-keep { white-space: nowrap; }.kb-keep a { white-space: normal; }
+.kb-entry p a{ color: var(--link); text-decoration: underline; text-underline-offset: 3px; overflow-wrap: anywhere; }.kb-keep { white-space: nowrap; }.kb-keep a, .kb-keep > span { white-space: normal; }
 .kb-source { display: inline-flex; align-items: center; gap: 0.4em; margin-top: 8px; font-size: 14px; color: var(--link); }
 
 /* Home: search on top, the newest knowledge entries, the notes index, and one quiet copy line. */
@@ -457,3 +457,52 @@ svg.inline-arrow { display: inline-block; width: 1em; height: 1em; vertical-alig
 .footer-licenses:hover { color: var(--link); }
 .licenses-page .licenses-note { color: var(--foreground); }
 @media (max-width: 600px) { .home { padding-block: 22px 40px; } .today h1 { font-size: 28px; } .today .kb-entry h2 { font-size: 18px; } }
+
+/* Timeline (/zh/timeline, /en/timeline): what we learned by date, with a year scrubber on the right.
+   Mobile first: the scrubber sits in the right margin so the list keeps the width. */
+.tl-page { padding-bottom: 65px; }
+.tl-toggle { display: inline-flex; align-items: center; gap: 10px; margin-top: 18px; min-height: 44px; font-size: 15px; cursor: pointer; position: relative; }
+.tl-toggle input { position: absolute; z-index: 1; opacity: 0; width: 44px; height: 26px; margin: 0; cursor: pointer; }
+.tl-switch { flex: none; width: 44px; height: 26px; border-radius: 13px; background: var(--muted); border: 1px solid var(--border); position: relative; transition: background .15s; }
+.tl-switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: var(--muted-foreground); transition: transform .15s; }
+.tl-toggle input:checked + .tl-switch { background: var(--primary); border-color: var(--primary); }
+.tl-toggle input:checked + .tl-switch::after { transform: translateX(18px); background: var(--primary-foreground); }
+.tl-toggle input:focus-visible + .tl-switch { outline: 2px solid var(--ring); outline-offset: 2px; }
+.tl-layout { display: grid; grid-template-columns: minmax(0, 1fr) 44px; column-gap: 6px; margin-top: 26px; margin-right: -16px; }
+.tl-years { min-width: 0; }
+/* The grid's right column only reserves room: the scrubber itself is fixed to the screen, so the
+   labels never move under a finger while the page jumps. Hidden while the list is off screen. */
+.tl-track { position: fixed; z-index: 5; right: 4px; top: 50%; transform: translateY(-50%); height: min(70vh, 520px); }
+.tl-scrubber.off .tl-track { visibility: hidden; }
+.tl-track { width: 44px; touch-action: none; user-select: none; -webkit-user-select: none; cursor: grab; border-radius: 22px; outline: none; }
+.tl-track::before { content: ''; position: absolute; top: 8px; bottom: 8px; left: 50%; width: 2px; margin-left: -1px; background: var(--border); border-radius: 1px; }
+.tl-track:focus-visible { box-shadow: 0 0 0 2px var(--ring); }
+.dragging .tl-track { cursor: grabbing; }
+.tl-label { position: absolute; left: 0; right: 0; transform: translateY(-50%); text-align: center; font: 500 11px 'JetBrains Mono', monospace; color: var(--muted-foreground); background: var(--background); padding: 3px 0; border-radius: 10px; pointer-events: none; }
+.tl-label.active { color: var(--primary-foreground); background: var(--primary); font-weight: 700; }
+.tl-bubble { position: absolute; right: 52px; transform: translateY(-50%); padding: 6px 14px; border-radius: 18px; background: var(--primary); color: var(--primary-foreground); font: 700 20px 'Space Grotesk', sans-serif; pointer-events: none; opacity: 0; transition: opacity .12s; }
+.dragging .tl-bubble { opacity: 1; }
+.tl-year { border-top: 1px solid var(--border); padding-top: 22px; margin-top: 26px; }
+.tl-year:first-child { margin-top: 0; }
+.tl-year h2 { font: 700 26px 'Space Grotesk', sans-serif; letter-spacing: -.5px; }
+.tl-list { list-style: none; padding: 0 0 0 18px; margin: 14px 0 0 5px; border-left: 2px solid var(--border); display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; }
+.tl-item { position: relative; min-width: 0; max-width: 45em; }
+.tl-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.tl-meta time { font: 500 13px 'JetBrains Mono', monospace; color: var(--muted-foreground); }
+.tl-item h3 { margin-top: 6px; font-size: 19px; line-height: 1.5; overflow-wrap: break-word; }
+.tl-learned { margin-top: 6px; font-size: 17px; line-height: 1.8; overflow-wrap: break-word; }
+.tl-learned a { color: var(--link); text-decoration: underline; text-underline-offset: 3px; overflow-wrap: anywhere; }
+.tl-from { display: inline-flex; align-items: center; gap: .3em; flex-wrap: wrap; margin-top: 6px; min-height: 32px; font-size: 14px; color: var(--link); }
+.tl-original { margin-top: 8px; padding-left: 12px; border-left: 2px solid var(--border); }
+.tl-original blockquote p { font-size: 16px; line-height: 1.6; overflow-wrap: break-word; }
+.tl-original .quote-translation { margin-top: 4px; font-size: 15px; color: var(--muted-foreground); }
+.tl-original .kb-source { margin-top: 6px; }
+@media (min-width: 801px) {
+  .tl-layout { grid-template-columns: minmax(0, 1fr) 64px; column-gap: 24px; margin-right: 0; margin-top: 34px; }
+  .tl-track { width: 64px; right: 32px; }
+  .tl-label { font-size: 13px; }
+  .tl-list { padding-left: 26px; }
+  .tl-item h3 { font-size: 20px; }
+}
+@media (min-width: 1151px) { .tl-track { right: calc((100% - min(1240px, 100% - 112px)) / 2); } }
+@media (prefers-reduced-motion: reduce) { .tl-switch, .tl-switch::after, .tl-bubble { transition: none; } }

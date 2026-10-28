@@ -70,7 +70,7 @@ async function resolves(href: string, base: string) {
   }
 }
 it('writes complete, localized HTML and absolute metadata for all routes', async () => {
-  for (const lang of ['zh', 'en']) for (const slug of ['', ...model.pages.filter(p => p.lang === lang).map(p => p.slug), 'knowledge']) {
+  for (const lang of ['zh', 'en']) for (const slug of ['', ...model.pages.filter(p => p.lang === lang).map(p => p.slug), 'knowledge', 'timeline']) {
     const path = `/${lang}${slug ? '/' + slug : ''}`
     const html = await readFile(`dist${path}/index.html`, 'utf8')
     const doc = new JSDOM(html).window.document
@@ -105,7 +105,7 @@ it('resolves every internal href in generated and React-rendered HTML', async ()
     const doc = new JSDOM(html).window.document
     for (const node of doc.querySelectorAll('[href]')) await resolves(node.getAttribute('href')!, base)
   }
-  for (const path of ['/', '/zh', '/en', '/zh/corpus', '/en/corpus', '/zh/knowledge', '/en/knowledge', ...model.pages.map(p => `/${p.lang}/${p.slug}`)]) {
+  for (const path of ['/', '/zh', '/en', '/zh/corpus', '/en/corpus', '/zh/knowledge', '/en/knowledge', '/zh/timeline', '/en/timeline', ...model.pages.map(p => `/${p.lang}/${p.slug}`)]) {
     const dataFile = path === '/' || path === '/zh' || path === '/en' ? `dist${path}/index.json` : `dist${path}.json`
     const scoped: Model = JSON.parse(await readFile(dataFile, 'utf8'))
     const doc = new JSDOM(renderToString(<Site model={scoped} path={path} />)).window.document
@@ -177,7 +177,7 @@ it('every indexable page has a Markdown twin that is in llms.txt and sitemap.xml
     expect(response.headers.get('Content-Type'), href).toBe('text/markdown; charset=utf-8')
   }
   // Home pages, the corpus, licences and knowledge base pages are covered too, not only articles.
-  expect(indexable).toEqual(expect.arrayContaining(['dist/index.html', 'dist/zh/index.html', 'dist/en/index.html', 'dist/zh/corpus/index.html', 'dist/en/corpus/index.html', 'dist/zh/licenses/index.html', 'dist/en/licenses/index.html', 'dist/zh/knowledge/index.html', 'dist/en/knowledge/index.html']))
+  expect(indexable).toEqual(expect.arrayContaining(['dist/index.html', 'dist/zh/index.html', 'dist/en/index.html', 'dist/zh/corpus/index.html', 'dist/en/corpus/index.html', 'dist/zh/licenses/index.html', 'dist/en/licenses/index.html', 'dist/zh/knowledge/index.html', 'dist/en/knowledge/index.html', 'dist/zh/timeline/index.html', 'dist/en/timeline/index.html']))
   // "/" is the Chinese home: its Markdown twin is the Chinese one.
   expect(new JSDOM(await readFile('dist/index.html', 'utf8')).window.document.querySelector('link[rel="alternate"][type="text/markdown"]')!.getAttribute('href')).toBe('/zh/index.md')
   // Reverse direction: the sitemap lists only real pages, and every llms.txt link resolves.
@@ -201,7 +201,7 @@ const markdownHeadings = (markdown: string, depth: RegExp) => markdown.replace(/
 // Where a page link points in a twin: site pages become their .md twin, other links stay absolute.
 const twinHref = (href: string) => /^\/(zh|en)(\/[a-z0-9-]+)?$/.test(href) ? `${site()}${href}${href.split('/').length === 2 ? '/index' : ''}.md` : new URL(href, site() + '/').href
 it('every Markdown twin matches its HTML page', async () => {
-  let articles = 0, homes = 0, licenses = 0, knowledge = 0
+  let articles = 0, homes = 0, licenses = 0, knowledge = 0, timeline = 0
   for (const file of await files('dist')) {
     const doc = new JSDOM(await readFile(file, 'utf8')).window.document
     const href = doc.querySelector('link[rel="alternate"][type="text/markdown"]')?.getAttribute('href')
@@ -261,12 +261,26 @@ it('every Markdown twin matches its HTML page', async () => {
           expect(sections.some(part => part.split('\n').includes(line)), `${href} "${title}" carries its original-post link`).toBe(true)
         } else expect(markdown.split('\n'), `${href} lists ${line}`).toContain(line)
       }
+    } else if (doc.querySelector('.tl-page')) {
+      // The timeline twin: same title, years and item titles in order, every item's text and its
+      // link to where it is explained; like the page by default, no original posts.
+      timeline++
+      const page = doc.querySelector('.tl-page')!
+      expect(markdownHeadings(markdown, /^# (.+)$/)[0], `${href} title`).toBe(h1)
+      expect(markdownHeadings(markdown, /^#{2,3} (.+)$/), `${href} headings`).toEqual([...page.querySelectorAll('h2, h3')].map(h => plain(h.textContent ?? '')))
+      expect(page.querySelectorAll('.tl-item').length, `${href} has items`).toBeGreaterThan(0)
+      const text = markdownText(markdown)
+      for (const p of page.querySelectorAll('.tl-learned')) expect(text, `${href} item text`).toContain(plain(p.textContent ?? ''))
+      for (const a of page.querySelectorAll('.tl-from')) expect(markdown, `${href} links ${a.getAttribute('href')}`).toContain(`](${twinHref(a.getAttribute('href')!.split('#')[0])})`)
+      expect(page.querySelector('a[href*="x.com"]'), `${href} shows no original post by default`).toBeNull()
+      expect(markdown, `${href} has no original post`).not.toContain('x.com')
     } else expect(markdownHeadings(markdown, /^# (.+)$/)[0], `${href} title`).toBe(h1)
   }
   expect(articles).toBeGreaterThan(30)
   expect(homes).toBe(3)
   expect(licenses).toBe(2)
   expect(knowledge).toBe(2)
+  expect(timeline).toBe(2)
 })
 // The home page's copy line: one quiet hint and a real button with an accessible name; the prompt it
 // copies is ready to use (full llms.txt address, no editing instructions or placeholders) and stays
@@ -338,7 +352,7 @@ it('sitemap hreflang pairs point at each other across languages', async () => {
 // English agent files stay English: a stray CJK character means a Chinese string leaked into the English build.
 it('English agent files contain no CJK characters', async () => {
   const targets = ['dist/llms.txt', 'dist/llms-full.txt', ...(await walk('dist/en', '.md'))]
-  expect(targets).toEqual(expect.arrayContaining(['dist/en/index.md', 'dist/en/licenses.md', 'dist/en/knowledge.md']))
+  expect(targets).toEqual(expect.arrayContaining(['dist/en/index.md', 'dist/en/licenses.md', 'dist/en/knowledge.md', 'dist/en/timeline.md']))
   for (const file of targets) expect(await readFile(file, 'utf8'), file).not.toMatch(/[\u3000-\u9fff\uff00-\uffef]/)
 })
 it('files written for agents carry no addresses, local paths or key-shaped strings', async () => {

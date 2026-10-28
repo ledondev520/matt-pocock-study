@@ -10,6 +10,7 @@ import { siteUrl } from '../src/lib/site'
 import { figureHtml, figureMarkdown, figureById, escapeHtml, buildFigures } from './figures'
 import { licenceMarkdown, embedsArchify, archifyAppendix, licencesView } from './licences.mjs'
 import { kbSlug, licensesSlug } from '../src/lib/metadata'
+import { timelineSlug } from '../src/lib/timeline'
 import { renderArrows } from './arrows'
 import { agentPrompt, llmsFullPath, llmsPath } from '../src/lib/agent'
 import { siteNotice } from '../src/lib/notice'
@@ -69,6 +70,24 @@ export async function renderMarkdown(source: string, lang: Lang) {
   renderer.code = ({ text, lang: codeLang }: Tokens.Code) => codeHtml(text, codeLang ?? 'text', lang)
   const tokens = marked.lexer(source)
   const visible = pageTokens(tokens)
+  // Every visible quote with the id of the "## …" section it sits in (ids as the heading renderer
+  // assigns them below: same base and the same running count over visible headings). Read before
+  // the components are transformed. The timeline view lists them by date.
+  const quotes: Page['quotes'] = []
+  const quoteIds = new Map<string, number>()
+  let quoteSection = ''
+  for (const token of visible) {
+    if (token.type === 'heading') {
+      const base = headingId((token as Tokens.Heading).text), count = quoteIds.get(base) ?? 0
+      quoteIds.set(base, count + 1)
+      if ((token as Tokens.Heading).depth === 2) quoteSection = count ? `${base}-${count}` : base
+    }
+    marked.walkTokens([token], inner => {
+      if (inner.type !== 'code' || (inner as Tokens.Code).lang !== 'quote') return
+      const f = fields((inner as Tokens.Code).text)
+      quotes.push({ text: f.text ?? '', url: f.url ?? '', date: f.date ?? '', ...(f.note ? { note: f.note } : {}), section: quoteSection })
+    })
+  }
   const exports = new Map<string, string>()
   async function transform(token: Token) {
     if (token.type !== 'code' || !componentNames.includes(token.lang ?? '')) return
@@ -114,7 +133,12 @@ export async function renderMarkdown(source: string, lang: Lang) {
   marked.walkTokens(tokens, token => { pending.push(transform(token)) })
   await Promise.all(pending)
   const markdown = source.replace(/```(cards|quote|exercise|figure|note|licence)\s*\n[\s\S]*?\n```/g, raw => { const readable = exports.get(raw.trimEnd()); if (readable === undefined) throw new Error(`Component not exported: ${raw.slice(0, 40)}`); return readable })
-  return { html: renderArrows(marked.parser(visible, { renderer })), markdown: markdown.trim() + '\n', toc }
+  const html = renderArrows(marked.parser(visible, { renderer }))
+  for (const quote of quotes) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(quote.date)) throw new Error(`Quote date must be YYYY-MM-DD: ${quote.url}`)
+    if (quote.section && !toc.some(entry => entry.id === quote.section)) throw new Error(`Quote section has no heading: ${quote.section}`)
+  }
+  return { html, markdown: markdown.trim() + '\n', toc, quotes }
 }
 
 // The site's status and the authors' rights are stated once, on /licenses (src/lib/notice.ts). A
@@ -165,7 +189,8 @@ export async function readPages(contentDir: string): Promise<Page[]> {
 // What a coding agent reads first: llms.txt (how to use the site + a grouped index), llms-full.txt
 // (every page in one file) and the home page's Markdown twin. One language per call. The licences
 // view's twin (/<lang>/licenses.md) comes from licensesMarkdown; the knowledge base twin
-// (/<lang>/knowledge.md) is written by static.tsx from the feed. Both are listed under "Site".
+// (/<lang>/knowledge.md) and the timeline twin (/<lang>/timeline.md) are written by static.tsx from
+// the feed. All are listed under "Site".
 export function agentFiles(lang: Lang, localized: Page[], site: string) {
   const zh = lang === 'zh', t = (cn: string, en: string) => zh ? cn : en
   const title = t('Matt Pocock 学习笔记', 'Matt Pocock study notes')
@@ -178,6 +203,7 @@ export function agentFiles(lang: Lang, localized: Page[], site: string) {
   }).join('\n\n')
   const homeLine = `- [${t('首页', 'Home')}](${site}/${lang}/index.md): ${t('今天学什么和全部笔记目录。', 'What to learn today and the list of all notes.')}`
   const knowledgeLine = `- [${t('学习知识库', 'Knowledge base')}](${site}/${lang}/${kbSlug}.md): ${t('每天的学习笔记：Matt Pocock 的公开分享和团队学到的知识，每条附原帖链接。', 'Our daily study notes, by date, each linked to the original post (the notes themselves are in Chinese).')}`
+  const timelineLine = `- [${t('时间轴', 'Timeline')}](${site}/${lang}/${timelineSlug}.md): ${t('按年份排列的学习要点：课程引用按原帖日期，知识库笔记按记录日期。', 'What we learned, by year: lesson quotes by the original post’s date, notes by the day they were written.')}`
   const licensesLine = `- [${t('许可', 'Licenses')}](${site}/${lang}/${licensesSlug}.md): ${t('本站复用的 MIT 项目和自托管字体的版权声明与许可全文。', 'Copyright notices and full licence texts for the MIT projects and self-hosted fonts this site reuses.')}`
   const howTo = zh ? `## 怎么用（写给 Coding Agent）
 
@@ -201,7 +227,7 @@ The site is public and read-only: no login, no API key. Cite the page URL, and l
   const intro = t('用我们自己的话整理 Matt Pocock 的公开分享：AI coding 工作流、给 agent 立规矩、TypeScript、写作与教学。',
     'Notes in our own words on Matt Pocock\'s public teaching: AI coding workflow, rules for agents, TypeScript, and writing to teach.')
   const otherLanguage = t(`English: ${site}${llmsPath('en')}`, `Chinese version: ${site}${llmsPath('zh')}`)
-  const index = `# ${title}\n\n> ${intro}${zh ? '' : ' '}${otherLanguage}\n\n${howTo}\n\n## ${t('页面', 'Pages')}\n\n${groups}\n\n### ${t('网站', 'Site')}\n\n${homeLine}\n${knowledgeLine}\n${licensesLine}\n`
+  const index = `# ${title}\n\n> ${intro}${zh ? '' : ' '}${otherLanguage}\n\n${howTo}\n\n## ${t('页面', 'Pages')}\n\n${groups}\n\n### ${t('网站', 'Site')}\n\n${homeLine}\n${knowledgeLine}\n${timelineLine}\n${licensesLine}\n`
   const home = `# ${title}\n\n> ${agentPrompt(lang, site)}\n\n## ${t('今天学什么', 'What to learn today')}\n\n- [${t('学习知识库', 'Knowledge base')}](${site}/${lang}/${kbSlug}.md)\n\n## ${t('学习笔记', 'Notes')}\n\n${groups}\n`
   return { index, full, home }
 }
