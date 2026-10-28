@@ -711,8 +711,10 @@ it('the site notice appears once, on the licences page and its twin, next to the
   const mit = await readFile('third_party/mattpocock-skills/LICENSE', 'utf8')
   for (const lang of ['zh', 'en'] as const) {
     expect(siteNotice(lang)).toBe(notices[lang])
-    const page = new JSDOM(await readFile(`dist/${lang}/licenses/index.html`, 'utf8')).window.document.querySelector('.licenses-page')!
+    const document = new JSDOM(await readFile(`dist/${lang}/licenses/index.html`, 'utf8')).window.document
+    const page = document.querySelector('.licenses-page')!
     expect(page.querySelector('.licenses-note')!.textContent).toBe(notices[lang])
+    expect(document.body.textContent!.split(notices[lang]).length - 1, `${lang}/licenses/index.html`).toBe(1)
     expect(page.textContent).toContain(mit.trimEnd())
     const twin = await readFile(`dist/${lang}/licenses.md`, 'utf8')
     expect(twin.split(notices[lang]).length - 1, `${lang}/licenses.md`).toBe(1)
