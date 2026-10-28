@@ -169,6 +169,7 @@ export function createAskApp(deps: AskDeps) {
       const parsed = await parseAnswer(result.content, units, config.siteUrl)
       if (!parsed) return fallback('unverified', usage)
       if (!parsed.found) return finish({ mode: 'not_found', message: notFoundMessage(lang), citations: [], cached: false }, usage)
+      if (!parsed.points.some(point => point.text.trim())) return fallback('unverified', usage)
       return finish({ mode: 'answer', title: parsed.title, points: parsed.points, citations: parsed.citations, cached: false }, usage, !parsed.degraded)
     } catch (error) {
       breaker.failure(now())

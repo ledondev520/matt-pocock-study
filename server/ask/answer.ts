@@ -6,7 +6,7 @@ import type { ChatMessage } from './deepseek'
 import { isAllowedSourceUrl, isSitePath, originalPost, type Unit } from './units'
 
 export type Lang = 'zh' | 'en'
-export const PROMPT_VERSION = 'methodology-v9-normalized-overlap'
+export const PROMPT_VERSION = 'methodology-v10-verified-overlap'
 
 export interface Citation { n: number; kind: Unit['kind']; date?: string; sourceUrl?: string; siteUrl?: string; title?: string; snippet?: string }
 export interface Point { title: string; text: string; quote?: string; quoteUrl?: string; cites: number[] }
@@ -107,6 +107,7 @@ export async function parseAnswer(content: string, units: Unit[], siteUrl: strin
   if (value.found !== true || !Array.isArray(value.points)) return undefined
   const numbering = new Map<number, number>() // unit index -> citation number
   const points: Point[] = []
+  const writtenQuotes: string[] = []
   for (const item of value.points.slice(0, MAX_POINTS)) {
     if (!item || typeof item !== 'object') continue
     const p = item as { title?: unknown; text?: unknown; quote?: unknown; sources?: unknown }
@@ -118,6 +119,9 @@ export async function parseAnswer(content: string, units: Unit[], siteUrl: strin
     const text = typeof p.text === 'string' ? stripLinks(p.text) : ''
     const title = typeof p.title === 'string' ? stripLinks(p.title) : ''
     const quote = checkQuote(p.quote, units, linked)
+    // These strings are never rendered, but an attempted long extract still has to
+    // pass the copy check rather than bypass it by using the obsolete quote format.
+    if (typeof p.quote === 'string') writtenQuotes.push(stripLinks(p.quote))
     if (!text && !title && !quote) continue
     for (const i of linked) if (!numbering.has(i)) numbering.set(i, numbering.size + 1)
     // Invalid markers are discarded; a valid set that exceeds a shared budget rejects the answer.
@@ -129,7 +133,7 @@ export async function parseAnswer(content: string, units: Unit[], siteUrl: strin
   const quotes = points.flatMap(p => p.quote && p.quoteUrl ? [{ text: p.quote, url: p.quoteUrl }] : [])
   if (!quotesWithinBudget(quotes)) return undefined
   const citationTitles = [...numbering.keys()].map(i => units[i].kind === 'post' ? originalPost(units[i]).title : units[i].title)
-  if (!await explanationsAreIndependent([title, ...points.flatMap(p => [p.title, p.text]), ...citationTitles], units, [...citations.flatMap(c => c.sourceUrl ? [c.sourceUrl] : []), ...quotes.map(q => q.url)], quotes)) {
+  if (!await explanationsAreIndependent([title, ...points.flatMap(p => [p.title, p.text]), ...citationTitles, ...writtenQuotes], units, [...citations.flatMap(c => c.sourceUrl ? [c.sourceUrl] : []), ...quotes.map(q => q.url)], quotes)) {
     // Discard the entire explanation, including titles and metadata. Keep only code-extracted
     // quotes and links. With no safe quote, the caller uses its links-only search response.
     const extracted = points.filter(p => p.quote).map(p => ({ ...p, title: '', text: '' }))

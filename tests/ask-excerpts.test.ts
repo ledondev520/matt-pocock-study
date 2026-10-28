@@ -230,7 +230,8 @@ it('degrades the whole answer to code-extracted quotes and links and never cache
     const app = createAskApp({ config: config(), units: [unit], store, log: () => {}, fetch: (async () => { calls++; return fetchAnswer(content)('unused') }) as typeof fetch })
     for (let i = 0; i < 2; i++) {
       const body = await (await request(app, 'workflow')).json()
-      expect(body).toEqual({ mode: 'answer', title: '', points: [{ title: '', text: '', quote: 'Start small.', quoteUrl: url, cites: [1] }], citations: [{ n: 1, kind: 'post', sourceUrl: url }], cached: false })
+      expect(body).toEqual({ mode: 'search', reason: 'unverified', message: '', citations: [{ n: 1, kind: 'post', sourceUrl: url }], cached: false })
+      expect(body).not.toHaveProperty('points')
       expect(JSON.stringify(body)).not.toContain(longText)
     }
     expect(calls).toBe(2)

@@ -47,7 +47,9 @@ for (const fixture of [
       for (let i = 0; i < 2; i++) {
         const response = await request(app, fixture.query)
         expect(response.status).toBe(200)
-        expect(await response.json()).toEqual({ mode: 'answer', title: '', points: expected.points, citations: [{ n: 1, kind: 'post', sourceUrl: url }], cached: false })
+        const body = await response.json()
+        expect(body).toEqual({ mode: 'search', reason: 'unverified', message: '', citations: [{ n: 1, kind: 'post', sourceUrl: url }], cached: false })
+        expect(body).not.toHaveProperty('points')
       }
       expect(calls).toBe(2)
     } finally { store.close() }
@@ -84,7 +86,9 @@ for (const fixture of [
         for (let i = 0; i < 2; i++) {
           const response = await request(app, anchors ? 'workflow' : fixture.query)
           expect(response.status).toBe(200)
-          expect(await response.json()).toEqual({ mode: 'answer', title: '', points: expectedPoints, citations: [{ n: 1, kind: anchors ? 'method' : 'post', sourceUrl: url }], cached: false })
+          const body = await response.json()
+          expect(body).toEqual({ mode: 'search', reason: 'unverified', message: '', citations: anchors ? [{ n: 1, kind: 'method', sourceUrl: url }, { n: 2, kind: 'method', sourceUrl: url }] : [{ n: 1, kind: 'post', sourceUrl: url }], cached: false })
+          expect(body).not.toHaveProperty('points')
         }
         expect(calls).toBe(2)
         expect(writes).not.toHaveBeenCalled()
@@ -106,7 +110,7 @@ it('isolates unsafe mixed answers already cached under the v7 marker policy', as
       calls++
       return new Response(upstream(content))
     }) as typeof fetch })
-    for (let i = 0; i < 2; i++) expect(await (await request(app, '分拆')).json()).toMatchObject({ mode: 'answer', title: '', cached: false, points: [{ text: '', quote: '后发布' }] })
+    for (let i = 0; i < 2; i++) expect(await (await request(app, '分拆')).json()).toEqual({ mode: 'search', reason: 'unverified', message: '', citations: [{ n: 1, kind: 'post', sourceUrl: url }], cached: false })
     expect(calls).toBe(2)
   } finally { store.close() }
 })
@@ -203,8 +207,8 @@ it('counts repeated suffixed short anchors inside a single token without caching
 })
 
 for (const fixture of [
-  { name: 'mixed allocation', source: '先分拆。再验证。后发布。', text: '后发布。', quote: marker(0, 8), query: '分拆', mode: 'answer' },
-  { name: 'short-word suffix', source: Array(61).fill('code').join(' '), text: Array(61).fill('codeX').join(' Our thought. '), quote: undefined, query: 'code', mode: 'search' },
+  { name: 'mixed allocation', source: '先分拆。再验证。后发布。', text: '后发布。', quote: marker(0, 8), query: '分拆' },
+  { name: 'short-word suffix', source: Array(61).fill('code').join(' '), text: Array(61).fill('codeX').join(' Our thought. '), quote: undefined, query: 'code' },
 ]) {
   it(`isolates the v8 cached ${fixture.name} bypass and never writes a replacement`, async () => {
     const unit = post(fixture.source)
@@ -223,8 +227,8 @@ for (const fixture of [
         const response = await request(app, fixture.query)
         expect(response.status).toBe(200)
         const body = await response.json()
-        if (fixture.mode === 'answer') expect(body).toEqual({ mode: 'answer', title: '', points: [{ title: '', text: '', quote: '先分拆。再验证。', quoteUrl: url, cites: [1] }], citations: [{ n: 1, kind: 'post', sourceUrl: url }], cached: false })
-        else expect(body).toEqual({ mode: 'search', reason: 'unverified', message: '', citations: [{ n: 1, kind: 'post', sourceUrl: url }], cached: false })
+        expect(body).toEqual({ mode: 'search', reason: 'unverified', message: '', citations: [{ n: 1, kind: 'post', sourceUrl: url }], cached: false })
+        expect(body).not.toHaveProperty('points')
       }
       expect(calls).toBe(2)
       expect(writes).not.toHaveBeenCalled()
