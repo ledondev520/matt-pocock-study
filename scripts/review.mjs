@@ -154,24 +154,16 @@ try {
     assert.equal(jsonRequests.length, beforeCross + 1, 'Cross-page fragment loads one model')
     await page.evaluate(() => document.getElementById('review-fragment-link').remove())
     await page.goto(origin + `/${lang}`, { waitUntil: 'networkidle' })
-    const heroLinks = page.locator('.chain-figure a')
-    assert.equal(await heroLinks.count(), 6)
-    for (let i = 0; i < 6; i++) {
-      assert.match(await heroLinks.nth(i).getAttribute('href'), new RegExp(`^/${lang}/[a-z0-9-]+$`))
-    }
-    // Tab from the preceding real link to check native SVG keyboard focus.
-    await page.locator('.author-links a').last().focus()
-    for (let i = 0; i < 6; i++) {
-      await page.keyboard.press('Tab')
-      assert.equal(await heroLinks.nth(i).evaluate(node => document.activeElement === node), true)
-      assert.equal(await heroLinks.nth(i).evaluate(node => node.matches(':focus-visible')), true)
-      assert.ok(await heroLinks.nth(i).locator('rect').evaluate(node => parseFloat(getComputedStyle(node).strokeWidth) >= 3))
-    }
+    // The home hero figure is gone (PR #8); the keyboard path now runs through the home search.
+    await page.locator('#site-search').focus()
+    await page.keyboard.type(lang === 'zh' ? '规格' : 'Specs')
+    await page.locator('#site-search-results a').first().waitFor()
+    await page.keyboard.press('ArrowDown')
+    assert.equal(await page.locator('#site-search-results a').first().evaluate(node => document.activeElement === node), true)
     await page.keyboard.press('Enter')
-    await page.waitForURL(`**/${lang}/specs-and-tickets`)
-    assert.match(await page.locator('h1').innerText(), lang === 'zh' ? /规格/ : /Specs/)
+    await page.waitForURL(url => url.pathname.startsWith(`/${lang}/`) && url.pathname !== `/${lang}`)
   }
-  checks.push({ regressions: 'aliases return stable 404; zh/en TOC, history, cross-page fragments and six keyboard hero links passed' })
+  checks.push({ regressions: 'aliases return stable 404; zh/en TOC, history, cross-page fragments and keyboard home search passed' })
   checks.push({ interactions: 'mobile menu, SPA language switch, saved language/theme, corpus query/type, empty/reset, localized 404 passed' })
   assert.deepEqual(errors, [], 'No browser runtime or hydration errors')
   // Chrome logs failed document navigations, including our deliberate HTTP 404 tests.

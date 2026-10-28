@@ -96,5 +96,3 @@ answer: 非法事件保持 idle；正常路径依次为 idle、loading、error�
 - [Matt 的状态机观察，2026-10-15](https://x.com/mattpocockuk/status/2110818314499072493)
 - [代码库设计文章：独立解读](https://www.aihero.dev/how-to-make-codebases-ai-agents-love)
 - [xstate-catalogue：已归档的历史入口](https://github.com/mattpocock/xstate-catalogue)
-
-非官方、非商业的学习整理，与 Matt Pocock 无隶属或背书关系。所引作品版权归原作者；MIT 复用内容另附版权与许可声明。

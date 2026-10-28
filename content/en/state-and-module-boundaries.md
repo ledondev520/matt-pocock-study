@@ -95,5 +95,3 @@ Done means a test catches early success and a repeatable interaction demonstrate
 - [Matt on state machines, 2026-10-15](https://x.com/mattpocockuk/status/2110818314499072493)
 - [Codebase design article, independently interpreted](https://www.aihero.dev/how-to-make-codebases-ai-agents-love)
 - [xstate-catalogue, archived historical examples](https://github.com/mattpocock/xstate-catalogue)
-
-Unofficial, non-commercial study notes. No affiliation with or endorsement by Matt Pocock. Quoted works remain their authors’ copyright; MIT reuse retains its copyright and licence notices.

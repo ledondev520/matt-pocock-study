@@ -97,5 +97,3 @@ The structure adapted here comes from [mattpocock/skills](https://github.com/mat
 ```licence
 id: mattpocock-skills
 ```
-
-Unofficial, non-commercial study notes. No affiliation with or endorsement by Matt Pocock. Quoted works remain their authors’ copyright; MIT reuse retains its copyright and licence notices.

@@ -9,8 +9,8 @@ it('rejects a traversal slug before writing any OG file', async () => {
   try {
     for (const lang of ['en', 'zh']) {
       await mkdir(join(root, lang))
-      const source = (await readFile(`content/${lang}/learn-from-matt.md`, 'utf8')).replace('slug: learn-from-matt', 'slug: ../escaped')
-      await writeFile(join(root, lang, 'learn-from-matt.md'), source)
+      const source = (await readFile(`content/${lang}/core-principles.md`, 'utf8')).replace('slug: core-principles', 'slug: ../escaped')
+      await writeFile(join(root, lang, 'core-principles.md'), source)
     }
     await expect(generateOg(root, join(root, 'out'))).rejects.toThrow(/Invalid front matter/)
     await expect(readFile(join(root, 'escaped.png'))).rejects.toThrow()

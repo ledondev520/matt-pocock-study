@@ -23,6 +23,7 @@
     "corpus:summaries": "node scripts/corpus/apply-summaries.mjs",
     "check:overlap": "node scripts/check-overlap.mjs",
     "contrast": "node scripts/contrast.mjs",
+    "audit:text": "node scripts/audit/non-content-text.mjs dist --strict",
     "og": "tsx scripts/og.mjs",
     "import:art": "node scripts/import-art.mjs",
     "review": "node scripts/review.mjs",

@@ -7,6 +7,9 @@ import { Site } from '../src/Site'
 import type { Model, Page } from '../src/lib/content'
 import { kbSlug, licensesSlug, metadata } from '../src/lib/metadata'
 import { validateFeed } from './kb/feed'
+import { dropCounts } from './kb/counts'
+import { searchIndexPath } from '../src/lib/search'
+import { learnSource, searchIndex, todayItems } from './learn/source'
 import { knowledgeMarkdown } from './kb/markdown'
 import { routeInfo } from '../src/lib/lang'
 import { siteUrl } from '../src/lib/site'
@@ -20,13 +23,14 @@ export function pageModel(model: Model, pages: Page[], path: string): Model {
   const { lang, slug, home } = routeInfo(path)
   const currentPage = pages.find(p => p.lang === lang && p.slug === slug)
   const licenses = slug === licensesSlug, kb = slug === kbSlug
-  const ids = home ? ['home-hero', 'home-corpus', 'home-routes'] : slug === 'corpus' ? ['spot-empty'] : currentPage || licenses || kb ? [] : ['spot-404']
+  const ids = home ? [] : slug === 'corpus' ? ['spot-empty'] : currentPage || licenses || kb ? [] : ['spot-404']
   const figures = Object.fromEntries(ids.map(id => [id, model.figures[lang][id]]))
   // Every licence text is shown on /licenses only; other views link to it from the footer.
   return { ...model, currentPage, licences: licenses ? licencesView() : undefined,
     figures: { zh: {}, en: {}, [lang]: figures },
     corpusItems: slug === 'corpus' ? model.corpusItems : [], corpusTags: slug === 'corpus' ? model.corpusTags : [],
     knowledge: kb ? model.knowledge : undefined,
+    today: home ? todayItems(learnSource({ knowledge: model.knowledge ?? [], pages: model.pages }), lang) : undefined,
   }
 }
 export async function staticPages(root = 'dist', kbFile = 'data/knowledge-base.json') {
@@ -39,8 +43,9 @@ export async function staticPages(root = 'dist', kbFile = 'data/knowledge-base.j
   const summaries = pages.map(({ lang, slug, title, subtitle, section, number, order, summary, head, updated }) => ({ lang, slug, title, subtitle, section, number, order, summary, head, updated }))
   const model: Model = { pages: summaries, figures: JSON.parse(await readFile(join(root, 'figures.json'), 'utf8')), corpusCount: corpus.total, corpusItems: corpus.items, corpusTags: corpusTags(db), siteUrl: siteUrl(),
     // Committed, gate-checked feed; an invalid file or any gate finding fails the build.
-    knowledge: validateFeed(JSON.parse(await readFile(kbFile, 'utf8'))).entries }
+    knowledge: validateFeed(JSON.parse(await readFile(kbFile, 'utf8'))).entries.map(dropCounts) }
   db.close()
+  const learn = learnSource({ knowledge: model.knowledge ?? [], pages: summaries })
   if (pages.some(p => p.slug === kbSlug)) throw new Error(`content/*/${kbSlug}.md would collide with the knowledge base view`)
   const paths = ['/', '/zh', '/en', ...pages.map(p => `/${p.lang}/${p.slug}`), `/zh/${licensesSlug}`, `/en/${licensesSlug}`, `/zh/${kbSlug}`, `/en/${kbSlug}`, '/404', '/zh/404', '/en/404']
   for (const path of paths) {
@@ -54,8 +59,10 @@ export async function staticPages(root = 'dist', kbFile = 'data/knowledge-base.j
     await writeOutput(root, target, html)
     await writeOutput(root, path.endsWith('/404') ? target.replace(/\.html$/, '.json') : path === '/' || path === '/zh' || path === '/en' ? outputPath(root, path.slice(1), 'index.json') : outputPath(root, path.slice(1) + '.json'), JSON.stringify(scoped))
   }
+  // Home page search: one static index per language, fetched on first focus.
+  for (const lang of ['zh', 'en'] as const) await writeOutput(root, outputPath(root, searchIndexPath(lang).slice(1)), JSON.stringify(searchIndex(learn, lang)))
   // The knowledge base views' Markdown twins (the feed is only read here, not in build:content).
-  for (const lang of ['zh', 'en'] as const) await writeOutput(root, outputPath(root, lang, `${kbSlug}.md`), knowledgeMarkdown(lang, model.knowledge ?? [], model.siteUrl))
+  for (const lang of ['zh', 'en'] as const) await writeOutput(root, outputPath(root, lang, `${kbSlug}.md`), knowledgeMarkdown(lang, model.knowledge ?? []))
   // Crawlers and agents: every indexable route (by its canonical URL) with its other-language twin and
   // x-default (the Chinese page, as in each page's <head>). "/" shares /zh's canonical, so it is listed once.
   const entries = new Map<string, { alternate: string; xDefault: string; lang: string; updated?: string }>()

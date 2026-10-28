@@ -98,5 +98,3 @@ Practice [alignment and prototypes](/en/alignment-and-prototypes), or take settl
 
 - [Matt Pocock · 2026-07-02](https://x.com/mattpocockuk/status/2072625252144730215)
 - [2026-10-08 · Workflow selection](https://x.com/mattpocockuk/status/2108216899439894574)
-
-Independent, unofficial, noncommercial study notes. This site has no affiliation with or endorsement from Matt Pocock. Referenced works belong to their authors; MIT reuse carries separate copyright and license notices.

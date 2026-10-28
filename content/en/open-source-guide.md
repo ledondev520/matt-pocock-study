@@ -101,6 +101,3 @@ Done means you can explain both matches, locate the licences and name a limitati
 - [zod-fetch](https://github.com/mattpocock/zod-fetch)
 - [ts-error-translator](https://github.com/mattpocock/ts-error-translator)
 - [ai-hero-cli](https://github.com/mattpocock/ai-hero-cli)
-- [Site reuse register and boundaries](/en/about-and-copyright)
-
-Unofficial, non-commercial study notes. No affiliation with or endorsement by Matt Pocock. Quoted works remain their authors’ copyright; MIT reuse retains its copyright and licence notices.

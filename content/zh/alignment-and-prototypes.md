@@ -94,5 +94,3 @@ kind: inference
 
 - [Matt Pocock · 2026-10-01](https://x.com/mattpocockuk/status/2105628270930845990)
 - [公开讨论 / Public discussion](https://www.aihero.dev/things-people-get-wrong-with-grill-me-and-grill-with-docs)
-
-非官方、非商业的学习整理，与 Matt Pocock 无隶属或背书关系。所引作品版权归原作者；MIT 复用内容另附版权与许可声明。

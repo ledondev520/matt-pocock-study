@@ -87,6 +87,3 @@ Use [decisions and retrospectives](/en/decisions-and-retrospectives) to assess t
 
 - Matt Pocock, [deterministic enforcement](https://x.com/mattpocockuk/status/2111735524390027405), 2026-10-18.
 - Matt Pocock, [a file-size threshold example](https://x.com/mattpocockuk/status/2111708560715292675), 2026-10-18; independently interpreted.
-- The check scenario, diagnostic and exercise are ours. [Copyright details](/en/about-and-copyright).
-
-Unofficial, non-commercial study notes, with no affiliation with or endorsement by Matt Pocock. Quoted works belong to their authors; MIT reuse carries separate copyright and licence notices.
