@@ -23,3 +23,13 @@ it('renders the panel without any link of its own', () => {
   expect(html).toContain('maxLength="300"')
   expect(html).not.toContain('href=')
 })
+
+
+it('quietly rejects missing, malformed and non-JSON API responses', async () => {
+  const html404 = (async () => new Response('<h1>Not found</h1>', { status: 404 })) as typeof fetch
+  for (const fetcher of [html404, reply(503, {}), reply(200, null), reply(200, { mode: 'answer' }), reply(200, { mode: 'answer', title: 't', citations: [], points: [null] }), reply(200, { mode: 'search', citations: [] })]) {
+    expect(await askQuestion('review', 'en', fetcher)).toEqual({ mode: 'unavailable' })
+  }
+  expect(await askQuestion('review', 'en', reply(200, { mode: 'not_found', message: 'Nothing found.', citations: [] }))).toMatchObject({ mode: 'not_found' })
+  expect(await askQuestion('review', 'en', reply(200, { mode: 'search', message: 'unused', citations: [] }))).toMatchObject({ mode: 'search' })
+})

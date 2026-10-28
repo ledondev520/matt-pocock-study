@@ -136,8 +136,7 @@ export function createAskApp(deps: AskDeps) {
 
     const fallback = (reason: string, extra: Record<string, unknown> = {}): Response => {
       const citations: Citation[] = units.map((u, i) => ({ ...citationFor(u, i + 1, config.siteUrl), snippet: snippet(u) }))
-      const message = lang === 'zh' ? 'AI 回答暂时不可用，下面是站内最相关的内容。' : 'AI answers are unavailable right now; here is the closest material on the site.'
-      return finish({ mode: 'search', reason, message, citations, cached: false }, { reason, ...extra })
+      return finish({ mode: 'search', reason, message: '', citations, cached: false }, { reason, ...extra })
     }
     if (!config.enabled || !config.apiKey) return fallback('disabled')
     if ((inFlight.get(ip) ?? 0) >= 1) {

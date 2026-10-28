@@ -2,6 +2,8 @@
 // pitfalls and evolution of each methodology, plus `post` fallback chunks) to retrieval units.
 // This is the only file that knows the chunk format; when the methodology module's export
 // changes, change `MethodologyChunk` and `chunkUnits` here and nothing else.
+// Integration seam: apply the adapter part of methodology-wiring.patch after the methodology
+// module lands; it adds language-specific keys and chunk-provided sitePath. No data is bundled.
 import { readFileSync } from 'node:fs'
 import { isAllowedSourceUrl, type Anchor, type Unit } from './units'
 

@@ -213,7 +213,7 @@ describe('POST /api/ask', () => {
 
   it('degrades to search results when answers are off or no key is set', async () => {
     const { ask, calls } = setup({ enabled: false, apiKey: undefined })
-    expect(await (await ask()).json()).toMatchObject({ mode: 'search', reason: 'disabled' })
+    expect(await (await ask()).json()).toMatchObject({ mode: 'search', reason: 'disabled', message: '' })
     expect(calls).toHaveLength(0)
     expect(loadConfig({ ASK_ENABLED: '1' }).enabled).toBe(false)
   })
