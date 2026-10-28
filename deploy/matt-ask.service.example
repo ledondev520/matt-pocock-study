@@ -1,0 +1,36 @@
+# Example systemd unit for the /api/ask process (server/ask/index.ts). Adjust paths to the host.
+# The API key lives in a root-only EnvironmentFile; it never goes into the repository or a release.
+[Unit]
+Description=Matt study site - /api/ask
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=mattask
+Group=mattask
+WorkingDirectory=/srv/matt-site/current
+# Non-secret settings (ASK_ENABLED, limits, paths); see .env.example.
+EnvironmentFile=/etc/matt-ask/ask.env
+# DEEPSEEK_API_KEY only; root:root 0600.
+EnvironmentFile=/etc/matt-ask/secret.env
+Environment=NODE_ENV=production
+Environment=ASK_HOST=127.0.0.1
+Environment=ASK_PORT=8788
+ExecStart=/srv/matt-site/runtime/node/bin/node node_modules/tsx/dist/cli.mjs server/ask/index.ts
+StateDirectory=matt-ask
+StateDirectoryMode=0750
+Restart=on-failure
+RestartSec=3
+KillSignal=SIGTERM
+TimeoutStopSec=15
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/matt-ask
+MemoryMax=256M
+# Outbound HTTPS to the model API is needed, so no IPAddressDeny=any here; inbound is loopback only.
+
+[Install]
+WantedBy=multi-user.target

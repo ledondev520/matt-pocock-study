@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 
 import { Zap, Github, Sun, Moon, Menu, Search } from 'lucide-react'
 import { localSource, type SearchItem, type SearchSource } from './lib/search'
 import { Arrow, ArrowText } from './Arrow'
+import { AskEntry } from './AskEntry'
 import { sectionLabel, type Model, type Page, type PageSummary } from './lib/content'
 import { routeInfo, type Lang } from './lib/lang'
 import { agentPrompt } from './lib/agent'
@@ -106,9 +107,9 @@ function SiteSearch({ lang, source = defaultSource }: { lang: Lang; source?: Sea
     if (event.key === 'Escape') { event.preventDefault(); input.current?.focus() }
   }
   const empty = results !== null && !results.length
-  return <form className="site-search" role="search" onSubmit={submit}><div className="search-box"><Search size={20} aria-hidden="true" /><input ref={input} id="site-search" type="search" maxLength={200} autoComplete="off" value={query} aria-label={t('搜索', 'Search')} aria-controls="site-search-results" placeholder={t('搜索', 'Search')} onFocus={() => source.prepare?.(lang)} onChange={e => setQuery(e.target.value)} onKeyDown={inputKey} /></div>
+  return <div className="site-search"><AskEntry lang={lang} onFallback={q => { setQuery(q); input.current?.focus() }}><form role="search" onSubmit={submit}><div className="search-box"><Search size={20} aria-hidden="true" /><input ref={input} id="site-search" type="search" maxLength={200} autoComplete="off" value={query} aria-label={t('搜索', 'Search')} aria-controls="site-search-results" placeholder={t('搜索', 'Search')} onFocus={() => source.prepare?.(lang)} onChange={e => setQuery(e.target.value)} onKeyDown={inputKey} /></div></form></AskEntry>
     <ul id="site-search-results" ref={list} className="search-results" onKeyDown={listKey} hidden={!results?.length}>{results?.map(item => <li key={item.href}><a href={item.href}><strong><ArrowText>{item.title}</ArrowText></strong><span><ArrowText>{item.text.length > 70 ? `${item.text.slice(0, 70)}…` : item.text}</ArrowText></span></a></li>)}</ul>
-    <p className="search-status" role="status">{failed ? t('暂时无法搜索', 'Search is unavailable') : empty ? t('没有找到', 'No results') : ''}</p></form>
+    <p className="search-status" role="status">{failed ? t('暂时无法搜索', 'Search is unavailable') : empty ? t('没有找到', 'No results') : ''}</p></div>
 }
 function Home({ model, lang, pages }: { model: Model; lang: Lang; pages: PageSummary[] }) {
   const zh = lang === 'zh', t = (cn: string, en: string) => zh ? cn : en

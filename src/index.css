@@ -534,3 +534,25 @@ svg.inline-arrow { display: inline-block; width: 1em; height: 1em; vertical-alig
 .method-related > li { padding-block: 6px; font-size: 17px; }
 .method-related a { color: var(--link); overflow-wrap: anywhere; }
 @media (max-width: 480px) { .methods-index { padding-block: 25px 48px; }.methods-index h1 { font-size: 32px; }.method-quote { padding: 12px 14px; }.method-quote > p[lang] { font-size: 17px; } }
+
+/* The question form loads when opened; search stays beside its toggle. */
+.home-search-tools { display: flex; align-items: stretch; gap: 10px; }
+.home-search-tools > form { flex: 1; min-width: 0; }
+.ask-toggle { flex: none; min-width: 60px; min-height: 44px; border: 1px solid var(--border); border-radius: 5px; padding: 0 12px; color: var(--foreground); background: transparent; cursor: pointer; }
+.ask-toggle:hover, .ask-toggle[aria-expanded="true"] { background: var(--muted); }
+.ask-toggle:focus-visible, .ask-panel button:focus-visible, .ask-panel textarea:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+.ask-panel { margin-top: 14px; padding: 16px; border: 1px solid var(--border); border-radius: 5px; overflow-wrap: anywhere; }
+.ask-panel form { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px; }
+.ask-panel label, .ask-panel textarea { grid-column: 1 / -1; }
+.ask-panel textarea { width: 100%; min-width: 0; padding: 10px; resize: vertical; border: 1px solid var(--border); border-radius: 4px; background: var(--panel-inner); color: var(--foreground); font: inherit; }
+.ask-panel form > span, .ask-result small { color: var(--muted-foreground); font-size: 13px; }
+.ask-panel button { min-width: 8em; min-height: 44px; padding: 6px 12px; border: 1px solid var(--border); border-radius: 4px; background: var(--muted); color: var(--foreground); cursor: pointer; }
+.ask-panel button:disabled { cursor: default; opacity: .65; }
+.ask-result:empty { display: none; }
+.ask-result { margin-top: 16px; }
+.ask-result ol { padding-left: 22px; }
+.ask-result li + li { margin-top: 14px; }
+.ask-explanation:empty { display: none; }
+.ask-explanation p { margin-top: 4px; }
+.ask-result blockquote { margin: 10px 0; padding-left: 12px; border-left: 2px solid var(--border); overflow-wrap: anywhere; white-space: pre-wrap; }
+.ask-result blockquote cite { display: block; margin-top: 4px; color: var(--muted-foreground); font-size: 13px; font-style: normal; }

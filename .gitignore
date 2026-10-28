@@ -35,3 +35,11 @@ public/fonts/
 # Playwright layout check output
 test-results/
 playwright-report/
+
+# /api/ask build-time index (server-only, never in dist/)
+server-data/
+
+# Private retrieval inputs
+ask-chunks.jsonl
+ask-chunks/
+kb-dataset/

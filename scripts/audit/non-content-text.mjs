@@ -26,7 +26,7 @@ export const allowed = [
   '.skip-link', 'header', 'nav', '.article-sidebar', '.page-toc', '.corpus-page-intro > a', '.hero-actions',
   // Search and its states, the copy line (hint, button, the prompt shown for a manual copy), and in
   // the footer only its licences link: any other footer text is reported.
-  'form[role="search"]', '.result-count', '.pagination', '.empty-state button', '[role="alert"]',
+  'form[role="search"]', '.ask-toggle', '.result-count', '.pagination', '.empty-state button', '[role="alert"]',
   '.agent-copy-hint', '.agent-copy-button', '.agent-copy-text', 'footer .footer-licenses',
   // Timeline's original-post switch label and year slider.
   'label.tl-toggle > span:last-child', '.tl-track[role="slider"]',

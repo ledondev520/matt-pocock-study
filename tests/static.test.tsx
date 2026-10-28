@@ -886,3 +886,17 @@ it('no built page shows non-content text', async () => {
   expect(Object.keys(report).length).toBeGreaterThan(40)
   expect(Object.fromEntries(Object.entries(report).filter(([, items]) => items.length))).toEqual({})
 }, 60000)
+
+it('the ask page manifest matches generated HTML routes and contains no 404 pages', async () => {
+  const { loadPageManifest } = await import('../server/ask/page-manifest')
+  const paths = loadPageManifest('dist/page-manifest.json')
+  const generated = (await files('dist')).filter(file => !/\/404\.html$/.test(file))
+    .map(file => '/' + file.replace(/^dist\//, '').replace(/(?:^|\/)index\.html$/, ''))
+  expect([...paths].sort()).toEqual(generated.sort())
+  expect(methodSlugs).toHaveLength(31)
+  for (const lang of ['zh', 'en']) {
+    expect(paths.has(`/${lang}/methods`)).toBe(true)
+    const methods = [...paths].filter(path => path.startsWith(`/${lang}/methods/`)).sort()
+    expect(methods).toEqual(methodSlugs.map(slug => `/${lang}/methods/${slug}`).sort())
+  }
+})
