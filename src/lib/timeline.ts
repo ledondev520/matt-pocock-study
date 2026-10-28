@@ -5,7 +5,7 @@ export const timelineSlug = 'timeline'
 
 /**
  * One moment on the timeline. `learned` is what the site already says we learned (our own words) and
- * is always shown; `original` is Matt's post and is shown only when the reader turns it on.
+ * is always shown. Original posts are loaded separately when the reader turns them on.
  * Built at build time from the lessons' quotes and the knowledge base (scripts/timeline.ts).
  */
 export interface TimelineItem {
@@ -23,8 +23,16 @@ export interface TimelineItem {
     /** The lesson title, or the knowledge base label. */
     from: string
   }
-  original: { url: string; quote?: string; note?: string }
 }
+
+export interface TimelineOriginal {
+  url: string
+  quote?: string
+  note?: string
+  /** A note's body with its original links, loaded only with originals. */
+  segments?: Segment[]
+}
+export type TimelineOriginals = Record<string, TimelineOriginal>
 
 export interface TimelineYear { year: string; items: TimelineItem[] }
 

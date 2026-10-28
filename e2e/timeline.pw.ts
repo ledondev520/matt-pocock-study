@@ -36,6 +36,8 @@ for (const lang of ['zh', 'en'] as const) {
   })
 
   test(`${lang}: original posts are hidden by default and shown by the switch`, async ({ page }) => {
+    const originalRequests: string[] = []
+    page.on('request', request => { if (request.url().endsWith('/timeline-originals.json')) originalRequests.push(request.url()) })
     await open(page, `/${lang}/timeline`)
     const main = page.locator('main')
     const items = await page.locator('.tl-item').count()
@@ -45,14 +47,57 @@ for (const lang of ['zh', 'en'] as const) {
     await expect(page.locator('.tl-original')).toHaveCount(0)
     await expect(main.locator('a[href^="https://x.com/"]')).toHaveCount(0)
     await expect(main.locator('blockquote')).toHaveCount(0)
+    expect(originalRequests).toEqual([])
     await toggle.click()
     await expect(toggle).toBeChecked()
     await expect(page.locator('.tl-original')).toHaveCount(items)
     await expect(page.locator('.tl-original a[href^="https://x.com/"]')).toHaveCount(items)
     expect(await page.locator('.tl-original blockquote').count()).toBeGreaterThan(0)
+    expect(originalRequests).toEqual([new URL(`/${lang}/timeline-originals.json`, page.url()).href])
+    const quote = await page.locator('.tl-original blockquote p[lang="en"]').first().textContent()
+    expect(quote?.length).toBeGreaterThan(0)
     await toggle.click()
     await expect(page.locator('.tl-original')).toHaveCount(0)
     await expect(main.locator('a[href^="https://x.com/"]')).toHaveCount(0)
+    expect(await page.content()).not.toContain(quote!)
+    expect(originalRequests).toHaveLength(1)
+    await toggle.click()
+    await expect(page.locator('.tl-original')).toHaveCount(items)
+    expect(originalRequests).toHaveLength(2)
+  })
+
+  test(`${lang}: closing during loading ignores the late response; failed loads can be retried`, async ({ page }) => {
+    let release!: () => void
+    const pending = new Promise<void>(resolve => { release = resolve })
+    let started!: () => void
+    const requested = new Promise<void>(resolve => { started = resolve })
+    let attempts = 0
+    await page.route(`**/${lang}/timeline-originals.json`, async route => {
+      attempts++
+      if (attempts === 1) {
+        started()
+        await pending
+        await route.fulfill({ json: { stale: { url: 'https://example.test', quote: 'Late sample quote.' } } })
+      } else if (attempts === 2) await route.fulfill({ status: 503, body: 'Unavailable' })
+      else await route.continue()
+    })
+    await open(page, `/${lang}/timeline`)
+    const toggle = page.getByRole('switch')
+    try {
+      await toggle.click()
+      await requested
+      await expect(toggle).toBeChecked()
+      await toggle.click()
+    } finally { release() }
+    await expect(toggle).not.toBeChecked()
+    await expect(page.locator('.tl-original')).toHaveCount(0)
+    expect(await page.content()).not.toContain('Late sample quote.')
+    await toggle.click()
+    await expect(toggle).not.toBeChecked()
+    await expect(page.locator('.tl-original')).toHaveCount(0)
+    await toggle.click()
+    await expect(page.locator('.tl-original')).toHaveCount(await page.locator('.tl-item').count())
+    expect(attempts).toBe(3)
   })
 
   test(`${lang}: tapping a year on the scrubber jumps to it`, async ({ page }) => {
@@ -121,6 +166,39 @@ for (const lang of ['zh', 'en'] as const) {
     // Reverse traversal reaches the last item because the list precedes the scrubber.
     await page.keyboard.press('Shift+Tab')
     await expect(links.last()).toBeFocused()
+  })
+
+  for (const width of [375, 1280]) test(`${lang}: at ${width}px Tab includes original links in reading order`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 812 })
+    await open(page, `/${lang}/timeline`)
+    const toggle = page.getByRole('switch')
+    await toggle.click()
+    await expect(page.locator('.tl-original')).toHaveCount(await page.locator('.tl-item').count())
+    expect(await page.locator('.tl-layout').evaluate(node => [...node.children].map(child => child.className))).toEqual(['tl-years', 'tl-scrubber'])
+    const list = (await page.locator('.tl-years').boundingBox())!
+    const track = (await slider(page).boundingBox())!
+    expect(list.x + list.width).toBeLessThanOrEqual(track.x)
+    // Expected focus targets come from each item's reading order, not a list of focusable DOM nodes.
+    const items = page.locator('.tl-item')
+    for (let i = 0; i < await items.count(); i++) {
+      const item = items.nth(i)
+      const links = await item.getAttribute('data-kind') === 'lesson'
+        ? [item.locator('.tl-from'), item.locator('.tl-original > a')]
+        : [...await item.locator('.tl-learned a').all(), item.locator('.tl-original > a')]
+      for (const link of links) {
+        await page.keyboard.press('Tab')
+        await expect(link).toBeFocused()
+      }
+    }
+    await page.keyboard.press('Tab')
+    await expect(slider(page)).toBeFocused()
+    await page.keyboard.press('Shift+Tab')
+    await expect(page.locator('.tl-original > a').last()).toBeFocused()
+    await toggle.focus()
+    await page.keyboard.press('Space')
+    await expect(page.locator('.tl-original')).toHaveCount(0)
+    await page.keyboard.press('Tab')
+    await expect(page.locator('.tl-from').first()).toBeFocused()
   })
 
   test(`${lang}: at 375px the scrubber fits on screen, keeps a touch-sized target and follows a finger`, async ({ browser }) => {

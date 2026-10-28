@@ -38,8 +38,10 @@ export function pageModel(model: Model, pages: Page[], path: string, sets: Metho
     corpusItems: slug === 'corpus' ? model.corpusItems : [], corpusTags: slug === 'corpus' ? model.corpusTags : [],
     knowledge: kb ? model.knowledge : undefined,
     today: home ? todayItems(learnSource({ knowledge: model.knowledge ?? [], pages: model.pages }), lang) : undefined,
-    // Built from the lessons' quotes and the knowledge base; only the timeline views carry it.
-    timeline: timeline ? timelineItems(lang, pages, model.knowledge ?? []) : undefined,
+    // Only our learning text travels with the page; originals have a separate on-demand payload.
+    timeline: timeline ? timelineItems(lang, pages, model.knowledge ?? []).map(({ id, date, kind, learned }) => ({ id, date, kind,
+      learned: { ...learned, text: typeof learned.text === 'string' ? learned.text : learned.text.map(({ text }) => ({ text })) },
+    })) : undefined,
     methods,
   }
 }
@@ -78,8 +80,10 @@ export async function staticPages(root = 'dist', kbFile = 'data/knowledge-base.j
   for (const lang of ['zh', 'en'] as const) await writeOutput(root, outputPath(root, searchIndexPath(lang).slice(1)), JSON.stringify(searchIndex(learn, lang)))
   // The knowledge base and timeline views' Markdown twins (the feed is only read here, not in build:content).
   for (const lang of ['zh', 'en'] as const) {
+    const items = timelineItems(lang, pages, model.knowledge ?? [])
+    await writeOutput(root, outputPath(root, lang, `${timelineSlug}-originals.json`), JSON.stringify(Object.fromEntries(items.map(({ id, original }) => [id, original]))))
     await writeOutput(root, outputPath(root, lang, `${kbSlug}.md`), knowledgeMarkdown(lang, model.knowledge ?? []))
-    await writeOutput(root, outputPath(root, lang, `${timelineSlug}.md`), timelineMarkdown(lang, timelineItems(lang, pages, model.knowledge ?? []), model.siteUrl))
+    await writeOutput(root, outputPath(root, lang, `${timelineSlug}.md`), timelineMarkdown(lang, items, model.siteUrl))
   }
   // The methods views' Markdown twins.
   for (const lang of ['zh', 'en'] as const) {
