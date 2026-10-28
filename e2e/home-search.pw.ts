@@ -30,7 +30,7 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1440, height: 900 
       await page.keyboard.type([...title].slice(1, 4).join(''))
       const results = page.locator('#site-search-results a')
       await expect(results.first()).toBeVisible()
-      expect(await results.evaluateAll(links => links.map(a => a.getAttribute('href')!.split('#')[0]))).toContain(href)
+      expect(await results.evaluateAll(links => links.map(a => a.getAttribute('href')))).toContain(href)
       await page.keyboard.press('ArrowDown')
       await expect(results.first()).toBeFocused()
       const target = (await results.first().getAttribute('href'))!
@@ -67,3 +67,20 @@ test('a query without matches shows the no-results state, and Escape clears it',
     await expect(page.locator('.search-status')).toHaveText('')
   }
 })
+
+for (const lang of ['zh', 'en'] as const) {
+  test(`${lang} search opens the independently expected method step and scrolls to it`, async ({ page }) => {
+    await page.goto(`/${lang}`)
+    await hydrated(page)
+    const box = page.getByRole('searchbox', { name: lang === 'zh' ? '搜索' : 'Search' })
+    await box.fill(lang === 'zh' ? '伪代码' : 'pseudocode')
+    const result = page.locator(`#site-search-results a[href="/${lang}/methods/pr-review#s4"]`)
+    await expect(result).toBeVisible()
+    await result.focus()
+    await page.keyboard.press('Enter')
+    await expect(page).toHaveURL(new RegExp(`/${lang}/methods/pr-review#s4$`))
+    await expect(page.locator('#s4')).toBeVisible()
+    await expect(page.locator('#s4')).toBeInViewport()
+    expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(0)
+  })
+}

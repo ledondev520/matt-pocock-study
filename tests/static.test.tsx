@@ -38,6 +38,41 @@ beforeAll(async () => {
   model = JSON.parse(document.getElementById('site-data')!.textContent!)
 }, 130000)
 afterAll(() => db.close())
+for (const lang of ['zh', 'en'] as const) it(`${lang} timeline page data excludes originals, which have a separate payload`, async () => {
+  const html = await readFile(`dist/${lang}/timeline/index.html`, 'utf8')
+  const doc = new JSDOM(html).window.document
+  const embedded: Model = JSON.parse(doc.getElementById('site-data')!.textContent!)
+  const json = await readFile(`dist/${lang}/timeline.json`, 'utf8')
+  expect(JSON.parse(json)).toEqual(embedded)
+  expect(embedded.timeline!.length).toBeGreaterThan(0)
+  expect(embedded.currentPage).toBeUndefined()
+  expect(embedded.knowledge).toBeUndefined()
+  expect(json).not.toMatch(/"original"|x\.com/)
+  expect(doc.querySelector('main blockquote, main a[href*="x.com"]')).toBeNull()
+
+  const response = await app.request(`/${lang}/timeline-originals.json`)
+  expect(response.status).toBe(200)
+  expect(response.headers.get('Content-Type')).toContain('application/json')
+  const originals = await response.json() as Record<string, { url: string; quote?: string; note?: string; segments?: { text: string; href?: string }[] }>
+  expect(Object.keys(originals)).toEqual(embedded.timeline!.map(item => item.id))
+  const pages: Page[] = JSON.parse(await readFile('dist/content.json', 'utf8'))
+  const expected = pages.filter(page => page.lang === lang && page.slug !== 'corpus').flatMap(page => page.quotes)
+  const actual = Object.values(originals).filter(original => original.quote)
+  expect(actual.map(original => [original.url, original.quote, original.note]).sort()).toEqual(expected.map(quote => [quote.url, quote.text, quote.note]).sort())
+  for (const quote of expected) {
+    expect(JSON.stringify(embedded)).not.toContain(JSON.stringify(quote.text))
+    expect(doc.getElementById('root')!.textContent).not.toContain(quote.text)
+  }
+  if (lang === 'zh') {
+    const feed = JSON.parse(await readFile('data/knowledge-base.json', 'utf8'))
+    for (const entry of feed.entries) {
+      const original = originals[`note-${entry.id}`]
+      expect(original.url).toBe(entry.url)
+      // Source links survive the existing count-removal step applied to note prose.
+      expect(original.segments!.filter(segment => segment.href)).toEqual(entry.body.filter((segment: { href?: string }) => segment.href))
+    }
+  } else expect(JSON.stringify(originals)).not.toMatch(/\p{Script_Extensions=Han}/u)
+})
 it('build writes Brotli q11 and gzip siblings for all eligible dist files', async () => {
   const { brotliCompressSync, brotliDecompressSync, constants, gunzipSync } = await import('node:zlib')
   for (const file of await walk('dist', '')) {

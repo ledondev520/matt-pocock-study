@@ -3,8 +3,7 @@ import type { Lang } from './lang'
 /** One searchable item (a chunk from the learn source). Built at build time (scripts/learn/source.ts). */
 export interface SearchItem { kind: string; title: string; text: string; href: string }
 
-/** Where the home page search gets its results. The local index is the only source today; an
- * answering source (for example /api/ask) can implement the same interface and be passed in. */
+/** Where the home page search gets its results. */
 export interface SearchSource { search(query: string, lang: Lang): Promise<SearchItem[]>; prepare?(lang: Lang): void }
 
 /** The per-language index the build writes to dist (fetched on first use, same origin). */

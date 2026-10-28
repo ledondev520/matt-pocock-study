@@ -1,7 +1,7 @@
 import type { Page } from '../src/lib/content'
 import type { Lang } from '../src/lib/lang'
 import { kbSlug } from '../src/lib/metadata'
-import { byYear, type TimelineItem } from '../src/lib/timeline'
+import { byYear, type TimelineItem, type TimelineOriginal } from '../src/lib/timeline'
 import { SOURCES, type KbEntry, type Segment } from './kb/feed'
 
 // The timeline's items, from what the site already publishes (nothing new, nothing external):
@@ -12,10 +12,10 @@ import { SOURCES, type KbEntry, type Segment } from './kb/feed'
 //   lists them.
 // Newest first; on one date, notes (in feed order) before lessons (in lesson order).
 const statusId = (url: string) => /\/status\/(\d+)/.exec(url)?.[1] ?? url.replace(/[^a-z0-9]+/gi, '-').toLowerCase()
-export function timelineItems(lang: Lang, pages: Page[], knowledge: KbEntry[]): TimelineItem[] {
+export function timelineItems(lang: Lang, pages: Page[], knowledge: KbEntry[]): (TimelineItem & { original: TimelineOriginal })[] {
   const zh = lang === 'zh'
   const lessons = pages.filter(p => p.lang === lang && p.slug !== 'corpus').sort((a, b) => a.order - b.order)
-  const fromLessons: TimelineItem[] = lessons.flatMap(page => page.quotes.map((quote, i) => {
+  const fromLessons = lessons.flatMap(page => page.quotes.map((quote, i) => {
     const section = page.toc.find(entry => entry.id === quote.section)
     return {
       id: `lesson-${page.slug}-${statusId(quote.url)}${page.quotes.slice(0, i).some(q => q.url === quote.url) ? `-${i + 1}` : ''}`,
@@ -25,12 +25,12 @@ export function timelineItems(lang: Lang, pages: Page[], knowledge: KbEntry[]): 
       original: { url: quote.url, quote: quote.text, ...(quote.note ? { note: quote.note } : {}) },
     }
   }))
-  const fromNotes: TimelineItem[] = zh ? knowledge.map(entry => ({
+  const fromNotes = zh ? knowledge.map(entry => ({
     id: `note-${entry.id}`,
     date: entry.date,
     kind: 'note' as const,
     learned: { title: entry.title, text: entry.body, href: `/zh/${kbSlug}#${entry.id}`, from: SOURCES[entry.source].label[0] },
-    original: { url: entry.url },
+    original: { url: entry.url, segments: entry.body },
   })) : []
   // Stable sort by date only: notes come first in the concatenation, so they lead on a shared date.
   return [...fromNotes, ...fromLessons].sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0))

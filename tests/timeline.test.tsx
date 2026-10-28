@@ -52,6 +52,7 @@ describe('timeline items', () => {
     expect(lesson.learned).toEqual({ title: '样例二', text: '样例要点 2', href: '/zh/sample-a#样例二', from: 'zh 样例课 2' })
     expect(lesson.original).toEqual({ url: post(802), quote: 'Sample line two.', note: '本站译意：样例译意 802。' })
     expect(items[0].learned.href).toBe('/zh/knowledge#matt-notes-2099-03-04-901')
+    expect(items[0].original).toEqual({ url: post(901), segments: [{ text: '样例正文甲，' }, { text: '原帖', href: post(901) }, { text: '。' }] })
   })
   it('English: lesson quotes only (the notes are Chinese), and no Chinese text', async () => {
     const items = timelineItems('en', await samplePages(), notes)
@@ -75,7 +76,8 @@ describe('original posts stay hidden until shown', () => {
     for (const lang of ['zh', 'en'] as const) {
       const items = timelineItems(lang, await samplePages(), notes)
       const html = renderToString(<Timeline items={items} lang={lang} />)
-      const shown = renderToString(<TimelineList years={byYear(items)} lang={lang} showOriginal />)
+      const originals = Object.fromEntries(items.map(({ id, original }) => [id, original]))
+      const shown = renderToString(<TimelineList years={byYear(items)} lang={lang} showOriginal originals={originals} />)
       expect(nonContentText(html)).toEqual([])
       expect(nonContentText(shown)).toEqual([])
       expect(html).not.toContain('Matt 笔记')
@@ -93,14 +95,16 @@ describe('original posts stay hidden until shown', () => {
     }
   })
   it('renders no original link or quote by default, and all of them when shown', async () => {
-    const years = byYear(timelineItems('zh', await samplePages(), notes))
-    const hidden = renderToString(<TimelineList years={years} lang="zh" showOriginal={false} />)
+    const items = timelineItems('zh', await samplePages(), notes)
+    const years = byYear(items)
+    const originals = Object.fromEntries(items.map(({ id, original }) => [id, original]))
+    const hidden = renderToString(<TimelineList years={years} lang="zh" showOriginal={false} originals={originals} />)
     expect(hidden).not.toContain('x.com')
     expect(hidden).not.toContain('Sample line')
     expect(hidden).not.toContain('样例译意')
     expect(hidden.replace(/<[^>]+>/g, ''), 'the note text stays, its link becomes text').toContain('样例正文甲，原帖。')
     expect(hidden).toMatch(/<span class="kb-keep"><span>原帖<\/span>。<\/span>/)
-    const shown = renderToString(<TimelineList years={years} lang="zh" showOriginal />)
+    const shown = renderToString(<TimelineList years={years} lang="zh" showOriginal originals={originals} />)
     for (const id of [801, 802, 803, 901, 902]) expect(shown).toContain(`href="${post(id)}"`)
     for (const text of ['Sample line one.', 'Sample line two.', 'Sample line three.', '本站译意：样例译意 801。']) expect(shown).toContain(text)
   })
@@ -110,6 +114,10 @@ describe('original posts stay hidden until shown', () => {
     const model = pageModel(base, pages, '/zh/timeline')
     expect(pageModel(base, pages, '/zh').timeline).toBeUndefined()
     expect(model.knowledge).toBeUndefined()
+    // Literal sample expectations: do not derive omissions from timelineItems or the serializer.
+    expect(model.timeline).toHaveLength(5)
+    expect(model.timeline?.[0].learned.text).toEqual([{ text: '样例正文甲，' }, { text: '原帖' }, { text: '。' }])
+    expect(JSON.stringify(model.timeline)).not.toMatch(/Sample line|样例译意|x\.com|"original"/)
     const html = renderToString(<Site model={model} path="/zh/timeline" />)
     const main = html.slice(html.indexOf('<main'), html.indexOf('</main>'))
     expect(main).not.toContain('x.com')

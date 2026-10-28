@@ -26,7 +26,7 @@ export function methodsSource({ pages }: { knowledge?: KbEntry[]; pages: PageSum
       return { ...summary(lang)(s), claim: m.claim.text[lang], steps: m.steps.map(step => ({ id: step.id, order: step.order, title: step.title[lang], how: step.how[lang] })) }
     },
     chunks: (lang: Lang): Chunk[] => [
-      ...methodChunks(lang).map(c => ({ id: c.key, kind: c.kind, methodologyId: c.methodology_id, title: c.title, text: withoutLicence(c.text), href: c.sitePath })),
+      ...methodChunks(lang).map(c => ({ id: c.key, kind: c.kind, methodologyId: c.methodology_id, title: c.title, text: withoutLicence(c.text), href: c.kind === 'overview' ? methodPath(lang, c.methodology_id) : c.sitePath })),
       ...pages.filter(p => p.lang === lang).map(p => ({ id: `${lang}/${p.slug}`, kind: 'note', title: p.title, text: p.subtitle === p.title ? p.summary : `${p.subtitle} ${p.summary}`, href: `/${lang}/${p.slug}` })),
     ],
   }

@@ -7,7 +7,6 @@ import { describe, expect, it } from 'vitest'
 import { chunks, getMethodology, listMethodologies, loadMethodologies, todaysMethodology } from '../scripts/methods'
 import { applyEnglish, importMethods } from '../scripts/import-methods'
 import { checkQuotes, loadSources } from '../scripts/check-method-quotes'
-import { excerpt, postChunks, scanChunk, splitText, type AskChunk } from '../scripts/build-ask-chunks'
 import { MethodPage, MethodsIndex } from '../src/Methods'
 import { buildChunks, CHUNK_MAX, forDisplay, currentLabel, DOMAINS, domainLabel, methodMarkdown, methodsTitle, quoteSentences, sectionTitles, summarize, translationLabel, validateMethodology, type Methodology } from '../src/lib/methods'
 import type { Lang } from '../src/lib/lang'
@@ -215,46 +214,6 @@ describe('chunks', () => {
     const ids = buildChunks(m, 'zh').filter(c => c.kind === 'pitfalls').map(c => c.chunk_id)
     expect(ids.length).toBeGreaterThan(1)
     expect(ids[1]).toBe('m.pr-review#pitfalls-2')
-  })
-})
-
-describe('ask chunks', () => {
-  const m = getMethodology('pr-review')!
-  const post = (id: string, text: string, type = 'original') => ({ id, date: '2026-05-01T00:00:00.000Z', type, text, url: `https://x.com/mattpocockuk/status/${id}` })
-  it('maps posts by anchor or rule, skips replies, splits long posts and quotes verbatim', () => {
-    const anchor = m.steps[0]!.anchors[0]!
-    const anchorId = anchor.url.split('/').at(-1)!
-    const out = postChunks([
-      { ...post(anchorId, 'An anchored post about review with enough words in it'), date: `${anchor.date}T00:00:00.000Z` },
-      post('2', 'I review every PR twice before merging it, here is why'),
-      post('3', 'I review every reply too, just kidding about this', 'reply'),
-      post('4', Array.from({ length: 40 }, (_, i) => `Line ${i} about code review and how to review well.`).join('\n')),
-      post('5', 'Nothing relevant here at all, just weather talk'),
-    ], [m], { flags: 'i', rules: { 'm.pr-review': '\\breview' } })
-    expect(out.find(c => c.chunk_id === `post:${anchorId}`)).toMatchObject({ methodology_id: 'm.pr-review', step: 1, sitePath: '/en/methods/pr-review#s1' })
-    expect(out.some(c => c.chunk_id === 'post:3' || c.chunk_id === 'post:5')).toBe(false)
-    const long = out.filter(c => c.chunk_id.startsWith('post:4'))
-    expect(long.length).toBeGreaterThan(1)
-    for (const c of out) {
-      expect(c.text.length).toBeLessThanOrEqual(CHUNK_MAX)
-      if (c.quote) expect(c.text).toContain(c.quote.text)
-    }
-  })
-  it('scans fail on emails, phone numbers and third-party quotes but not on "grok"', () => {
-    const base = postChunks([post('9', 'Reviewing code is how you grok a codebase, honestly')], [m], { rules: { 'm.pr-review': 'review' } })[0]!
-    expect(scanChunk(base)).toEqual([])
-    const withText = (text: string): AskChunk => ({ ...base, text })
-    expect(scanChunk(withText('mail me at someone@example.com'))).toContain('email')
-    expect(scanChunk(withText('call +44 7700 900123 now'))).toContain('phone')
-    expect(scanChunk(withText('call (555) 123-4567 now'))).toContain('phone')
-    expect(scanChunk(withText('> someone else wrote this'))).toContain('third-party')
-    expect(scanChunk(withText('@someone said "this is a long quote from a person who is not Matt at all"'))).toContain('third-party')
-    expect(scanChunk({ ...base, quotes: [{ text: 'x', url: 'https://x.com/other/status/1', date: '2026-05-01' }] })).toContain('quote not from Matt')
-  })
-  it('excerpts stop before links and split keeps every part under the limit', () => {
-    expect(excerpt('Thinking about https://t.co/abc vs that')).toBeUndefined()
-    expect(excerpt('Hi\nThis is the first real line https://t.co/abc')).toBe('This is the first real line')
-    for (const p of splitText('word '.repeat(500), 100)) expect(p.length).toBeLessThanOrEqual(100)
   })
 })
 
