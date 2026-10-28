@@ -1,0 +1,98 @@
+{
+  "title": {
+    "zh": "上下文窗口管理方法论",
+    "en": "Managing the context window"
+  },
+  "question": {
+    "zh": "会话越长 agent 越笨,怎么管理上下文窗口,让它一直保持在「聪明区」?",
+    "en": "Agents get dumber as a session gets longer. How do you manage the context window so the agent stays in the \"smart zone\"?"
+  },
+  "claim.text": {
+    "zh": "上下文窗口装得越满,模型就越笨。所以要让每个任务都在 smart zone 里完成:缩减常驻的系统提示词和指令;一件事做完就选择清空、压缩、交接给新会话,或者交给子 agent;长任务在任务之间主动重置上下文。",
+    "en": "The fuller the context window, the dumber the model. So finish every task inside the smart zone: trim the always-loaded system prompt and instructions; when a piece of work is done, choose to clear, compact, hand off to a new session or pass to a sub-agent; on long jobs, reset the context between tasks on purpose."
+  },
+  "steps.0.title": {
+    "zh": "先理解上下文窗口",
+    "en": "Understand the context window first"
+  },
+  "steps.0.how": {
+    "zh": "知道 token、上下文窗口、消息历史是怎么回事,才能理解为什么聊得越久效果越差。",
+    "en": "Know what tokens, the context window and message history are, and it becomes clear why results get worse the longer a chat goes on."
+  },
+  "steps.1.title": {
+    "zh": "认识「dumb zone」",
+    "en": "Recognise the \"dumb zone\""
+  },
+  "steps.1.how": {
+    "zh": "上下文用到一定程度之后,决策、代码质量和指令遵循都会明显下降。超大上下文窗口并不意味着应该把它用满。",
+    "en": "Past a certain level of context use, decisions, code quality and instruction-following all drop noticeably. A huge context window does not mean you should fill it."
+  },
+  "steps.2.title": {
+    "zh": "缩减常驻上下文",
+    "en": "Trim what is always in context"
+  },
+  "steps.2.how": {
+    "zh": "每次请求都会带上系统提示词、工具定义和指令文件。先看清实际发送了什么,再关掉用不上的功能,删掉没有用的指令。",
+    "en": "Every request carries the system prompt, tool definitions and instruction files. Look at what is actually sent, then turn off features you don't use and delete instructions that don't help."
+  },
+  "steps.3.title": {
+    "zh": "一段工作结束时,选一种方式继续",
+    "en": "When a piece of work ends, choose how to continue"
+  },
+  "steps.3.how": {
+    "zh": "有几种选择:在当前会话里继续、清空、压缩、把状态写成交接文档交给新会话,或者交给子 agent。交接比压缩更灵活,可以把一个想法交给另一个 agent 去实现,再把结果交回来。",
+    "en": "The options: keep going in this session, clear, compact, write the state into a handoff document for a new session, or pass it to a sub-agent. A handoff is more flexible than compacting: you can pass an idea to another agent to build and get the result back."
+  },
+  "steps.4.title": {
+    "zh": "长任务在任务之间重置",
+    "en": "Reset between tasks on long jobs"
+  },
+  "steps.4.how": {
+    "zh": "连续跑多个任务时,每个任务都从干净的上下文开始(Ralph 的核心),或者在任务之间压缩一次,别让一个会话一路滑进 dumb zone。",
+    "en": "When running several tasks in a row, start each from a clean context (the core of Ralph), or compact between tasks, so one session doesn't slide into the dumb zone."
+  },
+  "steps.5.title": {
+    "zh": "用实验感受差别",
+    "en": "Feel the difference with an experiment"
+  },
+  "steps.5.how": {
+    "zh": "agent 犯了蠢错时,回退到出错之前,压缩上下文后重跑一次,对比结果,亲身体会上下文过满的影响。",
+    "en": "When the agent makes a silly mistake, roll back to before it, compact the context and run it again. Compare the results to see for yourself what an overfull context does."
+  },
+  "examples.0.title": {
+    "zh": "本站示例:交接文档骨架",
+    "en": "Our example: a handoff document skeleton"
+  },
+  "examples.0.body": {
+    "zh": "# 交接:草稿自动保存\n已决定:保存走 debounce;草稿存本地\n已完成:保存按钮 + 测试(已提交)\n未完成:离线提示\n下一步:读 GLOSSARY.md,从「离线提示」那张票开始",
+    "en": "# Handoff: draft autosave\nDecided: saving is debounced; drafts are stored locally\nDone: save button + tests (committed)\nNot done: offline notice\nNext: read GLOSSARY.md, start with the \"offline notice\" ticket"
+  },
+  "pitfalls.0.text": {
+    "zh": "以为窗口大就可以一直聊下去。",
+    "en": "Thinking a big window means you can keep chatting forever."
+  },
+  "pitfalls.1.text": {
+    "zh": "把多个任务塞进同一个越来越长的上下文。",
+    "en": "Packing several tasks into one context that keeps growing."
+  },
+  "pitfalls.2.text": {
+    "zh": "拷问时滑进 dumb zone,或者反过来,清空上下文太早。",
+    "en": "Sliding into the dumb zone while grilling, or the opposite, clearing the context too early."
+  },
+  "pitfalls.3.text": {
+    "zh": "让全局指令文件越积越多。",
+    "en": "Letting global instruction files keep growing."
+  },
+  "evolution.0.stance": {
+    "zh": "强调先懂基础:token、上下文窗口、消息。",
+    "en": "He stresses the basics first: tokens, the context window, messages."
+  },
+  "evolution.1.stance": {
+    "zh": "提出 smart zone / dumb zone,用来解释 Ralph 每轮为什么要清空上下文;亲自实验确认,上下文很深时质量明显下降。",
+    "en": "He introduces the smart zone and dumb zone to explain why Ralph clears the context every round, and confirms by experiment that quality drops when the context is deep."
+  },
+  "evolution.2.stance": {
+    "zh": "用交接(/handoff)替代压缩;给出一段工作结束后如何继续的决策树;缩减系统提示词里的冗余。",
+    "en": "Handoff (/handoff) replaces compacting; he gives a decision tree for continuing after a piece of work, and trims redundancy from system prompts."
+  }
+}

@@ -1,0 +1,277 @@
+{
+  "id": "m.type-design",
+  "domain": "typescript",
+  "title": {
+    "zh": "类型设计:用类型表达领域",
+    "en": "Type design: modelling the domain in types"
+  },
+  "question": {
+    "zh": "怎样设计类型,才能让非法状态写不出来、漏处理的分支在编译期就报错?",
+    "en": "How do you design types so illegal states can't be written and unhandled branches fail at compile time?"
+  },
+  "claim": {
+    "text": {
+      "zh": "用类型描述领域里真实存在的状态:互斥的情况用判别联合,不同含义但同为 string 的值用品牌类型区分,类型尽量从值(as const、typeof)派生,分支处理用 satisfies never 做穷尽检查。目标用他 2026 年的话说是「让坏代码无法表示」。",
+      "en": "Describe the states that really exist in the domain with types: discriminated unions for mutually exclusive cases, branded types to tell apart strings with different meanings, types derived from values (as const, typeof) wherever possible, and satisfies never for exhaustive branch handling. In his 2026 words, the goal is to make bad code unrepresentable."
+    },
+    "anchors": [
+      {
+        "url": "https://x.com/mattpocockuk/status/2106447238834647051",
+        "date": "2026-10-03",
+        "quote": "\"make bad code unrepresentable\"",
+        "quote_zh": "「让坏代码无法表示」"
+      },
+      {
+        "url": "https://x.com/mattpocockuk/status/1643190212061810690",
+        "date": "2023-04-04",
+        "quote": "They might be TypeScript's single most useful feature.",
+        "quote_zh": "它们可能是 TypeScript 最有用的单一特性。"
+      }
+    ],
+    "evidence": "Supported"
+  },
+  "steps": [
+    {
+      "id": "m.type-design#s1",
+      "order": 1,
+      "title": {
+        "zh": "互斥的状态用判别联合表达",
+        "en": "Express mutually exclusive states as a discriminated union"
+      },
+      "how": {
+        "zh": "给每种情况一个字面量标签(例如 status: \"loading\" | \"success\" | \"error\"),并只在对应分支上放该情况才有的字段。这样「成功了却没有数据」「失败了却有数据」这类组合在类型上就不存在。React props 里多种用法互斥时同样适用。",
+        "en": "Give each case a literal tag (such as status: \"loading\" | \"success\" | \"error\") and put case-specific fields only on that branch. Combinations like \"succeeded with no data\" or \"failed with data\" then don't exist in the types. The same applies to React props with mutually exclusive uses."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/1643190212061810690",
+          "date": "2023-04-04",
+          "quote": "Discriminated unions are absolutely indispensable as a frontend dev.",
+          "quote_zh": "对前端开发者来说,判别联合绝对不可或缺。"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/1592130978234900484",
+          "date": "2022-11-14",
+          "quote": "we compare a normal union, a discriminated union, and a type predicate.",
+          "quote_zh": "我们比较了普通联合、判别联合和类型谓词。"
+        }
+      ],
+      "evidence": "Direct",
+      "since": "2022"
+    },
+    {
+      "id": "m.type-design#s2",
+      "order": 2,
+      "title": {
+        "zh": "用 satisfies never 做穷尽检查",
+        "en": "Exhaustive checks with satisfies never"
+      },
+      "how": {
+        "zh": "在 switch 的 default 分支里写 x satisfies never:以后联合里新增一种情况而忘了处理,编译器会在这里报错,而不是在运行时静默漏掉。",
+        "en": "Write x satisfies never in a switch's default branch: if a new case is added to the union later and not handled, the compiler errors here instead of silently missing it at runtime."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/1691014244609765376",
+          "date": "2023-08-14",
+          "quote": "you'll know you've checked every single branch of your union.",
+          "quote_zh": "你会确知自己检查了联合的每一个分支。"
+        }
+      ],
+      "evidence": "Direct",
+      "since": "2023"
+    },
+    {
+      "id": "m.type-design#s3",
+      "order": 3,
+      "title": {
+        "zh": "从值派生类型:as const + typeof",
+        "en": "Derive types from values: as const plus typeof"
+      },
+      "how": {
+        "zh": "把领域常量(路由表、角色列表、状态列表)写成 as const 的值,再用 typeof 派生类型,值和类型只有一个来源,不会漂移。as const 还能让函数返回值被推断为判别联合。",
+        "en": "Write domain constants (route tables, role lists, status lists) as as const values and derive types with typeof, so values and types have one source and can't drift. as const also lets a function's return value be inferred as a discriminated union."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/1656601449072058371",
+          "date": "2023-05-11",
+          "quote": "Deriving types using typeof/as const",
+          "quote_zh": "用 typeof/as const 派生类型"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/1818768392792555610",
+          "date": "2024-07-31",
+          "quote": "Inferring discriminated unions from function returns.",
+          "quote_zh": "从函数返回值推断出判别联合。"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/1671794965393842176",
+          "date": "2023-06-22",
+          "quote": "'as const' is STILL not being used enough by most development teams.",
+          "quote_zh": "大多数团队对 as const 的使用仍然不够。"
+        }
+      ],
+      "evidence": "Direct",
+      "since": "2023"
+    },
+    {
+      "id": "m.type-design#s4",
+      "order": 4,
+      "title": {
+        "zh": "同为 string 但含义不同的值,用品牌类型区分",
+        "en": "Branded types for strings with different meanings"
+      },
+      "how": {
+        "zh": "用户 ID 和订单 ID、绝对路径和相对路径,运行时都是字符串,但混用会出 bug。给它们加一个只存在于类型层的「品牌」,只能通过校验函数创建,混用就会报类型错误。安全要求高的应用尤其值得用。",
+        "en": "User IDs and order IDs, absolute and relative paths are all strings at runtime, but mixing them causes bugs. Add a brand that exists only at the type level and can only be created through a validating function, so mixing them is a type error. Especially worth it in security-sensitive apps."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/1625173884885401600",
+          "date": "2023-02-13",
+          "quote": "If I were building an app where security was critical, I'd use the crap out of them.",
+          "quote_zh": "如果我做的是安全攸关的应用,我会大量使用它们。"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/1787928831921180798",
+          "date": "2024-05-07"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/1928909259950973073",
+          "date": "2025-05-31",
+          "quote": "Branded types have saved my ass so many times",
+          "quote_zh": "品牌类型救过我很多次"
+        }
+      ],
+      "evidence": "Direct",
+      "since": "2023"
+    }
+  ],
+  "examples": [
+    {
+      "origin": "site",
+      "title": {
+        "zh": "本站示例:判别联合 + 穷尽检查",
+        "en": "Our example: a discriminated union plus an exhaustive check"
+      },
+      "lang": "ts",
+      "body": {
+        "zh": "type Fetch =\n  | { status: \"loading\" }\n  | { status: \"success\"; data: string }\n  | { status: \"error\"; error: Error };\n\nfunction render(s: Fetch) {\n  switch (s.status) {\n    case \"loading\": return \"…\";\n    case \"success\": return s.data;\n    case \"error\": return s.error.message;\n    default: s satisfies never; // 新增状态未处理时这里报错\n  }\n}",
+        "en": "type Fetch =\n  | { status: \"loading\" }\n  | { status: \"success\"; data: string }\n  | { status: \"error\"; error: Error };\n\nfunction render(s: Fetch) {\n  switch (s.status) {\n    case \"loading\": return \"...\";\n    case \"success\": return s.data;\n    case \"error\": return s.error.message;\n    default: s satisfies never; // errors here when a new state is unhandled\n  }\n}"
+      }
+    }
+  ],
+  "pitfalls": [
+    {
+      "text": {
+        "zh": "用多个布尔值或可选字段拼状态,组合出大量非法情况(见状态机方法论的「布尔值爆炸」)。",
+        "en": "Building state from several booleans or optional fields, which allows many illegal combinations (see the boolean explosion in the state-modeling entry)."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/1782691504873455663",
+          "date": "2024-04-23",
+          "quote": "No more boolean explosion.",
+          "quote_zh": "不再有布尔值爆炸。"
+        }
+      ],
+      "evidence": "Direct"
+    },
+    {
+      "text": {
+        "zh": "需要每个成员带不同数据时还用 enum——他换回了判别联合。",
+        "en": "Still using enum when each member carries different data; he switched back to discriminated unions."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/1943291208257679390",
+          "date": "2025-07-10",
+          "quote": "But then realised I needed dependent data",
+          "quote_zh": "但后来意识到我需要依赖的数据"
+        }
+      ],
+      "evidence": "Direct"
+    }
+  ],
+  "evolution": [
+    {
+      "period": "2022–2023",
+      "change": "first",
+      "stance": {
+        "zh": "以 Tip 形式反复推广判别联合、as const、品牌类型、satisfies never。",
+        "en": "He promotes discriminated unions, as const, branded types and satisfies never again and again as tips."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/1592130978234900484",
+          "date": "2022-11-14"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/1643190212061810690",
+          "date": "2023-04-04"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/1625173884885401600",
+          "date": "2023-02-13"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/1691014244609765376",
+          "date": "2023-08-14"
+        }
+      ]
+    },
+    {
+      "period": "2024–2025",
+      "change": "reaffirm",
+      "stance": {
+        "zh": "继续使用:as const 推断判别联合、路径的品牌类型;用判别联合取代 enum。",
+        "en": "Still in use: as const to infer discriminated unions, branded types for paths; discriminated unions replace enums."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/1818768392792555610",
+          "date": "2024-07-31"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/1787928831921180798",
+          "date": "2024-05-07"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/1943291208257679390",
+          "date": "2025-07-10"
+        }
+      ]
+    },
+    {
+      "period": "2026",
+      "change": "reaffirm",
+      "stance": {
+        "zh": "用一句话概括为「让坏代码无法表示」(这是一条引用帖,被引用的内容归档未收录)。",
+        "en": "He sums it up in one line as making bad code unrepresentable (a quote post; the quoted content is not in the archive)."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2106447238834647051",
+          "date": "2026-10-03"
+        }
+      ],
+      "current": true
+    }
+  ],
+  "related": [
+    "m.state-modeling",
+    "m.ts-feature-choice",
+    "m.generics",
+    "m.codebase-design"
+  ],
+  "evidence": "Supported",
+  "sources_count": {
+    "keyword_hits": 58,
+    "curated": 14
+  },
+  "date_first": "2022-11-14",
+  "date_last": "2026-10-03",
+  "status": "draft",
+  "updated": "2026-10-28"
+}

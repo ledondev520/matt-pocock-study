@@ -1,0 +1,110 @@
+{
+  "title": {
+    "zh": "AGENTS.md 与 Skills 写作方法论",
+    "en": "Writing AGENTS.md and skills"
+  },
+  "question": {
+    "zh": "给 coding agent 的指令文件(AGENTS.md / CLAUDE.md)和 skills 该怎么写、怎么维护?",
+    "en": "How should you write and maintain the instruction files (AGENTS.md / CLAUDE.md) and skills for a coding agent?"
+  },
+  "claim.text": {
+    "zh": "指令要少而准:AGENTS.md 只放 agent 推断不出来的东西和指向其他文件的指针;把反复出现的流程打包成短小、单一职责、可组合的 skill;删掉不改变行为的空话,用引导词来引导行为;再根据真实会话数据定期修剪。",
+    "en": "Keep instructions few and precise. AGENTS.md holds only what the agent cannot infer, plus pointers to other files. Package recurring workflows as short, single-purpose skills that compose. Cut filler that changes no behaviour, steer with well-known terms, and prune regularly based on real sessions."
+  },
+  "steps.0.title": {
+    "zh": "不要自动生成 AGENTS.md",
+    "en": "Don't generate AGENTS.md automatically"
+  },
+  "steps.0.how": {
+    "zh": "别让工具扫描代码库后自动生成一份大而全的指令文件。这种文件很快过时,还会每次都占用上下文。只手写 agent 无法从代码里推断出的约定。",
+    "en": "Don't let a tool scan the codebase and generate a big catch-all instruction file. It goes stale fast and costs context every time. Write by hand only the conventions the agent cannot infer from the code."
+  },
+  "steps.1.title": {
+    "zh": "AGENTS.md 放指针,细节按需加载",
+    "en": "AGENTS.md holds pointers; details load on demand"
+  },
+  "steps.1.how": {
+    "zh": "顶层文件只写「去哪里找」:日志在哪、规范文件在哪、哪个 skill 处理什么。细节放在被指向的文件里,需要时 agent 再去读(渐进式披露)。",
+    "en": "The top-level file only says where to look: where the logs are, where the standards live, which skill handles what. Details sit in the files it points to, and the agent reads them when needed (progressive disclosure)."
+  },
+  "steps.2.title": {
+    "zh": "把反复出现的流程做成 skill",
+    "en": "Turn recurring workflows into skills"
+  },
+  "steps.2.how": {
+    "zh": "同一套做法(对齐、写需求、TDD 等)如果每次都要在对话里重新交代,就把它写成 skill,让人或模型按名字调用。",
+    "en": "If you keep re-explaining the same practice in chat (aligning, writing requirements, TDD), write it as a skill that a person or the model can call by name."
+  },
+  "steps.3.title": {
+    "zh": "Skill 要短、只管一件事、可组合",
+    "en": "Skills are short, do one thing, and compose"
+  },
+  "steps.3.how": {
+    "zh": "长 skill 难以审查、难以修改、运行成本也高。一个 skill 只负责一件事;多步流程靠组合几个 skill 完成,不要塞进一个文件。需要在 skill 里调用另一个 skill 时,用明确的调用句式。",
+    "en": "Long skills are hard to review, hard to change and costly to run. Give each skill one job; build multi-step flows by combining several skills rather than one big file. When a skill needs to call another, use an explicit invocation phrase."
+  },
+  "steps.4.title": {
+    "zh": "删掉空话,用引导词",
+    "en": "Cut filler, use steering words"
+  },
+  "steps.4.how": {
+    "zh": "「要仔细」「要易读」这类句子不会改变 agent 的行为,删掉它们。改用有明确含义、能被 agent 反复引用的术语(例如 tracer bullets、deep modules),用它们把行为固定下来。",
+    "en": "Lines like \"be careful\" or \"make it readable\" don't change what the agent does; delete them. Use terms with a clear meaning that the agent can keep coming back to (tracer bullets, deep modules) to pin the behaviour down."
+  },
+  "steps.5.title": {
+    "zh": "用真实会话数据定期修剪",
+    "en": "Prune regularly with real session data"
+  },
+  "steps.5.how": {
+    "zh": "在会话结束时或定期复盘:根据实际发生的问题更新规范文件,合并或删掉不再有用的 skill 和指令。改动由人来审核,不让 agent 每次会话后自动写入记忆。",
+    "en": "At the end of a session or on a schedule, review what actually went wrong: update the standards file, and merge or delete skills and instructions that no longer help. A person reviews the changes; the agent does not write to memory automatically after each session."
+  },
+  "examples.0.title": {
+    "zh": "本站示例:指针式的 AGENTS.md",
+    "en": "Our example: an AGENTS.md made of pointers"
+  },
+  "examples.0.body": {
+    "zh": "# AGENTS.md\n- 术语表:GLOSSARY.md(写代码和 PR 时使用其中的术语)\n- 代码规范:CODING_STANDARDS.md(评审时据此检查)\n- 开发服务器日志:./dev.log(调试时先读)\n- 测试:npm test;提交前必须通过 typecheck",
+    "en": "# AGENTS.md\n- Glossary: GLOSSARY.md (use its terms in code and PRs)\n- Coding standards: CODING_STANDARDS.md (review checks against it)\n- Dev server log: ./dev.log (read it first when debugging)\n- Tests: npm test; typecheck must pass before committing"
+  },
+  "examples.1.title": {
+    "zh": "他的 skills 仓库(MIT)",
+    "en": "His skills repository (MIT)"
+  },
+  "pitfalls.0.text": {
+    "zh": "让 agent 每次会话后自动写入记忆或规则:规则越积越多,agent 反而难以引导。",
+    "en": "Letting the agent write memories or rules automatically after every session: the rules pile up and the agent gets harder to steer."
+  },
+  "pitfalls.1.text": {
+    "zh": "写长 skill:难审查,也就难以信任。",
+    "en": "Writing long skills: hard to review, so hard to trust."
+  },
+  "pitfalls.2.text": {
+    "zh": "在指令里写「要仔细」之类的空话。",
+    "en": "Filler like \"be careful\" in the instructions."
+  },
+  "pitfalls.3.text": {
+    "zh": "同一类规则为每个工具各写一份不同名字的文件。",
+    "en": "Keeping a separately named copy of the same rules for every tool."
+  },
+  "evolution.0.stance": {
+    "zh": "规则文件阶段:主张统一规则文件的命名,公开自己的 Claude 规则文件。",
+    "en": "Rules-file era: he argues for one shared name for rules files and publishes his own Claude rules."
+  },
+  "evolution.1.stance": {
+    "zh": "AGENTS.md 用来改善计划的质量;反对用 /init 自动生成;开始把流程打包成 skill。",
+    "en": "AGENTS.md is used to improve plan quality; he argues against generating it with /init and starts packaging workflows as skills."
+  },
+  "evolution.2.stance": {
+    "zh": "形成 skill 写作原则:短、单一职责、可组合、渐进式披露;删除空话;使用引导词。",
+    "en": "Principles for writing skills: short, single-purpose, composable, progressive disclosure; cut filler; use steering words."
+  },
+  "evolution.3.stance": {
+    "zh": "对「自我改进循环」从明确不信任,转为认可一种由人主导、基于真实会话数据的复盘(/retro)。",
+    "en": "On self-improving loops he moves from clear distrust to backing a human-led review of real session data (/retro)."
+  },
+  "evolution.4.stance": {
+    "zh": "现在的做法:用 /writing-for-agents 重构 AGENTS.md,删掉空话,使用渐进式披露,把规则移进 CODING_STANDARDS.md。",
+    "en": "Current practice: rework AGENTS.md with /writing-for-agents, cut filler, use progressive disclosure, and move rules into CODING_STANDARDS.md."
+  }
+}

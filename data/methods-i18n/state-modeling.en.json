@@ -1,0 +1,90 @@
+{
+  "question": {
+    "zh": "复杂的前端交互逻辑怎么写才不乱?什么时候值得用状态机(XState)?",
+    "en": "How do you write complex front-end interaction logic without it turning into a mess? When is a state machine (XState) worth it?"
+  },
+  "claim.text": {
+    "zh": "把应用逻辑写成「有限的状态 + 触发状态变化的事件」,而不是一堆布尔值和 useEffect。这样每个状态都被显式列出,UI 只是逻辑的一种呈现,以后改动也容易测试。这是他 2020–2022 年在 XState 时期的核心方法论;2023 年后他很少再专门谈 XState,但到 2026 年仍然建议让 agent 把前端逻辑写成状态机或 reducer。",
+    "en": "Write app logic as a finite set of states plus the events that move between them, not a pile of booleans and useEffects. Every state is then listed explicitly, the UI is just one way of showing the logic, and later changes are easy to test. This was his core method in the XState years (2020–2022). After 2023 he rarely talks about XState specifically, but as of 2026 he still advises having agents write front-end logic as state machines or reducers."
+  },
+  "steps.0.title": {
+    "zh": "先用联合类型列出所有状态,告别布尔值爆炸",
+    "en": "List every state in a union type and end the boolean explosion"
+  },
+  "steps.0.how": {
+    "zh": "最小的一步不需要任何库:把 isLoading、isError 这类互相牵制的布尔值换成一个字符串字面量联合(例如 loading / success / error),让「同时 loading 又 error」这种组合根本写不出来。逻辑再复杂一些,才升级到状态机。",
+    "en": "The smallest step needs no library: replace booleans that constrain each other, like isLoading and isError, with one string literal union (loading / success / error), so a combination like \"loading and error at once\" cannot be written. Move up to a state machine only when the logic gets more complex."
+  },
+  "steps.1.title": {
+    "zh": "用事件驱动状态变化,默认禁止一切操作",
+    "en": "Drive state changes with events and forbid everything by default"
+  },
+  "steps.1.how": {
+    "zh": "在状态机里,用户能做什么由当前状态决定:每个状态只接受它声明过的事件,其他事件一律忽略。这和多数应用「默认什么都能点」相反——bug 不再来自没想到的操作组合,而是来自漏写的正常路径,后者更容易发现。",
+    "en": "In a state machine, what the user can do depends on the current state: each state accepts only the events it declares and ignores the rest. That is the reverse of most apps, where everything is clickable by default. Bugs then come not from unforeseen combinations of actions but from a missing normal path, which is easier to find."
+  },
+  "steps.2.title": {
+    "zh": "把副作用从 useEffect 里搬进状态机",
+    "en": "Move side effects out of useEffect into the machine"
+  },
+  "steps.2.how": {
+    "zh": "原本散落在多个 useEffect 里的异步逻辑(请求、定时器、和第三方库的协调),改成状态机里被调用的服务(invoked services)或动作。这样副作用在哪个状态启动、何时取消都一目了然。",
+    "en": "Async logic that was spread across several useEffects (requests, timers, coordination with third-party libraries) becomes invoked services or actions in the machine. It is then obvious in which state each side effect starts and when it is cancelled."
+  },
+  "steps.3.title": {
+    "zh": "和 React 配合时保持克制:机器少而局部",
+    "en": "Stay restrained with React: few machines, kept local"
+  },
+  "steps.3.how": {
+    "zh": "不要把整个应用塞进一个全局状态机。他的做法是:机器不要太多,主要用 useMachine;组件树仍交给 React;状态尽量放在局部。已有的 React 库照样用,不必全部用 XState 重写。",
+    "en": "Don't put the whole app into one global machine. His approach: not too many machines, mostly useMachine; React still owns the component tree; keep state as local as possible. Existing React libraries stay; there is no need to rewrite everything in XState."
+  },
+  "steps.4.title": {
+    "zh": "把模型当作测试和工具的基础",
+    "en": "Use the model as the basis for tests and tools"
+  },
+  "steps.4.how": {
+    "zh": "状态图本身就是一份可执行的规格:可以从模型生成测试路径(model-based testing),代替手写一条条 GIVEN/WHEN/THEN 用户故事;也可以让同一份逻辑被 Web UI、CLI 或读屏工具驱动。",
+    "en": "The statechart is itself an executable spec: you can generate test paths from the model (model-based testing) instead of hand-writing GIVEN/WHEN/THEN user stories one by one, and the same logic can be driven by a web UI, a CLI or a screen reader."
+  },
+  "examples.0.title": {
+    "zh": "本站示例:从布尔值到联合类型",
+    "en": "Our example: from booleans to a union type"
+  },
+  "examples.0.body": {
+    "zh": "// 之前:三个布尔值,可组合出 8 种状态,其中多数非法\n// const [isLoading, setIsLoading] = useState(false)\n// const [isError, setIsError] = useState(false)\n\n// 之后:只有 3 种合法状态\ntype Status = \"idle\" | \"loading\" | \"error\";\nconst [status, setStatus] = useState<Status>(\"idle\");",
+    "en": "// before: three booleans make 8 combinations, most of them invalid\n// const [isLoading, setIsLoading] = useState(false)\n// const [isError, setIsError] = useState(false)\n\n// after: only 3 valid states\ntype Status = \"idle\" | \"loading\" | \"error\";\nconst [status, setStatus] = useState<Status>(\"idle\");"
+  },
+  "examples.1.title": {
+    "zh": "他做过的 XState 状态机目录(XState Catalogue,2021)",
+    "en": "His catalogue of XState machines (XState Catalogue, 2021)"
+  },
+  "examples.2.title": {
+    "zh": "在浏览器录音功能里用 XState(2024)",
+    "en": "Using XState in a browser audio-recording feature (2024)"
+  },
+  "pitfalls.0.text": {
+    "zh": "学会状态机后什么都想用它建模;简单状态用 useState/useReducer 就够,他自己也公开问过「复杂到什么程度才值得」。",
+    "en": "Wanting to model everything once you know state machines; useState/useReducer is enough for simple state, and he has asked publicly how complex things must get before it is worth it."
+  },
+  "pitfalls.1.text": {
+    "zh": "用一串 useEffect 拼出交互逻辑:为了不写出一团意大利面,人们会倾向砍掉功能;状态机反而让你敢把交互想得更细。",
+    "en": "Stitching interaction logic together from a chain of useEffects: to avoid spaghetti people tend to cut features, whereas a state machine lets you think the interaction through in more detail."
+  },
+  "pitfalls.2.text": {
+    "zh": "入门门槛高:他承认 XState 最难上手,但应对复杂度比其他框架都强。别指望第一天就顺手。",
+    "en": "A steep start: he admits XState is the hardest to pick up but handles complexity better than any other framework. Don't expect it to feel easy on day one."
+  },
+  "evolution.0.stance": {
+    "zh": "XState 核心团队时期:频繁发帖讲状态图、事件、可视化编辑器和 VS Code 扩展,预言状态图会成为表达应用逻辑最快最清楚的方式。",
+    "en": "XState core team years: frequent posts on statecharts, events, the visual editor and the VS Code extension; he predicts statecharts will become the quickest and clearest way to describe application logic."
+  },
+  "evolution.1.stance": {
+    "zh": "转向 TypeScript 教学后几乎不再谈 XState(2023 年只有 1 条相关帖);偶尔回顾,说它教会自己的复杂 UI 知识比其他技术加起来都多。",
+    "en": "After moving to TypeScript teaching he hardly mentions XState (one related post in 2023); looking back now and then, he says it taught him more about complex UI than everything else combined."
+  },
+  "evolution.2.stance": {
+    "zh": "AI 时代把同一思路用到 agent 上:agent 协调「本质上全是事件」;让 agent 生成状态机或 reducer 能显著提升前端代码的健壮性和可测试性。",
+    "en": "In the AI era he applies the same idea to agents: agent coordination is all events at heart; having agents generate state machines or reducers makes front-end code much more robust and testable."
+  }
+}

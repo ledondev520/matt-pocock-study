@@ -68,8 +68,23 @@ function linkedQuoteLines(text) {
   return ranges;
 }
 
+// Methodology data (data/methods/*.json) keeps each short quote in an anchor object next to its
+// source: one `"quote": "…"` line of at most 25 words inside a flat object with an http(s) "url".
+function anchorQuoteLines(text) {
+  const ranges = [];
+  for (const object of text.matchAll(/\{[^{}]*\}/g)) {
+    if (!/^\s*"url": "https?:\/\/[^"\s]+",?$/m.test(object[0])) continue;
+    for (const line of object[0].matchAll(/^\s*"quote": "((?:[^"\\\n]|\\.)*)",?$/gm)) {
+      if (line[1].split(/\s+/).length > 25) continue;
+      const start = object.index + line.index;
+      ranges.push([start, start + line[0].length]);
+    }
+  }
+  return ranges;
+}
+
 export function findRuns(text, hashes) {
-  const quoteLines = linkedQuoteLines(text);
+  const quoteLines = [...linkedQuoteLines(text), ...anchorQuoteLines(text)];
   // Offsets refer to the original text, including newlines, for accurate reports.
   const matches = Array.from(text.matchAll(/[\p{Script=Latin}0-9]+/gu));
   const words = matches.map((match) => match[0].toLowerCase());

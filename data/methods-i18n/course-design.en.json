@@ -1,0 +1,70 @@
+{
+  "question": {
+    "zh": "一门技术课程怎么设计:练习怎么出、课的顺序怎么排、不同水平的学员怎么分?",
+    "en": "How do you design a technical course: how to set exercises, how to order lessons, how to split learners by level?"
+  },
+  "claim.text": {
+    "zh": "课程以练习为核心:每个练习是一对 problem/solution,先让学员自己解,再给讲解;课程的难点在于排顺序——哪节课该在哪节课之前;按受众分层(入门速成课和进阶 cohort 分开);以实战目标收尾。本条只依据他公开发帖描述的课程结构,不涉及付费课程的内容。",
+    "en": "A course is built around exercises: each exercise is a problem/solution pair, learners try it themselves first and then get the explanation. The hard part is ordering, deciding which lesson comes before which. Split by audience (a beginner crash course apart from an advanced cohort) and finish on a real-world goal. This entry relies only on the course structure he describes in public posts, not on the content of paid courses."
+  },
+  "steps.0.title": {
+    "zh": "以练习为单位:每题一对 problem/solution",
+    "en": "Exercises as the unit: one problem/solution pair each"
+  },
+  "steps.0.how": {
+    "zh": "先写练习,再围绕练习录讲解:每个练习一段 problem(交代任务)和一段 solution(讲解法)。学员先动手,卡住了再看解答。",
+    "en": "Write the exercises first and record the explanations around them: each exercise has a problem (the task) and a solution (how to solve it). Learners try it first and look at the answer when stuck."
+  },
+  "steps.1.title": {
+    "zh": "按依赖排顺序,这是最难的部分",
+    "en": "Order by dependency; this is the hardest part"
+  },
+  "steps.1.how": {
+    "zh": "先把知识点之间的依赖理清(见「写文档」的依赖图方法),再一节一节地确认先后顺序。他形容排 cohort 课程顺序是最费脑的苦活。",
+    "en": "Map the dependencies between topics first (see the dependency-graph approach in \"Writing docs\"), then confirm the order lesson by lesson. He describes ordering a cohort course as the most brain-draining chore."
+  },
+  "steps.2.title": {
+    "zh": "按受众分层,控制范围",
+    "en": "Split by audience and keep the scope tight"
+  },
+  "steps.2.how": {
+    "zh": "入门内容和进阶内容分开:付费主课聚焦「让你在工作中更高效」,超高阶内容另行处理;2026 年先发面向入门/中级的速成课,让随后的 cohort 可以讲得更深。",
+    "en": "Keep beginner and advanced material apart: the main paid course focuses on making you more effective at work, and very advanced material is handled separately. In 2026 he first released a crash course for beginners and intermediates, so the cohort that followed could go deeper."
+  },
+  "steps.3.title": {
+    "zh": "早发布、早拿反馈",
+    "en": "Release early and get feedback early"
+  },
+  "steps.3.how": {
+    "zh": "课程大纲和早期版本公开出来征求意见:写好的入门练习直接放上 GitHub,当天就有人做完并反馈;小课程先公开大纲问「还该加什么」。",
+    "en": "Share outlines and early versions publicly for comments: finished beginner exercises go straight onto GitHub and people complete them and send feedback the same day; for a small course, publish the outline first and ask what else it should cover."
+  },
+  "steps.4.title": {
+    "zh": "以实战设计收尾,讲不过时的基本功",
+    "en": "End with a real design exercise; teach fundamentals that last"
+  },
+  "steps.4.how": {
+    "zh": "课程最后让学员做一个完整的设计练习,最终落到「设计你自己的」;他也发现 AI 编程课的内容本质上是二十年前就有的软件工程基本功,AI 只是实现细节。",
+    "en": "The course ends with a full design exercise for the learner, landing on \"design your own\". He also found that an AI coding course is at heart the software engineering fundamentals of twenty years ago, with AI as an implementation detail."
+  },
+  "pitfalls.0.text": {
+    "zh": "事先把解法讲完再让学员练习,学员失去了自己碰壁的过程。",
+    "en": "Explaining the whole solution before the exercise, so learners lose the chance to struggle with it themselves."
+  },
+  "pitfalls.1.text": {
+    "zh": "让 AI 主导课程规划:他尝试数周后发现,需要统揽全局的排课工作用纸笔反而更可控。",
+    "en": "Letting AI lead course planning: after trying it for weeks he found scheduling that needs the whole picture is easier to control with pen and paper."
+  },
+  "evolution.0.stance": {
+    "zh": "Total TypeScript:练习仓库 + problem/solution 视频;免费放出部分模块;按周的学习路径。",
+    "en": "Total TypeScript: an exercise repository plus problem/solution videos; some modules released free; week-by-week learning paths."
+  },
+  "evolution.1.stance": {
+    "zh": "书 + 大量练习的组合;AI 课程延续练习形式,公开大纲征求意见,提出 lessons as prompts。",
+    "en": "A book plus many exercises; the AI courses keep the exercise format, share the outline for comments, and propose lessons as prompts."
+  },
+  "evolution.2.stance": {
+    "zh": "速成课与进阶 cohort 分层;排顺序是最难的部分;用 AI(wiki、预演)辅助,但整体规划回到纸笔。",
+    "en": "A crash course and an advanced cohort as separate tiers; ordering is the hardest part; AI (a wiki, dry runs) helps, but overall planning goes back to pen and paper."
+  }
+}

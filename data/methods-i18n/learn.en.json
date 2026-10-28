@@ -1,0 +1,98 @@
+{
+  "question": {
+    "zh": "学一门新技术(或任何东西)时该怎么安排?AI 能怎样帮你学,又有什么要提防?",
+    "en": "How should you go about learning a new technology (or anything)? How can AI help you learn, and what should you watch out for?"
+  },
+  "claim.text": {
+    "zh": "学习要从「我为什么学」出发,沿着一条有序的路径前进,并通过例子和动手反馈来巩固。2026 年他把自己的教学经验做成了 /teach 技能:AI 先问清你的目标,再以可信的一手资料为依据、分多次课教你,每课都引导你去读原始资料,而不是让你依赖 agent。",
+    "en": "Start learning from why you are learning, follow an ordered path, and reinforce it with examples and hands-on feedback. In 2026 he turned his teaching experience into the /teach skill: the AI first asks about your goal, then teaches you over several lessons grounded in trustworthy primary sources, pointing you to the originals each time rather than making you depend on the agent."
+  },
+  "steps.0.title": {
+    "zh": "先写下学习的使命(为什么学)",
+    "en": "Write down your learning mission (why you are learning)"
+  },
+  "steps.0.how": {
+    "zh": "动手前先说清楚学这个是为了什么——要做的项目、要解决的问题。后面所有课程都围绕这个目的来选内容和例子。/teach 在缺少这一项时会先追问你。",
+    "en": "Before starting, say what this is for: the project to build, the problem to solve. Every lesson after that picks content and examples around this purpose. /teach asks you for it first if it is missing."
+  },
+  "steps.1.title": {
+    "zh": "走一条有序的「快乐路径」,而不是在信息图里乱逛",
+    "en": "Follow an ordered happy path, not a wander through the information graph"
+  },
+  "steps.1.how": {
+    "zh": "网上的资料是一张巨大的无结构图;好的书或课程的价值在于替你理出一条先后顺序。他自己的免费资源也总是按从入门到高级排好顺序发布。",
+    "en": "What is online is a huge unstructured graph; the value of a good book or course is that it puts things in order for you. His own free resources are always released in order from beginner to advanced."
+  },
+  "steps.2.title": {
+    "zh": "通过例子和快速反馈来学",
+    "en": "Learn through examples and fast feedback"
+  },
+  "steps.2.how": {
+    "zh": "最好的学法是看例子再动手;反馈越快越好。他的一个看法是:先学 TypeScript 再完全吃透 JavaScript 反而有优势,因为类型报错缩短了反馈回路,让错误更明显。",
+    "en": "The best way to learn is to see examples and then try; the faster the feedback the better. One view of his: learning TypeScript before fully mastering JavaScript can be an advantage, because type errors shorten the feedback loop and make mistakes obvious."
+  },
+  "steps.3.title": {
+    "zh": "用 AI 学:把学习做成一个有状态的工作区",
+    "en": "Learning with AI: make it a stateful workspace"
+  },
+  "steps.3.how": {
+    "zh": "为一个主题单独建一个目录,让 agent 把使命、可信资料清单、每节课和学习记录都存成文件,下次接着上次的文件继续,而不是依赖残留的对话。课程由小而独立的 lesson 组成,并会积累可复用的组件。",
+    "en": "Give each topic its own folder and have the agent store the mission, the list of trusted sources, each lesson and the learning notes as files, so the next session continues from the files rather than leftover chat. The course is made of small, self-contained lessons and builds up reusable components."
+  },
+  "steps.4.title": {
+    "zh": "不信模型的记忆,信一手资料",
+    "en": "Trust primary sources, not the model's memory"
+  },
+  "steps.4.how": {
+    "zh": "让 AI 先找可信的资料并在每节课里引用,而不是凭模型自己「知道」的内容讲;每节课都引导你去读原始文档核实。目标是让你有信心自己读原始资料。",
+    "en": "Have the AI find trustworthy sources first and cite them in every lesson, rather than teaching from what the model \"knows\"; each lesson points you to the original docs to check. The goal is for you to feel confident reading the originals yourself."
+  },
+  "steps.5.title": {
+    "zh": "工作中遇到不懂的,分出去单独学",
+    "en": "When you hit something unknown at work, branch off to learn it"
+  },
+  "steps.5.how": {
+    "zh": "在和 agent 对齐需求(grilling)时碰到听不懂的概念,不要硬撑:把它交接(handoff)到一个专门的教学会话里学懂,再回来继续。",
+    "en": "If a concept you don't understand comes up while grilling requirements with an agent, don't push through: hand it off to a dedicated teaching session, learn it, then come back."
+  },
+  "examples.0.title": {
+    "zh": "他用 /teach 学会了魔方(2026-06)",
+    "en": "He learned the Rubik's cube with /teach (2026-06)"
+  },
+  "examples.1.title": {
+    "zh": "/teach 技能源码(mattpocock/skills,MIT)",
+    "en": "Source of the /teach skill (mattpocock/skills, MIT)"
+  },
+  "examples.2.title": {
+    "zh": "本站示例:一个学习工作区的目录",
+    "en": "Our example: the folder of a learning workspace"
+  },
+  "examples.2.body": {
+    "zh": "learn-effect/\n  MISSION.md     # 为什么学:给现有 Node 服务加上可测的依赖注入\n  RESOURCES.md   # 官方文档、作者博客、社区频道\n  lessons/01-effect-gen.html\n  lessons/02-errors.html\n  notes.md       # 学过什么、卡在哪里",
+    "en": "learn-effect/\n  MISSION.md     # why: add testable dependency injection to an existing Node service\n  RESOURCES.md   # official docs, author blogs, community channels\n  lessons/01-effect-gen.html\n  lessons/02-errors.html\n  notes.md       # what was learned, where it got stuck"
+  },
+  "pitfalls.0.text": {
+    "zh": "完全相信模型讲的内容:他在 2022 年就提醒过别急着信 ChatGPT 教的东西;/teach 的设计也把模型自身知识当作不可信。",
+    "en": "Trusting everything the model says: back in 2022 he warned against rushing to believe what ChatGPT teaches, and /teach is designed to treat the model's own knowledge as untrusted."
+  },
+  "pitfalls.1.text": {
+    "zh": "让 agent 随意写笔记文件:一次随口的记录会被反复放大执行,浪费大量 token。",
+    "en": "Letting the agent write note files freely: one offhand note gets amplified and acted on again and again, wasting lots of tokens."
+  },
+  "pitfalls.2.text": {
+    "zh": "换了模型,教学质量可能下降(他用另一个模型 /teach 佛学时就遇到了问题)。",
+    "en": "Switching models can lower the teaching quality (he ran into problems using another model to /teach Buddhism)."
+  },
+  "evolution.0.stance": {
+    "zh": "作为教育者谈学习:按顺序排好的免费资源、学习路径、看例子学、好书理清信息图。",
+    "en": "Learning, as an educator: free resources in order, learning paths, learning from examples, good books that sort out the information graph."
+  },
+  "evolution.1.stance": {
+    "zh": "学 TS 能缩短反馈回路;AI 时代提出 lessons as prompts。",
+    "en": "Learning TS shortens the feedback loop; in the AI era he proposes lessons as prompts."
+  },
+  "evolution.2.stance": {
+    "zh": "发布 /teach 技能:使命先行、一手资料、有状态的学习工作区;在 grilling 中遇到不懂的内容就 handoff 去学;他认为学 AI 可以很快追上。",
+    "en": "He releases the /teach skill: mission first, primary sources, a stateful learning workspace; when grilling turns up something unknown, hand it off to learn it; he thinks you can catch up on AI quickly."
+  }
+}

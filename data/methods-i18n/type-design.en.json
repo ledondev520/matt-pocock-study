@@ -1,0 +1,70 @@
+{
+  "question": {
+    "zh": "怎样设计类型,才能让非法状态写不出来、漏处理的分支在编译期就报错?",
+    "en": "How do you design types so illegal states can't be written and unhandled branches fail at compile time?"
+  },
+  "claim.text": {
+    "zh": "用类型描述领域里真实存在的状态:互斥的情况用判别联合,不同含义但同为 string 的值用品牌类型区分,类型尽量从值(as const、typeof)派生,分支处理用 satisfies never 做穷尽检查。目标用他 2026 年的话说是「让坏代码无法表示」。",
+    "en": "Describe the states that really exist in the domain with types: discriminated unions for mutually exclusive cases, branded types to tell apart strings with different meanings, types derived from values (as const, typeof) wherever possible, and satisfies never for exhaustive branch handling. In his 2026 words, the goal is to make bad code unrepresentable."
+  },
+  "steps.0.title": {
+    "zh": "互斥的状态用判别联合表达",
+    "en": "Express mutually exclusive states as a discriminated union"
+  },
+  "steps.0.how": {
+    "zh": "给每种情况一个字面量标签(例如 status: \"loading\" | \"success\" | \"error\"),并只在对应分支上放该情况才有的字段。这样「成功了却没有数据」「失败了却有数据」这类组合在类型上就不存在。React props 里多种用法互斥时同样适用。",
+    "en": "Give each case a literal tag (such as status: \"loading\" | \"success\" | \"error\") and put case-specific fields only on that branch. Combinations like \"succeeded with no data\" or \"failed with data\" then don't exist in the types. The same applies to React props with mutually exclusive uses."
+  },
+  "steps.1.title": {
+    "zh": "用 satisfies never 做穷尽检查",
+    "en": "Exhaustive checks with satisfies never"
+  },
+  "steps.1.how": {
+    "zh": "在 switch 的 default 分支里写 x satisfies never:以后联合里新增一种情况而忘了处理,编译器会在这里报错,而不是在运行时静默漏掉。",
+    "en": "Write x satisfies never in a switch's default branch: if a new case is added to the union later and not handled, the compiler errors here instead of silently missing it at runtime."
+  },
+  "steps.2.title": {
+    "zh": "从值派生类型:as const + typeof",
+    "en": "Derive types from values: as const plus typeof"
+  },
+  "steps.2.how": {
+    "zh": "把领域常量(路由表、角色列表、状态列表)写成 as const 的值,再用 typeof 派生类型,值和类型只有一个来源,不会漂移。as const 还能让函数返回值被推断为判别联合。",
+    "en": "Write domain constants (route tables, role lists, status lists) as as const values and derive types with typeof, so values and types have one source and can't drift. as const also lets a function's return value be inferred as a discriminated union."
+  },
+  "steps.3.title": {
+    "zh": "同为 string 但含义不同的值,用品牌类型区分",
+    "en": "Branded types for strings with different meanings"
+  },
+  "steps.3.how": {
+    "zh": "用户 ID 和订单 ID、绝对路径和相对路径,运行时都是字符串,但混用会出 bug。给它们加一个只存在于类型层的「品牌」,只能通过校验函数创建,混用就会报类型错误。安全要求高的应用尤其值得用。",
+    "en": "User IDs and order IDs, absolute and relative paths are all strings at runtime, but mixing them causes bugs. Add a brand that exists only at the type level and can only be created through a validating function, so mixing them is a type error. Especially worth it in security-sensitive apps."
+  },
+  "examples.0.title": {
+    "zh": "本站示例:判别联合 + 穷尽检查",
+    "en": "Our example: a discriminated union plus an exhaustive check"
+  },
+  "examples.0.body": {
+    "zh": "type Fetch =\n  | { status: \"loading\" }\n  | { status: \"success\"; data: string }\n  | { status: \"error\"; error: Error };\n\nfunction render(s: Fetch) {\n  switch (s.status) {\n    case \"loading\": return \"…\";\n    case \"success\": return s.data;\n    case \"error\": return s.error.message;\n    default: s satisfies never; // 新增状态未处理时这里报错\n  }\n}",
+    "en": "type Fetch =\n  | { status: \"loading\" }\n  | { status: \"success\"; data: string }\n  | { status: \"error\"; error: Error };\n\nfunction render(s: Fetch) {\n  switch (s.status) {\n    case \"loading\": return \"...\";\n    case \"success\": return s.data;\n    case \"error\": return s.error.message;\n    default: s satisfies never; // errors here when a new state is unhandled\n  }\n}"
+  },
+  "pitfalls.0.text": {
+    "zh": "用多个布尔值或可选字段拼状态,组合出大量非法情况(见状态机方法论的「布尔值爆炸」)。",
+    "en": "Building state from several booleans or optional fields, which allows many illegal combinations (see the boolean explosion in the state-modeling entry)."
+  },
+  "pitfalls.1.text": {
+    "zh": "需要每个成员带不同数据时还用 enum——他换回了判别联合。",
+    "en": "Still using enum when each member carries different data; he switched back to discriminated unions."
+  },
+  "evolution.0.stance": {
+    "zh": "以 Tip 形式反复推广判别联合、as const、品牌类型、satisfies never。",
+    "en": "He promotes discriminated unions, as const, branded types and satisfies never again and again as tips."
+  },
+  "evolution.1.stance": {
+    "zh": "继续使用:as const 推断判别联合、路径的品牌类型;用判别联合取代 enum。",
+    "en": "Still in use: as const to infer discriminated unions, branded types for paths; discriminated unions replace enums."
+  },
+  "evolution.2.stance": {
+    "zh": "用一句话概括为「让坏代码无法表示」(这是一条引用帖,被引用的内容归档未收录)。",
+    "en": "He sums it up in one line as making bad code unrepresentable (a quote post; the quoted content is not in the archive)."
+  }
+}

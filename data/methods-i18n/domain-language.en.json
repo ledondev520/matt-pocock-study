@@ -1,0 +1,90 @@
+{
+  "title": {
+    "zh": "共享领域语言方法论",
+    "en": "A shared domain language"
+  },
+  "question": {
+    "zh": "怎样让人、agent 和代码用同一套词?为什么这件事在 AI 编程里特别有用?",
+    "en": "How do you get people, agents and code using the same words, and why does it matter so much in AI coding?"
+  },
+  "claim.text": {
+    "zh": "从 DDD 里只取对 agent 最有用的几样:通用语言(术语表)、边界上下文和 ADR。在对齐的过程中逐步固定术语,并在代码、对话、提交信息和 PR 里一致地使用它们。术语表维护得越好,agent 就越会「说你的话」。",
+    "en": "Take only the parts of DDD that help agents most: a ubiquitous language (a glossary), bounded contexts and ADRs. Pin terms down while aligning, and use them consistently in code, conversations, commit messages and PRs. The better kept the glossary, the more the agent speaks your language."
+  },
+  "steps.0.title": {
+    "zh": "只取 DDD 里有用的部分",
+    "en": "Take only the useful parts of DDD"
+  },
+  "steps.0.how": {
+    "zh": "先用通用语言、边界上下文和 ADR;实体、值对象、聚合这些重型战术概念先不碰。",
+    "en": "Start with the ubiquitous language, bounded contexts and ADRs; leave heavy tactical ideas like entities, value objects and aggregates aside for now."
+  },
+  "steps.1.title": {
+    "zh": "在对齐中把行话定义下来",
+    "en": "Define the jargon while aligning"
+  },
+  "steps.1.how": {
+    "zh": "拷问需求时,要求把项目里出现的每个术语都说清楚,并写进术语表。之后的会话会自动对齐到这些定义。",
+    "en": "While grilling the requirements, ask for every project term to be made clear and written into the glossary. Later sessions line up with those definitions automatically."
+  },
+  "steps.2.title": {
+    "zh": "术语表放在仓库根目录,让 agent 必读",
+    "en": "Keep the glossary at the repo root and make the agent read it"
+  },
+  "steps.2.how": {
+    "zh": "把术语表写成单独的文件,并在全局或项目指令里要求 agent 读它、使用它。文件名用直观的「术语表」(GLOSSARY.md),不用 DDD 的「上下文」(CONTEXT.md)。",
+    "en": "Write the glossary as its own file and require the agent, in global or project instructions, to read and use it. Give it a plain name (GLOSSARY.md) rather than the DDD-style CONTEXT.md."
+  },
+  "steps.3.title": {
+    "zh": "用 ADR 记录代码表达不了的决定",
+    "en": "Record decisions the code cannot express in ADRs"
+  },
+  "steps.3.how": {
+    "zh": "不显而易见的决定写成简短的 ADR,这是最薄的一层文档,让以后每个 agent 都知道当初为什么这样做。",
+    "en": "Write non-obvious decisions as short ADRs, the thinnest layer of documentation, so every later agent knows why things were done that way."
+  },
+  "steps.4.title": {
+    "zh": "让术语贯穿代码、提交和 PR",
+    "en": "Carry the terms through code, commits and PRs"
+  },
+  "steps.4.how": {
+    "zh": "命名、提交信息、PR 描述都使用同一套术语。术语用得一致,读懂术语就读懂了代码库的大部分;遇到模型冒出的新行话,就回到术语表修正。",
+    "en": "Names, commit messages and PR descriptions all use the same terms. With consistent terms, understanding the terms is most of understanding the codebase; when the model invents new jargon, go back to the glossary and correct it."
+  },
+  "examples.0.title": {
+    "zh": "本站示例:术语表条目",
+    "en": "Our example: glossary entries"
+  },
+  "examples.0.body": {
+    "zh": "# GLOSSARY.md\n- 草稿(Draft):用户尚未发布的内容;只存本地\n- 发布(Publish):草稿变为公开文章的动作;不可撤回(单向门)\n- 不要用:\"post\"、\"entry\"(统一说「草稿」或「文章」)",
+    "en": "# GLOSSARY.md\n- Draft: content the user has not published yet; stored locally only\n- Publish: turning a draft into a public article; cannot be undone (one-way door)\n- Avoid: \"post\", \"entry\" (say \"draft\" or \"article\")"
+  },
+  "pitfalls.0.text": {
+    "zh": "把 DDD 整套战术模式都搬过来。",
+    "en": "Bringing over every DDD tactical pattern."
+  },
+  "pitfalls.1.text": {
+    "zh": "听任模型自创行话。",
+    "en": "Letting the model make up its own jargon."
+  },
+  "pitfalls.2.text": {
+    "zh": "靠复杂的图来理解系统,而不是靠一致的术语、深模块和读代码。",
+    "en": "Relying on complex diagrams to understand the system instead of consistent terms, deep modules and reading code."
+  },
+  "pitfalls.3.text": {
+    "zh": "没有建立共享语言就开工。",
+    "en": "Starting work before a shared language exists."
+  },
+  "evolution.0.stance": {
+    "zh": "把 DDD 当作答案:共享语言、边界上下文、ADR;用 /grill-with-docs 取代单独的通用语言 skill。",
+    "en": "DDD as the answer: shared language, bounded contexts, ADRs; /grill-with-docs replaces a separate ubiquitous-language skill."
+  },
+  "evolution.1.stance": {
+    "zh": "ADR 写给 agent 看;在全局指令里要求使用术语;认为理解术语就等于理解代码库。",
+    "en": "ADRs are written for agents; global instructions require the terms; understanding the terms means understanding the codebase."
+  },
+  "evolution.2.stance": {
+    "zh": "CONTEXT.md 改名 GLOSSARY.md;术语用进 PR;他说在术语表上投入越多,越觉得高效。",
+    "en": "CONTEXT.md is renamed GLOSSARY.md and the terms go into PRs; he says the more he invests in the glossary, the more productive he feels."
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "question": {
+    "zh": "TypeScript 里错误该 throw 还是作为返回值?什么时候值得引入 Effect?",
+    "en": "In TypeScript, should errors be thrown or returned as values? When is Effect worth bringing in?"
+  },
+  "claim.text": {
+    "zh": "让可能发生的错误出现在类型里:轻量做法是把自定义错误作为返回值;后端项目越复杂,越值得用 Effect,让错误、依赖和资源都被类型追踪。他对 Effect 从怀疑转为强烈推荐(2025–2026),并认为它和 agent 配合尤其好。另一面是:真正不该继续运行的情况(如缺少环境变量)要尽早 throw。",
+    "en": "Make the errors that can happen show up in the types. The light approach is returning custom errors as values; the more complex the back end, the more Effect is worth it, with errors, dependencies and resources all tracked in the types. He went from sceptic to strong advocate of Effect (2025–2026) and finds it works especially well with agents. On the other side, situations where the program really should not continue (a missing environment variable) should throw as early as possible."
+  },
+  "steps.0.title": {
+    "zh": "先分清两类错误:该崩的就早崩",
+    "en": "Tell the two kinds of error apart; crash early when you should"
+  },
+  "steps.0.how": {
+    "zh": "配置缺失、不变量被破坏这类「程序不该继续」的情况,直接 throw,越早越好。他发现 agent 尤其不愿意让程序崩溃,会写出各种兜底,需要明确要求它们 fail fast。一个小技巧是写一个 raise 辅助函数,配合 ?? 内联使用。",
+    "en": "When the program should not continue (missing config, a broken invariant), throw straight away, the earlier the better. He finds agents especially reluctant to let a program crash and prone to writing fallbacks, so tell them explicitly to fail fast. A small trick is a raise helper used inline with ??."
+  },
+  "steps.1.title": {
+    "zh": "可预期的错误作为返回值,让它出现在返回类型里",
+    "en": "Return expected errors as values so they appear in the return type"
+  },
+  "steps.1.how": {
+    "zh": "对调用方需要处理的错误(找不到用户、校验失败等),不 throw,而是返回自定义错误类的实例:返回类型里能直接看到,调用方用 instanceof 判断,也不需要引入依赖。他觉得完整的 Result<T> 写法有点啰嗦,倾向于让推断承担大部分工作。",
+    "en": "For errors the caller has to handle (user not found, validation failed), return an instance of a custom error class instead of throwing: it shows up in the return type, the caller checks it with instanceof, and no dependency is needed. He finds a full Result<T> pattern a bit verbose and prefers to let inference do most of the work."
+  },
+  "steps.2.title": {
+    "zh": "复杂后端:用 Effect 让错误沿调用链冒泡",
+    "en": "Complex back ends: let errors bubble through the call chain with Effect"
+  },
+  "steps.2.how": {
+    "zh": "在 Effect 里,每个 effect 都在类型里记录自己可能产生的错误,并向调用方传递,你可以自由选择在哪一层处理,而且处理时类型完整。他的定位是:Effect 之于 TS,就像 TS 之于 JS;适合高风险的后端项目。",
+    "en": "In Effect every effect records in its type the errors it can produce and passes them to its caller; you choose freely where to handle them, with full types when you do. He positions Effect as doing for TS what TS once did for JS; it suits high-stakes back-end projects."
+  },
+  "steps.3.title": {
+    "zh": "看重的是依赖注入,而不只是错误即值",
+    "en": "The draw is dependency injection, not only errors as values"
+  },
+  "steps.3.how": {
+    "zh": "他认为 Effect 的错误即值「有了更好,但自己也能实现」,真正打动他的是依赖注入:先针对接口(Service)写业务逻辑,测试时注入替身实现。这和他喜欢的 typed holes 思路一致。",
+    "en": "He sees Effect's errors as values as nice to have but something you could build yourself; what won him over is dependency injection: write business logic against an interface (a Service) and inject a stand-in for tests. It matches the typed holes idea he likes."
+  },
+  "steps.4.title": {
+    "zh": "控制学习成本:先学少数核心 API,其余用到再学",
+    "en": "Contain the learning cost: learn a few core APIs first, the rest when needed"
+  },
+  "steps.4.how": {
+    "zh": "Effect 的代价是像学一门新语言,而且每来一个新人都要再付一次。他的建议是先掌握十几个核心 API(生成器、错误包装与捕获、Service 与 provide),其余按需学习。",
+    "en": "The price of Effect is like learning a new language, paid again by every new team member. His advice is to master a dozen or so core APIs (generators, wrapping and catching errors, Service and provide) and learn the rest as needed."
+  },
+  "examples.0.title": {
+    "zh": "本站示例:把错误作为返回值",
+    "en": "Our example: returning errors as values"
+  },
+  "examples.0.body": {
+    "zh": "class UserNotFound extends Error { readonly kind = \"UserNotFound\" }\n\nconst getUser = (id: string) => {\n  const user = db.get(id);\n  if (!user) return new UserNotFound(id);\n  return user;\n};\n\nconst r = getUser(\"1\");          // 返回类型: User | UserNotFound\nif (r instanceof UserNotFound) { /* 处理 */ } else { r.name }",
+    "en": "class UserNotFound extends Error { readonly kind = \"UserNotFound\" }\n\nconst getUser = (id: string) => {\n  const user = db.get(id);\n  if (!user) return new UserNotFound(id);\n  return user;\n};\n\nconst r = getUser(\"1\");          // return type: User | UserNotFound\nif (r instanceof UserNotFound) { /* handle */ } else { r.name }"
+  },
+  "examples.1.title": {
+    "zh": "他列出的 13 个 Effect 入门 API(2025)",
+    "en": "The 13 Effect APIs he lists for getting started (2025)"
+  },
+  "pitfalls.0.text": {
+    "zh": "让 agent 写满兜底逻辑、吞掉错误,问题被推迟到更远的地方暴露。",
+    "en": "Letting the agent fill the code with fallbacks that swallow errors, pushing the problem further away before it surfaces."
+  },
+  "pitfalls.1.text": {
+    "zh": "低估 Effect 的团队成本:新语法、新 API,新人加入时要重新付出学习成本;前端或小项目未必值得。",
+    "en": "Underestimating the team cost of Effect: new syntax and APIs, paid again by every newcomer; front ends and small projects may not be worth it."
+  },
+  "pitfalls.2.text": {
+    "zh": "只看文档入门时「感觉不到 Effect 是什么」——他 2025 年批评过文档,2026 年改口称其为典范;所以学习体验可能因版本而异。",
+    "en": "Starting from the docs alone and not getting what Effect is: he criticised the docs in 2025 and called them exemplary in 2026, so the learning experience may depend on the version."
+  },
+  "evolution.0.stance": {
+    "zh": "用小工具处理错误:raise 辅助函数、设想一个不到 1kb 的类型安全错误库、返回自定义错误;自嘲走到了「自己写错误处理库」的阶段。",
+    "en": "Small tools for errors: a raise helper, the idea of a type-safe error library under 1kb, returning custom errors; he jokes about reaching the \"write your own error library\" stage."
+  },
+  "evolution.1.stance": {
+    "zh": "集中试用 Effect:列出成本与收益,批评文档,认为依赖注入是最大亮点;考虑做 Effect 课程但不确定受众。",
+    "en": "A concentrated trial of Effect: he lists costs and benefits, criticises the docs, finds dependency injection the biggest win, and considers an Effect course without being sure of the audience."
+  },
+  "evolution.2.stance": {
+    "zh": "LLM 擅长写 Effect;认为后端应「用 Effect,不只是 TS」,并称它和 agent 配合是巨大优势(非前端 TS 代码)。",
+    "en": "LLMs are good at writing Effect; he says back ends should use Effect rather than only TS, and calls its fit with agents a big advantage (for non-front-end TS code)."
+  }
+}

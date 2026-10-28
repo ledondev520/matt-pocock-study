@@ -32,7 +32,9 @@ export interface Model { pages: PageSummary[]; currentPage?: Page; figures: Figu
   /** Copyright and licence texts, only set on the /licenses views (build time, hash-checked). */
   licences?: Licences
   /** Knowledge base entries (newest first); only set on the knowledge base views. */
-  knowledge?: import('../../scripts/kb/feed').KbEntry[] }
+  knowledge?: import('../../scripts/kb/feed').KbEntry[]
+  /** Methodology list, and the open set on a set's page; only set on the methods views. */
+  methods?: import('./methods').MethodsView }
 export interface Licences {
   mit: { id: string; name: string; repo: string; licenseUrl: string; text: string }[]
   fonts: { id: string; name: string; pkg: string; repo: string; href: string; text: string }[]

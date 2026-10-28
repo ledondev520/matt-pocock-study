@@ -1,0 +1,90 @@
+{
+  "question": {
+    "zh": "TypeScript 里什么时候让编译器推断、什么时候手写类型注解?返回类型要不要写?satisfies 该怎么用?",
+    "en": "In TypeScript, when should the compiler infer and when should you write an annotation? Should you write return types? How should satisfies be used?"
+  },
+  "claim.text": {
+    "zh": "写应用代码时尽量依靠推断:从已有的值和类型推出新类型,而不是重复声明。注解用在需要「约束」或「拓宽」的地方;satisfies 用于既要检查又要保留字面量的地方。返回类型要不要写,他的建议改过几次,目前的最新版本在外链里、归档没有收录。",
+    "en": "In application code, lean on inference: derive new types from existing values and types instead of declaring them again. Annotate where you need to constrain or widen; use satisfies where you want a check and also keep the literal types. His advice on return types has changed several times, and the latest version is behind an outside link the archive does not include."
+  },
+  "steps.0.title": {
+    "zh": "默认让 TypeScript 推断,用类型工具从已有类型派生",
+    "en": "Let TypeScript infer by default; derive from existing types"
+  },
+  "steps.0.how": {
+    "zh": "应用代码里先不写类型,看推断结果是否够用。需要新类型时,用 Omit、Pick、Partial 之类从已有类型派生(他把这也算作推断的一种),而不是另写一份。",
+    "en": "In application code, write no types at first and see whether inference is enough. When you need a new type, derive it from existing ones with Omit, Pick, Partial and the like (he counts that as inference too) rather than writing another copy."
+  },
+  "steps.1.title": {
+    "zh": "理解推断规则:let 和 const 推断不同",
+    "en": "Know the inference rules: let and const infer differently"
+  },
+  "steps.1.how": {
+    "zh": "很多「奇怪」的报错来自推断规则:const 声明的值不会变,会被推断成字面量;let 会被拓宽成 string、number。弄懂这一点,很多问题不需要加注解就能解决。",
+    "en": "Many odd errors come from inference rules: a const value never changes and is inferred as a literal; let widens to string or number. Once you understand this, many problems go away without annotations."
+  },
+  "steps.2.title": {
+    "zh": "需要检查又要保留字面量时用 satisfies;需要拓宽时用变量注解",
+    "en": "satisfies to check and keep literals; a variable annotation to widen"
+  },
+  "steps.2.how": {
+    "zh": "satisfies 检查值是否符合某个类型,但保留推断出的精确类型;变量注解会覆盖推断(包括 as const 的效果),适合需要把类型拓宽的场景,比如往 Record 里继续加键。",
+    "en": "satisfies checks that a value fits a type but keeps the precise inferred type; a variable annotation overrides inference (including the effect of as const), which suits cases where the type should widen, such as adding more keys to a Record."
+  },
+  "steps.3.title": {
+    "zh": "返回类型:默认少写,在「挖坑」和容易出错处写",
+    "en": "Return types: few by default, written for typed holes and error-prone spots"
+  },
+  "steps.3.how": {
+    "zh": "2023 年他主张大多数情况下少写返回类型;同年也指出显式返回类型适合做「typed holes」——先写好签名、晚点再实现。2024 年他承认有一次漏写返回类型让他多调了一两个小时 bug。2025-04 他说建议「又变了」,但新建议在外链里,本站归档没有收录,标为不确定。",
+    "en": "In 2023 he argued for leaving return types out most of the time; the same year he noted explicit return types suit typed holes, writing the signature now and the implementation later. In 2024 he admitted one missing return type cost him an hour or two of debugging. In 2025-04 he said his advice had changed again, but the new advice is in an outside link our archive does not include, so we mark it unclear."
+  },
+  "steps.4.title": {
+    "zh": "跟上编译器:新版本能推断的,就别再手写",
+    "en": "Keep up with the compiler: don't hand-write what it now infers"
+  },
+  "steps.4.how": {
+    "zh": "TS 5.5 起,返回收窄表达式的函数会自动推断出类型谓词,不再需要手写 val is string。升级后检查能删掉哪些多余注解。",
+    "en": "From TS 5.5, a function that returns a narrowing expression gets an inferred type predicate, so val is string no longer needs writing by hand. After upgrading, check which annotations can go."
+  },
+  "examples.0.title": {
+    "zh": "本站示例:satisfies 与变量注解的分工",
+    "en": "Our example: satisfies versus a variable annotation"
+  },
+  "examples.0.body": {
+    "zh": "type Route = { path: string };\n\n// satisfies:检查形状,同时保留键名 home/about 的精确类型\nconst routes = { home: { path: \"/\" }, about: { path: \"/about\" } } satisfies Record<string, Route>;\nroutes.home; // OK,有自动补全\n\n// 变量注解:拓宽为 Record,之后可以继续加键\nconst cache: Record<string, Route> = {};\ncache.anything = { path: \"/x\" };",
+    "en": "type Route = { path: string };\n\n// satisfies: checks the shape and keeps the exact keys home/about\nconst routes = { home: { path: \"/\" }, about: { path: \"/about\" } } satisfies Record<string, Route>;\nroutes.home; // OK, with autocomplete\n\n// variable annotation: widens to Record, so keys can be added later\nconst cache: Record<string, Route> = {};\ncache.anything = { path: \"/x\" };"
+  },
+  "examples.1.title": {
+    "zh": "他澄清 satisfies 的长帖(2023)",
+    "en": "His long post clarifying satisfies (2023)"
+  },
+  "pitfalls.0.text": {
+    "zh": "给每个函数都写返回类型,把推断能做的事重复一遍。",
+    "en": "Writing a return type on every function, repeating what inference already does."
+  },
+  "pitfalls.1.text": {
+    "zh": "反过来也有代价:漏写返回类型,错误可能出现在远离源头的地方。",
+    "en": "The opposite has a cost too: without a return type, an error can surface far from its source."
+  },
+  "pitfalls.2.text": {
+    "zh": "把 as const 和变量注解混用:注解会覆盖 as const,属性又变回可变。",
+    "en": "Mixing as const with a variable annotation: the annotation overrides as const and the properties become mutable again."
+  },
+  "evolution.0.stance": {
+    "zh": "「派生而不是声明」,用类型工具和 satisfies 的前身(satisfies()() 模式)尽量多推断。",
+    "en": "Derive rather than declare: infer as much as possible with type helpers and the forerunner of satisfies (the satisfies()() pattern)."
+  },
+  "evolution.1.stance": {
+    "zh": "应用代码尽量依靠推断;返回类型大多数时候只会拖慢你。",
+    "en": "Lean on inference in application code; return types mostly just slow you down."
+  },
+  "evolution.2.stance": {
+    "zh": "承认显式返回类型的价值:typed holes;因漏写返回类型多调 bug。",
+    "en": "He grants the value of explicit return types: typed holes; a missing return type cost him extra debugging."
+  },
+  "evolution.3.stance": {
+    "zh": "说对返回类型的建议「又变了」,具体内容在外链,归档未收录,本站不推测。",
+    "en": "He says his return-type advice has changed again; the details are behind an outside link the archive does not include, and we do not guess."
+  }
+}

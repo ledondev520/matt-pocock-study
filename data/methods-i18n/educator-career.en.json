@@ -1,0 +1,62 @@
+{
+  "question": {
+    "zh": "从工程师转向技术教育者(devrel、全职内容创作者)要注意什么?受众从哪里来?",
+    "en": "What should you watch for when moving from engineering to technical education (devrel, full-time content creator)? Where does an audience come from?"
+  },
+  "claim.text": {
+    "zh": "他的路径是工程师 → 兼做 devrel → 全职教育者。给想积累受众的人的建议很简单:选一个社区,服务它;AI 时代「够好」的内容人人都能做,策展和判断力才是关键。这一条数据薄(关键词命中 18 条),多是他的经历而非系统方法。",
+    "en": "His path was engineer, then part-time devrel, then full-time educator. His advice for building an audience is simple: pick a community and serve it. In the AI era anyone can make \"good enough\" content; curation and judgement are what count. Data for this entry is thin (18 keyword hits) and mostly his own story rather than a systematic method."
+  },
+  "steps.0.title": {
+    "zh": "选一个社区,深耕它",
+    "en": "Pick one community and go deep"
+  },
+  "steps.0.how": {
+    "zh": "与其什么都讲,不如专注一个社区或一个工具,持续解决那里的人的问题。他自己就是从 XState 社区、再到 TypeScript 社区走过来的。",
+    "en": "Rather than covering everything, focus on one community or tool and keep solving its people's problems. He came up this way himself, from the XState community to the TypeScript community."
+  },
+  "steps.1.title": {
+    "zh": "从兼职 devrel 起步,别一上来做孤军 devrel",
+    "en": "Start as part-time devrel, not a lone devrel"
+  },
+  "steps.1.how": {
+    "zh": "他先在公司内做「一半工程、一半布道」的角色;他也认同「第一份 devrel 工作不要是团队里唯一的 devrel」,因为没有护栏,很容易倦怠。",
+    "en": "He first had a half-engineering, half-advocacy role at a company. He also agrees that a first devrel job should not be as the only devrel on the team: without guardrails, burnout comes easily."
+  },
+  "steps.2.title": {
+    "zh": "有了产品方向再全职",
+    "en": "Go full time once there is a product direction"
+  },
+  "steps.2.how": {
+    "zh": "他离开公司全职投入课程,并和专门做课程平台的团队合作,自己专注内容。",
+    "en": "He left his company to work on courses full time, partnering with a team that specialises in course platforms while he focused on content."
+  },
+  "steps.3.title": {
+    "zh": "AI 时代靠策展和判断",
+    "en": "In the AI era, rely on curation and judgement"
+  },
+  "steps.3.how": {
+    "zh": "「够好」的内容会变得廉价,教育者的价值在于挑选、组织和判断什么值得学。2026 年他还把自建的个人知识库当作业务的基础设施,用来充实课程。",
+    "en": "\"Good enough\" content becomes cheap; an educator's value is in choosing, organising and judging what is worth learning. In 2026 he also treats his own personal knowledge base as infrastructure for the business, feeding the courses."
+  },
+  "pitfalls.0.text": {
+    "zh": "把第一份 devrel 工作做成「独自一人」:没有护栏,容易倦怠。",
+    "en": "Taking a first devrel job as the only one: no guardrails, easy burnout."
+  },
+  "pitfalls.1.text": {
+    "zh": "只做「够好」的内容——AI 时代这类内容会被大量替代。",
+    "en": "Making only \"good enough\" content, which AI will replace at scale."
+  },
+  "evolution.0.stance": {
+    "zh": "Stately:工程转 devrel(五五分);加入 Vercel 做 devrel;年底成为全职内容创作者。",
+    "en": "Stately: from engineering to devrel (a fifty-fifty split); joins Vercel as devrel; full-time content creator by the end of the year."
+  },
+  "evolution.1.stance": {
+    "zh": "与课程平台团队合作;认为策展是关键;建议「选一个社区,服务它」。",
+    "en": "Partners with a course platform team; sees curation as the key; advises picking a community and serving it."
+  },
+  "evolution.2.stance": {
+    "zh": "选题跟随受众需求(暂缓 Effect 课,先做 AI + TS);用个人 wiki 和 agent 支撑业务。",
+    "en": "Topics follow what the audience needs (the Effect course waits, AI plus TS comes first); a personal wiki and agents support the business."
+  }
+}

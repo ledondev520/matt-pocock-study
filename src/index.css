@@ -569,3 +569,31 @@ svg.inline-arrow { display: inline-block; width: 1em; height: 1em; vertical-alig
 .kb-entry h3 { margin-top: 6px; font-size: 20px; line-height: 1.5; }.kb-entry p { margin-top: 8px; font-size: 17px; line-height: 1.8; overflow-wrap: break-word; }
 .kb-entry p a, .kb-lede a { color: var(--link); text-decoration: underline; text-underline-offset: 3px; overflow-wrap: anywhere; }.kb-keep { white-space: nowrap; }.kb-keep a { white-space: normal; }
 .kb-source { display: inline-flex; align-items: center; gap: 0.4em; margin-top: 8px; font-size: 14px; color: var(--link); }
+
+/* Methodology views (src/Methods.tsx): titles, content and links to the originals only. */
+.methods-index { padding-block: 48px 72px; }
+.methods-index h1 { font-size: 42px; line-height: 1.4; font-weight: 700; }
+.methods-index .section-group { margin-top: 40px; }
+.methods-index h2 { font-size: 22px; line-height: 1.5; font-weight: 700; margin-bottom: 16px; }
+.method-nav > div > .eyebrow { display: block; margin-top: 34px; }
+.method-nav ol { margin-block: 12px 0; }
+.method-article h1 { margin-bottom: 8px; }
+.method-article h3 { font-size: 21px; line-height: 1.6; font-weight: 700; margin-block: 30px 10px; }
+.method-step { margin-block: 0; }
+.method-quote { border-left: 2px solid var(--risk-line); background: var(--muted); border-radius: 0 6px 6px 0; padding: 14px 20px; margin-block: 14px; }
+.method-quote > p[lang] { font: 500 18px/1.6 'Space Grotesk', sans-serif; margin: 0; overflow-wrap: break-word; }
+.full-article .method-quote .quote-translation { font-size: 15px; line-height: 1.7; color: var(--muted-foreground); margin-top: 6px; }
+.method-quote cite, .method-source cite { display: block; font-style: normal; font-size: 14px; color: var(--muted-foreground); margin-top: 8px; }
+.method-quote cite a, .method-source a, .method-links a { display: inline-flex; align-items: center; gap: 6px; color: var(--link); }
+.full-article .method-source { font-size: 15px; margin-block: 10px; }
+.method-example pre { background: var(--muted); border-radius: 6px; padding: 14px 16px; overflow-x: auto; font: 13px/1.7 'JetBrains Mono', monospace; white-space: pre; }
+.method-pitfalls, .method-evolution, .method-related { list-style: none; padding: 0; margin: 0; }
+.method-pitfalls > li, .method-evolution > li { padding-block: 14px; border-top: 1px solid var(--border); }
+.method-pitfalls > li > p, .method-evolution > li > p { margin: 0; }
+.method-period { display: flex; align-items: baseline; gap: 10px; font: 14px 'JetBrains Mono', monospace; color: var(--muted-foreground); margin-bottom: 4px; }
+.method-period strong { font: 600 12px 'Inter', sans-serif; color: var(--link); border: 1px solid currentColor; border-radius: 4px; padding: 0 6px; }
+.method-evolution > li.current > p:not(.method-links) { font-weight: 600; }
+.full-article .method-links { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 14px; margin-top: 6px; }
+.method-related > li { padding-block: 6px; font-size: 17px; }
+.method-related a { color: var(--link); overflow-wrap: anywhere; }
+@media (max-width: 480px) { .methods-index { padding-block: 25px 48px; }.methods-index h1 { font-size: 32px; }.method-quote { padding: 12px 14px; }.method-quote > p[lang] { font-size: 17px; } }

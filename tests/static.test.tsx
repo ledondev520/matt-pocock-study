@@ -159,7 +159,7 @@ it('every indexable page has a Markdown twin that is in llms.txt and sitemap.xml
     const links = doc.querySelectorAll('link[rel="alternate"][type="text/markdown"]')
     expect(links, `${file} links its .md`).toHaveLength(1)
     const href = links[0].getAttribute('href')!
-    expect(href, file).toMatch(/^\/(zh|en)\/[a-z0-9-]+\.md$/)
+    expect(href, file).toMatch(/^\/(zh|en)\/(?:methods\/)?[a-z0-9-]+\.md$/)
     const markdown = await readFile(`dist${href}`, 'utf8').catch(() => '')
     expect(markdown, `${file}: dist${href}`).toMatch(/^# \S/)
     expect(stripCode(markdown), `${href} has no HTML tags outside code`).not.toMatch(/<\/?(?:div|span|p|a|img|svg|section|aside|details|summary|table|tr|td|th|br|figure|script|style)\b[^>]*>/i)
