@@ -43,6 +43,6 @@ export function timelineMarkdown(lang: Lang, items: TimelineItem[], site: string
   // Site links point at the linked page's own twin (a twin has no section anchors).
   const absolute = (href: string) => `${site}${href.split('#')[0]}.md`
   const years = byYear(items)
-  const body = years.length ? years.map(({ year, items }) => `## ${year}\n\n${items.map(item => `### ${item.learned.title}\n\n${item.date} · [${item.learned.from}](${absolute(item.learned.href)})\n\n${plainText(item.learned.text)}`).join('\n\n')}`).join('\n\n') : ''
+  const body = years.length ? years.map(({ year, items }) => `## ${year}\n\n${items.map(item => `### ${item.learned.title}\n\n${item.date}${item.kind === 'lesson' ? ` · [${item.learned.from}](${absolute(item.learned.href)})` : ''}\n\n${plainText(item.learned.text)}`).join('\n\n')}`).join('\n\n') : ''
   return `# ${zh ? '时间轴' : 'Timeline'}\n${body ? `\n${body}\n` : ''}`
 }

@@ -469,10 +469,9 @@ svg.inline-arrow { display: inline-block; width: 1em; height: 1em; vertical-alig
 .tl-toggle input:checked + .tl-switch::after { transform: translateX(18px); background: var(--primary-foreground); }
 .tl-toggle input:focus-visible + .tl-switch { outline: 2px solid var(--ring); outline-offset: 2px; }
 .tl-layout { display: grid; grid-template-columns: minmax(0, 1fr) 44px; column-gap: 6px; margin-top: 26px; margin-right: -16px; }
-.tl-years { grid-column: 1; grid-row: 1; min-width: 0; }
+.tl-years { min-width: 0; }
 /* The grid's right column only reserves room: the scrubber itself is fixed to the screen, so the
    labels never move under a finger while the page jumps. Hidden while the list is off screen. */
-.tl-scrubber { grid-column: 2; grid-row: 1; }
 .tl-track { position: fixed; z-index: 5; right: 4px; top: 50%; transform: translateY(-50%); height: min(70vh, 520px); }
 .tl-scrubber.off .tl-track { visibility: hidden; }
 .tl-track { width: 44px; touch-action: none; user-select: none; -webkit-user-select: none; cursor: grab; border-radius: 22px; outline: none; }

@@ -16,12 +16,16 @@ export const allowed = [
   'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
   // Content.
   '.article-lede', '.article-body', '.key-point', 'figure', '.kb-entry', '.corpus-record', '.intro-prose', '.licenses-page',
+  // Timeline dates, learning text, lesson titles linking to their sections, and revealed originals.
+  '.tl-meta time', '.tl-learned', 'a.tl-from', '.tl-original blockquote', '.tl-original > a.kb-source',
   // Navigation.
   '.skip-link', 'header', 'nav', '.article-sidebar', '.page-toc', '.corpus-page-intro > a', '.hero-actions',
   // Search and its states, the copy line (hint, button, the prompt shown for a manual copy), and in
   // the footer only its licences link: any other footer text is reported.
   'form[role="search"]', '.result-count', '.pagination', '.empty-state button', '[role="alert"]',
   '.agent-copy-hint', '.agent-copy-button', '.agent-copy-text', 'footer .footer-licenses',
+  // Timeline's original-post switch label and year slider.
+  'label.tl-toggle > span:last-child', '.tl-track[role="slider"]',
 ].join(', ')
 
 export function nonContentText(html) {

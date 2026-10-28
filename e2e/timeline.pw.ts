@@ -87,10 +87,24 @@ for (const lang of ['zh', 'en'] as const) {
     await expect(bubble).toHaveCSS('opacity', '0')
   })
 
-  test(`${lang}: the scrubber is a keyboard slider after the switch in Tab order`, async ({ page }) => {
+  for (const width of [375, 1280]) test(`${lang}: at ${width}px Tab follows the list then the right-hand scrubber`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 812 })
     await open(page, `/${lang}/timeline`)
     const all = await years(page)
+    expect(await page.locator('.tl-layout').evaluate(node => [...node.children].map(child => child.className))).toEqual(['tl-years', 'tl-scrubber'])
+    const list = (await page.locator('.tl-years').boundingBox())!
+    const track = (await slider(page).boundingBox())!
+    expect(list.x + list.width, 'DOM order matches the left-to-right visual order').toBeLessThanOrEqual(track.x)
     await page.getByRole('switch').focus()
+    const links = page.locator('.tl-item a')
+    for (let i = 0; i < await links.count(); i++) {
+      await page.keyboard.press('Tab')
+      await expect(links.nth(i)).toBeFocused()
+    }
+    await page.keyboard.press('Tab')
+    await expect(slider(page)).toBeFocused()
+    await page.keyboard.press('Shift+Tab')
+    await expect(links.last()).toBeFocused()
     await page.keyboard.press('Tab')
     await expect(slider(page)).toBeFocused()
     await expect(slider(page)).toHaveAttribute('aria-label', lang === 'zh' ? '按年份跳转' : 'Jump to a year')
@@ -104,9 +118,9 @@ for (const lang of ['zh', 'en'] as const) {
     await expectAtYear(page, all[0])
     await page.keyboard.press('ArrowDown')
     await expectAtYear(page, all[1])
-    // After the slider, Tab reaches the first item's link (the list follows the scrubber).
-    await page.keyboard.press('Tab')
-    await expect(page.locator('.tl-item a').first()).toBeFocused()
+    // Reverse traversal reaches the last item because the list precedes the scrubber.
+    await page.keyboard.press('Shift+Tab')
+    await expect(links.last()).toBeFocused()
   })
 
   test(`${lang}: at 375px the scrubber fits on screen, keeps a touch-sized target and follows a finger`, async ({ browser }) => {

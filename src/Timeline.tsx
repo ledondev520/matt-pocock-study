@@ -17,9 +17,8 @@ export function Timeline({ items, lang }: { items: TimelineItem[]; lang: Lang })
       <label className="tl-toggle"><input type="checkbox" role="switch" checked={showOriginal} onChange={event => setShowOriginal(event.target.checked)} /><span className="tl-switch" aria-hidden="true" /><span>{t('原帖', 'Original posts')}</span></label>
     </div>
     {years.length ? <div className="tl-layout">
-      {/* Before the list in the DOM so keyboard users reach it first; drawn in the right-hand column. */}
-      <YearScrubber years={years.map(y => y.year)} lang={lang} />
       <TimelineList years={years} lang={lang} showOriginal={showOriginal} />
+      <YearScrubber years={years.map(y => y.year)} lang={lang} />
     </div> : null}
   </div>
 }
@@ -33,7 +32,7 @@ export function TimelineList({ years, lang, showOriginal }: { years: TimelineYea
       <h3><ArrowText>{item.learned.title}</ArrowText></h3>
       {/* A note's links are its original posts, so they are plain text until originals are shown. */}
       <p className="tl-learned">{typeof item.learned.text === 'string' ? <ArrowText>{item.learned.text}</ArrowText> : <KbText segments={item.learned.text} links={showOriginal} />}</p>
-      <a className="tl-from" href={item.learned.href}><ArrowText>{item.learned.from}</ArrowText> <Arrow dir="right" /></a>
+      {item.kind === 'lesson' && <a className="tl-from" href={item.learned.href}><ArrowText>{item.learned.from}</ArrowText> <Arrow dir="right" /></a>}
       {showOriginal && <div className="tl-original">
         {item.original.quote && <blockquote><p lang="en">{item.original.quote}</p>{item.original.note && <p className="quote-translation">{item.original.note}</p>}</blockquote>}
         <a className="kb-source" href={item.original.url} target="_blank" rel="noreferrer">{t('原帖', 'Original')} <Arrow dir="up-right" /></a>

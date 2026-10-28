@@ -4,12 +4,14 @@
 // number in them is made up.
 import { describe, expect, it } from 'vitest'
 import { renderToString } from 'react-dom/server'
+import { JSDOM } from 'jsdom'
+import { nonContentText } from '../scripts/audit/non-content-text.mjs'
 import { renderMarkdown } from '../scripts/content'
 import { timelineItems, timelineMarkdown } from '../scripts/timeline'
 import { pageModel } from '../scripts/static'
 import { validateFeed, type KbEntry } from '../scripts/kb/feed'
 import { Site } from '../src/Site'
-import { TimelineList } from '../src/Timeline'
+import { Timeline, TimelineList } from '../src/Timeline'
 import type { Model, Page } from '../src/lib/content'
 import { metadata } from '../src/lib/metadata'
 import { byYear, yearIndexAt, yearIndexForKey } from '../src/lib/timeline'
@@ -69,6 +71,27 @@ describe('timeline items', () => {
 })
 
 describe('original posts stay hidden until shown', () => {
+  it('audits timeline content and controls precisely, including originals, while reporting unrelated text', async () => {
+    for (const lang of ['zh', 'en'] as const) {
+      const items = timelineItems(lang, await samplePages(), notes)
+      const html = renderToString(<Timeline items={items} lang={lang} />)
+      const shown = renderToString(<TimelineList years={byYear(items)} lang={lang} showOriginal />)
+      expect(nonContentText(html)).toEqual([])
+      expect(nonContentText(shown)).toEqual([])
+      expect(html).not.toContain('Matt 笔记')
+      for (const [source, selectors] of [[html, ['.tl-page', '.tl-layout', '.tl-years', '.tl-item']], [shown, ['.tl-original']]] as const) {
+        for (const selector of selectors) {
+          const doc = new JSDOM(source).window.document
+          const explanation = doc.createElement('p')
+          explanation.textContent = 'Unrelated timeline explanation fixture.'
+          doc.querySelector(selector)!.append(explanation)
+          expect(nonContentText(doc.body.innerHTML)).toEqual([
+            { text: explanation.textContent, where: expect.stringContaining(`${selector} > p`) },
+          ])
+        }
+      }
+    }
+  })
   it('renders no original link or quote by default, and all of them when shown', async () => {
     const years = byYear(timelineItems('zh', await samplePages(), notes))
     const hidden = renderToString(<TimelineList years={years} lang="zh" showOriginal={false} />)

@@ -65,4 +65,3 @@ export function yearIndexForKey(key: string, index: number, count: number): numb
   if (key in step) return Math.min(last, Math.max(0, index + step[key]))
   return undefined
 }
-
