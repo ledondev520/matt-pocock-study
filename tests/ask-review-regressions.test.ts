@@ -184,6 +184,87 @@ for (const words of [Array<string>(61).fill('code'), readable]) {
   }
 }
 
+for (const fixture of [
+  { name: 'combining grapheme joiner', sourceWord: 'code', rendered: 'co\u034fde', count: 61 },
+  { name: 'enclosing mark', sourceWord: 'code', rendered: 'co\u20ddde', count: 61 },
+  { name: 'tilde', sourceWord: 'code', rendered: 'co~de', count: 61 },
+  { name: 'underscore', sourceWord: 'code', rendered: 'co_de', count: 61 },
+  { name: 'short word inside affixes', sourceWord: 'go', rendered: 'XgoX', count: 121 },
+]) {
+  for (const layout of ['post', 'one method', 'same-source methods'] as const) {
+    it(`blocks review-3 ${fixture.name} in ${layout}, ignores its v9 cache and never writes a replacement`, async () => {
+      const words = Array<string>(fixture.count).fill(fixture.sourceWord)
+      const makeMethod = (parts: string[], id: number): Unit => ({ ...post('Our review interpretation.'), id: `method:${id}`, kind: 'method', quotes: parts.map(text => ({ text, url: id ? `${url}/?s=20#part` : url })) })
+      const units = layout === 'post' ? [post(words.join(' '))] : layout === 'one method' ? [makeMethod(words, 0)] : [makeMethod(words.slice(0, 30), 0), makeMethod(words.slice(30), 1)]
+      const text = Array<string>(fixture.count).fill(fixture.rendered).join(' Our thought. ')
+      const content = answer([point(text)])
+      expect(await explanationsAreIndependent([text], units)).toBe(false)
+      expect(await parse(content, units)).toBeUndefined()
+      const store = openStore(':memory:')
+      try {
+        const cfg = config()
+        const query = layout === 'post' ? fixture.sourceWord : 'review'
+        const digest = createHash('sha256').update(JSON.stringify(units.map(unit => [unit.id, unit.kind, unit.title, unit.text, unit.date ?? null, unit.sourceUrl ?? null, unit.sitePath ?? null, unit.quotes?.map(quote => [quote.text, quote.url, quote.date ?? null]) ?? []]))).digest('hex')
+        store.putCache(cacheKey(query, 'en', `${digest}:${cfg.model}:methodology-v9-normalized-overlap`), JSON.stringify({ mode: 'answer', title: 'Unsafe v9 cache', points: [{ text }], citations: [], cached: false }), 86_400_000, Date.now())
+        const writes = vi.spyOn(store, 'putCache')
+        let calls = 0
+        const app = createAskApp({ config: cfg, units, store, log: () => {}, fetch: (async () => {
+          calls++
+          return new Response(upstream(content))
+        }) as typeof fetch })
+        for (let i = 0; i < 2; i++) {
+          const response = await request(app, query)
+          expect(response.status).toBe(200)
+          expect(await response.json()).toEqual({ mode: 'search', reason: 'unverified', message: '', cached: false, citations: layout === 'same-source methods' ? [{ n: 1, kind: 'method', sourceUrl: url }, { n: 2, kind: 'method', sourceUrl: url }] : [{ n: 1, kind: layout === 'post' ? 'post' : 'method', sourceUrl: url }] })
+        }
+        expect(calls).toBe(2)
+        expect(writes).not.toHaveBeenCalled()
+      } finally { store.close() }
+    })
+  }
+}
+
+for (const inserted of ['\u034f', '\u20dd', '\u200b', '~', '_']) {
+  it(`normalizes U+${inserted.codePointAt(0)!.toString(16)} in sources and output across slice seams`, async () => {
+    const rendered = `co${inserted}de`
+    const source = Array<string>(61).fill(rendered).join(' ')
+    expect(await explanationsAreIndependent([Array<string>(61).fill('code').join(' Our thought. ')], [post(source)])).toBe(false)
+    // The inserted character falls at the end of a 256-unit slice, with de in the next.
+    const acrossSeam = ' '.repeat(253) + rendered
+    expect(await explanationsAreIndependent([Array<string>(61).fill(acrossSeam).join(' Our thought. ')], [post('code')])).toBe(false)
+    expect(await explanationsAreIndependent([Array<string>(61).fill('code').join(' Our thought. ')], [post(acrossSeam)])).toBe(false)
+    // Sentence evidence must use the same cleaned text as word/fingerprint evidence.
+    expect(await parse(answer([point(rendered + '.', marker(0, 7))]), [post('Do. So. Code.')])).toMatchObject({ found: true, degraded: true, points: [{ text: '', quote: 'Do. So.' }] })
+    expect(await parse(answer([point('Code.', marker(0, 7))]), [post(`Do. So. ${rendered}.`)])).toMatchObject({ found: true, degraded: true, points: [{ text: '', quote: 'Do. So.' }] })
+  })
+}
+
+for (const inserted of ['.', '!', '?', ':', '/', '-']) {
+  it(`strips inserted ${inserted} between letters in word evidence`, async () => {
+    const rendered = `co${inserted}de`
+    expect(await explanationsAreIndependent([Array<string>(61).fill(rendered).join(' Our thought. ')], [post('code')])).toBe(false)
+    expect(await explanationsAreIndependent([Array<string>(61).fill('code').join(' Our thought. ')], [post(rendered)])).toBe(false)
+  })
+}
+
+it('accepts and caches a normal short quote with our own explanation after review-3 normalization', async () => {
+  const unit = post('Keep boundaries small. Test changes early.')
+  const text = 'Automate a narrow check before expanding the task so feedback arrives while revisions are cheap.'
+  const content = answer([point(text, marker(0, 22))], 'A practical approach')
+  expect(await parse(content, [unit])).toMatchObject({ found: true, title: 'A practical approach', points: [{ text, quote: 'Keep boundaries small.', quoteUrl: url }] })
+  expect(await parse(content, [unit])).not.toHaveProperty('degraded')
+  const store = openStore(':memory:')
+  try {
+    let calls = 0
+    const app = createAskApp({ config: config(), units: [unit], store, log: () => {}, fetch: (async () => {
+      calls++
+      return new Response(upstream(content))
+    }) as typeof fetch })
+    for (let i = 0; i < 2; i++) expect(await (await request(app, 'boundaries')).json()).toMatchObject({ mode: 'answer', title: 'A practical approach', points: [{ text, quote: 'Keep boundaries small.', quoteUrl: url }], cached: i === 1 })
+    expect(calls).toBe(1)
+  } finally { store.close() }
+})
+
 it('counts repeated suffixed short anchors inside a single token without caching', async () => {
   const unit: Unit = { ...post('Our review interpretation.'), kind: 'method', quotes: Array.from({ length: 61 }, () => ({ text: 'code', url })) }
   const content = answer([point('codeX'.repeat(61))])

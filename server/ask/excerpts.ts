@@ -37,12 +37,13 @@ export function quotesWithinBudget(quotes: Extract[]): boolean {
 
 export const shortEnough = (text: string) => quotesWithinBudget([{ text, url: 'excerpt' }])
 
-// Fixed-size character hashes, independent of word boundaries. Removing punctuation and
-// format characters catches inserted punctuation/zero-width characters. Hash collisions can
+// Fixed-size character hashes, independent of word boundaries. Shared normalization
+// removes inserted marks, format characters and punctuation. Hash collisions can
 // only cause a conservative downgrade. A separate symbol stream protects punctuation-only
 // sources; it is never used to calculate an excerpt allowance.
 export const removeFormatCharacters = (text: string) => text.replace(/\p{Cf}/gu, '')
-const normalize = (text: string) => removeFormatCharacters(text.normalize('NFKC')).toLowerCase().replace(/ς/g, 'σ')
+const removeInvisibleCharacters = (text: string) => text.replace(/[\p{Mn}\p{Me}\p{Cf}]/gu, '')
+const normalize = (text: string) => removeInvisibleCharacters(text.normalize('NFKC')).toLowerCase().replace(/ς/g, 'σ')
   .replace(/[‘’‚‛ʼ`´‹›]/gu, "'").replace(/[“”„‟«»「」『』\u301d\u301e\u301f]/gu, '"')
   .replace(/[\p{Dash_Punctuation}−]/gu, '-')
 const letters = (text: string) => text.replace(/[^\p{L}\p{N}]/gu, '')
@@ -82,27 +83,67 @@ export function contextFits(units: Unit[]): boolean {
 
 // All evidence uses this normalization, with small raw slices even when NFKC expands.
 // Reject ambiguous seams rather than silently dropping a combining mark or surrogate.
-async function* normalizedSlices(raw: string): AsyncGenerator<string | undefined> {
+async function* normalizedSlices(raw: string): AsyncGenerator<{ text: string; sentenceText: string } | undefined> {
+  let afterLetter = false
+  let pending: string[] = []
+  let size = 0
   for (let offset = 0; offset < raw.length; offset += 256) {
     await yieldToRequests()
     if (offset && /[\p{M}\uDC00-\uDFFF]/u.test(raw[offset])) { yield undefined; return }
-    yield normalize(raw.slice(offset, offset + 256))
+    const normalized = normalize(raw.slice(offset, offset + 256))
+    size += normalized.length
+    if (size > MAX_SOURCE_UNITS) { yield undefined; return }
+    const output: string[] = []
+    for (const char of normalized) {
+      // Delay punctuation after a letter until its right neighbour is known. This
+      // joins co~de and co_de across slices too, while retaining standalone symbols
+      // and punctuation before whitespace. Every evidence stream sees it; retain
+      // sentence delimiters separately so cleanup cannot merge original sentences.
+      if (afterLetter && /[\p{P}\p{S}]/u.test(char)) { pending.push(char); continue }
+      const isLetter = /[\p{L}\p{N}]/u.test(char)
+      if (pending.length) {
+        if (!isLetter) {
+          if (pending.length <= 256) output.push(pending.join(''))
+          else {
+            yield { text: output.join(''), sentenceText: '' }
+            output.length = 0
+            for (let offset = 0; offset < pending.length; offset += 256) {
+              await yieldToRequests()
+              yield { text: pending.slice(offset, offset + 256).join(''), sentenceText: '' }
+            }
+          }
+        }
+        pending = []
+      }
+      output.push(char)
+      afterLetter = isLetter
+    }
+    yield { text: output.join(''), sentenceText: normalized }
+  }
+  // Flush long trailing symbol runs cooperatively as well.
+  for (let offset = 0; offset < pending.length; offset += 256) {
+    await yieldToRequests()
+    yield { text: pending.slice(offset, offset + 256).join(''), sentenceText: '' }
   }
 }
 
 // Keep the entire normalized output bounded, including compatibility-character expansion.
-async function normalizedProse(fields: string[]): Promise<string | undefined> {
+async function normalizedProse(fields: string[]): Promise<{ text: string; sentenceText: string } | undefined> {
   if (fields.reduce((sum, text) => sum + text.length, 0) > MAX_PROSE_UNITS) return undefined
   const parts: string[] = []
+  const sentenceParts: string[] = []
   let size = 0
   // A source word can be split between response fields.
-  for await (const part of normalizedSlices(fields.join(''))) {
-    if (part === undefined) return undefined
-    size += part.length
-    if (size > MAX_PROSE_UNITS) return undefined
-    parts.push(part)
+  for (const field of fields) {
+    for await (const part of normalizedSlices(field)) {
+      if (part === undefined) return undefined
+      size += part.sentenceText.length
+      if (size > MAX_PROSE_UNITS) return undefined
+      parts.push(part.text)
+      sentenceParts.push(part.sentenceText)
+    }
   }
-  return parts.join('')
+  return { text: parts.join(''), sentenceText: sentenceParts.join('') }
 }
 
 // Source short words supplement the five-character stream. A capped tail preserves token
@@ -137,9 +178,7 @@ function* sentences(text: string, state: { parts: string[]; size: number }, fina
 // At most four candidates per character, including affixed short source words.
 function* fragmentsAt(word: string, start: number): Generator<string> {
   for (let size = Math.min(4, word.length - start); size > 0; size--) {
-    // One- and two-letter words are too common inside unrelated words; retain their
-    // prefix matches so suffixes cannot hide them, and scan longer fragments anywhere.
-    if (size >= 3 || start === 0) yield word.slice(start, start + size)
+    yield word.slice(start, start + size)
   }
 }
 function* shortFragments(word: string): Generator<string> {
@@ -179,9 +218,10 @@ export async function explanationsAreIndependent(fields: string[], units: Unit[]
     for (const quote of unit.quotes ?? []) sources.push({ text: quote.text, url: quote.url })
   }
   const linked = linkedUrls && new Set(linkedUrls.map(sourceKey))
-  const output = await normalizedProse(fields)
-  if (output === undefined) return false
-  const outputSentences = [...sentences(output, { parts: [], size: 0 }, true)]
+  const normalizedOutput = await normalizedProse(fields)
+  if (normalizedOutput === undefined) return false
+  const output = normalizedOutput.text
+  const outputSentences = [...sentences(normalizedOutput.sentenceText, { parts: [], size: 0 }, true)]
   const wantedSentences = new Set(outputSentences)
   const outputWords = output.match(/[a-z0-9]+/g) ?? []
   const wantedWords = new Set<string>()
@@ -238,21 +278,21 @@ export async function explanationsAreIndependent(fields: string[], units: Unit[]
       const evidence = url ? quoted.get(sourceKey(url)) : undefined
       for await (const normalized of normalizedSlices(source)) {
         if (normalized === undefined) return false
-        normalizedSize += normalized.length
+        normalizedSize += normalized.sentenceText.length
         if (normalizedSize > MAX_SOURCE_UNITS) return false
         if (index === 0) {
           if (evidence) {
-            for (const sentence of sentences(normalized, sentenceState)) {
+            for (const sentence of sentences(normalized.sentenceText, sentenceState)) {
               if (wantedSentences.has(sentence)) evidence.matchedSentences.add(sentence)
             }
           }
-          for (const word of shortWords(normalized, wordState)) {
+          for (const word of shortWords(normalized.text, wordState)) {
             if (!wantedWords.has(word)) continue
             matchedWords.add(word)
             evidence?.words.add(word)
           }
         }
-        const text = [...tail, ...codes(stream(normalized))]
+        const text = [...tail, ...codes(stream(normalized.text))]
         for (const { key } of fingerprints(text, index === 1)) {
           if (!wanted.has(key)) continue
           matched.add(key)
