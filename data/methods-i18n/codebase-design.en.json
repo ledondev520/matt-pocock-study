@@ -1,0 +1,90 @@
+{
+  "title": {
+    "zh": "为 agent 设计代码库方法论",
+    "en": "Designing a codebase for agents"
+  },
+  "question": {
+    "zh": "为什么 agent 在有的代码库里表现好、有的里表现差?代码库该怎么设计,agent 才好用?",
+    "en": "Why do agents do well in some codebases and badly in others? How should a codebase be designed so agents work well in it?"
+  },
+  "claim.text": {
+    "zh": "AI 在大代码库里不一定差,在糟糕的代码库里才差。agent 没有记忆,没法像人一样靠反复碰壁积累对烂代码的理解。所以要用老办法把代码库设计好:深模块、简单接口、清晰边界、类型和测试这类反馈回路;再大胆设计抽象来缩小 agent 的决策空间,并明确要求 agent 关心代码库的长期健康。",
+    "en": "AI is not necessarily bad in big codebases; it is bad in poor ones. An agent has no memory, so it cannot build up an understanding of messy code by hitting the same walls the way people do. So design the codebase well using the old methods: deep modules, simple interfaces, clear boundaries, and feedback loops such as types and tests. Then design abstractions boldly to narrow the agent's choices, and tell the agent plainly to care about the long-term health of the codebase."
+  },
+  "steps.0.title": {
+    "zh": "把功能收进深模块",
+    "en": "Put features behind deep modules"
+  },
+  "steps.0.how": {
+    "zh": "每个模块对外只暴露一个简单的接口,内部藏住复杂性。agent 只需要理解接口就能正确使用模块。",
+    "en": "Each module exposes one simple interface and hides its complexity inside. The agent only needs to understand the interface to use the module correctly."
+  },
+  "steps.1.title": {
+    "zh": "用工具强制模块边界",
+    "en": "Enforce module boundaries with tools"
+  },
+  "steps.1.how": {
+    "zh": "约定每个包只能从入口文件导入,并用依赖检查或 lint 规则强制执行,让边界不只停留在口头约定上。",
+    "en": "Agree that each package may only be imported through its entry file, and enforce it with dependency checks or lint rules, so the boundary is more than a verbal agreement."
+  },
+  "steps.2.title": {
+    "zh": "定期找浅模块并删除",
+    "en": "Find shallow modules and delete them"
+  },
+  "steps.2.how": {
+    "zh": "找出那些接口几乎和实现一样复杂的浅模块,判断删掉它会不会让代码更简单;多余的抽象要删除。",
+    "en": "Look for shallow modules whose interface is nearly as complex as their implementation, and ask whether removing them makes the code simpler. Delete abstractions that don't earn their place."
+  },
+  "steps.3.title": {
+    "zh": "大胆设计高杠杆的抽象",
+    "en": "Design high-leverage abstractions boldly"
+  },
+  "steps.3.how": {
+    "zh": "好的抽象加上严格的 lint 规则,能缩小 agent 可选的设计空间,把它限制在正确的决定上;用更少的代码做更多的事。用 agent 撤回一个坏抽象的成本也更低。",
+    "en": "Well-chosen abstractions, backed by strict lint rules, narrow the range of designs the agent can pick from and keep it on the right decisions, doing more with less code. Undoing a bad abstraction with an agent is also cheaper."
+  },
+  "steps.4.title": {
+    "zh": "让 agent 关心代码库(战略编程)",
+    "en": "Make the agent care about the codebase (strategic programming)"
+  },
+  "steps.4.how": {
+    "zh": "agent 默认只完成眼前的任务。要明确告诉它要关心整个代码库,给它一个清晰的目标形态;同时持续让代码变少、复杂度变低。",
+    "en": "By default an agent only finishes the task in front of it. Tell it explicitly to care about the whole codebase and give it a clear target shape, while steadily reducing code and complexity."
+  },
+  "examples.0.title": {
+    "zh": "本站示例:包边界约定",
+    "en": "Our example: a package boundary rule"
+  },
+  "examples.0.body": {
+    "zh": "src/packages/drafts/index.ts   ← 唯一入口:saveDraft、loadDraft\nsrc/packages/drafts/internal/ ← 外部禁止导入(由 lint 规则检查)\n规则:跨包只能 import 包的 index",
+    "en": "src/packages/drafts/index.ts   <- the only entry: saveDraft, loadDraft\nsrc/packages/drafts/internal/ <- no imports from outside (checked by a lint rule)\nRule: across packages, import only a package's index"
+  },
+  "pitfalls.0.text": {
+    "zh": "把糟糕的代码库直接丢给 AI。",
+    "en": "Handing a poor codebase straight to AI."
+  },
+  "pitfalls.1.text": {
+    "zh": "任由 AI 加速代码腐化,不去治理。",
+    "en": "Letting AI speed up code rot without doing anything about it."
+  },
+  "pitfalls.2.text": {
+    "zh": "以为 agent 只需要原始代码、不需要抽象。",
+    "en": "Assuming an agent needs only raw code and no abstractions."
+  },
+  "pitfalls.3.text": {
+    "zh": "vibe coding 出来的应用,内部结构完全没人管。",
+    "en": "Vibe-coded apps whose internal structure nobody looks after."
+  },
+  "evolution.0.stance": {
+    "zh": "提出「AI 只在糟糕的代码库里差」;老办法深模块就是解法。",
+    "en": "He argues that AI is only bad in poor codebases, and that the old idea of deep modules is the answer."
+  },
+  "evolution.1.stance": {
+    "zh": "/improve-codebase-architecture 加入描述代码库好坏的术语表;担心战术编程被 AI 接管后,初级工程师得不到战略层面的锻炼;用工具强制深模块。",
+    "en": "/improve-codebase-architecture gains a glossary for describing good and bad codebases. He worries that with AI taking over tactical programming, junior engineers miss out on strategic practice, and he enforces deep modules with tools."
+  },
+  "evolution.2.stance": {
+    "zh": "战术编程已死,战略编程更重要;主张在 AI 时代使用更多抽象;要求 agent 关心代码库;用删除测试清理浅模块。",
+    "en": "Tactical programming is dead and strategic programming matters more. He argues for more abstraction in the AI era, asks agents to care about the codebase, and uses a deletion test to clear out shallow modules."
+  }
+}

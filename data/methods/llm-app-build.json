@@ -1,0 +1,298 @@
+{
+  "id": "m.llm-app-build",
+  "domain": "llm-apps",
+  "title": {
+    "zh": "用 AI SDK 构建 LLM 应用方法论",
+    "en": "Building LLM apps with the AI SDK"
+  },
+  "question": {
+    "zh": "用 TypeScript 做一个 LLM 应用(聊天、结构化提取、agent),应该怎样组织代码?",
+    "en": "When you build an LLM app in TypeScript (chat, structured extraction, agents), how should the code be organised?"
+  },
+  "claim": {
+    "text": {
+      "zh": "用一层薄薄的库(他选的是 AI SDK)解决两件难事:和各家模型通信、把结果流式传到前端。其余部分自己掌握:用结构化输出把文本变成对象,agent 自己用「循环 + 工具调用」写出来,检索到的数据放进用户消息,并在入口加上快速的安全检查。",
+      "en": "Use a thin library (his pick is the AI SDK) for the two hard parts: talking to every model provider and streaming results to the front end. Own the rest yourself: structured output turns text into objects, you write the agent yourself as a loop plus tool calls, retrieved data goes into the user message, and a quick safety check sits at the entrance."
+    },
+    "anchors": [
+      {
+        "url": "https://x.com/mattpocockuk/status/1975867465084092834",
+        "date": "2025-10-08",
+        "quote": "The AI SDK solves two hard problems:",
+        "quote_zh": "AI SDK 解决两个难题:"
+      },
+      {
+        "url": "https://x.com/mattpocockuk/status/1970427359154061676",
+        "date": "2025-09-23",
+        "quote": "You don't need a framework to build an agent.",
+        "quote_zh": "构建 agent 不需要框架。"
+      }
+    ],
+    "evidence": "Direct"
+  },
+  "steps": [
+    {
+      "id": "m.llm-app-build#s1",
+      "order": 1,
+      "title": {
+        "zh": "用统一接口隔离模型供应商",
+        "en": "Isolate model providers behind one interface"
+      },
+      "how": {
+        "zh": "业务代码只依赖统一的模型接口,换供应商只是换一个参数,不用为每家 API 写胶水代码;流式输出、结构化输出、工具调用都走同一套接口。",
+        "en": "Business code depends only on a single model interface, so switching providers is one parameter rather than glue code for every API; streaming, structured output and tool calls all go through the same interface."
+      },
+      "anchors": [
+        {
+          "url": "https://www.aihero.dev/what-is-the-ai-sdk",
+          "date": "2025-01-17",
+          "quote": "So you need to build all of this extra glue code just to try out a new model.",
+          "quote_zh": "于是你得写一大堆额外的胶水代码,只为了试一个新模型。"
+        },
+        {
+          "url": "https://www.aihero.dev/swap-ai-models-with-vercel-ai-sdk",
+          "date": "2025-01-05"
+        }
+      ],
+      "evidence": "Direct",
+      "since": "2025"
+    },
+    {
+      "id": "m.llm-app-build#s2",
+      "order": 2,
+      "title": {
+        "zh": "要对象就用结构化输出",
+        "en": "When you need an object, use structured output"
+      },
+      "how": {
+        "zh": "需要数据而不是文本时,先用 zod 定义 schema,让模型按这个格式返回。LLM 最有价值的用途之一,就是把原始文本或数据变成结构化、可搜索的对象。小模型偶尔会返回不合法的 JSON,可以加一步修复。",
+        "en": "When you need data rather than text, define a schema with zod and have the model return that shape. Turning raw text or data into structured, searchable objects is one of the most valuable uses of an LLM. Small models sometimes return invalid JSON; add a repair step."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/1967222724184699113",
+          "date": "2025-09-14",
+          "quote": "But the real value prop of LLM's is turning raw text/data into structured, searchable objects.",
+          "quote_zh": "但 LLM 真正的价值在于把原始文本/数据变成结构化、可搜索的对象。"
+        },
+        {
+          "url": "https://www.aihero.dev/structured-outputs-with-vercel-ai-sdk",
+          "date": "2025-01-05"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/1973712523313524951",
+          "date": "2025-10-02"
+        }
+      ],
+      "evidence": "Direct",
+      "since": "2025"
+    },
+    {
+      "id": "m.llm-app-build#s3",
+      "order": 3,
+      "title": {
+        "zh": "agent 就是循环加工具调用",
+        "en": "An agent is a loop plus tool calls"
+      },
+      "how": {
+        "zh": "给模型定义好工具(描述、参数 schema、执行函数),让它根据工具结果继续下一步,并设好步数上限。不需要重型框架,逐行写出来更好理解和调试。",
+        "en": "Define the tools for the model (description, parameter schema, execute function), let it take the next step from the tool results, and set a step limit. No heavy framework needed; written out line by line it is easier to follow and debug."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/1970427359154061676",
+          "date": "2025-09-23",
+          "quote": "They're really just a while loop and some tool calls.",
+          "quote_zh": "它们其实就是一个 while 循环加一些工具调用。"
+        },
+        {
+          "url": "https://www.aihero.dev/agents-with-vercel-ai-sdk",
+          "date": "2025-01-15",
+          "quote": "This can create a powerful feedback loop where the LLM is continually grounding itself in the real world.",
+          "quote_zh": "这能形成一个强大的反馈回路,让 LLM 持续以真实世界为依据。"
+        }
+      ],
+      "evidence": "Direct",
+      "since": "2025"
+    },
+    {
+      "id": "m.llm-app-build#s4",
+      "order": 4,
+      "title": {
+        "zh": "检索数据放进用户消息,用 XML 包起来",
+        "en": "Put retrieved data in the user message, wrapped in XML"
+      },
+      "how": {
+        "zh": "检索或抓取来的内容不要放进系统提示词,恶意网页内容很容易借此改变模型行为。应放进用户消息,并用 XML 标签包裹;做 RAG 时也别只想到向量库,BM25 这类传统检索同样好用。",
+        "en": "Don't put retrieved or scraped content in the system prompt, where malicious web content can easily change the model's behaviour. Put it in the user message wrapped in XML tags. For RAG, don't think only of vector stores; classic retrieval such as BM25 works well too."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/1970801175508271303",
+          "date": "2025-09-24",
+          "quote": "PSA: Don't put retrieved data in your system prompt.",
+          "quote_zh": "提醒:不要把检索到的数据放进系统提示词。"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/1984190100809670669",
+          "date": "2025-10-31",
+          "quote": "Everyone forgets about BM25",
+          "quote_zh": "大家都忘了 BM25"
+        }
+      ],
+      "evidence": "Direct",
+      "since": "2025"
+    },
+    {
+      "id": "m.llm-app-build#s5",
+      "order": 5,
+      "title": {
+        "zh": "入口加快速护栏,UI 加生产级模式",
+        "en": "A quick guardrail at the entrance, production patterns in the UI"
+      },
+      "how": {
+        "zh": "用一个很快的小模型先判断请求是否安全,只让它输出 0 或 1,再用普通代码做判断;在界面上用流式输出加入「建议的下一个问题」这类生产级功能。",
+        "en": "Use a very fast small model to decide first whether a request is safe, outputting only 0 or 1, and make the decision in ordinary code. In the UI, use streaming to add production features such as suggested next questions."
+      },
+      "anchors": [
+        {
+          "url": "https://www.aihero.dev/securing-your-ai-app-with-guardrails",
+          "date": "2025-09-11",
+          "quote": "Here's a pattern for validating incoming requests to your LLM application to make sure that they're safe.",
+          "quote_zh": "这是一个校验进入 LLM 应用的请求、确保其安全的模式。"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/1959535515754975625",
+          "date": "2025-08-24"
+        }
+      ],
+      "evidence": "Direct",
+      "since": "2025"
+    }
+  ],
+  "examples": [],
+  "pitfalls": [
+    {
+      "text": {
+        "zh": "把检索到的网页内容直接塞进系统提示词。",
+        "en": "Putting retrieved web content straight into the system prompt."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/1970801175508271303",
+          "date": "2025-09-24",
+          "quote": "It's dead simple for malicious website content to change your LLM's behavior.",
+          "quote_zh": "恶意网站内容改变你的 LLM 行为简直易如反掌。"
+        }
+      ],
+      "evidence": "Direct"
+    },
+    {
+      "text": {
+        "zh": "以为必须用框架才能做 agent。",
+        "en": "Thinking you need a framework to build an agent."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/1970427359154061676",
+          "date": "2025-09-23"
+        }
+      ],
+      "evidence": "Direct"
+    },
+    {
+      "text": {
+        "zh": "把应用绑定在单一供应商的 API 上。",
+        "en": "Tying the app to one provider's API."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/1996967049004757363",
+          "date": "2025-12-05",
+          "quote": "I like that they are pushing 'no vendor lock-in' in their blog post",
+          "quote_zh": "我喜欢他们在博文里主张「不被厂商锁定」"
+        }
+      ],
+      "evidence": "Direct"
+    }
+  ],
+  "evolution": [
+    {
+      "period": "2024-12–2025-01",
+      "change": "first",
+      "stance": {
+        "zh": "发布免费 AI SDK 教程:文本生成、流式、结构化输出、工具调用、agent。",
+        "en": "He publishes a free AI SDK tutorial: text generation, streaming, structured output, tool calls, agents."
+      },
+      "anchors": [
+        {
+          "url": "https://www.aihero.dev/vercel-ai-sdk",
+          "date": "2025-01-02"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/1881378718435688899",
+          "date": "2025-01-20"
+        },
+        {
+          "url": "https://www.aihero.dev/what-is-the-ai-sdk",
+          "date": "2025-01-17"
+        }
+      ]
+    },
+    {
+      "period": "2025-08–2025-10",
+      "change": "refine",
+      "stance": {
+        "zh": "押注 AI SDK;陆续发布生产级模式:护栏、建议问题、检索数据的放置;强调 agent 不需要框架;讲解检索与分块。",
+        "en": "He bets on the AI SDK and publishes production patterns one after another: guardrails, suggested questions, where to put retrieved data; he stresses agents need no framework and explains retrieval and chunking."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/1964781620512350470",
+          "date": "2025-09-07",
+          "quote": "For the next 3, I'm betting on the AI SDK.",
+          "quote_zh": "接下来三年,我押注 AI SDK。"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/1964996433129443652",
+          "date": "2025-09-08"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/1983947379544842572",
+          "date": "2025-10-30"
+        }
+      ]
+    },
+    {
+      "period": "2025-12",
+      "change": "reaffirm",
+      "stance": {
+        "zh": "此后重心转向 AI 编程,关于应用构建的新帖很少;评价其他 SDK 时仍以「不被厂商锁定」为标准。",
+        "en": "His focus then moves to AI coding and new posts about building apps become rare; when judging other SDKs he still asks whether they avoid vendor lock-in."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/1996967049004757363",
+          "date": "2025-12-05"
+        }
+      ],
+      "current": true
+    }
+  ],
+  "related": [
+    "m.evals",
+    "m.context-mgmt"
+  ],
+  "prerequisites": [],
+  "site_pages": [],
+  "repos": [],
+  "sources_count": {
+    "keyword_hits": 132,
+    "curated": 18
+  },
+  "evidence": "Direct",
+  "date_first": "2025-01-02",
+  "date_last": "2025-12-05",
+  "status": "draft",
+  "updated": "2026-10-28"
+}

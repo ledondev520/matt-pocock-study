@@ -2,15 +2,34 @@ import type { Lang } from '../../src/lib/lang'
 import type { PageSummary } from '../../src/lib/content'
 import type { Chunk, LearnSource, MethodologySummary, TodayItem } from '../../src/lib/learn'
 import type { SearchItem } from '../../src/lib/search'
+import { chunks as methodChunks, getMethodology as getSet, listMethodologies as listSets } from '../methods'
+import { domainLabel, methodPath, withoutLicence } from '../../src/lib/methods'
 import { kbSlug } from '../../src/lib/metadata'
 import { byDate, SOURCES, type KbEntry } from '../kb/feed'
 
-// The one place that decides where "what to learn today" and the search index come from.
-// Today: an interim source over the knowledge base and the note pages. When the methodology module
-// lands (data/methods, listMethodologies / getMethodology / chunks), implement LearnSource over it
-// and return that from learnSource(); todayItems and searchIndex stay as they are.
+// The one place that decides where "what to learn today" and the search index come from:
+// the methodology module (data/methods via scripts/methods.ts), plus the note pages for search.
 export function learnSource(input: { knowledge: KbEntry[]; pages: PageSummary[] }): LearnSource {
-  return interimSource(input)
+  return methodsSource(input)
+}
+
+export function methodsSource({ pages }: { knowledge?: KbEntry[]; pages: PageSummary[] }): LearnSource {
+  const summary = (lang: Lang) => (s: ReturnType<typeof listSets>[number]): MethodologySummary => ({
+    id: s.id, title: s.title, question: s.question ?? s.claim, href: methodPath(lang, s.id), dateLast: s.date_last, label: domainLabel(s.domain, lang),
+  })
+  return {
+    listMethodologies: lang => listSets(lang).map(summary(lang)),
+    getMethodology: (id, lang) => {
+      const m = getSet(id)
+      if (!m) return undefined
+      const s = listSets(lang).find(x => x.id === m.id)!
+      return { ...summary(lang)(s), claim: m.claim.text[lang], steps: m.steps.map(step => ({ id: step.id, order: step.order, title: step.title[lang], how: step.how[lang] })) }
+    },
+    chunks: (lang: Lang): Chunk[] => [
+      ...methodChunks(lang).map(c => ({ id: c.key, kind: c.kind, methodologyId: c.methodology_id, title: c.title, text: withoutLicence(c.text), href: c.kind === 'overview' ? methodPath(lang, c.methodology_id) : c.sitePath })),
+      ...pages.filter(p => p.lang === lang).map(p => ({ id: `${lang}/${p.slug}`, kind: 'note', title: p.title, text: p.subtitle === p.title ? p.summary : `${p.subtitle} ${p.summary}`, href: `/${lang}/${p.slug}` })),
+    ],
+  }
 }
 
 /** Interim: the newest knowledge base day stands in for the methodology list (Chinese text, so the

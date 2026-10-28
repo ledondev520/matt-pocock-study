@@ -1,0 +1,281 @@
+{
+  "id": "m.debugging",
+  "domain": "ai-coding",
+  "title": {
+    "zh": "诊断 bug 方法论",
+    "en": "Diagnosing bugs"
+  },
+  "question": {
+    "zh": "让 agent 修一个难缠的 bug 或性能回退时,怎样避免它乱猜?",
+    "en": "When you ask an agent to fix a stubborn bug or a performance regression, how do you stop it from guessing?"
+  },
+  "claim": {
+    "text": {
+      "zh": "先有反馈回路,再有理论:先做出一个能稳定复现 bug 的命令(出 bug 时红、修好后绿),并把复现缩到最小;然后列出假设、逐个验证;修完补一个回归测试。agent 容易过早下结论,要提醒它退后一步。",
+      "en": "Feedback loop before theory: first build a command that reproduces the bug reliably (red while the bug is there, green once fixed) and shrink the reproduction to the minimum; then list hypotheses and test them one by one; after the fix, add a regression test. Agents tend to jump to conclusions, so remind them to step back."
+    },
+    "anchors": [
+      {
+        "url": "https://x.com/mattpocockuk/status/2048736667209458149",
+        "date": "2026-04-27",
+        "quote": "Wraps the issue in a feedback loop it can run AFK",
+        "quote_zh": "把问题包进一个能无人值守运行的反馈回路"
+      }
+    ],
+    "evidence": "Direct"
+  },
+  "steps": [
+    {
+      "id": "m.debugging#s1",
+      "order": 1,
+      "title": {
+        "zh": "先建可复现的红/绿回路",
+        "en": "Build a reproducible red/green loop first"
+      },
+      "how": {
+        "zh": "在提出任何猜测之前,先写出一个命令或测试,出 bug 时失败、修好后通过。agent 默认的做法是读代码然后猜,这一步就是为了拦住它。",
+        "en": "Before any guessing, write a command or test that fails while the bug is there and passes once it is fixed. An agent's default is to read the code and guess; this step is there to stop that."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2048736667209458149",
+          "date": "2026-04-27",
+          "quote": "Wraps the issue in a feedback loop it can run AFK"
+        },
+        {
+          "url": "https://www.aihero.dev/skills-diagnosing-bugs",
+          "date": "2026-08-24"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2012609929199099992",
+          "date": "2026-01-17",
+          "quote": "A runnable reproduction?",
+          "quote_zh": "一个可运行的复现?"
+        }
+      ],
+      "evidence": "Direct",
+      "since": "2026"
+    },
+    {
+      "id": "m.debugging#s2",
+      "order": 2,
+      "title": {
+        "zh": "把复现缩到最小",
+        "en": "Shrink the reproduction"
+      },
+      "how": {
+        "zh": "回路建好后,逐步去掉无关的部分:多余的数据、页面、依赖和配置。每删一样就重跑一次回路,确认它仍然是红的。复现越小,能解释它的假设越少,agent 读的上下文也越少;最小复现本身还可以直接改成回归测试或 issue 里的复现说明。",
+        "en": "With the loop in place, remove what doesn't matter piece by piece: extra data, pages, dependencies and config, rerunning the loop after each removal to confirm it is still red. The smaller the reproduction, the fewer hypotheses can explain it and the less context the agent has to read; the minimal reproduction can also become the regression test or the repro in the issue."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2048736667209458149",
+          "date": "2026-04-27",
+          "quote": "Minimizes the reproduction",
+          "quote_zh": "最小化复现"
+        }
+      ],
+      "evidence": "Direct",
+      "since": "2026"
+    },
+    {
+      "id": "m.debugging#s3",
+      "order": 3,
+      "title": {
+        "zh": "列假设,逐个验证",
+        "en": "List hypotheses and test them one by one"
+      },
+      "how": {
+        "zh": "让 agent 把所有可能的原因写成清单,按可能性排序,再用插桩日志、二分(提交或代码段)、换一个输入等办法一个一个验证。每次验证都要回到同一个红/绿回路上看结果。不要凭一条线索就下结论;被排除的假设也记下来,避免下一轮重复验证。",
+        "en": "Have the agent write every possible cause as a list, ranked by likelihood, then check them one at a time with logging, bisecting (commits or code sections) or a different input. Every check goes back to the same red/green loop. Don't conclude from a single clue; record the hypotheses ruled out so the next round doesn't test them again."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2048736667209458149",
+          "date": "2026-04-27",
+          "quote": "Creates hypotheses and tests them",
+          "quote_zh": "提出假设并逐一验证"
+        }
+      ],
+      "evidence": "Direct",
+      "since": "2026"
+    },
+    {
+      "id": "m.debugging#s4",
+      "order": 4,
+      "title": {
+        "zh": "让 agent 看得到运行时输出",
+        "en": "Let the agent see runtime output"
+      },
+      "how": {
+        "zh": "让开发服务器把输出写进一个本地文件,并在 AGENTS.md 里放一个指向它的指针。这样 agent 不用接管进程,也能看到日志。",
+        "en": "Have the dev server write its output to a local file and put a pointer to it in AGENTS.md. The agent can then read the logs without taking over the process."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2074060484047712521",
+          "date": "2026-07-06",
+          "quote": "Simple way to make agents better at debugging issues in your app",
+          "quote_zh": "让 agent 更擅长调试你应用里问题的简单方法"
+        }
+      ],
+      "evidence": "Direct",
+      "since": "2026"
+    },
+    {
+      "id": "m.debugging#s5",
+      "order": 5,
+      "title": {
+        "zh": "修复时补回归测试,用独立 agent 分工",
+        "en": "Add a regression test with the fix; split the work between agents"
+      },
+      "how": {
+        "zh": "修复的同时留下回归测试。修 bug 可以分工:一个 agent 负责做复现,另一个负责修复,最后由人评审。",
+        "en": "Leave a regression test along with the fix. Bug fixing can be split: one agent builds the reproduction, another fixes it, and a person reviews at the end."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/1985056806893211915",
+          "date": "2025-11-02",
+          "quote": "Fixing Bugs: background agent creates repro, background agent 2 fixes repro, review",
+          "quote_zh": "修 bug:后台 agent 做复现,第二个后台 agent 修复复现,然后评审"
+        }
+      ],
+      "evidence": "Direct",
+      "since": "2025"
+    }
+  ],
+  "examples": [],
+  "pitfalls": [
+    {
+      "text": {
+        "zh": "agent 越来越「有希望」,宣布找到了终极修复,或者断言是上游的 bug。这时要让它退后一步,先别下结论。",
+        "en": "The agent grows ever more hopeful, announces the ultimate fix, or declares it an upstream bug. That is the moment to make it step back and hold off on conclusions."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2086770919423258707",
+          "date": "2026-08-10",
+          "quote": "Pull back. Don't jump to conclusions."
+        }
+      ],
+      "evidence": "Direct"
+    },
+    {
+      "text": {
+        "zh": "在上下文过满的状态下硬做复杂改动,结果花更多时间去修它的错。",
+        "en": "Forcing a complex change through with an overfull context, then spending longer fixing its mistakes."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2077024507420668349",
+          "date": "2026-07-14",
+          "quote": "Need to stop trying this",
+          "quote_zh": "我得停止这样尝试了"
+        }
+      ],
+      "evidence": "Direct"
+    },
+    {
+      "text": {
+        "zh": "用不可调试的框架接管上下文。",
+        "en": "Letting a framework you cannot debug take over the context."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2044029094942159126",
+          "date": "2026-04-14",
+          "quote": "giving away control of context to a framework makes things a lot harder to debug",
+          "quote_zh": "把上下文的控制权交给框架,会让调试难得多"
+        }
+      ],
+      "evidence": "Direct"
+    }
+  ],
+  "evolution": [
+    {
+      "period": "2022–2024",
+      "change": "first",
+      "stance": {
+        "zh": "人类时代:要求最小复现;关注 TS 报错调试和 Node 诊断工具。",
+        "en": "Before AI: he asks for minimal reproductions and focuses on debugging TS errors and Node diagnostic tools."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/1525513858080808962",
+          "date": "2022-05-14"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/1848332650420851111",
+          "date": "2024-10-21"
+        }
+      ]
+    },
+    {
+      "period": "2025-11–2026-01",
+      "change": "refine",
+      "stance": {
+        "zh": "修 bug 用后台 agent 分工做复现和修复;让 Ralph 处理 backlog,先做复现再关 issue。",
+        "en": "Bug fixing is split between background agents, one reproducing and one fixing; Ralph works through the backlog, reproducing first and then closing the issue."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/1985056806893211915",
+          "date": "2025-11-02"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2010005065268932658",
+          "date": "2026-01-10"
+        }
+      ]
+    },
+    {
+      "period": "2026-04–2026-08",
+      "change": "refine",
+      "stance": {
+        "zh": "写成 /diagnose(后来叫 /diagnosing-bugs)skill:先建回路、最小化复现、验证假设;观察到 agent 会过早下结论,提出要「soft eyes」。",
+        "en": "It becomes the /diagnose skill (later /diagnosing-bugs): build the loop, minimise the reproduction, test hypotheses. He notices agents conclude too early and suggests \"soft eyes\"."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2048736667209458149",
+          "date": "2026-04-27"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2086770919423258707",
+          "date": "2026-08-10"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2086772810521714851",
+          "date": "2026-08-10"
+        }
+      ],
+      "current": true
+    }
+  ],
+  "related": [
+    "m.testing-tdd",
+    "m.feedback-loops",
+    "m.context-mgmt"
+  ],
+  "prerequisites": [],
+  "site_pages": [
+    "implementation-and-feedback"
+  ],
+  "repos": [
+    {
+      "url": "https://github.com/mattpocock/skills",
+      "license": "MIT",
+      "reuse": "mit-with-notice"
+    }
+  ],
+  "sources_count": {
+    "keyword_hits": 31,
+    "curated": 12
+  },
+  "evidence": "Direct",
+  "date_first": "2022-05-14",
+  "date_last": "2026-08-24",
+  "status": "draft",
+  "updated": "2026-10-28"
+}

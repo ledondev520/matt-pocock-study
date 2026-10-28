@@ -1,0 +1,455 @@
+{
+  "id": "m.pr-review",
+  "domain": "delivery",
+  "title": {
+    "zh": "PR 与代码评审方法论",
+    "en": "How to make and review PRs"
+  },
+  "question": {
+    "zh": "一个 PR 该怎么切、怎么写、怎么评审?AI 写的代码越来越多时又该怎么办?",
+    "en": "How should a PR be sliced, written and reviewed, and what changes when AI writes more of the code?"
+  },
+  "claim": {
+    "text": {
+      "zh": "PR 的目的是让评审又快又可靠:改动要小、爆炸半径要小;合并前先让机器把关;PR 正文要展示改动的样子、给出能工作的证据、说明合并风险;人类的评审时间按风险来分配。AI 时代人类评审成了瓶颈,这一点更加重要。",
+      "en": "A PR exists so review can be fast and reliable: keep the change and its blast radius small, let machines check it before anyone merges, make the body show the shape of the change, the evidence that it works and the merge risk, and spend human review time by risk. With AI writing more code, human review is the bottleneck, so this matters more."
+    },
+    "anchors": [
+      {
+        "url": "https://x.com/mattpocockuk/status/2100521948786667822",
+        "date": "2026-09-17",
+        "quote": "Makes human review as fast and as simple as possible",
+        "quote_zh": "让人类评审尽可能快、尽可能简单"
+      },
+      {
+        "url": "https://x.com/mattpocockuk/status/2097693327889961091",
+        "date": "2026-09-09"
+      }
+    ],
+    "evidence": "Supported"
+  },
+  "steps": [
+    {
+      "id": "m.pr-review#s1",
+      "order": 1,
+      "title": {
+        "zh": "先对齐,再动手",
+        "en": "Align before you build"
+      },
+      "since": "2026",
+      "how": {
+        "zh": "PR 描述写不清,往往是因为动手前没想清楚要做什么。先和人或 agent 把需求对齐(grilling),描述自然就清楚了。",
+        "en": "An unclear PR description usually means the work started before anyone knew what it was for. Align with the person or the agent first (grilling) and the description follows."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2075166355070886169",
+          "date": "2026-07-09",
+          "quote": "If the user understands what they're building, and communicates that to the agent, then the PR description will reflect that",
+          "quote_zh": "如果用户清楚自己在做什么,并把它告诉 agent,PR 描述自然会体现出来。"
+        }
+      ],
+      "evidence": "Direct"
+    },
+    {
+      "id": "m.pr-review#s2",
+      "order": 2,
+      "title": {
+        "zh": "把改动切小,控制爆炸半径",
+        "en": "Keep changes small and the blast radius small"
+      },
+      "since": "2023",
+      "how": {
+        "zh": "大改动(例如 TS 迁移)要拆成很多个小 PR,和功能开发穿插进行;每个 PR 只修一件事,出了问题影响面也小。",
+        "en": "Split big changes (a TypeScript migration, say) into many small PRs woven in with feature work. One PR fixes one thing, so a mistake stays contained."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/1658145266082480129",
+          "date": "2023-05-15",
+          "quote": "Make small PR's. Weave it in with feature work.",
+          "quote_zh": "提小 PR,和功能开发交织进行。"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2103506709633466648",
+          "date": "2026-09-25",
+          "quote": "Make the PR small and easy to review, with a small blast radius.",
+          "quote_zh": "让 PR 小而易审,爆炸半径小。"
+        }
+      ],
+      "evidence": "Direct"
+    },
+    {
+      "id": "m.pr-review#s3",
+      "order": 3,
+      "title": {
+        "zh": "人看之前,先让机器把关",
+        "en": "Let machines check before people do"
+      },
+      "since": "2023",
+      "how": {
+        "zh": "合入 main 的 PR 必须通过类型检查。AI 时代再加一层自动评审:把团队规范写进 CODING_STANDARDS.md,由评审 agent 按它检查;人类评审仍然保留。",
+        "en": "PRs to main must pass the type check. With AI, add automated review: write the team's standards into CODING_STANDARDS.md and let a review agent enforce them. Human review stays."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/1611489271487123487",
+          "date": "2023-01-06",
+          "quote": "Always ensure types are correct on PR's to main",
+          "quote_zh": "提到 main 的 PR,类型一定要正确。"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2088256432265167185",
+          "date": "2026-08-14",
+          "quote": "/code-review picks it up and enforces it at review time",
+          "quote_zh": "/code-review 会读取它,并在评审时执行。"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2093433213347581965",
+          "date": "2026-08-28",
+          "quote": "You aren't doing enough automated review",
+          "quote_zh": "你的自动评审做得还不够。"
+        }
+      ],
+      "evidence": "Direct"
+    },
+    {
+      "id": "m.pr-review#s4",
+      "order": 4,
+      "title": {
+        "zh": "PR 正文:摘要、证据、合并风险",
+        "en": "PR body: summary, evidence, merge risk"
+      },
+      "since": "2026",
+      "how": {
+        "zh": "正文分三块。摘要用最小的视图(伪代码、调用树、文件树等)展示改动的形状,不写大段文字;证据给出改动前后对比,例如一个先失败后通过的测试或截图;合并风险说明这是单向门还是双向门,以及爆炸半径有多大。用词沿用项目的领域语言。",
+        "en": "Three parts. The summary shows the shape of the change in the smallest view (pseudocode, a call tree, a file tree), not a paragraph. Evidence shows before and after, such as a test that failed and now passes, or a screenshot. Merge risk says whether it is a one-way or two-way door and how big the blast radius is. Use the project's domain language."
+      },
+      "anchors": [
+        {
+          "url": "https://www.aihero.dev/skills-pr",
+          "date": "2026-10-05",
+          "quote": "The summary is a visual, not a paragraph.",
+          "quote_zh": "摘要是一张图,不是一段话。"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2107062474914550098",
+          "date": "2026-10-05",
+          "quote": "showing hard evidence that the changes work and assessing merge risk",
+          "quote_zh": "给出改动确实有效的硬证据,并评估合并风险"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2075165738386559275",
+          "date": "2026-07-09",
+          "quote": "commit messages and PR's get a LOT easier to read",
+          "quote_zh": "提交信息和 PR 会好读得多"
+        }
+      ],
+      "evidence": "Direct"
+    },
+    {
+      "id": "m.pr-review#s5",
+      "order": 5,
+      "title": {
+        "zh": "按风险分配人类评审精力",
+        "en": "Spend human review by risk"
+      },
+      "since": "2026",
+      "how": {
+        "zh": "单向门(例如昂贵的数据迁移、难以撤回的改动)要细看;双向门、爆炸半径小的可以快速浏览。「要不要读代码」不是二选一,而是一个从逐行读到抽查的刻度。",
+        "en": "Read one-way doors closely (costly data migrations, changes that are hard to undo); skim two-way doors with a small blast radius. Reading the code is not yes or no but a scale, from every line to spot checks."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2100895593618907402",
+          "date": "2026-09-18",
+          "quote": "Is it a one-way door, or a two-way door?",
+          "quote_zh": "这是单向门,还是双向门?"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2100895593618907402",
+          "date": "2026-09-18",
+          "quote": "Helps you apply your precious review time where it's actually needed.",
+          "quote_zh": "帮你把宝贵的评审时间花在真正需要的地方。"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2073711736838918436",
+          "date": "2026-07-05",
+          "quote": "the real decision isn't binary, it's a scale",
+          "quote_zh": "真正的选择不是二元的,而是一个刻度"
+        }
+      ],
+      "evidence": "Direct"
+    },
+    {
+      "id": "m.pr-review#s6",
+      "order": 6,
+      "title": {
+        "zh": "把评审意见沉淀成规则",
+        "en": "Turn review comments into rules"
+      },
+      "since": "2024",
+      "how": {
+        "zh": "个人层面:为提交 PR 列一份清单,并不断改进它。团队层面:定期让 agent 汇总 PR 评审评论,提议更新 CODING_STANDARDS.md,让同样的意见下次由自动评审提出。",
+        "en": "For yourself: keep a checklist for submitting PRs and keep improving it. For the team: have an agent collect PR review comments now and then and propose updates to CODING_STANDARDS.md, so automated review raises the same point next time."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/1791367246322757641",
+          "date": "2024-05-17",
+          "quote": "Just write a list of things you do every time you submit a PR, then iterate on it over time.",
+          "quote_zh": "把每次提交 PR 都要做的事写成清单,然后不断迭代。"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2107077843859513769",
+          "date": "2026-10-05",
+          "quote": "Makes your PR comments inform the code going forward.",
+          "quote_zh": "让你的 PR 评论影响今后的代码。"
+        }
+      ],
+      "evidence": "Direct"
+    }
+  ],
+  "examples": [
+    {
+      "origin": "site",
+      "title": {
+        "zh": "本站示例:一个按三段结构写的 PR 正文",
+        "en": "Our example: a PR body in three parts"
+      },
+      "lang": "markdown",
+      "body": {
+        "zh": "## Summary\n```text\nsaveDraft\n  if content unchanged -> return cached\n  write -> return fresh\n```\n## Evidence\n- Before: `saves twice on double click` 测试失败\n- After: 同一测试通过\n## Merge Danger\n**Door:** two-way(纯前端逻辑,可直接 revert)\n**Blast Radius:** 草稿保存",
+        "en": "## Summary\n```text\nsaveDraft\n  if content unchanged -> return cached\n  write -> return fresh\n```\n## Evidence\n- Before: `saves twice on double click` fails\n- After: the same test passes\n## Merge Danger\n**Door:** two-way (front-end logic only, revert directly)\n**Blast Radius:** draft saving"
+      },
+      "license_ref": {
+        "zh": "结构参考 mattpocock/skills 的 pr 技能(MIT,Copyright (c) 2026 Matt Pocock);内容为本站自写",
+        "en": "Structure based on the pr skill in mattpocock/skills (MIT, Copyright (c) 2026 Matt Pocock); content is ours"
+      }
+    },
+    {
+      "origin": "link-only",
+      "title": {
+        "zh": "从慢查询告警到人类评审的 agent 循环",
+        "en": "The agent loop from a slow-query alert to human review"
+      },
+      "url": "https://x.com/mattpocockuk/status/2091919592150995285"
+    }
+  ],
+  "pitfalls": [
+    {
+      "text": {
+        "zh": "为了小事拒绝 PR:拒绝本身会损耗士气和速度。",
+        "en": "Rejecting a PR over small things: the rejection itself costs morale and speed."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/1308743528521048064",
+          "date": "2020-09-23",
+          "quote": "Rejecting a PR comes at a cost - in morale and velocity.",
+          "quote_zh": "拒绝一个 PR 是有代价的:士气和速度。"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/1668578375156346880",
+          "date": "2023-06-13",
+          "quote": "I wouldn't reject a PR containing it.",
+          "quote_zh": "我不会因为它而拒绝一个 PR。"
+        }
+      ],
+      "evidence": "Direct"
+    },
+    {
+      "text": {
+        "zh": "直接用模型默认写出的 PR 正文。",
+        "en": "Shipping the PR body a model writes by default."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2100521948786667822",
+          "date": "2026-09-17",
+          "quote": "IMO every model/harness I've seen creates garbage PR bodies",
+          "quote_zh": "在我看来,我见过的每个模型/harness 写出的 PR 正文都很糟。"
+        }
+      ],
+      "evidence": "Direct"
+    },
+    {
+      "text": {
+        "zh": "只依赖自动评审,或者只依赖人类评审。",
+        "en": "Relying only on automated review, or only on human review."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2093433213347581965",
+          "date": "2026-08-28",
+          "quote": "You should still do human review",
+          "quote_zh": "你仍然应该做人类评审"
+        }
+      ],
+      "evidence": "Direct"
+    },
+    {
+      "text": {
+        "zh": "把「不要做 X」写成给 agent 的否定指令。评审会把否定指令变成可以检查的肯定标准。",
+        "en": "Writing \"don't do X\" as a negative instruction for the agent. Review turns negative instructions into positive standards that can be checked."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2082886149333258415",
+          "date": "2026-07-30",
+          "quote": "LLM's are notoriously bad at following negative instructions",
+          "quote_zh": "LLM 出了名地不擅长遵守否定指令"
+        }
+      ],
+      "evidence": "Direct"
+    },
+    {
+      "text": {
+        "zh": "产出的代码太多。他在考虑让评审持续削减代码量。",
+        "en": "Producing too much code. He is considering review that keeps cutting the amount of code."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2094500508224409852",
+          "date": "2026-08-31",
+          "quote": "Starting to wonder if the smartest way to reduce slop is just to produce less code",
+          "quote_zh": "开始怀疑减少 slop 最聪明的办法就是少产出代码"
+        }
+      ],
+      "evidence": "Direct"
+    }
+  ],
+  "evolution": [
+    {
+      "period": "2020–2024",
+      "change": "first",
+      "stance": {
+        "zh": "人类团队阶段:PR 是协作单元。要小、要便宜(写脚本加快提 PR)、不要为小事拒绝、类型检查作为合并门槛、自己有一份提交清单。",
+        "en": "Human teams: the PR is the unit of collaboration. Keep it small and cheap (a script to open PRs faster), don't reject over small things, make the type check a merge gate, keep your own submit checklist."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/1338901114758909952",
+          "date": "2020-12-15"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/1308743528521048064",
+          "date": "2020-09-23"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/1611489271487123487",
+          "date": "2023-01-06"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/1791367246322757641",
+          "date": "2024-05-17"
+        }
+      ]
+    },
+    {
+      "period": "2025",
+      "change": "refine",
+      "stance": {
+        "zh": "background agents 出现后,他觉得多年优化 CI、评审 PR 的经验正好派上用场;同时强调不会读代码会严重受限。",
+        "en": "Once background agents arrive, he finds years of tuning CI and reviewing PRs pay off, and stresses that not being able to read code is a serious limit."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/1940009743986098534",
+          "date": "2025-07-01"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/1914232878298263571",
+          "date": "2025-04-21"
+        }
+      ]
+    },
+    {
+      "period": "2026-04–2026-07",
+      "change": "refine",
+      "stance": {
+        "zh": "开始怀疑 PR 这种形式本身:转介 GitHub 演讲称 PR \"no longer fit for purpose\",设想用 feature flag 作为替代;把人类评审看作 agent 产出之后的另一个队列;认为读代码是一个刻度。",
+        "en": "He questions the PR as a form: he passes on a GitHub talk arguing the PR has stopped doing its job, floats feature flags as an alternative, sees human review as another queue after agent output, and treats reading code as a scale."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2048494972907721139",
+          "date": "2026-04-26",
+          "quote": "the PR is no longer fit for purpose",
+          "quote_zh": "PR 已经不再适合它的用途"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2056263621294866499",
+          "date": "2026-05-18"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2064341831437975843",
+          "date": "2026-06-09"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2073711736838918436",
+          "date": "2026-07-05"
+        }
+      ]
+    },
+    {
+      "period": "2026-08–2026-10",
+      "change": "refine",
+      "current": true,
+      "stance": {
+        "zh": "PR 仍然保留,但要为人类评审优化。规范交给自动评审(CODING_STANDARDS.md + /code-review),正文用 /pr 三段结构,按合并风险分配评审精力,用 /retro 把评审意见沉淀为规则。他在 AI Engineer Paris 的演讲题目是 \"Fixing The PR Bottleneck\"。",
+        "en": "The PR stays but is tuned for human review: standards go to automated review (CODING_STANDARDS.md plus /code-review), the body follows the three parts of /pr, review effort follows merge risk, and /retro turns review comments into rules. His AI Engineer Paris talk is called \"Fixing The PR Bottleneck\"."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2088256432265167185",
+          "date": "2026-08-14"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2100895593618907402",
+          "date": "2026-09-18"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2097693327889961091",
+          "date": "2026-09-09"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2107062474914550098",
+          "date": "2026-10-05"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2107077843859513769",
+          "date": "2026-10-05"
+        }
+      ]
+    }
+  ],
+  "related": [
+    "m.align-grill",
+    "m.feedback-loops",
+    "m.domain-language",
+    "m.afk-loops",
+    "m.testing-tdd"
+  ],
+  "site_pages": [
+    "review-and-pr",
+    "standards-and-checks",
+    "decisions-and-retrospectives"
+  ],
+  "repos": [
+    {
+      "url": "https://github.com/mattpocock/skills",
+      "license": "MIT",
+      "reuse": "mit-with-notice"
+    }
+  ],
+  "sources_count": {
+    "keyword_hits": 108,
+    "curated": 37
+  },
+  "evidence": "Direct",
+  "date_first": "2020-09-23",
+  "date_last": "2026-10-05",
+  "status": "draft",
+  "updated": "2026-10-28"
+}

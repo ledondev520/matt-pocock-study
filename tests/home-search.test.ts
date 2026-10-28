@@ -1,7 +1,7 @@
 import { expect, it } from 'vitest'
 import { fold, localSource, searchItems, type SearchItem } from '../src/lib/search'
 import { agentPrompt } from '../src/lib/agent'
-import { interimSource, searchIndex, todayItems } from '../scripts/learn/source'
+import { interimSource, learnSource, searchIndex, todayItems } from '../scripts/learn/source'
 import { dropCounts, withoutCounts } from '../scripts/kb/counts'
 import type { KbEntry } from '../scripts/kb/feed'
 import type { PageSummary } from '../src/lib/content'
@@ -38,12 +38,46 @@ it('the local source loads each language index once, on first use', async () => 
   fail = false
   expect((await flaky.search('需求', 'zh')).length).toBe(2)
 })
+it('returns the best passage per method while keeping notes and separate knowledge entries', () => {
+  const passages: SearchItem[] = Array.from({ length: 12 }, (_, i) => ({ kind: 'step', title: 'Review', text: i === 9 ? 'specific issue' : 'General advice', href: `/en/methods/pr-review#s${i + 1}` }))
+  const note: SearchItem = { kind: 'note', title: 'Review & PR', text: 'Evidence', href: '/en/review-and-pr' }
+  const results = searchItems([...passages, note], 'review')
+  expect(results.map(r => r.href)).toEqual(['/en/methods/pr-review#s1', note.href])
+  expect(searchItems(passages, 'specific')[0]?.href).toBe('/en/methods/pr-review#s10')
+  expect(searchItems(items, '需求').map(i => i.href)).toEqual(['/zh/knowledge#a', '/zh/review-and-pr'])
+  expect(searchItems([{ ...items[0]!, href: '/zh/knowledge#b' }, items[0]!], '规格再')).toHaveLength(2)
+})
 it('the agent prompt is ready to paste: full llms.txt address, no instructions or placeholders', () => {
   const site = 'https://matt.withkeya.com'
-  expect(agentPrompt('zh', site)).toContain('https://matt.withkeya.com/zh/llms.txt')
+  expect(agentPrompt('zh', site)).toContain('https://matt.withkeya.com/llms.txt')
   expect(agentPrompt('en', site)).toContain('https://matt.withkeya.com/llms.txt')
   for (const lang of ['zh', 'en'] as const) expect(agentPrompt(lang, site)).not.toMatch(/替换|换掉|说话就行|swap|replace|placeholder|\{|\}|<|>|…/i)
   expect(agentPrompt('en', site)).not.toMatch(/[\u3000-\u9fff]/)
+})
+it('uses all methodologies for today and search, with localized step links and notes', () => {
+  const pages = [{ lang: 'en', slug: 'review-and-pr', title: 'Review and PRs', subtitle: 'Review', summary: 'Two axes.' }] as PageSummary[]
+  const source = learnSource({ knowledge: [], pages })
+  for (const lang of ['zh', 'en'] as const) {
+    const list = source.listMethodologies(lang)
+    expect(list).toHaveLength(31)
+    expect(list.every(m => m.href.startsWith(`/${lang}/methods/`))).toBe(true)
+    const review = source.getMethodology('pr-review', lang)!
+    expect(review.id).toBe('m.pr-review')
+    expect(review.steps.length).toBeGreaterThan(0)
+    expect(source.getMethodology('missing', lang)).toBeUndefined()
+    const today = todayItems(source, lang)
+    expect(today).toHaveLength(6)
+    expect(today.map(m => m.dateLast)).toEqual(today.map(m => m.dateLast).sort().reverse())
+    const index = searchIndex(source, lang)
+    expect(index.some(c => c.kind === 'overview' && c.href === `/${lang}/methods/pr-review`)).toBe(true)
+    expect(index.some(c => c.kind === 'step' && c.href === `/${lang}/methods/pr-review#s1`)).toBe(true)
+    expect(index.every(c => c.href.startsWith(`/${lang}/`))).toBe(true)
+    expect(index.map(c => c.text).join('\n')).not.toMatch(/\bMIT\b/)
+    if (lang === 'en') {
+      expect(index).toContainEqual({ kind: 'note', title: 'Review and PRs', text: 'Review Two axes.', href: '/en/review-and-pr' })
+      expect(index.map(c => c.title + c.text).join('\n')).not.toMatch(/[\u3000-\u9fff]/)
+    }
+  }
 })
 const entry = (id: string, date: string, title: string, text: string): KbEntry => ({ id, date, source: 'matt-notes', url: `https://x.com/mattpocockuk/status/${id}`, title, body: [{ text }] } as KbEntry)
 it('engagement counts are dropped from knowledge text at build', () => {

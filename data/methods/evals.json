@@ -1,0 +1,323 @@
+{
+  "id": "m.evals",
+  "domain": "llm-apps",
+  "title": {
+    "zh": "Evals 方法论",
+    "en": "Evals"
+  },
+  "question": {
+    "zh": "LLM 应用的输出不确定,怎样知道改动让它变好还是变坏?",
+    "en": "LLM apps give uncertain output. How do you know whether a change made things better or worse?"
+  },
+  "claim": {
+    "text": {
+      "zh": "evals 就是概率系统的单元测试。把典型输入整理成数据集,用评分器打分,每次改提示词、模型或上下文后都跑一遍,用数据而不是感觉判断好坏。评分器优先用确定性的,其次用 LLM 当裁判,最后靠人工反馈;再用线上观测数据反过来补充 evals。",
+      "en": "Evals are unit tests for probabilistic systems. Collect typical inputs into a dataset, score them with scorers, and run them after every change to the prompt, model or context, so data rather than gut feel decides. Prefer deterministic scorers, then an LLM as judge, then human feedback; and feed production observations back into the evals."
+    },
+    "anchors": [
+      {
+        "url": "https://x.com/mattpocockuk/status/1858526867273199924",
+        "date": "2024-11-18",
+        "quote": "They're like unit tests, but for probabilistic systems.",
+        "quote_zh": "它们就像单元测试,只不过是给概率系统用的。"
+      },
+      {
+        "url": "https://www.aihero.dev/what-are-evals",
+        "date": "2024-11-18",
+        "quote": "Evals are the AI engineer's unit tests.",
+        "quote_zh": "Evals 是 AI 工程师的单元测试。"
+      }
+    ],
+    "evidence": "Direct"
+  },
+  "steps": [
+    {
+      "id": "m.evals#s1",
+      "order": 1,
+      "title": {
+        "zh": "认清为什么普通测试不够",
+        "en": "See why ordinary tests are not enough"
+      },
+      "how": {
+        "zh": "LLM 系统里没有「小改动」,一个词的大小写都可能改变输出;手工点一点演示也看不出整体变好还是变坏。所以需要一套可以反复跑的评估。",
+        "en": "In an LLM system there is no small change; even the case of one word can change the output, and clicking through a demo by hand won't tell you whether things got better or worse overall. You need evaluations you can run again and again."
+      },
+      "anchors": [
+        {
+          "url": "https://www.aihero.dev/what-are-evals",
+          "date": "2024-11-18",
+          "quote": "In AI systems, no change is small.",
+          "quote_zh": "在 AI 系统里,没有改动是小的。"
+        },
+        {
+          "url": "https://www.aihero.dev/what-are-evals",
+          "date": "2024-11-18",
+          "quote": "Manual QA Is Not Enough"
+        }
+      ],
+      "evidence": "Direct",
+      "since": "2024"
+    },
+    {
+      "id": "m.evals#s2",
+      "order": 2,
+      "title": {
+        "zh": "先用确定性评分器",
+        "en": "Start with deterministic scorers"
+      },
+      "how": {
+        "zh": "能写成通过/失败规则的就写成规则,例如输出格式是否合法、是否包含必需字段、长度是否超限、是否调用了某个工具。这类评估运行快、结果稳定、面向开发者,应该最先写,也最适合放进 CI 里每次都跑。",
+        "en": "Anything that can be a pass/fail rule becomes a rule: is the output format valid, are required fields present, is it within length, did it call a given tool. These run fast, give stable results and are aimed at developers; write them first, and run them in CI every time."
+      },
+      "anchors": [
+        {
+          "url": "https://www.aihero.dev/three-types-of-evals",
+          "date": "2024-11-26",
+          "quote": "Deterministic evals are evals that return a pass/fail result.",
+          "quote_zh": "确定性 evals 是返回通过/失败结果的 evals。"
+        }
+      ],
+      "evidence": "Direct",
+      "since": "2024"
+    },
+    {
+      "id": "m.evals#s3",
+      "order": 3,
+      "title": {
+        "zh": "确定性做不到时,用 LLM 当裁判",
+        "en": "When determinism can't do it, use an LLM as judge"
+      },
+      "how": {
+        "zh": "让另一个模型按标准评判输出,并让它返回文本枚举(例如「好/一般/差」),再由代码换算成分数,不要让它直接打数字分。裁判不通过的时候,通常就该由人来看一看。",
+        "en": "Have another model judge the output against criteria and return a text label (good / fair / poor) that code converts into a score, rather than asking it for a number. When the judge fails something, that is usually the time for a person to look."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/1887943661419130974",
+          "date": "2025-02-07",
+          "quote": "LLM's are bad at numeric scales, so we ask it to return a text enum which we then convert to a scale.",
+          "quote_zh": "LLM 不擅长数字量表,所以让它返回文本枚举,再换算成分数。"
+        },
+        {
+          "url": "https://www.aihero.dev/three-types-of-evals",
+          "date": "2024-11-26",
+          "quote": "it's more like a smoke test than a real test",
+          "quote_zh": "它更像冒烟测试,而不是真正的测试"
+        }
+      ],
+      "evidence": "Direct",
+      "since": "2024"
+    },
+    {
+      "id": "m.evals#s4",
+      "order": 4,
+      "title": {
+        "zh": "本地快速迭代:评估驱动开发",
+        "en": "Iterate fast locally: eval-driven development"
+      },
+      "how": {
+        "zh": "用本地运行、监听文件改动、带界面的评估工具,改一次提示词或工具描述就立刻看到分数变化;把模型调用缓存下来,让循环更快。这就是评估驱动开发。",
+        "en": "Use an eval tool that runs locally, watches files and has a UI, so every change to a prompt or tool description shows its effect on the score at once; cache model calls to speed up the loop. That is eval-driven development."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/1987873636821221400",
+          "date": "2025-11-10",
+          "quote": "It's an incredible dev loop that gives you instant feedback on how good your context engineering is.",
+          "quote_zh": "这是一个绝佳的开发循环,能即时反馈你的上下文工程做得好不好。"
+        },
+        {
+          "url": "https://www.aihero.dev/evalite-an-early-preview",
+          "date": "2024-12-02",
+          "quote": "Run my evals on a watch script",
+          "quote_zh": "用监听脚本运行我的 evals"
+        }
+      ],
+      "evidence": "Direct",
+      "since": "2024"
+    },
+    {
+      "id": "m.evals#s5",
+      "order": 5,
+      "title": {
+        "zh": "用线上数据补 evals,用 evals 代替黑箱调参",
+        "en": "Grow evals from production data; use evals instead of black-box tuning"
+      },
+      "how": {
+        "zh": "接入可观测性工具,把真实用户数据变成新的评估用例;有了 evals,就直接改提示词并用分数验证,不必用复杂的自动优化把提示词变成黑箱。",
+        "en": "Connect observability tools and turn real user data into new eval cases. With evals in place, change the prompt directly and check it with the scores, rather than handing the prompt to a complex automatic optimiser that turns it into a black box."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/1958909449134875001",
+          "date": "2025-08-22",
+          "quote": "user data makes evals better",
+          "quote_zh": "用户数据让 evals 更好"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/1958226059389809036",
+          "date": "2025-08-20",
+          "quote": "If you have evals that test your system, why run complex RL optimizations that obscure your prompt?",
+          "quote_zh": "如果你有测试系统的 evals,为什么还要跑让提示词变得晦涩的复杂 RL 优化?"
+        }
+      ],
+      "evidence": "Direct",
+      "since": "2025"
+    }
+  ],
+  "examples": [
+    {
+      "origin": "site",
+      "title": {
+        "zh": "本站示例:LLM 裁判的文本枚举",
+        "en": "Our example: text labels for an LLM judge"
+      },
+      "lang": "text",
+      "body": {
+        "zh": "裁判提示:判断回答是否引用了给定资料。\n只输出以下之一:YES / PARTIAL / NO\n代码换算:YES=1, PARTIAL=0.5, NO=0",
+        "en": "Judge prompt: decide whether the answer cites the given material.\nOutput exactly one of: YES / PARTIAL / NO\nIn code: YES=1, PARTIAL=0.5, NO=0"
+      }
+    }
+  ],
+  "pitfalls": [
+    {
+      "text": {
+        "zh": "只靠手工点几下演示来判断改动好坏。",
+        "en": "Judging a change by clicking through a demo a few times."
+      },
+      "anchors": [
+        {
+          "url": "https://www.aihero.dev/what-are-evals",
+          "date": "2024-11-18",
+          "quote": "It's easy to get an impressive AI demo working quickly.",
+          "quote_zh": "快速做出一个惊艳的 AI 演示很容易。"
+        }
+      ],
+      "evidence": "Direct"
+    },
+    {
+      "text": {
+        "zh": "让 LLM 裁判直接打数字分。",
+        "en": "Having an LLM judge give a numeric score directly."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/1887943661419130974",
+          "date": "2025-02-07"
+        }
+      ],
+      "evidence": "Direct"
+    },
+    {
+      "text": {
+        "zh": "以为 skill 或 agent 行为很容易评估。他自己也承认这很难。",
+        "en": "Thinking skills or agent behaviour are easy to evaluate. He admits himself that it is hard."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2073140298671091947",
+          "date": "2026-07-03",
+          "quote": "\"Evals on skills are hard\" is the understatement of the year",
+          "quote_zh": "「给 skills 做 evals 很难」是今年最轻描淡写的说法"
+        }
+      ],
+      "evidence": "Direct"
+    }
+  ],
+  "evolution": [
+    {
+      "period": "2024-11–2024-12",
+      "change": "first",
+      "stance": {
+        "zh": "把 evals 定义为 AI 工程师的单元测试,分三类;开始做基于 Vitest 的本地评估工具 Evalite。",
+        "en": "He defines evals as the AI engineer's unit tests, in three kinds, and starts Evalite, a local eval tool built on Vitest."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/1858526867273199924",
+          "date": "2024-11-18"
+        },
+        {
+          "url": "https://www.aihero.dev/what-are-evals",
+          "date": "2024-11-18"
+        },
+        {
+          "url": "https://www.aihero.dev/three-types-of-evals",
+          "date": "2024-11-26"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/1863559555939971537",
+          "date": "2024-12-02"
+        }
+      ]
+    },
+    {
+      "period": "2025-02–2025-09",
+      "change": "refine",
+      "stance": {
+        "zh": "LLM 裁判用文本枚举;evals 加可观测性构成技术栈;对「evals 已死」的说法持调侃态度。",
+        "en": "LLM judges return text labels; evals plus observability make up the stack; he jokes about claims that \"evals are dead\"."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/1887943661419130974",
+          "date": "2025-02-07"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/1958909449134875001",
+          "date": "2025-08-22"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/1964282381889585535",
+          "date": "2025-09-06"
+        }
+      ]
+    },
+    {
+      "period": "2025-10–2026-07",
+      "change": "refine",
+      "stance": {
+        "zh": "Evalite 进入 v1,推广评估驱动开发;之后转向 AI 编程,承认评估 skills 和模型很难。",
+        "en": "Evalite reaches v1 and he promotes eval-driven development; later, moving to AI coding, he admits evaluating skills and models is hard."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/1987620534428033252",
+          "date": "2025-11-09"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/1987873636821221400",
+          "date": "2025-11-10"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2073140298671091947",
+          "date": "2026-07-03"
+        }
+      ],
+      "current": true
+    }
+  ],
+  "related": [
+    "m.llm-app-build",
+    "m.testing-tdd",
+    "m.feedback-loops"
+  ],
+  "prerequisites": [],
+  "site_pages": [],
+  "repos": [
+    {
+      "url": "https://github.com/mattpocock/evalite",
+      "license": "MIT",
+      "reuse": "mit-with-notice"
+    }
+  ],
+  "sources_count": {
+    "keyword_hits": 79,
+    "curated": 12
+  },
+  "evidence": "Direct",
+  "date_first": "2024-11-18",
+  "date_last": "2026-07-03",
+  "status": "draft",
+  "updated": "2026-10-28"
+}

@@ -1,0 +1,388 @@
+{
+  "id": "m.align-grill",
+  "domain": "ai-coding",
+  "title": {
+    "zh": "写代码前对齐方法论:从 plan mode 到 grilling",
+    "en": "Aligning before code: from plan mode to grilling"
+  },
+  "question": {
+    "zh": "让 agent 动手写代码之前,怎样和它对齐要做的东西?",
+    "en": "Before an agent writes code, how do you get aligned with it on what to build?"
+  },
+  "claim": {
+    "text": {
+      "zh": "对齐的目的是和 agent 想到一块去,而不是产出一份没人读的计划。做法是让 agent 一轮轮地向你提问,只问当前可以决定的问题;等决定都定下来,再单独生成文档或计划。对齐的力度要和改动大小相称。",
+      "en": "The point of aligning is to share an understanding with the agent, not to produce a plan nobody reads. Have the agent question you round by round, asking only what can be decided now; once the decisions are settled, generate the document or plan as a separate step. Match the effort to the size of the change."
+    },
+    "anchors": [
+      {
+        "url": "https://x.com/mattpocockuk/status/2039806494435074555",
+        "date": "2026-04-02",
+        "quote": "The whole point of planning is to get on the same wavelength with the LLM",
+        "quote_zh": "规划的全部意义在于和 LLM 想到一块去"
+      }
+    ],
+    "evidence": "Direct"
+  },
+  "steps": [
+    {
+      "id": "m.align-grill#s1",
+      "order": 1,
+      "title": {
+        "zh": "先对齐,再写代码",
+        "en": "Align first, then write code"
+      },
+      "how": {
+        "zh": "动手之前先讨论需求、验证假设。这一步决定了产出的质量。",
+        "en": "Discuss requirements and test assumptions before building. This step sets the quality of what comes out."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/1977369846162534555",
+          "date": "2025-10-12",
+          "quote": "Claude Code with and without plan mode is night and day",
+          "quote_zh": "用不用 plan mode,Claude Code 判若两样"
+        },
+        {
+          "url": "https://www.aihero.dev/plan-mode-introduction",
+          "date": "2026-01-09"
+        }
+      ],
+      "evidence": "Direct",
+      "since": "2025"
+    },
+    {
+      "id": "m.align-grill#s2",
+      "order": 2,
+      "title": {
+        "zh": "让 agent 提问,而不是让它急着出计划",
+        "en": "Let the agent ask questions instead of rushing to a plan"
+      },
+      "how": {
+        "zh": "开一个新会话,让 agent 采访你,把问题逐个问清。要防止它跳过提问、直接写出一份很长的计划。",
+        "en": "Open a new session and have the agent interview you until each question is settled. Stop it from skipping the questions and writing a long plan straight away."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2039806494435074555",
+          "date": "2026-04-02",
+          "quote": "It creates a plan FAR too eagerly and usually asks you zero questions en route",
+          "quote_zh": "它太急于产出计划,一路上通常一个问题都不问"
+        },
+        {
+          "url": "https://www.aihero.dev/skills-grill-me",
+          "date": "2026-08-24"
+        }
+      ],
+      "evidence": "Direct",
+      "since": "2026"
+    },
+    {
+      "id": "m.align-grill#s3",
+      "order": 3,
+      "title": {
+        "zh": "按「前沿」成批提问",
+        "en": "Ask in batches along the frontier"
+      },
+      "how": {
+        "zh": "每一轮只问那些前提已经定下来的问题(前沿),一次把整个前沿问完。这样轮数少,也不会问到依赖未决事项的问题。需要调研的问题放到后台去查,不阻塞对话。",
+        "en": "Each round asks only the questions whose prerequisites are already decided (the frontier), and asks all of them at once. That means fewer rounds and no questions that hang on open issues. Questions that need research go to the background so they don't block the conversation."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2077715572788224003",
+          "date": "2026-07-16",
+          "quote": "Still only asks questions at the 'frontier' - i.e. those that don't depend on any other decisions",
+          "quote_zh": "仍然只问「前沿」的问题,也就是不依赖其他决定的问题"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2077715572788224003",
+          "date": "2026-07-16",
+          "quote": "Before: 13 questions, 13 rounds",
+          "quote_zh": "之前:13 个问题,13 轮"
+        }
+      ],
+      "evidence": "Direct",
+      "since": "2026"
+    },
+    {
+      "id": "m.align-grill#s4",
+      "order": 4,
+      "title": {
+        "zh": "有代码库时,对着代码和术语表对齐",
+        "en": "In a codebase, align against the code and the glossary"
+      },
+      "how": {
+        "zh": "在代码库里工作时,用会读代码、并把术语和决定记下来的那种拷问方式,让对齐的结果留在仓库里;和代码无关的想法才用纯对话的版本。",
+        "en": "When working in a codebase, use the kind of grilling that reads the code and records terms and decisions, so the result stays in the repository. Use the conversation-only version for ideas unrelated to code."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2054808143041908936",
+          "date": "2026-05-14",
+          "quote": "I’ve stopped using it for code.",
+          "quote_zh": "我已经不在写代码时用它了。"
+        },
+        {
+          "url": "https://www.aihero.dev/grill-with-docs",
+          "date": "2026-05-05"
+        }
+      ],
+      "evidence": "Direct",
+      "since": "2026"
+    },
+    {
+      "id": "m.align-grill#s5",
+      "order": 5,
+      "title": {
+        "zh": "构思和成稿分两步",
+        "en": "Separate thinking from writing"
+      },
+      "how": {
+        "zh": "先在一轮松散的拷问里对齐,再单独生成 PRD、文章或计划。不要一开始就让它写文档,糟糕的初稿会一直占着上下文。",
+        "en": "Align first in a loose grilling session, then generate the PRD, article or plan separately. Don't ask for the document up front: a weak first draft keeps occupying the context."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2046150634756272527",
+          "date": "2026-04-20",
+          "quote": "Ideating and creating the plan should be two separate steps",
+          "quote_zh": "构思和生成计划应当是两个独立的步骤"
+        }
+      ],
+      "evidence": "Direct",
+      "since": "2026"
+    },
+    {
+      "id": "m.align-grill#s6",
+      "order": 6,
+      "title": {
+        "zh": "对齐的力度和改动大小相称",
+        "en": "Match the alignment to the size of the change"
+      },
+      "how": {
+        "zh": "很小的改动不必拷问,直接写;中大型改动先拷问;规划失控时再升级成地图式规划。对齐太少和太频繁、太用力都是错。",
+        "en": "Tiny changes need no grilling, just write them; grill before medium and large changes; when planning gets out of hand, step up to map-style planning. Too little alignment is wrong, and so is aligning too often or too hard."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2108216899439894574",
+          "date": "2026-10-08",
+          "quote": "If the diff is tiny, DON'T grill",
+          "quote_zh": "如果 diff 很小,别做拷问"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2109973273924579720",
+          "date": "2026-10-13",
+          "quote": "You're aligning too often, and too hard",
+          "quote_zh": "你对齐得太频繁、太用力了"
+        }
+      ],
+      "evidence": "Direct",
+      "since": "2026"
+    }
+  ],
+  "examples": [
+    {
+      "origin": "site",
+      "title": {
+        "zh": "本站示例:一次拷问开场",
+        "en": "Our example: opening a grilling session"
+      },
+      "lang": "text",
+      "body": {
+        "zh": "(新会话)我想给编辑器加草稿自动保存。先别写代码也别写计划:每轮把当前能决定的问题一次问完,等我回答后再问下一轮,直到没有未决问题。",
+        "en": "(new session) I want to add draft autosave to the editor. No code and no plan yet: each round, ask every question that can be decided now; after I answer, ask the next round, until nothing is open."
+      }
+    }
+  ],
+  "pitfalls": [
+    {
+      "text": {
+        "zh": "让工具生成一份很长的计划,自己却不读。",
+        "en": "Having a tool produce a long plan and not reading it."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2039806494435074555",
+          "date": "2026-04-02",
+          "quote": "not to generate an asset you don't read",
+          "quote_zh": "而不是产出一份你根本不读的东西"
+        }
+      ],
+      "evidence": "Direct"
+    },
+    {
+      "text": {
+        "zh": "一开始就让 agent 写文档,它会急着成稿,不问关键问题。",
+        "en": "Asking the agent for a document at the start: it rushes to a draft and skips the key questions."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2046150634756272527",
+          "date": "2026-04-20",
+          "quote": "the LLM will be far too eager to create the doc and won't ask crucial questions.",
+          "quote_zh": "LLM 会过于急着写出文档,而不去问关键问题。"
+        }
+      ],
+      "evidence": "Direct"
+    },
+    {
+      "text": {
+        "zh": "在已有 agent 写的计划上接着拷问,而不是开一个新会话。",
+        "en": "Grilling on top of a plan an agent already wrote instead of opening a new session."
+      },
+      "anchors": [
+        {
+          "url": "https://www.aihero.dev/skills-grill-me",
+          "date": "2026-08-24"
+        }
+      ],
+      "evidence": "Direct"
+    },
+    {
+      "text": {
+        "zh": "不对齐就开工。",
+        "en": "Starting without aligning."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2109973273924579720",
+          "date": "2026-10-13",
+          "quote": "You're not aligning before you start work",
+          "quote_zh": "你在开工前没有对齐"
+        }
+      ],
+      "evidence": "Direct"
+    }
+  ],
+  "evolution": [
+    {
+      "period": "2025-10–2026-01",
+      "change": "first",
+      "stance": {
+        "zh": "plan mode 不可或缺;用规则让计划变短,并把未决问题列在末尾。",
+        "en": "Plan mode is essential; he uses rules to keep plans short and list open questions at the end."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/1977369846162534555",
+          "date": "2025-10-12"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/1978842333274620398",
+          "date": "2025-10-16"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2011092347254182097",
+          "date": "2026-01-13"
+        }
+      ]
+    },
+    {
+      "period": "2026-03",
+      "change": "refine",
+      "stance": {
+        "zh": "/grill-me 走红,他也在编程以外的事情上用它。",
+        "en": "/grill-me takes off, and he uses it outside programming too."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2036076132924100760",
+          "date": "2026-03-23",
+          "quote": "It's the most useful skill I've written",
+          "quote_zh": "这是我写过最有用的 skill"
+        }
+      ]
+    },
+    {
+      "period": "2026-04",
+      "change": "reverse",
+      "stance": {
+        "zh": "停用 plan mode,改为 grilling;构思和成稿分两步。aihero 的 plan mode 页首也加了更新说明。",
+        "en": "He stops using plan mode in favour of grilling, with thinking and writing as two steps. The aihero plan mode page gets an update note at the top."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2039806494435074555",
+          "date": "2026-04-02",
+          "quote": "I have also stopped using plan mode",
+          "quote_zh": "我也已经不用 plan mode 了"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2046150634756272527",
+          "date": "2026-04-20"
+        },
+        {
+          "url": "https://www.aihero.dev/plan-mode-introduction",
+          "date": "2026-01-09",
+          "quote": "I no longer use plan mode.",
+          "quote_zh": "我不再使用 plan mode。"
+        }
+      ]
+    },
+    {
+      "period": "2026-05–2026-07",
+      "change": "refine",
+      "stance": {
+        "zh": "写代码时改用会读代码、会记录术语的版本;按前沿成批提问,轮数大大减少。",
+        "en": "For coding he switches to the version that reads code and records terms, asking in batches along the frontier, which cuts the number of rounds a lot."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2054808143041908936",
+          "date": "2026-05-14"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2077715572788224003",
+          "date": "2026-07-16"
+        }
+      ]
+    },
+    {
+      "period": "2026-10",
+      "change": "refine",
+      "stance": {
+        "zh": "按改动大小决定要不要对齐;既要防止不对齐,也要防止对齐过度。",
+        "en": "Whether to align depends on the size of the change; guard against both not aligning and over-aligning."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2108216899439894574",
+          "date": "2026-10-08"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2109973273924579720",
+          "date": "2026-10-13"
+        }
+      ],
+      "current": true
+    }
+  ],
+  "related": [
+    "m.spec-tickets",
+    "m.domain-language",
+    "m.context-mgmt",
+    "m.pr-review"
+  ],
+  "prerequisites": [],
+  "site_pages": [
+    "alignment-and-prototypes"
+  ],
+  "repos": [
+    {
+      "url": "https://github.com/mattpocock/skills",
+      "license": "MIT",
+      "reuse": "mit-with-notice"
+    }
+  ],
+  "sources_count": {
+    "keyword_hits": 124,
+    "curated": 13
+  },
+  "evidence": "Direct",
+  "date_first": "2025-10-12",
+  "date_last": "2026-10-13",
+  "status": "draft",
+  "updated": "2026-10-28"
+}

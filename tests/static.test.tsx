@@ -3,7 +3,7 @@ import { readdir, readFile, stat, mkdtemp, writeFile, rm } from 'node:fs/promise
 import { tmpdir } from 'node:os'
 import { createRequire } from 'node:module'
 import { dirname, join, resolve } from 'node:path'
-import { beforeAll, afterAll, expect, it } from 'vitest'
+import { beforeAll, afterAll, expect, it, vi } from 'vitest'
 import { JSDOM } from 'jsdom'
 import { renderToString } from 'react-dom/server'
 import { staticPages } from '../scripts/static'
@@ -21,6 +21,11 @@ import { searchItems, type SearchItem } from '../src/lib/search'
 import registry from '../data/figures.json'
 import { collectCharacters, fontWeights } from '../scripts/fonts.mjs'
 import { parseFontFaces, type NotoFace } from './font-faces'
+import { methodSlugs } from './method-slugs'
+
+// Tests that read every built page grow with the page count (62 methodology pages); 5 s is too
+// little on CI runners.
+vi.setConfig({ testTimeout: 60000 })
 
 let model: Model
 const db = createIndex([])
@@ -33,6 +38,41 @@ beforeAll(async () => {
   model = JSON.parse(document.getElementById('site-data')!.textContent!)
 }, 130000)
 afterAll(() => db.close())
+for (const lang of ['zh', 'en'] as const) it(`${lang} timeline page data excludes originals, which have a separate payload`, async () => {
+  const html = await readFile(`dist/${lang}/timeline/index.html`, 'utf8')
+  const doc = new JSDOM(html).window.document
+  const embedded: Model = JSON.parse(doc.getElementById('site-data')!.textContent!)
+  const json = await readFile(`dist/${lang}/timeline.json`, 'utf8')
+  expect(JSON.parse(json)).toEqual(embedded)
+  expect(embedded.timeline!.length).toBeGreaterThan(0)
+  expect(embedded.currentPage).toBeUndefined()
+  expect(embedded.knowledge).toBeUndefined()
+  expect(json).not.toMatch(/"original"|x\.com/)
+  expect(doc.querySelector('main blockquote, main a[href*="x.com"]')).toBeNull()
+
+  const response = await app.request(`/${lang}/timeline-originals.json`)
+  expect(response.status).toBe(200)
+  expect(response.headers.get('Content-Type')).toContain('application/json')
+  const originals = await response.json() as Record<string, { url: string; quote?: string; note?: string; segments?: { text: string; href?: string }[] }>
+  expect(Object.keys(originals)).toEqual(embedded.timeline!.map(item => item.id))
+  const pages: Page[] = JSON.parse(await readFile('dist/content.json', 'utf8'))
+  const expected = pages.filter(page => page.lang === lang && page.slug !== 'corpus').flatMap(page => page.quotes)
+  const actual = Object.values(originals).filter(original => original.quote)
+  expect(actual.map(original => [original.url, original.quote, original.note]).sort()).toEqual(expected.map(quote => [quote.url, quote.text, quote.note]).sort())
+  for (const quote of expected) {
+    expect(JSON.stringify(embedded)).not.toContain(JSON.stringify(quote.text))
+    expect(doc.getElementById('root')!.textContent).not.toContain(quote.text)
+  }
+  if (lang === 'zh') {
+    const feed = JSON.parse(await readFile('data/knowledge-base.json', 'utf8'))
+    for (const entry of feed.entries) {
+      const original = originals[`note-${entry.id}`]
+      expect(original.url).toBe(entry.url)
+      // Source links survive the existing count-removal step applied to note prose.
+      expect(original.segments!.filter(segment => segment.href)).toEqual(entry.body.filter((segment: { href?: string }) => segment.href))
+    }
+  } else expect(JSON.stringify(originals)).not.toMatch(/\p{Script_Extensions=Han}/u)
+})
 it('build writes Brotli q11 and gzip siblings for all eligible dist files', async () => {
   const { brotliCompressSync, brotliDecompressSync, constants, gunzipSync } = await import('node:zlib')
   for (const file of await walk('dist', '')) {
@@ -70,7 +110,7 @@ async function resolves(href: string, base: string) {
   }
 }
 it('writes complete, localized HTML and absolute metadata for all routes', async () => {
-  for (const lang of ['zh', 'en']) for (const slug of ['', ...model.pages.filter(p => p.lang === lang).map(p => p.slug), 'knowledge', 'timeline']) {
+  for (const lang of ['zh', 'en']) for (const slug of ['', ...model.pages.filter(p => p.lang === lang).map(p => p.slug), 'knowledge', 'timeline', 'methods', ...methodSlugs.map(slug => `methods/${slug}`)]) {
     const path = `/${lang}${slug ? '/' + slug : ''}`
     const html = await readFile(`dist${path}/index.html`, 'utf8')
     const doc = new JSDOM(html).window.document
@@ -94,6 +134,32 @@ it('writes complete, localized HTML and absolute metadata for all routes', async
     if (page) {
       expect(doc.querySelector('h1')!.textContent).toBe(page.title)
       expect(doc.querySelector('meta[name="description"]')?.getAttribute('content')).toBe(page.summary)
+    }
+  }
+})
+it('generates and serves exactly 31 method pages in each language, preserving example attribution', async () => {
+  for (const lang of ['zh', 'en']) {
+    const entries = await readdir(`dist/${lang}/methods`, { withFileTypes: true })
+    expect(entries.filter(e => e.isDirectory()).map(e => e.name).sort()).toEqual(methodSlugs)
+    for (const slug of methodSlugs) {
+      const path = `/${lang}/methods/${slug}`
+      const response = await app.request(path)
+      expect(response.status, path).toBe(200)
+      const doc = new JSDOM(await response.text()).window.document
+      const article = doc.querySelector('.method-article')!
+      expect(article, path).not.toBeNull()
+      expect(doc.querySelector('.method-nav [aria-current="page"]')?.getAttribute('href'), path).toBe(path)
+      const twin = await readFile(`dist${path}.md`, 'utf8')
+      expect(markdownHeadings(twin, /^#{1,3} (.+)$/), path).toEqual([...article.querySelectorAll('h1, h2, h3')].map(h => plain(h.textContent ?? '')))
+      const data: Model = JSON.parse(await readFile(`dist${path}.json`, 'utf8'))
+      expect(data.methods?.current?.id, path).toBe(`m.${slug}`)
+      for (const example of data.methods?.current?.examples ?? []) {
+        if (!example.title?.zh.startsWith('本站示例:')) continue
+        const title = example.title[lang === 'zh' ? 'zh' : 'en']
+        expect(title, path).toMatch(lang === 'zh' ? /^本站示例:/ : /^Our example:/)
+        expect(plain(article.textContent ?? ''), path).toContain(plain(title))
+        expect(twin, path).toContain(title)
+      }
     }
   }
 })
@@ -165,7 +231,7 @@ it('every indexable page has a Markdown twin that is in llms.txt and sitemap.xml
     const links = doc.querySelectorAll('link[rel="alternate"][type="text/markdown"]')
     expect(links, `${file} links its .md`).toHaveLength(1)
     const href = links[0].getAttribute('href')!
-    expect(href, file).toMatch(/^\/(zh|en)\/[a-z0-9-]+\.md$/)
+    expect(href, file).toMatch(/^\/(zh|en)\/(?:methods\/)?[a-z0-9-]+\.md$/)
     const markdown = await readFile(`dist${href}`, 'utf8').catch(() => '')
     expect(markdown, `${file}: dist${href}`).toMatch(/^# \S/)
     expect(stripCode(markdown), `${href} has no HTML tags outside code`).not.toMatch(/<\/?(?:div|span|p|a|img|svg|section|aside|details|summary|table|tr|td|th|br|figure|script|style)\b[^>]*>/i)
@@ -295,7 +361,7 @@ it('home pages show a quiet copy line whose prompt is ready to paste', async () 
     const prompt = doc.getElementById('agent-prompt-text')!
     expect(prompt.hasAttribute('hidden'), `${file} keeps the prompt out of sight`).toBe(true)
     const text = prompt.textContent ?? ''
-    expect(text, file).toContain(lang === 'zh' ? 'https://matt.withkeya.com/zh/llms.txt' : 'https://matt.withkeya.com/llms.txt')
+    expect(text, file).toContain('https://matt.withkeya.com/llms.txt')
     expect(text, file).not.toMatch(instructionWords)
     const button = line.querySelector('button')!
     expect(button.getAttribute('type'), file).toBe('button')
@@ -336,12 +402,13 @@ it('sitemap hreflang pairs point at each other across languages', async () => {
   expect(entries.size).toBeGreaterThan(40)
   for (const [loc, links] of entries) {
     const html = await (await app.request(new URL(loc).pathname)).text()
-    const lang = new JSDOM(html).window.document.documentElement.lang
+    const page = new JSDOM(html).window.document
+    const lang = page.documentElement.lang
     const other = lang === 'zh' ? 'en' : 'zh'
     expect(Object.keys(links).sort(), loc).toEqual(['en', 'x-default', 'zh'])
     // x-default is the Chinese page, as in the page's own <head>.
     expect(links['x-default'], `${loc} x-default`).toBe(links.zh)
-    expect(new JSDOM(html).window.document.querySelector('link[hreflang="x-default"]')!.getAttribute('href'), `${loc} x-default matches <head>`).toBe(links['x-default'])
+    expect(page.querySelector('link[hreflang="x-default"]')!.getAttribute('href'), `${loc} x-default matches <head>`).toBe(links['x-default'])
     expect(links[lang], `${loc} names itself as ${lang}`).toBe(loc)
     expect(links[other], `${loc} twin is a different page`).not.toBe(loc)
     expect(entries.has(links[other]), `${loc} twin ${links[other]} is in the sitemap`).toBe(true)
@@ -746,6 +813,33 @@ it('the site notice appears once, on the licences page and its twin, next to the
 
 // Home: search box on top, then "what to learn today" (each item opens the entry it names), then the
 // notes index; nothing else in <main> besides the copy line.
+for (const lang of ['zh', 'en'] as const) {
+  it(`${lang} home Markdown has the same six methods as today's HTML`, async () => {
+    const doc = new JSDOM(await readFile(`dist/${lang}/index.html`, 'utf8')).window.document
+    const links = [...doc.querySelectorAll('.today h2 a')]
+    const expected = ['educator-career', 'state-modeling', 'align-grill', 'context-mgmt', 'domain-language', 'feedback-loops']
+      .map(slug => `/${lang}/methods/${slug}`)
+    expect(links.map(a => a.getAttribute('href'))).toEqual(expected)
+    const markdown = await readFile(`dist/${lang}/index.md`, 'utf8')
+    const today = markdown.split(`## ${lang === 'zh' ? '今天学什么' : 'What to learn today'}\n`)[1]?.split('\n## ')[0] ?? ''
+    expect([...today.matchAll(/\]\(([^)]+)\)/g)].map(match => match[1])).toEqual(expected.map(href => `${site()}${href}.md`))
+    for (const link of links) {
+      expect(today).toContain(`[${link.textContent}](${site()}${link.getAttribute('href')}.md)`)
+      expect(markdownText(today)).toContain(plain(link.closest('li')!.querySelector('p')!.textContent!))
+    }
+  })
+
+  it(`${lang} full text includes every method's complete Markdown body`, async () => {
+    const full = await readFile(lang === 'zh' ? 'dist/zh/llms-full.txt' : 'dist/llms-full.txt', 'utf8')
+    expect(methodSlugs).toHaveLength(31)
+    for (const slug of methodSlugs) {
+      const markdown = await readFile(`dist/${lang}/methods/${slug}.md`, 'utf8')
+      expect(markdown, slug).toMatch(/^# .+\n\n## /)
+      expect(full, `${lang}/${slug} includes its body, examples and source links`).toContain(markdown)
+    }
+  })
+}
+
 it('home pages lead with search and what to learn today, then the notes', async () => {
   for (const [file, lang] of [['dist/zh/index.html', 'zh'], ['dist/en/index.html', 'en'], ['dist/index.html', 'zh']] as const) {
     const doc = new JSDOM(await readFile(file, 'utf8')).window.document
@@ -758,7 +852,7 @@ it('home pages lead with search and what to learn today, then the notes', async 
     expect(items.length, file).toBeGreaterThan(0)
     for (const item of items) {
       const link = item.querySelector('h2 a')!
-      expect(link.getAttribute('href'), file).toMatch(lang === 'zh' ? /^\/zh\/knowledge#/ : /^https:\/\/x\.com\//)
+      expect(link.getAttribute('href'), file).toMatch(new RegExp(`^/${lang}/methods/[a-z0-9-]+$`))
     }
     // Every note page; the corpus index sits in the header navigation.
     expect(home.querySelectorAll('.home-notes a').length, file).toBe(model.pages.filter(p => p.lang === lang && p.slug !== 'corpus').length)
@@ -770,10 +864,10 @@ it('home pages lead with search and what to learn today, then the notes', async 
 it('builds a per-language search index that finds Chinese and English entries without word breaks', async () => {
   const zh: SearchItem[] = JSON.parse(await readFile('dist/search/zh.json', 'utf8'))
   const en: SearchItem[] = JSON.parse(await readFile('dist/search/en.json', 'utf8'))
-  expect(zh.some(item => item.kind === 'post') && zh.some(item => item.kind === 'note')).toBe(true)
+  expect(zh.some(item => item.kind === 'step') && zh.some(item => item.kind === 'note')).toBe(true)
   expect(en.every(item => !/[\u3000-\u9fff]/.test(item.title + item.text)), 'English index has no Chinese text').toBe(true)
   // A Chinese title fragment from the middle of a word is found; so is an English word.
-  const entry = zh.find(item => item.kind === 'post')!
+  const entry = zh.find(item => item.kind === 'overview')!
   const fragment = [...entry.title].slice(1, 4).join('')
   expect(searchItems(zh, fragment).map(item => item.href)).toContain(entry.href)
   expect(searchItems(en, 'review').some(item => item.href === '/en/review-and-pr')).toBe(true)

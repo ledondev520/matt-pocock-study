@@ -1,0 +1,90 @@
+{
+  "question": {
+    "zh": "TypeScript 里 enum、namespace 还用不用?interface 和 type 选哪个?什么时候可以用 any?",
+    "en": "In TypeScript, should you still use enum and namespace? interface or type? When is any acceptable?"
+  },
+  "claim.text": {
+    "zh": "优先写「带类型的 JavaScript」:少用 enum、namespace 这类 TS 独有、会生成运行时代码的特性,用 as const 对象或字面量联合代替;interface 与 type 的选择他前后改过几次,2023 年后的结论是默认 type、需要组合对象时用 interface extends 而不是 &;any 不是绝对禁区,但要知道自己为什么用。",
+    "en": "Prefer writing typed JavaScript: avoid TS-only features that generate runtime code, such as enum and namespace, and use as const objects or literal unions instead. His interface-versus-type advice changed a few times; since 2023 the conclusion is type by default, and interface extends rather than & when combining object types. any is not strictly off limits, but you should know why you are using it."
+  },
+  "steps.0.title": {
+    "zh": "用三条启发式判断一个特性:所见即所得、可移植、听维护者的",
+    "en": "Judge a feature with three heuristics: what you see is what you get, portable, listen to the maintainers"
+  },
+  "steps.0.how": {
+    "zh": "他给出的判断依据:写出来的代码要和输出的 JS 尽量一致,没有隐藏行为;代码要能在 Node 原生的「类型剥离」等环境里直接运行;维护者自己都抱怨的特性,就离远一点。enum 三条都不占优。",
+    "en": "His criteria: the code you write should match the emitted JS as closely as possible, with no hidden behaviour; the code should run directly in environments such as Node's native type stripping; and keep away from features the maintainers themselves complain about. enum loses on all three."
+  },
+  "steps.1.title": {
+    "zh": "enum 换成 as const 对象或联合类型",
+    "en": "Replace enum with an as const object or a union"
+  },
+  "steps.1.how": {
+    "zh": "需要一组命名常量时,用 as const 对象加派生出的联合类型;只需要值的集合时,Set 也是选项。需要每个成员带不同数据时,判别联合比 enum 更合适。唯一他会保留 enum 的场景是数值比较(例如日志级别大于 Debug)。",
+    "en": "For a set of named constants, use an as const object plus a derived union type; for just a collection of values, a Set is also an option. When each member carries different data, a discriminated union fits better than an enum. The one case where he keeps enum is numeric comparison (a log level greater than Debug)."
+  },
+  "steps.2.title": {
+    "zh": "namespace:不用;declare namespace 可以",
+    "en": "namespace: no; declare namespace: fine"
+  },
+  "steps.2.how": {
+    "zh": "运行时的 namespace 不再推荐;只做类型声明的 declare namespace(例如扩展 NodeJS.ProcessEnv)可以继续用。",
+    "en": "Runtime namespaces are no longer recommended; declare namespace, which only declares types (for example extending NodeJS.ProcessEnv), is still fine."
+  },
+  "steps.3.title": {
+    "zh": "interface vs type:默认 type,组合对象用 interface extends",
+    "en": "interface vs type: type by default, interface extends for combining objects"
+  },
+  "steps.3.how": {
+    "zh": "他的建议改过几次(见演变)。目前可执行的版本:日常默认用 type;需要把多个对象类型合并时,优先 interface extends 而不是交叉类型 &;注意 interface 的声明合并可能带来意外。",
+    "en": "His advice changed several times (see how the view changed). The current working version: use type by default; when merging several object types, prefer interface extends over the intersection &; watch out for surprises from interface declaration merging."
+  },
+  "steps.4.title": {
+    "zh": "any:能用类型参数或 unknown 就别用;在库内部可以接受",
+    "en": "any: avoid it when a type parameter or unknown works; acceptable inside libraries"
+  },
+  "steps.4.how": {
+    "zh": "函数参数写 any 时,先看能不能换成类型参数;外部数据(fetch、JSON.parse)用 unknown 接住再校验——他的 MIT 库 ts-reset 就是把这些返回值改成 unknown。库的内部实现里为了让使用者类型更好用而写 as any,他认为可以接受。",
+    "en": "When a function parameter is any, first see whether a type parameter can replace it; catch outside data (fetch, JSON.parse) as unknown and validate it. His MIT library ts-reset changes those return values to unknown. Inside a library's implementation, writing as any to give users better types is acceptable in his view."
+  },
+  "examples.0.title": {
+    "zh": "本站示例:enum → as const 对象",
+    "en": "Our example: enum to an as const object"
+  },
+  "examples.0.body": {
+    "zh": "// 之前\n// enum Status { Active = \"active\", Archived = \"archived\" }\n\n// 之后:输出的 JS 和写的一样,能在类型剥离环境直接运行\nconst Status = { Active: \"active\", Archived: \"archived\" } as const;\ntype Status = (typeof Status)[keyof typeof Status]; // \"active\" | \"archived\"",
+    "en": "// before\n// enum Status { Active = \"active\", Archived = \"archived\" }\n\n// after: the emitted JS matches what you wrote and runs under type stripping\nconst Status = { Active: \"active\", Archived: \"archived\" } as const;\ntype Status = (typeof Status)[keyof typeof Status]; // \"active\" | \"archived\""
+  },
+  "examples.1.title": {
+    "zh": "ts-reset:让 JSON.parse、fetch().json() 返回 unknown",
+    "en": "ts-reset: make JSON.parse and fetch().json() return unknown"
+  },
+  "pitfalls.0.text": {
+    "zh": "在会被 Node 原生类型剥离运行的代码里用 enum、运行时 namespace——它们不是纯类型语法,无法被直接剥离。",
+    "en": "Using enum or runtime namespaces in code that Node runs with native type stripping: they are not pure type syntax and cannot simply be stripped."
+  },
+  "pitfalls.1.text": {
+    "zh": "把 any 当作绝对禁区或万能钥匙:两种极端都不对。",
+    "en": "Treating any as strictly forbidden or as a master key: both extremes are wrong."
+  },
+  "pitfalls.2.text": {
+    "zh": "引用他 2022 年的 interface vs type 视频而不看 2025 年的更正。",
+    "en": "Citing his 2022 interface vs type video without his 2025 correction."
+  },
+  "evolution.0.stance": {
+    "zh": "interface vs type:「随你喜欢」;开始推荐 as const 代替 enum。",
+    "en": "interface vs type: \"whichever you like\"; he starts recommending as const over enum."
+  },
+  "evolution.1.stance": {
+    "zh": "声明合并的风险足以让人默认 type;11 月总结为「选 type,组合选 extends」;承认 enum 在数值比较上有用。",
+    "en": "The risk of declaration merging is enough to default to type; in November he sums up as \"choose type, extends for combining\"; he grants enum is useful for numeric comparison."
+  },
+  "evolution.2.stance": {
+    "zh": "Node 原生运行 TS 只支持可剥离的类型语法,进一步反对 enum 和运行时 namespace。",
+    "en": "Node runs TS natively but only supports strippable type syntax, a further case against enum and runtime namespaces."
+  },
+  "evolution.3.stance": {
+    "zh": "用三条启发式解释为何不喜欢 enum;更正 2022 年视频,认为关键是 & 与 interface extends 的对比,后者更好。",
+    "en": "He explains his dislike of enum with three heuristics and corrects the 2022 video: the real comparison is & versus interface extends, and the latter is better."
+  }
+}

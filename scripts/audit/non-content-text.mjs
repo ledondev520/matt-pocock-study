@@ -18,6 +18,10 @@ export const allowed = [
   '.article-lede', '.article-body', '.key-point', 'figure', '.kb-entry', '.corpus-record', '.intro-prose', '.licenses-page',
   // Timeline dates, learning text, lesson titles linking to their sections, and revealed originals.
   '.tl-meta time', '.tl-learned', 'a.tl-from', '.tl-original blockquote', '.tl-original > a.kb-source',
+  // Method claims, steps, attributed examples, short sourced quotes and dated stances.
+  '.methods-index .topic-card p', '.method-claim', '.method-how',
+  '.method-quote', '.method-source', '.method-example pre', '.method-pitfall',
+  '.method-period', '.method-stance', '.method-links a', '.method-related a',
   // Navigation.
   '.skip-link', 'header', 'nav', '.article-sidebar', '.page-toc', '.corpus-page-intro > a', '.hero-actions',
   // Search and its states, the copy line (hint, button, the prompt shown for a manual copy), and in

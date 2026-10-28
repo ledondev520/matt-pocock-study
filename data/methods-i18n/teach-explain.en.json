@@ -1,0 +1,94 @@
+{
+  "question": {
+    "zh": "怎样把一个技术概念讲清楚,让读者真正理解而不只是记住?",
+    "en": "How do you explain a technical concept so that readers truly understand it rather than just memorise it?"
+  },
+  "claim.text": {
+    "zh": "讲清一个概念,关键是给读者一个新的心智模型,而不是罗列规则:从读者此刻卡住的具体问题出发,一次只讲一个点,用一个恰到好处的例子,避开专家行话;练习时先抛问题、让人自己试,再给解答。",
+    "en": "The key to explaining a concept is giving the reader a new mental model rather than a list of rules: start from the concrete problem the reader is stuck on right now, cover one point at a time, use one well-chosen example, and avoid expert jargon. For practice, pose the problem first, let people try, then show the solution."
+  },
+  "steps.0.title": {
+    "zh": "从读者正卡住的地方讲起",
+    "en": "Start where the reader is stuck"
+  },
+  "steps.0.how": {
+    "zh": "选题从读者真实遇到的问题出发:一条看不懂的报错、一个反直觉的行为。他的「stumble upon」文章就是瞄准人们恰好在搜索的那个问题。",
+    "en": "Pick topics from problems readers really hit: an error message they can't read, a counter-intuitive behaviour. His \"stumble upon\" articles aim at exactly the question people happen to be searching for."
+  },
+  "steps.1.title": {
+    "zh": "给一个心智模型,而不是一串规则",
+    "en": "Give a mental model, not a list of rules"
+  },
+  "steps.1.how": {
+    "zh": "与其列出「这种情况会怎样、那种情况会怎样」,不如找到背后那条能推出所有情况的规律。比如「TS 知道一个值不会变,就推断成字面量」;「有类型依赖时才用泛型」。他认为一个视频受欢迎,往往是因为给了新的心智模型。",
+    "en": "Rather than listing what happens in this case and that case, find the underlying rule that produces all of them. For example, \"when TS knows a value won't change, it infers a literal\"; \"use generics only when there is a type dependency\". He thinks a video is popular often because it gave a new mental model."
+  },
+  "steps.2.title": {
+    "zh": "去掉行话,用读者的词",
+    "en": "Drop the jargon, use the reader's words"
+  },
+  "steps.2.how": {
+    "zh": "专家喜欢精确的术语(assignable、identifier),但大多数开发者不用集合和语法树思考,一碰到行话就被弹开。讲解时先用读者的话说清楚,再引出正式术语。",
+    "en": "Experts like precise terms (assignable, identifier), but most developers don't think in sets and syntax trees and bounce off jargon. Explain in the reader's words first, then bring in the formal term."
+  },
+  "steps.3.title": {
+    "zh": "找到那个完美的例子",
+    "en": "Find the perfect example"
+  },
+  "steps.3.how": {
+    "zh": "一个恰到好处的例子胜过大段解释。花时间找一个能一眼看出问题和答案的例子,比写更多文字更值得。",
+    "en": "A well-chosen example beats a long explanation. Time spent finding an example where the problem and the answer are obvious at a glance is worth more than writing more text."
+  },
+  "steps.4.title": {
+    "zh": "先给问题,让人自己试,再给解答",
+    "en": "Problem first, let people try, then the solution"
+  },
+  "steps.4.how": {
+    "zh": "他的课程练习采用 problem/solution 格式:先描述问题,让学习者自己动手,然后才展示他的解法——事先不教怎么做。他说这种做法效果非常好。AI 时代他把这个思路延伸为「lessons as prompts」:一节课就是一组可以交给 agent 的提示。",
+    "en": "His course exercises use a problem/solution format: describe the problem, let the learner work on it, and only then show his solution, without teaching how beforehand. He says this works very well. In the AI era he extends the idea to lessons as prompts: a lesson is a set of prompts you can hand to an agent."
+  },
+  "steps.5.title": {
+    "zh": "讲概念,不只是翻译结果",
+    "en": "Teach the concept, not just a translation of the output"
+  },
+  "steps.5.how": {
+    "zh": "他的报错翻译工具后来改了思路:不再只是把报错「翻译」成白话,而是给出上下文提示,并链接到解释背后概念的资料,让人学会概念本身。",
+    "en": "His error-translation tool later changed approach: instead of only translating errors into plain words, it gives contextual hints and links to material explaining the concept behind them, so people learn the concept itself."
+  },
+  "examples.0.title": {
+    "zh": "本站示例:一条 tip 的结构",
+    "en": "Our example: the structure of one tip"
+  },
+  "examples.0.body": {
+    "zh": "1. 问题(1 句):为什么 Object.keys 返回 string[] 而不是 key 的联合?\n2. 心智模型(1–2 句):TS 的对象类型是「至少有这些键」,运行时可能更多。\n3. 例子(≤10 行代码):一个多出键的对象传进函数。\n4. 结论 + 做法(1 句)。",
+    "en": "1. Problem (1 sentence): why does Object.keys return string[] and not a union of the keys?\n2. Mental model (1-2 sentences): a TS object type means \"has at least these keys\"; at runtime there may be more.\n3. Example (<=10 lines of code): an object with an extra key passed into a function.\n4. Conclusion + what to do (1 sentence)."
+  },
+  "examples.1.title": {
+    "zh": "他的「Ultimate TypeScript Thread」(2022)",
+    "en": "His \"Ultimate TypeScript Thread\" (2022)"
+  },
+  "pitfalls.0.text": {
+    "zh": "用专家的精确术语去讲给新手。",
+    "en": "Explaining to beginners with an expert's precise terms."
+  },
+  "pitfalls.1.text": {
+    "zh": "想在一份内容里同时做到「技巧够酷」「每一步都准确」「有趣简洁」——他认为只能三选二,要先决定取舍。",
+    "en": "Trying to make one piece cool, accurate at every step, and fun and concise all at once; he thinks you can only have two of three and must choose first."
+  },
+  "pitfalls.2.text": {
+    "zh": "以为要很聪明才能讲好;他的看法相反,关键是站在不懂的人的位置。",
+    "en": "Thinking you must be very clever to explain well; his view is the opposite: the key is putting yourself in the place of someone who doesn't know."
+  },
+  "evolution.0.stance": {
+    "zh": "「TypeScript Tip」系列:一条帖子讲一个点,配图示代码;强调心智模型;报错翻译成白话。",
+    "en": "The \"TypeScript Tip\" series: one point per post with illustrated code; mental models first; errors translated into plain words."
+  },
+  "evolution.1.stance": {
+    "zh": "课程练习采用 problem/solution 格式;报错工具从「翻译」转向「讲背后的概念」;写面向搜索场景的文章。",
+    "en": "Course exercises use the problem/solution format; the error tool moves from translating to explaining the concept behind it; articles written for what people search for."
+  },
+  "evolution.2.stance": {
+    "zh": "用「类型依赖」等新说法解释老问题;AI 时代提出 lessons as prompts;继续强调好例子和避开行话。",
+    "en": "New framings such as type dependencies for old questions; lessons as prompts in the AI era; still good examples and no jargon."
+  }
+}

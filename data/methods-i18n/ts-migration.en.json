@@ -1,0 +1,54 @@
+{
+  "title": {
+    "zh": "迁移到 TypeScript 方法论",
+    "en": "Migrating to TypeScript"
+  },
+  "question": {
+    "zh": "把一个现有的 JavaScript 项目迁到 TypeScript,怎样才能真正迁完,又不拖垮功能开发?",
+    "en": "How do you move an existing JavaScript project to TypeScript all the way without dragging down feature work?"
+  },
+  "claim.text": {
+    "zh": "很多迁移失败,是因为一直没上线、阻塞了功能开发,或者上线了但到处是 any。做法是先定计划,按依赖顺序推进,拆成小 PR,和功能开发交织进行。",
+    "en": "Migrations fail when they never ship, block feature work, or ship full of any. Make a plan. Work through dependencies, use small PRs, and keep shipping features alongside the migration."
+  },
+  "steps.0.title": {
+    "zh": "先做计划,按依赖顺序迁移",
+    "en": "Plan first and migrate in dependency order"
+  },
+  "steps.0.how": {
+    "zh": "他的原则是「按依赖逐个推进」。落到操作上,可以先理清模块之间的依赖关系,从被依赖最多的底层开始,沿着依赖链一个一个迁;这样每迁完一个文件,它的类型就能马上被上层使用。",
+    "en": "His principle is to work through dependencies one by one. In practice, map the module dependencies and start with the lower-level modules others depend on. Move up the chain so each migrated file’s types are available to the layer above."
+  },
+  "steps.1.title": {
+    "zh": "小 PR,和功能开发交织",
+    "en": "Small PRs woven in with feature work"
+  },
+  "steps.1.how": {
+    "zh": "每次只迁一小块,单独提 PR,和正常的功能开发并行,不要搞一个长期冻结功能的大迁移分支。他提问时也列过另一种选择:用工具一次性改后缀、先用 any 兜底再慢慢清理;他没有给出明确的结论。",
+    "en": "Migrate one small piece at a time in its own PR, alongside normal feature work, rather than a long-running migration branch that freezes features. When asking the question he also listed the other option: rename every file at once with a tool, cover gaps with any and clean up slowly; he gave no clear verdict."
+  },
+  "steps.2.title": {
+    "zh": "别让 CI 必须全绿成为迁移的拦路虎",
+    "en": "Don't let an all-green CI block the migration"
+  },
+  "steps.2.how": {
+    "zh": "迁移过程中,如果要求 CI 一直全绿,会让人很痛苦。他希望只拦住「PR 新引入的错误」;对应的做法是给存量错误设基线,只阻止新增的错误。",
+    "en": "Keeping all of CI green throughout a migration can be painful. He wants to block only errors introduced by the PR. Set a baseline for existing errors and prevent new ones."
+  },
+  "pitfalls.0.text": {
+    "zh": "迁移一直不上线、阻塞功能开发数周,或者上线了却到处是 any。",
+    "en": "The migration never ships and blocks feature work for weeks, or ships full of any."
+  },
+  "pitfalls.1.text": {
+    "zh": "把「CI 全绿」当作迁移成功的前提。",
+    "en": "Treating an all-green CI as a precondition for a successful migration."
+  },
+  "evolution.0.stance": {
+    "zh": "以提问和设想为主:构想过迁移 CLI,在「一次性改后缀」和「逐文件小 PR」之间征求意见;2023-05 给出唯一一条明确的方法帖。",
+    "en": "Mostly questions and ideas: he sketched a migration CLI and asked for opinions on renaming everything at once versus small per-file PRs; in 2023-05 he posted the one clear method post."
+  },
+  "evolution.1.stance": {
+    "zh": "之后只有零星提及:如何从非 strict 迁到 strict(提问)、设想做一个 JS→TS 迁移 skill。没有新的系统性观点。",
+    "en": "After that only scattered mentions: how to move from non-strict to strict (a question), and the idea of a JS-to-TS migration skill. No new systematic view."
+  }
+}

@@ -166,3 +166,20 @@ test('quote exemption rejects fake fences, repeated fields, overlong text and mi
   }
   assert.equal(findRuns(`\`\`\`quote\ntext: ${words.slice(0, 30).join(' ')}\nurl: https://example.org\n\`\`\``, hashes)[0].allowed, true);
 });
+
+test('a methodology anchor quote is allowed only beside an http(s) url and within 25 words', async () => {
+  const quote = 'amber beacons carry distant echoes from gentle hills tonight';
+  const { hashes } = await buildSourceIndex([quote]);
+  const anchor = (fields) => `{\n  "anchors": [\n    {\n${fields.join(',\n')}\n    }\n  ]\n}\n`;
+  const linked = findRuns(anchor(['      "url": "https://x.com/mattpocockuk/status/1"', '      "date": "2026-01-01"', `      "quote": "${quote}"`]), hashes);
+  assert.equal(linked.length, 1);
+  assert.equal(linked[0].allowed, true);
+  const unlinked = findRuns(anchor(['      "date": "2026-01-01"', `      "quote": "${quote}"`]), hashes);
+  assert.equal(unlinked[0].allowed, false);
+  // The same words in another field (prose), even next to a url, are not a quote.
+  const prose = findRuns(anchor(['      "url": "https://x.com/mattpocockuk/status/1"', `      "zh": "${quote}"`]), hashes);
+  assert.equal(prose[0].allowed, false);
+  const long = `${quote} ${'word '.repeat(20).trim()}`;
+  const { hashes: longHashes } = await buildSourceIndex([long]);
+  assert.equal(findRuns(anchor(['      "url": "https://x.com/mattpocockuk/status/1"', `      "quote": "${long}"`]), longHashes)[0].allowed, false);
+});

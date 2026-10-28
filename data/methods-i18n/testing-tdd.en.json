@@ -1,0 +1,86 @@
+{
+  "title": {
+    "zh": "测试与 TDD 方法论",
+    "en": "Testing and TDD"
+  },
+  "question": {
+    "zh": "怎样让 agent 写出真正有用的测试,而不是一堆凑数的测试?",
+    "en": "How do you get an agent to write tests that are actually useful rather than a pile of filler?"
+  },
+  "claim.text": {
+    "zh": "先写失败的测试:按垂直切片做「红→绿→重构」,一次只做一个行为。测试只放在事先约定好的公共边界上,验证真实行为,不重复描述实现。测试和代码一样是要长期维护的负债,宁少而精。",
+    "en": "Write the failing test first: red, green, refactor in vertical slices, one behaviour at a time. Put tests only on public boundaries agreed in advance, check real behaviour, and don't restate the implementation. Tests, like code, are a liability you maintain for a long time, so fewer and better."
+  },
+  "steps.0.title": {
+    "zh": "先约定测试接缝",
+    "en": "Agree on the test seams first"
+  },
+  "steps.0.how": {
+    "zh": "写测试之前,先列出准备在哪些公共边界(接口、请求/响应契约)上测试,确认后再动手。测试精力有限,应该花在关键路径上。",
+    "en": "Before writing tests, list the public boundaries (interfaces, request/response contracts) you plan to test, confirm them, then start. Testing effort is limited and belongs on the critical paths."
+  },
+  "steps.1.title": {
+    "zh": "垂直切片:一次一个行为",
+    "en": "Vertical slices: one behaviour at a time"
+  },
+  "steps.1.how": {
+    "zh": "不要先把所有测试写完再写全部实现。每次写一个失败的测试,用刚好够的代码让它通过,再写下一个。批量写出的测试验证的是想象中的行为,不是观察到的行为。",
+    "en": "Don't write all the tests and then all the implementation. Write one failing test, add just enough code to pass it, then write the next. Tests written in bulk check imagined behaviour, not observed behaviour."
+  },
+  "steps.2.title": {
+    "zh": "测试验证行为,不复述实现",
+    "en": "Tests check behaviour, not a restatement of the implementation"
+  },
+  "steps.2.how": {
+    "zh": "测试应该在重构后依然成立。不要写只是把实现重新说一遍的「同义反复测试」,也不要只验证 mock;这类测试给不了任何信心。",
+    "en": "A test should still hold after a refactor. Don't write tautological tests that just repeat the implementation, and don't test only mocks; such tests give no confidence at all."
+  },
+  "steps.3.title": {
+    "zh": "把测试规则写进编码规范",
+    "en": "Put test rules into the coding standards"
+  },
+  "steps.3.how": {
+    "zh": "把「禁止同义反复测试」这类规则写进编码规范文件,让代码评审 skill 自动检查;评审 AI 写的 PR 时,把 TDD 过程作为证据之一。",
+    "en": "Write rules like \"no tautological tests\" into the coding standards file so the code review skill checks them automatically; when reviewing AI-written PRs, treat the TDD process as part of the evidence."
+  },
+  "steps.4.title": {
+    "zh": "多想集成测试,选对工具",
+    "en": "Think more about integration tests and pick the right tools"
+  },
+  "steps.4.how": {
+    "zh": "AI 写全部代码时,更多地考虑集成测试;后端和库代码用 Vitest,前端用 Playwright,让 agent 能检查自己的工作。",
+    "en": "When AI writes all the code, lean more on integration tests; use Vitest for back-end and library code and Playwright for the front end, so the agent can check its own work."
+  },
+  "examples.0.title": {
+    "zh": "本站示例:一个垂直切片",
+    "en": "Our example: one vertical slice"
+  },
+  "examples.0.body": {
+    "zh": "RED   test(\"草稿标题为空时拒绝发布\")  → 失败\nGREEN publish() 加一条校验           → 通过\nREFACTOR 提取 validateDraft()        → 仍通过\n下一个行为:RED test(\"发布后不可再编辑\")",
+    "en": "RED   test(\"rejects publishing a draft with an empty title\") -> fails\nGREEN add one check to publish()                         -> passes\nREFACTOR extract validateDraft()                         -> still passes\nNext behaviour: RED test(\"a published draft can no longer be edited\")"
+  },
+  "pitfalls.0.text": {
+    "zh": "让 LLM 先写一大批测试,再一次性实现。",
+    "en": "Having the LLM write a big batch of tests first and implement everything at once."
+  },
+  "pitfalls.1.text": {
+    "zh": "上下文快满时,agent 改测试去迁就实现。",
+    "en": "With the context nearly full, the agent edits the tests to fit the implementation."
+  },
+  "pitfalls.2.text": {
+    "zh": "为了证明走过红绿重构而堆垃圾测试。坏测试是一笔债,不只是评审问题。",
+    "en": "Piling up junk tests to prove red-green-refactor happened. A bad test is a debt, not just a review issue."
+  },
+  "evolution.0.stance": {
+    "zh": "人类时代:偏向集成测试;用 declare 先设计 API 再写测试,走红绿重构;看好 Vitest。",
+    "en": "Before AI: he leans towards integration tests, designs the API with declare before writing tests, works red-green-refactor, and likes Vitest."
+  },
+  "evolution.1.stance": {
+    "zh": "AI 时代:让 agent 能检查自己的工作;强烈建议理解 TDD;发布 TDD skill,强调垂直切片。",
+    "en": "AI era: let the agent check its own work; he strongly recommends understanding TDD and publishes a TDD skill that stresses vertical slices."
+  },
+  "evolution.2.stance": {
+    "zh": "打击同义反复测试;写进编码规范,由代码评审自动检查;skill 增加「先约定接缝」这一步。",
+    "en": "He goes after tautological tests, writes the rule into the coding standards for code review to check, and adds an \"agree on the seams first\" step to the skill."
+  }
+}

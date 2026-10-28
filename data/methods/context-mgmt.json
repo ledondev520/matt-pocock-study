@@ -1,0 +1,375 @@
+{
+  "id": "m.context-mgmt",
+  "domain": "ai-coding",
+  "title": {
+    "zh": "上下文窗口管理方法论",
+    "en": "Managing the context window"
+  },
+  "question": {
+    "zh": "会话越长 agent 越笨,怎么管理上下文窗口,让它一直保持在「聪明区」?",
+    "en": "Agents get dumber as a session gets longer. How do you manage the context window so the agent stays in the \"smart zone\"?"
+  },
+  "claim": {
+    "text": {
+      "zh": "上下文窗口装得越满,模型就越笨。所以要让每个任务都在 smart zone 里完成:缩减常驻的系统提示词和指令;一件事做完就选择清空、压缩、交接给新会话,或者交给子 agent;长任务在任务之间主动重置上下文。",
+      "en": "The fuller the context window, the dumber the model. So finish every task inside the smart zone: trim the always-loaded system prompt and instructions; when a piece of work is done, choose to clear, compact, hand off to a new session or pass to a sub-agent; on long jobs, reset the context between tasks on purpose."
+    },
+    "anchors": [
+      {
+        "url": "https://x.com/mattpocockuk/status/2081105631591698694",
+        "date": "2026-07-25",
+        "quote": "A bowl is most useful when it is empty - Lao Tzu",
+        "quote_zh": "碗空着的时候最有用——老子"
+      },
+      {
+        "url": "https://x.com/mattpocockuk/status/2081105631591698694",
+        "date": "2026-07-25",
+        "quote": "Same for your context window",
+        "quote_zh": "你的上下文窗口也一样"
+      }
+    ],
+    "evidence": "Direct"
+  },
+  "steps": [
+    {
+      "id": "m.context-mgmt#s1",
+      "order": 1,
+      "title": {
+        "zh": "先理解上下文窗口",
+        "en": "Understand the context window first"
+      },
+      "how": {
+        "zh": "知道 token、上下文窗口、消息历史是怎么回事,才能理解为什么聊得越久效果越差。",
+        "en": "Know what tokens, the context window and message history are, and it becomes clear why results get worse the longer a chat goes on."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/1980961197076705381",
+          "date": "2025-10-22",
+          "quote": "It might be because you don't understand how context windows work.",
+          "quote_zh": "可能是因为你不理解上下文窗口是怎么工作的。"
+        },
+        {
+          "url": "https://www.aihero.dev/what-is-the-context-window",
+          "date": "2025-09-30"
+        }
+      ],
+      "evidence": "Direct",
+      "since": "2025"
+    },
+    {
+      "id": "m.context-mgmt#s2",
+      "order": 2,
+      "title": {
+        "zh": "认识「dumb zone」",
+        "en": "Recognise the \"dumb zone\""
+      },
+      "how": {
+        "zh": "上下文用到一定程度之后,决策、代码质量和指令遵循都会明显下降。超大上下文窗口并不意味着应该把它用满。",
+        "en": "Past a certain level of context use, decisions, code quality and instruction-following all drop noticeably. A huge context window does not mean you should fill it."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2034572011175907474",
+          "date": "2026-03-19",
+          "quote": "The drop-off in quality is really noticeable.",
+          "quote_zh": "质量下降非常明显。"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2079150593524772864",
+          "date": "2026-07-20",
+          "quote": "1m context windows are a nice gimmick",
+          "quote_zh": "1M 上下文窗口是个不错的噱头"
+        }
+      ],
+      "evidence": "Direct",
+      "since": "2026"
+    },
+    {
+      "id": "m.context-mgmt#s3",
+      "order": 3,
+      "title": {
+        "zh": "缩减常驻上下文",
+        "en": "Trim what is always in context"
+      },
+      "how": {
+        "zh": "每次请求都会带上系统提示词、工具定义和指令文件。先看清实际发送了什么,再关掉用不上的功能,删掉没有用的指令。",
+        "en": "Every request carries the system prompt, tool definitions and instruction files. Look at what is actually sent, then turn off features you don't use and delete instructions that don't help."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2074464823232888987",
+          "date": "2026-07-07",
+          "quote": "Run a proxy so you can see exactly what gets sent to Claude Code",
+          "quote_zh": "运行一个代理,看清到底给 Claude Code 发了什么"
+        },
+        {
+          "url": "https://www.aihero.dev/how-to-kill-the-bloat-in-claude-codes-system-prompt",
+          "date": "2026-07-07"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2026230545605161119",
+          "date": "2026-02-24",
+          "quote": "bloat your system prompt",
+          "quote_zh": "撑大你的系统提示词"
+        }
+      ],
+      "evidence": "Direct",
+      "since": "2026"
+    },
+    {
+      "id": "m.context-mgmt#s4",
+      "order": 4,
+      "title": {
+        "zh": "一段工作结束时,选一种方式继续",
+        "en": "When a piece of work ends, choose how to continue"
+      },
+      "how": {
+        "zh": "有几种选择:在当前会话里继续、清空、压缩、把状态写成交接文档交给新会话,或者交给子 agent。交接比压缩更灵活,可以把一个想法交给另一个 agent 去实现,再把结果交回来。",
+        "en": "The options: keep going in this session, clear, compact, write the state into a handoff document for a new session, or pass it to a sub-agent. A handoff is more flexible than compacting: you can pass an idea to another agent to build and get the result back."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2079879414297330146",
+          "date": "2026-07-22",
+          "quote": "Here's a decision tree for when you get to the end of a piece of work",
+          "quote_zh": "这是一段工作结束、不知道怎么继续时的决策树"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2057411932710166657",
+          "date": "2026-05-21",
+          "quote": "It's an alternative to /compact that gives you WAY more flexibility with your context window.",
+          "quote_zh": "它是 /compact 的替代方案,让你对上下文窗口有大得多的灵活性。"
+        },
+        {
+          "url": "https://www.aihero.dev/skills-handoff",
+          "date": "2026-08-24"
+        }
+      ],
+      "evidence": "Direct",
+      "since": "2026"
+    },
+    {
+      "id": "m.context-mgmt#s5",
+      "order": 5,
+      "title": {
+        "zh": "长任务在任务之间重置",
+        "en": "Reset between tasks on long jobs"
+      },
+      "how": {
+        "zh": "连续跑多个任务时,每个任务都从干净的上下文开始(Ralph 的核心),或者在任务之间压缩一次,别让一个会话一路滑进 dumb zone。",
+        "en": "When running several tasks in a row, start each from a clean context (the core of Ralph), or compact between tasks, so one session doesn't slide into the dumb zone."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2014627397241282564",
+          "date": "2026-01-23",
+          "quote": "to aggressively clear the context window on each task to keep the LLM in the smart zone.",
+          "quote_zh": "每个任务都积极清空上下文窗口,让 LLM 待在 smart zone。"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2080675075397685300",
+          "date": "2026-07-24",
+          "quote": "Make the agent /compact between tasks",
+          "quote_zh": "让 agent 在任务之间执行 /compact"
+        }
+      ],
+      "evidence": "Direct",
+      "since": "2026"
+    },
+    {
+      "id": "m.context-mgmt#s6",
+      "order": 6,
+      "title": {
+        "zh": "用实验感受差别",
+        "en": "Feel the difference with an experiment"
+      },
+      "how": {
+        "zh": "agent 犯了蠢错时,回退到出错之前,压缩上下文后重跑一次,对比结果,亲身体会上下文过满的影响。",
+        "en": "When the agent makes a silly mistake, roll back to before it, compact the context and run it again. Compare the results to see for yourself what an overfull context does."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2071288332642812229",
+          "date": "2026-06-28",
+          "quote": "Here's a way to get a visceral sense of the dumb zone",
+          "quote_zh": "这里有个办法,能让你直观感受 dumb zone"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2071288332642812229",
+          "date": "2026-06-28",
+          "quote": "Watch it get smarter",
+          "quote_zh": "看着它变聪明"
+        }
+      ],
+      "evidence": "Direct",
+      "since": "2026"
+    }
+  ],
+  "examples": [
+    {
+      "origin": "site",
+      "title": {
+        "zh": "本站示例:交接文档骨架",
+        "en": "Our example: a handoff document skeleton"
+      },
+      "lang": "markdown",
+      "body": {
+        "zh": "# 交接:草稿自动保存\n已决定:保存走 debounce;草稿存本地\n已完成:保存按钮 + 测试(已提交)\n未完成:离线提示\n下一步:读 GLOSSARY.md,从「离线提示」那张票开始",
+        "en": "# Handoff: draft autosave\nDecided: saving is debounced; drafts are stored locally\nDone: save button + tests (committed)\nNot done: offline notice\nNext: read GLOSSARY.md, start with the \"offline notice\" ticket"
+      }
+    }
+  ],
+  "pitfalls": [
+    {
+      "text": {
+        "zh": "以为窗口大就可以一直聊下去。",
+        "en": "Thinking a big window means you can keep chatting forever."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2079150593524772864",
+          "date": "2026-07-20"
+        }
+      ],
+      "evidence": "Direct"
+    },
+    {
+      "text": {
+        "zh": "把多个任务塞进同一个越来越长的上下文。",
+        "en": "Packing several tasks into one context that keeps growing."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2014627397241282564",
+          "date": "2026-01-23",
+          "quote": "It defeats the entire purpose of Ralph",
+          "quote_zh": "这完全违背了 Ralph 的初衷"
+        }
+      ],
+      "evidence": "Direct"
+    },
+    {
+      "text": {
+        "zh": "拷问时滑进 dumb zone,或者反过来,清空上下文太早。",
+        "en": "Sliding into the dumb zone while grilling, or the opposite, clearing the context too early."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2058900756640453072",
+          "date": "2026-05-25",
+          "quote": "Going into the dumb zone",
+          "quote_zh": "进入 dumb zone"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2058900756640453072",
+          "date": "2026-05-25",
+          "quote": "Clearing the context too soon",
+          "quote_zh": "太早清空上下文"
+        }
+      ],
+      "evidence": "Direct"
+    },
+    {
+      "text": {
+        "zh": "让全局指令文件越积越多。",
+        "en": "Letting global instruction files keep growing."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2109973273924579720",
+          "date": "2026-10-13",
+          "quote": "You've overloaded your global steering files",
+          "quote_zh": "你的全局引导文件塞得太满了"
+        }
+      ],
+      "evidence": "Direct"
+    }
+  ],
+  "evolution": [
+    {
+      "period": "2025-09–2025-11",
+      "change": "first",
+      "stance": {
+        "zh": "强调先懂基础:token、上下文窗口、消息。",
+        "en": "He stresses the basics first: tokens, the context window, messages."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/1963991248705912852",
+          "date": "2025-09-05"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/1980961197076705381",
+          "date": "2025-10-22"
+        }
+      ]
+    },
+    {
+      "period": "2026-01–2026-03",
+      "change": "refine",
+      "stance": {
+        "zh": "提出 smart zone / dumb zone,用来解释 Ralph 每轮为什么要清空上下文;亲自实验确认,上下文很深时质量明显下降。",
+        "en": "He introduces the smart zone and dumb zone to explain why Ralph clears the context every round, and confirms by experiment that quality drops when the context is deep."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2014627397241282564",
+          "date": "2026-01-23"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2034572011175907474",
+          "date": "2026-03-19"
+        }
+      ]
+    },
+    {
+      "period": "2026-05–2026-07",
+      "change": "refine",
+      "stance": {
+        "zh": "用交接(/handoff)替代压缩;给出一段工作结束后如何继续的决策树;缩减系统提示词里的冗余。",
+        "en": "Handoff (/handoff) replaces compacting; he gives a decision tree for continuing after a piece of work, and trims redundancy from system prompts."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2057411932710166657",
+          "date": "2026-05-21"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2079879414297330146",
+          "date": "2026-07-22"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2074464823232888987",
+          "date": "2026-07-07"
+        }
+      ],
+      "current": true
+    }
+  ],
+  "related": [
+    "m.afk-loops",
+    "m.agent-docs-skills",
+    "m.align-grill"
+  ],
+  "prerequisites": [],
+  "site_pages": [
+    "context-and-handoff"
+  ],
+  "repos": [
+    {
+      "url": "https://github.com/mattpocock/skills",
+      "license": "MIT",
+      "reuse": "mit-with-notice"
+    }
+  ],
+  "sources_count": {
+    "keyword_hits": 87,
+    "curated": 17
+  },
+  "evidence": "Direct",
+  "date_first": "2025-09-05",
+  "date_last": "2026-10-13",
+  "status": "draft",
+  "updated": "2026-10-28"
+}

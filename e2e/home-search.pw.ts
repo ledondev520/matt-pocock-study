@@ -11,7 +11,7 @@ const indexRequests = (page: Page) => {
 // Typing before React has attached its handlers would test the server HTML, not the search.
 const hydrated = (page: Page) => page.waitForFunction(() => Object.keys(document.getElementById('site-search')!).some(key => key.startsWith('__reactProps')))
 for (const viewport of [{ width: 390, height: 844 }, { width: 1440, height: 900 }]) {
-  test(`zh home search finds a knowledge entry by a Chinese fragment and opens it by keyboard (${viewport.width}px)`, async ({ browser }) => {
+  test(`zh home search finds a method by a Chinese fragment and opens it by keyboard (${viewport.width}px)`, async ({ browser }) => {
     const context = await browser.newContext({ viewport })
     try {
       const page = await context.newPage()
@@ -67,3 +67,20 @@ test('a query without matches shows the no-results state, and Escape clears it',
     await expect(page.locator('.search-status')).toHaveText('')
   }
 })
+
+for (const lang of ['zh', 'en'] as const) {
+  test(`${lang} search opens the independently expected method step and scrolls to it`, async ({ page }) => {
+    await page.goto(`/${lang}`)
+    await hydrated(page)
+    const box = page.getByRole('searchbox', { name: lang === 'zh' ? '搜索' : 'Search' })
+    await box.fill(lang === 'zh' ? '伪代码' : 'pseudocode')
+    const result = page.locator(`#site-search-results a[href="/${lang}/methods/pr-review#s4"]`)
+    await expect(result).toBeVisible()
+    await result.focus()
+    await page.keyboard.press('Enter')
+    await expect(page).toHaveURL(new RegExp(`/${lang}/methods/pr-review#s4$`))
+    await expect(page.locator('#s4')).toBeVisible()
+    await expect(page.locator('#s4')).toBeInViewport()
+    expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(0)
+  })
+}

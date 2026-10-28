@@ -11,7 +11,7 @@ A review-time checklist; each rule targets a mistake that tends to repeat.
 ## 规则 · Rules
 
 1. 本地测试以退出码和未处理异常为准,不能只看 "Tests N passed";mock 的返回值形状要与真实实现一致(例如返回 Promise)。原因:断言全过但有未处理异常时 vitest 退出码为 1,CI 会失败。
-2. 新增的回归测试必须证明在改动前的代码(或去掉关键判断的变异)上会失败。原因:写在错误时机的测试变异后仍然全部通过,抓不到问题。
+2. 新增的回归测试必须证明在改动前的代码(或去掉关键判断的变异)上会失败。原因:写在错误时机的测试变异后仍然全部通过,抓不到问题。预期值须独立于被测生产函数，不用同一函数同时生成实际值和预期值，避免实现出错时测试一起出错。(PR #20)
 3. PR 描述和注释里的"行为等价 / 完全一致 / 全仓清单"这类说法必须有实测证据,并在每次修复后与最终 diff 同步。正文和下载说明里"包含 / 附带 / 完整"之类对产物的声明同理。原因:过度或过时的声明会掩盖真实的行为差异。(PR #2)
 4. 删除或写入文件前,相对和绝对路径都先 resolve 再做包含检查;判断越界用 `rel === '..'` 或以 `'..' + path.sep` 开头,不用 `startsWith('..')`。原因:只检查相对路径会让根外的别名路径通过,`startsWith('..')` 会误拒 `..valid` 这类合法名字。 (PR #1) (PR #1 r2)
 5. 不提交密钥、token、cookie、`.env`、服务器地址、本机绝对路径;凭据只从环境变量读,`.env.example` 只写变量名。原因:仓库公开,历史里的泄露无法撤回。
@@ -27,7 +27,7 @@ A review-time checklist; each rule targets a mistake that tends to repeat.
 14. 内联 SVG 的 CSS 必须使用属性和值函数允许列表，所有选择器限定在各自 SVG 根并隔离作用域，禁用资源加载、转义和未批准的 at-rules；只检查 href/url() 会漏过 image-set 字符串外链及整页样式。(PR #1)
 15. 同页 fragment 链接及其前进后退必须保留浏览器原生滚动和历史，不触发页面数据加载或滚动重置；跨页 fragment 须在目标 DOM 就绪后解码并滚动，浏览器回归覆盖中英文锚点和历史导航。(PR #1)
 - SVG presentation attributes are CSS too: every allowed attribute needs an explicit value grammar, resource syntax (`url(` non-local, `image-set(`, `image(`, `@import`, `expression(`) is rejected in every attribute, and reference attributes (mask, clip-path, marker-*) accept only `url(#local-id)`. Why: an attribute outside the CSS-property set skipped value checks and loaded resources. (PR #1 r3)
-16. 交互区域的 DOM 顺序必须与视觉顺序、键盘和读屏顺序一致；不用 CSS `order` 移动含可聚焦元素的区域，调整布局后实测 Tab 顺序。原因：截图正确时，焦点仍可能越过首屏主操作跳到页底。(PR #2)
+16. 交互区域的 DOM 顺序必须与视觉顺序、键盘和读屏顺序一致；不用 CSS `order` 移动含可聚焦元素的区域，调整布局后实测 Tab 顺序。原因：截图正确时，焦点仍可能越过首屏主操作跳到页底。Grid 换列后也须核对 DOM 与视觉顺序，并在移动端和桌面实测 Tab 顺序。(PR #2, #20)
 17. 中英文教学例子须核对依赖方向、允许 / 禁止和前后条件在两种语言里一致，不能只比对标题和组件结构。原因：结构配对通过时，仍可能把合法路径译成违规路径。(PR #2)
 18. 测试提速只能减少重复工作（共用构建结果、缓存），不能改变断言所查询的 DOM：仍用原来的 jsdom 整页文档断言；片段解析或自写树遍历会漏掉 template、noscript、SVG 等上下文差异。(PR #3)
 19. 浏览器排版检查以可见字符的行框为准，逐行检查每行首字符（含块内第一行）；隐藏文字不能替代可见的前一个字符。原因：只比较相邻 DOM 文本，会漏掉块首或隐藏文字之后独占一行的标点。可见性要看整条祖先链（opacity 为 0、文字颜色透明、被裁剪成视觉隐藏的读屏文字都算不可见），标点前后文按同块内的可见字符读，不能把文本节点边界当成文本结尾；每类都要有夹具。(PR #5)
@@ -39,3 +39,4 @@ A review-time checklist; each rule targets a mistake that tends to repeat.
 25. root 部署脚本从「切换 current」到「健康检查通过」之间的每个失败点(包括 `systemctl restart` 非零)都必须先切回上一个 release 再非零退出,并把新旧 release 名输出给调用方;要有桩测试覆盖 restart 失败。原因:`set -e` 下 restart 失败会直接退出,线上停在新版本,外层也拿不到 release 名去回滚。(PR #12)
 26. 部署脚本的回滚目标必须是「这次切换前线上实际运行的 release」:每次切换前都把当前 release 记进历史(和最后一行不同就追加),不能只在历史为空时初始化;要有测试覆盖「当前 release 是手工切的、不在历史里」。原因:手工部署和脚本部署混用时,回滚会退到更老的版本,而旧版本冒烟还能通过,不容易发现。(PR #12)
 27. 浏览器检查判断「是否绘制」时不能只用 `checkVisibility()`：`display: contents` 没有盒子（返回 false）但内容照常绘制，元素自身的 `content-visibility: hidden` 不在它的检查范围内（只查祖先）却会跳过自身内容和伪元素；两种情况都要有夹具。原因：只看 `checkVisibility()` 会漏检前者、误报后者。(PR #8)
+28. 新增页面类型时同步运行 `npm run audit:text` 全站审计，并用夹具确认该类型的内容被正确识别、多余说明仍会报出。原因：只跑旧页面或只扩白名单，会漏掉新路由的非内容文字。(PR #20)

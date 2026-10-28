@@ -2,42 +2,58 @@ import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } fr
 import { Arrow, ArrowText } from './Arrow'
 import { KbText } from './KbText'
 import type { Lang } from './lib/lang'
-import { byYear, yearId, yearIndexAt, yearIndexForKey, type TimelineItem, type TimelineYear } from './lib/timeline'
+import { byYear, yearId, yearIndexAt, yearIndexForKey, type TimelineItem, type TimelineOriginals, type TimelineYear } from './lib/timeline'
 
 // The timeline view: what we learned, newest first, grouped by year, with a phone-album style year
-// scrubber on the right. Matt's original posts (quote and link) are rendered only after the reader
+// scrubber on the right. Matt's original posts (quote and link) are loaded only after the reader
 // turns them on; the choice is not saved anywhere. All text comes from the build (lessons and the
 // gate-checked knowledge base) and is escaped by React.
 export function Timeline({ items, lang }: { items: TimelineItem[]; lang: Lang }) {
   const zh = lang === 'zh', t = (cn: string, en: string) => zh ? cn : en
   const [showOriginal, setShowOriginal] = useState(false)
+  const [originals, setOriginals] = useState<TimelineOriginals>()
+  useEffect(() => {
+    if (!showOriginal) return
+    const controller = new AbortController()
+    fetch(`/${lang}/timeline-originals.json`, { signal: controller.signal }).then(response => {
+      if (!response.ok) throw new Error('Original posts unavailable')
+      return response.json() as Promise<TimelineOriginals>
+    }).then(data => {
+      if (!controller.signal.aborted) setOriginals(data)
+    }).catch(() => {
+      if (!controller.signal.aborted) setShowOriginal(false)
+    })
+    return () => controller.abort()
+  }, [showOriginal, lang])
   const years = byYear(items)
   return <div className="wrap tl-page">
     <div className="corpus-page-intro"><h1>{t('时间轴', 'Timeline')}</h1>
-      <label className="tl-toggle"><input type="checkbox" role="switch" checked={showOriginal} onChange={event => setShowOriginal(event.target.checked)} /><span className="tl-switch" aria-hidden="true" /><span>{t('原帖', 'Original posts')}</span></label>
+      <label className="tl-toggle"><input type="checkbox" role="switch" checked={showOriginal} onChange={event => { setOriginals(undefined); setShowOriginal(event.target.checked) }} /><span className="tl-switch" aria-hidden="true" /><span>{t('原帖', 'Original posts')}</span></label>
     </div>
     {years.length ? <div className="tl-layout">
-      <TimelineList years={years} lang={lang} showOriginal={showOriginal} />
+      <TimelineList years={years} lang={lang} showOriginal={showOriginal} originals={originals} />
       <YearScrubber years={years.map(y => y.year)} lang={lang} />
     </div> : null}
   </div>
 }
 
-export function TimelineList({ years, lang, showOriginal }: { years: TimelineYear[]; lang: Lang; showOriginal: boolean }) {
+export function TimelineList({ years, lang, showOriginal, originals }: { years: TimelineYear[]; lang: Lang; showOriginal: boolean; originals?: TimelineOriginals }) {
   const zh = lang === 'zh', t = (cn: string, en: string) => zh ? cn : en
   return <div className="tl-years">{years.map(({ year, items }) => <section className="tl-year" id={yearId(year)} key={year} aria-labelledby={`${yearId(year)}-title`}>
     <h2 id={`${yearId(year)}-title`}>{year}</h2>
-    <ol className="tl-list">{items.map(item => <li className="tl-item" id={item.id} key={item.id} data-kind={item.kind}>
+    <ol className="tl-list">{items.map(item => {
+      const original = showOriginal ? originals?.[item.id] : undefined
+      return <li className="tl-item" id={item.id} key={item.id} data-kind={item.kind}>
       <div className="tl-meta"><time dateTime={item.date}>{item.date}</time></div>
       <h3><ArrowText>{item.learned.title}</ArrowText></h3>
       {/* A note's links are its original posts, so they are plain text until originals are shown. */}
-      <p className="tl-learned">{typeof item.learned.text === 'string' ? <ArrowText>{item.learned.text}</ArrowText> : <KbText segments={item.learned.text} links={showOriginal} />}</p>
+      <p className="tl-learned">{typeof item.learned.text === 'string' ? <ArrowText>{item.learned.text}</ArrowText> : <KbText segments={original?.segments ?? item.learned.text} links={!!original} />}</p>
       {item.kind === 'lesson' && <a className="tl-from" href={item.learned.href}><ArrowText>{item.learned.from}</ArrowText> <Arrow dir="right" /></a>}
-      {showOriginal && <div className="tl-original">
-        {item.original.quote && <blockquote><p lang="en">{item.original.quote}</p>{item.original.note && <p className="quote-translation">{item.original.note}</p>}</blockquote>}
-        <a className="kb-source" href={item.original.url} target="_blank" rel="noreferrer">{t('原帖', 'Original')} <Arrow dir="up-right" /></a>
+      {original && <div className="tl-original">
+        {original.quote && <blockquote><p lang="en">{original.quote}</p>{original.note && <p className="quote-translation">{original.note}</p>}</blockquote>}
+        <a className="kb-source" href={original.url} target="_blank" rel="noreferrer">{t('原帖', 'Original')} <Arrow dir="up-right" /></a>
       </div>}
-    </li>)}</ol>
+    </li>})}</ol>
   </section>)}</div>
 }
 
