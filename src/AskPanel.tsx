@@ -49,8 +49,8 @@ export function AskPanel({ lang, ask = askQuestion, onFallback }: { lang: Lang; 
       {result?.mode === 'answer' && <>
         {result.title && <h3>{result.title}</h3>}
         <ol>{result.points.map((p, i) => <li key={i}>
-          <strong>{p.title}</strong> {p.text}
-          {p.quote && <blockquote lang="en">“{p.quote}” — Matt Pocock{safeHref(p.quoteUrl) && <> · <a href={safeHref(p.quoteUrl)} target="_blank" rel="noreferrer">{t.source}</a></>}</blockquote>}
+          <div className="ask-explanation">{p.title && <strong>{p.title}</strong>}{p.text && <p>{p.text}</p>}</div>
+          {p.quote && safeHref(p.quoteUrl) && <blockquote><p>{p.quote}</p><cite><a href={safeHref(p.quoteUrl)} target="_blank" rel="noreferrer">{t.source}</a></cite></blockquote>}
           <small> {p.cites.map(n => byN.get(n)).filter(Boolean).map(c => <span key={c!.n}><Links c={c!} t={t} /> </span>)}</small>
         </li>)}</ol>
       </>}

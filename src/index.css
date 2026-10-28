@@ -552,4 +552,7 @@ svg.inline-arrow { display: inline-block; width: 1em; height: 1em; vertical-alig
 .ask-result { margin-top: 16px; }
 .ask-result ol { padding-left: 22px; }
 .ask-result li + li { margin-top: 14px; }
-.ask-result blockquote { margin: 8px 0; padding-left: 12px; border-left: 2px solid var(--border); }
+.ask-explanation:empty { display: none; }
+.ask-explanation p { margin-top: 4px; }
+.ask-result blockquote { margin: 10px 0; padding-left: 12px; border-left: 2px solid var(--border); overflow-wrap: anywhere; white-space: pre-wrap; }
+.ask-result blockquote cite { display: block; margin-top: 4px; color: var(--muted-foreground); font-size: 13px; font-style: normal; }

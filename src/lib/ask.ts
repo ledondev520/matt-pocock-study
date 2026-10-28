@@ -36,7 +36,8 @@ function validReply(body: Record<string, unknown>) {
     ['date', 'title', 'snippet', 'sourceUrl', 'siteUrl'].every(key => c[key] === undefined || typeof c[key] === 'string'))) return false
   if (body.mode === 'answer') return typeof body.title === 'string' && Array.isArray(body.points) && body.points.every(p =>
     p && typeof p === 'object' && typeof p.title === 'string' && typeof p.text === 'string' &&
-    Array.isArray(p.cites) && p.cites.every(Number.isInteger) && ['quote', 'quoteUrl'].every(key => p[key] === undefined || typeof p[key] === 'string'))
+    Array.isArray(p.cites) && p.cites.every(Number.isInteger) && ['quote', 'quoteUrl'].every(key => p[key] === undefined || typeof p[key] === 'string') &&
+    (p.quote === undefined ? p.quoteUrl === undefined : !!p.quote && !!safeHref(p.quoteUrl)))
   return typeof body.message === 'string'
 }
 

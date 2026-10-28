@@ -7,7 +7,7 @@ import { createHash, createHmac } from 'node:crypto'
 import { isIP } from 'node:net'
 import { Hono, type Context } from 'hono'
 import { buildMessages, citationFor, notFoundMessage, parseAnswer, PROMPT_VERSION, type AskResponse, type Citation, type Lang } from './answer'
-import { shortExcerpt, withinExcerptBudget } from './excerpts'
+import { contextFits } from './excerpts'
 import type { AskConfig } from './config'
 import { callDeepSeek, chatRequest, CircuitBreaker, UpstreamError } from './deepseek'
 import { createRetriever, relevant } from './retrieve'
@@ -131,21 +131,19 @@ export function createAskApp(deps: AskDeps) {
 
     const hits = relevant(retriever.search(q, config.contextUnits * 3), config.minScore)
     const units = dedupe(hits.map(h => h.unit)).slice(0, config.contextUnits)
-    const finish = (response: AskResponse, extra: Record<string, unknown> = {}) => {
-      if (cacheTtl && response.mode !== 'search') store.putCache(key, JSON.stringify(response), cacheTtl, t)
+    const finish = (response: AskResponse, extra: Record<string, unknown> = {}, cacheable = true) => {
+      if (cacheable && cacheTtl && response.mode !== 'search') store.putCache(key, JSON.stringify(response), cacheTtl, t)
       record({ ...base, status: 200, mode: response.mode, cached: false, ...extra })
       return c.json(response)
     }
     if (!units.length) return finish({ mode: 'not_found', message: notFoundMessage(lang), citations: [], cached: false })
 
     const fallback = (reason: string, extra: Record<string, unknown> = {}): Response => {
-      let citations: Citation[] = units.map((u, i) => ({ ...citationFor(u, i + 1, config.siteUrl), snippet: shortExcerpt(u.text) }))
-      if (reason === 'unverified' || !withinExcerptBudget(citations.flatMap(c => [c.title ?? '', c.snippet ?? '']), units, [], citations.flatMap(c => c.sourceUrl ? [c.sourceUrl] : []))) {
-        citations = citations.map(c => ({ ...c, title: undefined, snippet: undefined }))
-      }
+      const citations: Citation[] = units.map((u, i) => ({ ...citationFor(u, i + 1, config.siteUrl), title: undefined }))
       return finish({ mode: 'search', reason, message: '', citations, cached: false }, { reason, ...extra })
     }
     if (!config.enabled || !config.apiKey) return fallback('disabled')
+    if (!contextFits(units)) return fallback('unverified')
     if ((inFlight.get(ip) ?? 0) >= 1) {
       record({ ...base, status: 429, reason: 'per_ip_concurrent' })
       return c.json({ error: 'One question at a time', reason: 'per_ip_concurrent', retryAfter: 5 }, 429)
@@ -168,10 +166,10 @@ export function createAskApp(deps: AskDeps) {
       const result = await callDeepSeek({ baseUrl: config.baseUrl, apiKey: config.apiKey, request: chatRequest(config.model, buildMessages(q, lang, units)), timeoutMs: config.timeoutMs, fetch: deps.fetch })
       breaker.success()
       const usage = { inTokens: result.inputTokens, outTokens: result.outputTokens }
-      const parsed = parseAnswer(result.content, units, config.siteUrl)
+      const parsed = await parseAnswer(result.content, units, config.siteUrl)
       if (!parsed) return fallback('unverified', usage)
       if (!parsed.found) return finish({ mode: 'not_found', message: notFoundMessage(lang), citations: [], cached: false }, usage)
-      return finish({ mode: 'answer', title: parsed.title, points: parsed.points, citations: parsed.citations, cached: false }, usage)
+      return finish({ mode: 'answer', title: parsed.title, points: parsed.points, citations: parsed.citations, cached: false }, usage, !parsed.degraded)
     } catch (error) {
       breaker.failure(now())
       return fallback('upstream_error', { upstream: error instanceof UpstreamError ? error.kind : 'unknown' })

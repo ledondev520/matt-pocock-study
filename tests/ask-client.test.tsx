@@ -33,3 +33,12 @@ it('quietly rejects missing, malformed and non-JSON API responses', async () => 
   expect(await askQuestion('review', 'en', reply(200, { mode: 'not_found', message: 'Nothing found.', citations: [] }))).toMatchObject({ mode: 'not_found' })
   expect(await askQuestion('review', 'en', reply(200, { mode: 'search', message: 'unused', citations: [] }))).toMatchObject({ mode: 'search' })
 })
+
+it('accepts only extracted quote text paired with its original link', async () => {
+  const quoteUrl = 'https://x.com/mattpocockuk/status/1000000000000000001'
+  const body = (extra: object) => ({ mode: 'answer', title: '', points: [{ title: '', text: '', cites: [1], ...extra }], citations: [{ n: 1, kind: 'post', sourceUrl: quoteUrl }], cached: false })
+  expect((await askQuestion('review', 'en', reply(200, body({ quote: 'Start small.', quoteUrl })))).mode).toBe('answer')
+  for (const extra of [{ quote: 'Start small.' }, { quoteUrl }, { quote: { chunk_id: 'S1', start: 0, end: 12 }, quoteUrl }, { quote: 'Start small.', quoteUrl: 'javascript:alert(1)' }]) {
+    expect(await askQuestion('review', 'en', reply(200, body(extra)))).toEqual({ mode: 'unavailable' })
+  }
+})

@@ -43,7 +43,27 @@ export async function callDeepSeek(opts: { baseUrl: string; apiKey: string; requ
     throw new UpstreamError('http', String(response.status))
   }
   let body: { choices?: { message?: { content?: unknown } }[]; usage?: { prompt_tokens?: number; completion_tokens?: number } }
-  try { body = await response.json() } catch { throw new UpstreamError('format', 'body is not JSON') }
+  try {
+    // Enforce the bound before decoding/parsing untrusted JSON, independently of max_tokens.
+    const reader = response.body?.getReader()
+    if (!reader) throw new Error('empty body')
+    const chunks: Uint8Array[] = []
+    let size = 0
+    try {
+      for (;;) {
+        const { done, value } = await reader.read()
+        if (done) break
+        size += value.byteLength
+        if (size > 65_536) { await reader.cancel(); throw new Error('body too large') }
+        chunks.push(value)
+      }
+    } finally { reader.releaseLock() }
+    const bytes = new Uint8Array(size)
+    let offset = 0
+    for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.length }
+    body = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes))
+    if (!body || typeof body !== 'object') throw new Error('invalid body')
+  } catch { throw new UpstreamError('format', 'invalid JSON body') }
   const content = body.choices?.[0]?.message?.content
   if (typeof content !== 'string' || !content.trim()) throw new UpstreamError('format', 'empty content')
   return { content, inputTokens: body.usage?.prompt_tokens ?? 0, outputTokens: body.usage?.completion_tokens ?? 0 }

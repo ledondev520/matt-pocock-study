@@ -35,7 +35,7 @@ for (const lang of ['zh', 'en'] as const) {
       await manifest([`/${lang === 'zh' ? 'en' : 'zh'}/methods/pr-review`, ...(exists ? [`/${lang}/methods/pr-review`] : [])])
       await writeFile(chunksFile, JSON.stringify(chunk(lang)))
       const units = loadUnits({ indexFile, chunksFile, pageManifestFile })
-      const parsed = parseAnswer(answer, units, 'https://site.example')
+      const parsed = await parseAnswer(answer, units, 'https://site.example')
       expect(parsed).toMatchObject({ found: true, citations: [{ sourceUrl: source }] })
       const citation = citationFor(units[0], 1, 'https://site.example')
       expect(citation.siteUrl).toBe(exists ? `https://site.example/${lang}/methods/pr-review#s4` : undefined)

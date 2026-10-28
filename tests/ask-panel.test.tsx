@@ -55,3 +55,15 @@ it('quietly falls back if the request throws', async () => {
   expect(fallback).toHaveBeenCalledExactlyOnceWith('review')
   expect(host.querySelector('.ask-result')!.textContent).toBe('')
 })
+
+it('renders an extracted quote without an explanation or extra copy', async () => {
+  const url = 'https://x.com/mattpocockuk/status/1000000000000000001'
+  await act(async () => root.render(<AskPanel lang="zh" ask={async () => ({ mode: 'answer', title: '', points: [{ title: '', text: '', quote: '先拆分。\n再验证。', quoteUrl: url, cites: [1] }], citations: [{ n: 1, kind: 'post', sourceUrl: url }], cached: false })} />))
+  await submit()
+  expect(host.querySelector('h3')).toBeNull()
+  expect(host.querySelector('.ask-explanation')!.textContent).toBe('')
+  expect(host.querySelector('blockquote p')!.textContent).toBe('先拆分。\n再验证。')
+  expect(host.querySelector('blockquote cite a')!.getAttribute('href')).toBe(url)
+  expect(host.querySelector('blockquote')!.hasAttribute('lang')).toBe(false)
+  expect(host.querySelector('.ask-result')!.textContent).not.toMatch(/verified|extracted|来源校验|服务端/)
+})

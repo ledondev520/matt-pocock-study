@@ -33,7 +33,7 @@ const overBudgetAnswer = (prompt: string) => JSON.stringify({ found: true, title
   { title: 'Unlinked', text: 'No usable source.', sources: ['S42'] },
 ] })
 const goodAnswer = (prompt: string) => JSON.stringify({ found: true, title: 'Manage reversibility', points: [
-  { title: 'Stage delivery', text: 'Prefer reversible increments. See https://evil.example/x and [here](https://evil.example).', quote: 'the first one ships everything behind a flag and is easy to roll back', sources: [idOf(prompt, POST_URL)] },
+  { title: 'Stage delivery', text: 'Prefer reversible increments. See https://evil.example/x and [here](https://evil.example).', quote: { chunk_id: idOf(prompt, POST_URL), start: 35, end: 104 }, sources: [idOf(prompt, POST_URL)] },
   { title: 'Delay irreversible decisions', text: 'Review risk before activation.', quote: 'Matt never said this sentence at all', sources: [idOf(prompt, 'site="/zh/knowledge#n1"'), 'S9'] },
   { title: 'Unlinked', text: 'No usable source.', sources: ['S42'] },
 ] })
@@ -261,27 +261,27 @@ describe('client address', () => {
 })
 
 describe('answer checks', () => {
-  it('keeps only short quotes found verbatim in a post', () => {
-    expect(checkQuote('easy to roll back', [units[0]])).toEqual({ text: 'easy to roll back', url: POST_URL })
+  it('keeps only short quotes found verbatim in a post', async () => {
+    expect(checkQuote({ chunk_id: 'S1', start: 87, end: 104 }, [units[0]])).toEqual({ text: 'easy to roll back', url: POST_URL })
     expect(checkQuote('easy to roll back', [units[1]])).toBeUndefined() // our note, not Matt's words
     expect(checkQuote(units[0].text + ' '.repeat(2) + units[0].text, [units[0]])).toBeUndefined()
     expect(stripLinks('see [docs](https://a.dev) and https://b.example/x <b>now</b>')).toBe('see docs and now')
-    expect(parseAnswer('not json', units, 'https://s')).toBeUndefined()
+    expect(await parseAnswer('not json', units, 'https://s')).toBeUndefined()
   })
 
-  it('drops a point whose sources have no original-post link', () => {
+  it('drops a point whose sources have no original-post link', async () => {
     const pageOnly = JSON.stringify({ found: true, points: [{ title: 'a', text: 'b', sources: ['S3'] }] })
-    expect(parseAnswer(pageOnly, units, 'https://s')).toBeUndefined()
+    expect(await parseAnswer(pageOnly, units, 'https://s')).toBeUndefined()
   })
 
-  it('adapts methodology chunks: checked quotes with their post, method page anchor', () => {
+  it('adapts methodology chunks: checked quotes with their post, method page anchor', async () => {
     const [unit] = chunkUnits([{ chunk_id: 'm.pr-review#s4', kind: 'step', title: { zh: 'PR 方法论 · 第 4 步' }, text: 'Split the PR by door type.', stance_status: 'current',
       quotes: [{ text: 'one-way door PRs go second', url: POST_URL, date: '2026-10-27' }, { text: 'bad', url: 'https://evil.example/x' }] }])
     expect(unit).toMatchObject({ kind: 'method', sourceUrl: POST_URL, sitePath: '/zh/methods/pr-review#s4' })
     expect(unit.quotes).toHaveLength(1)
-    expect(checkQuote('one-way door PRs go second', [unit])).toEqual({ text: 'one-way door PRs go second', url: POST_URL })
+    expect(checkQuote({ chunk_id: 'S1:Q1', start: 0, end: 26 }, [unit])).toEqual({ text: 'one-way door PRs go second', url: POST_URL })
     expect(checkQuote('Split the PR by door type', [unit])).toBeUndefined() // our wording, not a quote
-    const answer = parseAnswer(JSON.stringify({ found: true, points: [{ title: 's4', text: 't', quote: 'one-way door PRs go second', sources: ['S1'] }] }), [unit], 'https://s')
+    const answer = await parseAnswer(JSON.stringify({ found: true, points: [{ title: 's4', text: 't', quote: { chunk_id: 'S1:Q1', start: 0, end: 26 }, sources: ['S1'] }] }), [unit], 'https://s')
     expect(answer).toMatchObject({ found: true, points: [{ quote: 'one-way door PRs go second', quoteUrl: POST_URL, cites: [1] }], citations: [{ sourceUrl: POST_URL, siteUrl: 'https://s/zh/methods/pr-review#s4' }] })
   })
 
