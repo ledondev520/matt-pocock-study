@@ -15,6 +15,14 @@ export const licences = {
     licenseUrl: 'https://github.com/mattpocock/skills/blob/2817544484ea89558aabd8a0360e042888fad713/LICENSE',
     file: 'third_party/mattpocock-skills/LICENSE',
     sha256: '0e7ac423bf2c6e223b7c5b156f8cf72da49d748e56a1641402c31f22ad07dbb5',
+    // Which upstream files are adapted, and on which pages (both languages). Shown on /licenses.
+    adapted: [
+      { file: 'skills/productivity/writing-for-agents/SKILL.md', pages: ['agent-documents', 'cheat-sheets'] },
+      { file: 'skills/productivity/handoff/SKILL.md', pages: ['context-and-handoff', 'cheat-sheets'] },
+      { file: 'skills/engineering/code-review/SKILL.md', pages: ['review-and-pr', 'cheat-sheets'] },
+      { file: 'skills/engineering/pr/SKILL.md', pages: ['review-and-pr', 'cheat-sheets'] },
+      { file: 'skills/productivity/teach/SKILL.md', pages: ['writing-to-teach', 'learning-path', 'cheat-sheets'] },
+    ],
   },
   archify: {
     name: 'Archify (tt-a1i/archify)',
@@ -87,7 +95,7 @@ function fontLicenceText(id, read = file => readFileSync(file, 'utf8')) {
 /** Everything the /licenses view shows, with each text read through its hash check. */
 export function licencesView() {
   return {
-    mit: Object.entries(licences).map(([id, entry]) => ({ id, name: entry.name, repo: entry.repo, licenseUrl: entry.licenseUrl, text: licenceText(id) })),
+    mit: Object.entries(licences).map(([id, entry]) => ({ id, name: entry.name, repo: entry.repo, licenseUrl: entry.licenseUrl, adapted: entry.adapted ?? [], text: licenceText(id) })),
     fonts: Object.entries(fonts).map(([id, entry]) => ({ id, name: entry.name, pkg: entry.pkg, repo: entry.repo, href: '/' + entry.file.replace(/^public\//, ''), text: fontLicenceText(id) })),
   }
 }

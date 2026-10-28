@@ -38,3 +38,4 @@ A review-time checklist; each rule targets a mistake that tends to repeat.
 24. 判定「能否免审 / 自动合并」的检查必须跑 base 分支上的 workflow 和脚本(`pull_request_target`),只把 PR 当数据读,不 checkout、不安装、不执行 PR 里的任何文件;PR 控制的字符串(分支名、标题)经 `env:` 传入,不在 `run:` 里写 `${{ }}`。原因:`pull_request` 跑的是 PR 自带的 workflow 和脚本,同仓库分支可以把检查改成永远通过。(PR #12)
 25. root 部署脚本从「切换 current」到「健康检查通过」之间的每个失败点(包括 `systemctl restart` 非零)都必须先切回上一个 release 再非零退出,并把新旧 release 名输出给调用方;要有桩测试覆盖 restart 失败。原因:`set -e` 下 restart 失败会直接退出,线上停在新版本,外层也拿不到 release 名去回滚。(PR #12)
 26. 部署脚本的回滚目标必须是「这次切换前线上实际运行的 release」:每次切换前都把当前 release 记进历史(和最后一行不同就追加),不能只在历史为空时初始化;要有测试覆盖「当前 release 是手工切的、不在历史里」。原因:手工部署和脚本部署混用时,回滚会退到更老的版本,而旧版本冒烟还能通过,不容易发现。(PR #12)
+27. 浏览器检查判断「是否绘制」时不能只用 `checkVisibility()`：`display: contents` 没有盒子（返回 false）但内容照常绘制，元素自身的 `content-visibility: hidden` 不在它的检查范围内（只查祖先）却会跳过自身内容和伪元素；两种情况都要有夹具。原因：只看 `checkVisibility()` 会漏检前者、误报后者。(PR #8)

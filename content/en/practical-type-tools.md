@@ -118,6 +118,3 @@ Continue with [state and module boundaries](/en/state-and-module-boundaries) to 
 - Matt Pocock, [PropertyKey](https://x.com/mattpocockuk/status/1830935305639145678), 2024-09-03.
 - Matt Pocock, [branded types](https://x.com/mattpocockuk/status/1625173884885401600), 2023-02-13; concept reference only.
 - Matt Pocock, [as const](https://x.com/mattpocockuk/status/1623262073244250112), 2023-02-09; concept reference only.
-- All code and exercises were written independently, without reconstructing source images. [Copyright details](/en/about-and-copyright).
-
-Unofficial, non-commercial study notes, with no affiliation with or endorsement by Matt Pocock. Quoted works belong to their authors; MIT reuse carries separate copyright and licence notices.

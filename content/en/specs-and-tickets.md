@@ -104,5 +104,3 @@ Take the ticket into [implementation and feedback](/en/implementation-and-feedba
 
 - [Matt Pocock · 2026-08-01](https://x.com/mattpocockuk/status/2083563195671667176)
 - [Tracer Bullets](https://www.aihero.dev/tracer-bullets)
-
-Independent, unofficial, noncommercial study notes. This site has no affiliation with or endorsement from Matt Pocock. Referenced works belong to their authors; MIT reuse carries separate copyright and license notices.

@@ -18,8 +18,8 @@ it('inlines themeable diagram SVGs and swaps illustrated artwork with a light fa
   const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" class="fixture"><style>.fixture text{fill:var(--foreground)}</style><text>Original diagram</text></svg>'
   try {
     await mkdir(join(root, 'diagrams')); await mkdir(join(root, 'art'))
-    await writeFile(join(root, 'diagrams/home-corpus.en.svg'), svg)
-    const inline = await figureHtml('home-corpus', 'en', root)
+    await writeFile(join(root, 'diagrams/d02-failure-sort.en.svg'), svg)
+    const inline = await figureHtml('d02-failure-sort', 'en', root)
     expect(inline).toContain('<svg'); expect(inline).toContain('var(--foreground)'); expect(inline).not.toContain('<img')
     await writeFile(join(root, 'art/spot-empty.zh.svg'), svg)
     const light = await figureHtml('spot-empty', 'zh', root)
@@ -44,13 +44,14 @@ it.each([
   const root = await mkdtemp(join(tmpdir(), 'unsafe-diagram-'))
   try {
     await mkdir(join(root, 'diagrams'))
-    await writeFile(join(root, 'diagrams/home-corpus.en.svg'), `<svg xmlns="http://www.w3.org/2000/svg">${inner}</svg>`)
-    await expect(figureHtml('home-corpus', 'en', root)).rejects.toThrow()
+    await writeFile(join(root, 'diagrams/d02-failure-sort.en.svg'), `<svg xmlns="http://www.w3.org/2000/svg">${inner}</svg>`)
+    await expect(figureHtml('d02-failure-sort', 'en', root)).rejects.toThrow()
   } finally { await rm(root, { recursive: true, force: true }) }
 })
 
 
-it('validates every shipped fallback/download SVG and restores all six localized hero links', async () => {
+// The home hero figure and its six links were deleted in PR #8 (the home page has no figures now).
+it('validates every shipped fallback/download SVG', async () => {
   const root = await mkdtemp(join(tmpdir(), 'shipped-figures-'))
   try {
     expect(validateSvg(await readFile('public/favicon.svg', 'utf8'))).toContain('<svg')
@@ -62,8 +63,6 @@ it('validates every shipped fallback/download SVG and restores all six localized
         expect(validateSvg(source, { profile: figure.owner === 'diagram' ? 'diagram' : 'art', lang })).toContain('<svg')
         expect(result[lang][figure.id]).toBeTruthy()
       }
-      const links = [...result[lang]['home-hero'].matchAll(/<a href="([^"]+)"/g)].map(match => match[1])
-      expect(links).toEqual([`/${lang}/learn-from-matt`, ...Array(5).fill(`/${lang}/specs-and-tickets`)])
     }
   } finally { await rm(root, { recursive: true, force: true }) }
 })

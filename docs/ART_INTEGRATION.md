@@ -10,10 +10,6 @@ The delivery remained read only; the SVG validator is unchanged.
   `s15-boundary-check`, `s17-where-it-stalls`: 800×500, zh/en and light/dark.
   Both content languages place them at the delivery README's specified paragraphs.
   Registry alt and caption text use the README's bilingual descriptions.
-- `spot-entry-workflow`, `spot-entry-typescript`, `spot-entry-writing`: 480×340,
-  language-neutral light/dark assets before the eyebrow in each home entry card.
-  The registry marks these as decorative so the importer accepts their neutral
-  filenames. Images have empty alt text, are aria-hidden, and declare their dimensions.
 
 ## Existing art
 
@@ -35,7 +31,6 @@ its re-serialized output. The validator was not relaxed for art.
 The failure applies to all four filenames for every ID below:
 `<id>.zh.svg`, `<id>.en.svg`, `<id>.zh-dark.svg`, `<id>.en-dark.svg`.
 
-- home-routes
 - s02-silent-success
 - s03-card-anatomy
 - s05-three-questions
@@ -57,7 +52,6 @@ The failure applies to all four filenames for every ID below:
 - s15-deep-module
 - s16-lesson-order
 - s17-attribution
-- s21-four-marks
 - spot-empty
 - spot-404
 
@@ -66,7 +60,7 @@ log. Updated bilingual alt/caption text for false-success configuration checks,
 the input/process/output tracer comparison, the six-field favorites ticket and
 the generic identity-function example. The remaining descriptions still match.
 
-`home-hero` retains its hand-written SVG. Delivered `s06-tracer` art takes
+Delivered `s06-tracer` art takes
 precedence over the hand-written missing-file fallback. Placeholder IDs: none.
 
 Diagram note and decision surfaces use the card token so their labels retain

@@ -4,7 +4,7 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import registryData from '../data/figures.json'
 import { validateFigureRegistry } from './figure-registry.mjs'
 import { writeOutput } from './output-path.mjs'
-import { ChainFigure, TracerFigure } from '../src/Diagrams'
+import { TracerFigure } from '../src/Diagrams'
 import type { Lang } from '../src/lib/lang'
 import type { Figures } from '../src/lib/content'
 import { validateSvg } from './import-art.mjs'
@@ -28,7 +28,8 @@ export const escapeHtml = (value: string) => value.replace(/[&<>"']/g, c => ({ '
 function validatedMarkup(html: string, lang: Lang, profile: 'art' | 'diagram' = 'art') {
   return html.replace(/<svg[\s\S]*?<\/svg>/g, svg => validSvg(/<svg\b[^>]*\bxmlns=/.test(svg) ? svg : svg.replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" '), { profile, lang }))
 }
-export const figureById = (id: string) => registry.figures.find(f => f.id === id)
+// `decorative` (language-neutral art with empty alt text) is optional; no current figure sets it.
+export const figureById = (id: string): ((typeof registry.figures)[number] & { decorative?: boolean }) | undefined => registry.figures.find(f => f.id === id)
 async function exists(file: string) { try { await access(file); return true } catch { return false } }
 export async function figureHtml(id: string, lang: Lang, assetRoot = 'public'): Promise<string> {
   return renderArrows(await rawFigureHtml(id, lang, assetRoot))
@@ -36,7 +37,6 @@ export async function figureHtml(id: string, lang: Lang, assetRoot = 'public'): 
 async function rawFigureHtml(id: string, lang: Lang, assetRoot: string): Promise<string> {
   const f = figureById(id)
   if (!f) throw new Error(`Unknown figure id: ${id}`)
-  if (id === 'home-hero') return validatedMarkup(renderToStaticMarkup(<ChainFigure lang={lang} />), lang, 'diagram')
   const alt = `${f.alt.zh} / ${f.alt.en}`
   const caption = escapeHtml(f.caption[lang])
   const path = `/${f.owner === 'diagram' ? 'diagrams' : 'art'}/${id}${f.decorative ? '' : `.${lang}`}.svg`
@@ -84,11 +84,10 @@ async function downloadableFigure(id: string, lang: Lang) {
     .filter(m => /^\s*\.(chain|diagram|layer|time|risk|slice|loop|final)[\w-]+\s*$/.test(m[1]) && /fill:|stroke:|font-size:/.test(m[2]))
     .map(m => `.${scope} ${m[1].trim()}{${m[2].replace(/var\(--([\w-]+)\)/g, (_, key) => tokens[key])}}`).join('\n')
   const style = `<style>.${scope} text{font-family:Inter,'Noto Sans SC','Noto Sans CJK SC',sans-serif}${rules}</style>`
-  if (id === 'home-hero' || id === 's06-tracer') {
-    const html = renderToStaticMarkup(id === 'home-hero' ? <ChainFigure lang={lang} /> : <TracerFigure lang={lang} />)
+  if (id === 's06-tracer') {
+    const html = renderToStaticMarkup(<TracerFigure lang={lang} />)
     // Captions may contain inline Arrow SVGs; downloads include only the diagram panels.
     const svgs = [...html.split('<figcaption')[0].matchAll(/<svg[\s\S]*?<\/svg>/g)].map(m => m[0])
-    if (id === 'home-hero') return svgs[0].replace('class="chain-svg"', `class="chain-svg ${scope}"`).replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" ').replace('>', `>${style}`)
     return `<svg xmlns="http://www.w3.org/2000/svg" class="${scope}" viewBox="0 0 700 400"><title>${escapeHtml(f.alt.zh + ' / ' + f.alt.en)}</title>${style}${svgs.map((svg, i) => svg.replace('<svg ', `<svg x="${i * 360}" width="340" height="400" `)).join('')}</svg>`
   }
   const [, , width, height] = f.viewBox.split(/\s+/).map(Number)
