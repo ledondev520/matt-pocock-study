@@ -6,7 +6,7 @@ import { expect, test } from '@playwright/test'
 // selecting the prompt when the Clipboard API is missing or refuses.
 const site = 'https://matt.withkeya.com'
 const cases = [
-  { path: '/zh', hint: '点一下复制，丢给你的 agent', name: '复制给 agent 的提示', copied: '已复制给 agent 的提示', label: '已复制', url: `${site}/zh/llms.txt` },
+  { path: '/zh', hint: '点一下复制，丢给你的 agent', name: '复制给 agent 的提示', copied: '已复制给 agent 的提示', label: '已复制', url: `${site}/llms.txt` },
   { path: '/en', hint: 'Copy and paste into your agent', name: 'Copy the prompt for your agent', copied: 'Copied the prompt for your agent', label: 'Copied', url: `${site}/llms.txt` },
 ] as const
 const instructions = /替换|换掉|换成|说话就行|改成|填入|swap|replace|placeholder|fill in|\{|\}|<|>|…|\.\.\./i

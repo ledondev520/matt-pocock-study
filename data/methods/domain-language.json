@@ -1,0 +1,341 @@
+{
+  "id": "m.domain-language",
+  "domain": "ai-coding",
+  "title": {
+    "zh": "共享领域语言方法论",
+    "en": "A shared domain language"
+  },
+  "question": {
+    "zh": "怎样让人、agent 和代码用同一套词?为什么这件事在 AI 编程里特别有用?",
+    "en": "How do you get people, agents and code using the same words, and why does it matter so much in AI coding?"
+  },
+  "claim": {
+    "text": {
+      "zh": "从 DDD 里只取对 agent 最有用的几样:通用语言(术语表)、边界上下文和 ADR。在对齐的过程中逐步固定术语,并在代码、对话、提交信息和 PR 里一致地使用它们。术语表维护得越好,agent 就越会「说你的话」。",
+      "en": "Take only the parts of DDD that help agents most: a ubiquitous language (a glossary), bounded contexts and ADRs. Pin terms down while aligning, and use them consistently in code, conversations, commit messages and PRs. The better kept the glossary, the more the agent speaks your language."
+    },
+    "anchors": [
+      {
+        "url": "https://x.com/mattpocockuk/status/2083641584705253414",
+        "date": "2026-08-01",
+        "quote": "Domain language is unbelievably powerful with agents",
+        "quote_zh": "领域语言在 agent 身上威力大得难以置信"
+      }
+    ],
+    "evidence": "Direct"
+  },
+  "steps": [
+    {
+      "id": "m.domain-language#s1",
+      "order": 1,
+      "title": {
+        "zh": "只取 DDD 里有用的部分",
+        "en": "Take only the useful parts of DDD"
+      },
+      "how": {
+        "zh": "先用通用语言、边界上下文和 ADR;实体、值对象、聚合这些重型战术概念先不碰。",
+        "en": "Start with the ubiquitous language, bounded contexts and ADRs; leave heavy tactical ideas like entities, value objects and aggregates aside for now."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2045090172451057985",
+          "date": "2026-04-17",
+          "quote": "GOOD: Ubiquitous Language / Bounded Contexts / ADR's",
+          "quote_zh": "好的部分:通用语言 / 边界上下文 / ADR"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2044723788743360833",
+          "date": "2026-04-16",
+          "quote": "Model not doing what you want? Shared language",
+          "quote_zh": "模型不按你的意思来?用共享语言"
+        }
+      ],
+      "evidence": "Direct",
+      "since": "2026"
+    },
+    {
+      "id": "m.domain-language#s2",
+      "order": 2,
+      "title": {
+        "zh": "在对齐中把行话定义下来",
+        "en": "Define the jargon while aligning"
+      },
+      "how": {
+        "zh": "拷问需求时,要求把项目里出现的每个术语都说清楚,并写进术语表。之后的会话会自动对齐到这些定义。",
+        "en": "While grilling the requirements, ask for every project term to be made clear and written into the glossary. Later sessions line up with those definitions automatically."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2049554929862283341",
+          "date": "2026-04-29",
+          "quote": "It powers up /grill-me by forcing you to define the random jargon your project uses",
+          "quote_zh": "它增强了 /grill-me,迫使你定义项目里那些零散的行话"
+        },
+        {
+          "url": "https://www.aihero.dev/skills-grill-with-docs",
+          "date": "2026-08-24"
+        }
+      ],
+      "evidence": "Direct",
+      "since": "2026"
+    },
+    {
+      "id": "m.domain-language#s3",
+      "order": 3,
+      "title": {
+        "zh": "术语表放在仓库根目录,让 agent 必读",
+        "en": "Keep the glossary at the repo root and make the agent read it"
+      },
+      "how": {
+        "zh": "把术语表写成单独的文件,并在全局或项目指令里要求 agent 读它、使用它。文件名用直观的「术语表」(GLOSSARY.md),不用 DDD 的「上下文」(CONTEXT.md)。",
+        "en": "Write the glossary as its own file and require the agent, in global or project instructions, to read and use it. Give it a plain name (GLOSSARY.md) rather than the DDD-style CONTEXT.md."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2084753070437609606",
+          "date": "2026-08-04",
+          "quote": "Always read CONTEXT.md files, and use their ubiquitous language.",
+          "quote_zh": "始终阅读 CONTEXT.md 文件,并使用其中的通用语言。"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2088722635999834182",
+          "date": "2026-08-15",
+          "quote": "IMO a glossary is much more intuitive than a DDD \"bounded context\"",
+          "quote_zh": "在我看来,术语表比 DDD 的「边界上下文」直观得多"
+        }
+      ],
+      "evidence": "Direct",
+      "since": "2026"
+    },
+    {
+      "id": "m.domain-language#s4",
+      "order": 4,
+      "title": {
+        "zh": "用 ADR 记录代码表达不了的决定",
+        "en": "Record decisions the code cannot express in ADRs"
+      },
+      "how": {
+        "zh": "不显而易见的决定写成简短的 ADR,这是最薄的一层文档,让以后每个 agent 都知道当初为什么这样做。",
+        "en": "Write non-obvious decisions as short ADRs, the thinnest layer of documentation, so every later agent knows why things were done that way."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2060454199838544079",
+          "date": "2026-05-29",
+          "quote": "It's the thinnest layer of docs that captures the stuff code can't",
+          "quote_zh": "这是最薄的一层文档,能记下代码记不下的东西"
+        }
+      ],
+      "evidence": "Direct",
+      "since": "2026"
+    },
+    {
+      "id": "m.domain-language#s5",
+      "order": 5,
+      "title": {
+        "zh": "让术语贯穿代码、提交和 PR",
+        "en": "Carry the terms through code, commits and PRs"
+      },
+      "how": {
+        "zh": "命名、提交信息、PR 描述都使用同一套术语。术语用得一致,读懂术语就读懂了代码库的大部分;遇到模型冒出的新行话,就回到术语表修正。",
+        "en": "Names, commit messages and PR descriptions all use the same terms. With consistent terms, understanding the terms is most of understanding the codebase; when the model invents new jargon, go back to the glossary and correct it."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2087508057932615740",
+          "date": "2026-08-12",
+          "quote": "...AND those terms are used consistently in the codebase, then you understand the codebase.",
+          "quote_zh": "……而且这些术语在代码库里一致使用,那你就理解了这个代码库。"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2083111661225820497",
+          "date": "2026-07-31",
+          "quote": "Creating a shared language (i.e. /grill-with-docs) is the cure for this BS",
+          "quote_zh": "建立共享语言(即 /grill-with-docs)是治这种胡话的良药"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2075165738386559275",
+          "date": "2026-07-09",
+          "quote": "commit messages and PR's get a LOT easier to read",
+          "quote_zh": "提交信息和 PR 会好读得多"
+        }
+      ],
+      "evidence": "Direct",
+      "since": "2026"
+    }
+  ],
+  "examples": [
+    {
+      "origin": "site",
+      "title": {
+        "zh": "本站示例:术语表条目",
+        "en": "Our example: glossary entries"
+      },
+      "lang": "markdown",
+      "body": {
+        "zh": "# GLOSSARY.md\n- 草稿(Draft):用户尚未发布的内容;只存本地\n- 发布(Publish):草稿变为公开文章的动作;不可撤回(单向门)\n- 不要用:\"post\"、\"entry\"(统一说「草稿」或「文章」)",
+        "en": "# GLOSSARY.md\n- Draft: content the user has not published yet; stored locally only\n- Publish: turning a draft into a public article; cannot be undone (one-way door)\n- Avoid: \"post\", \"entry\" (say \"draft\" or \"article\")"
+      }
+    }
+  ],
+  "pitfalls": [
+    {
+      "text": {
+        "zh": "把 DDD 整套战术模式都搬过来。",
+        "en": "Bringing over every DDD tactical pattern."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2045090172451057985",
+          "date": "2026-04-17",
+          "quote": "BAD: Entities / Value Objects / Aggregates / Domain Events",
+          "quote_zh": "不好的部分:实体 / 值对象 / 聚合 / 领域事件"
+        }
+      ],
+      "evidence": "Direct"
+    },
+    {
+      "text": {
+        "zh": "听任模型自创行话。",
+        "en": "Letting the model make up its own jargon."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2083111661225820497",
+          "date": "2026-07-31",
+          "quote": "Opus 5 does feel significantly more 'jargon-y' than 4.8",
+          "quote_zh": "Opus 5 确实比 4.8 明显更爱用行话"
+        }
+      ],
+      "evidence": "Direct"
+    },
+    {
+      "text": {
+        "zh": "靠复杂的图来理解系统,而不是靠一致的术语、深模块和读代码。",
+        "en": "Relying on complex diagrams to understand the system instead of consistent terms, deep modules and reading code."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2089017494237290740",
+          "date": "2026-08-16",
+          "quote": "Consistent domain language, condensing functionality into deep modules and READING ACTUAL CODE is better",
+          "quote_zh": "一致的领域语言、把功能收进深模块、亲自读代码,这样更好"
+        }
+      ],
+      "evidence": "Direct"
+    },
+    {
+      "text": {
+        "zh": "没有建立共享语言就开工。",
+        "en": "Starting work before a shared language exists."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2109973273924579720",
+          "date": "2026-10-13",
+          "quote": "You aren't building a shared language",
+          "quote_zh": "你没有在建立共享语言"
+        }
+      ],
+      "evidence": "Direct"
+    }
+  ],
+  "evolution": [
+    {
+      "period": "2026-04",
+      "change": "first",
+      "stance": {
+        "zh": "把 DDD 当作答案:共享语言、边界上下文、ADR;用 /grill-with-docs 取代单独的通用语言 skill。",
+        "en": "DDD as the answer: shared language, bounded contexts, ADRs; /grill-with-docs replaces a separate ubiquitous-language skill."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2044723788743360833",
+          "date": "2026-04-16"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2045090172451057985",
+          "date": "2026-04-17"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2049770396858089933",
+          "date": "2026-04-30"
+        }
+      ]
+    },
+    {
+      "period": "2026-05–2026-08",
+      "change": "refine",
+      "stance": {
+        "zh": "ADR 写给 agent 看;在全局指令里要求使用术语;认为理解术语就等于理解代码库。",
+        "en": "ADRs are written for agents; global instructions require the terms; understanding the terms means understanding the codebase."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2060454199838544079",
+          "date": "2026-05-29"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2084753070437609606",
+          "date": "2026-08-04"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2087508057932615740",
+          "date": "2026-08-12"
+        }
+      ]
+    },
+    {
+      "period": "2026-08–2026-10",
+      "change": "refine",
+      "stance": {
+        "zh": "CONTEXT.md 改名 GLOSSARY.md;术语用进 PR;他说在术语表上投入越多,越觉得高效。",
+        "en": "CONTEXT.md is renamed GLOSSARY.md and the terms go into PRs; he says the more he invests in the glossary, the more productive he feels."
+      },
+      "anchors": [
+        {
+          "url": "https://x.com/mattpocockuk/status/2088722635999834182",
+          "date": "2026-08-15"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2107062474914550098",
+          "date": "2026-10-05"
+        },
+        {
+          "url": "https://x.com/mattpocockuk/status/2109735647267430497",
+          "date": "2026-10-12",
+          "quote": "the more work I put into the glossary, the more productive I feel.",
+          "quote_zh": "我在术语表上投入越多,就越觉得高效。"
+        }
+      ],
+      "current": true
+    }
+  ],
+  "related": [
+    "m.align-grill",
+    "m.pr-review",
+    "m.codebase-design",
+    "m.agent-docs-skills"
+  ],
+  "prerequisites": [],
+  "site_pages": [
+    "decisions-and-retrospectives",
+    "alignment-and-prototypes"
+  ],
+  "repos": [
+    {
+      "url": "https://github.com/mattpocock/skills",
+      "license": "MIT",
+      "reuse": "mit-with-notice"
+    }
+  ],
+  "sources_count": {
+    "keyword_hits": 40,
+    "curated": 16
+  },
+  "evidence": "Direct",
+  "date_first": "2026-04-16",
+  "date_last": "2026-10-13",
+  "status": "draft",
+  "updated": "2026-10-28"
+}

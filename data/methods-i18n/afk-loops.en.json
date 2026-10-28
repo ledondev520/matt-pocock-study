@@ -1,0 +1,106 @@
+{
+  "title": {
+    "zh": "AFK 循环与软件工厂方法论",
+    "en": "AFK loops and the software factory"
+  },
+  "question": {
+    "zh": "怎样让 coding agent 在无人值守(AFK)的情况下可靠地持续交付?从 Ralph 循环到「软件工厂」要做什么?",
+    "en": "How do you get a coding agent to keep shipping reliably while you are away from the keyboard (AFK)? What does it take to go from a Ralph loop to a \"software factory\"?"
+  },
+  "claim.text": {
+    "zh": "把工作分成白班和夜班:白班由人负责对齐、拆票、评审和 QA,夜班让 agent 在沙箱里循环领任务、实现并提交。每轮都从干净的上下文开始,有明确的停止条件;自动评审先过一遍,再交给人。工厂要从极小规模起步,逐步建立信任后再扩大。",
+    "en": "Split the work into a day shift and a night shift. In the day shift people align, write tickets, review and do QA; in the night shift agents loop in a sandbox, picking up tasks, implementing and committing. Every round starts from a clean context and has a clear stop condition; automated review goes first, then a person. Start the factory very small and grow it as trust builds."
+  },
+  "steps.0.title": {
+    "zh": "先在白班把需求对齐、拆成票",
+    "en": "Align and write tickets in the day shift"
+  },
+  "steps.0.how": {
+    "zh": "AFK 之前,人和 agent 先对齐需求;产出一份 PRD(目的地)和多张可以并行领取的实现票(路线)。需求收集的工作量不会因为 AI 而减少。",
+    "en": "Before going AFK, the person and the agent agree on the requirements and produce one PRD (the destination) and several implementation tickets that can be picked up in parallel (the route). AI does not shrink the work of gathering requirements."
+  },
+  "steps.1.title": {
+    "zh": "用一个简单的 bash 循环,每轮清空上下文",
+    "en": "Use a plain bash loop with a fresh context each round"
+  },
+  "steps.1.how": {
+    "zh": "循环脚本每一轮都让 agent 带着全新的上下文只做一个功能,完成后提交。设定最大轮数,并约定「没有剩余工作」时输出一个停止标记。不要用把多轮塞进同一个上下文的插件。",
+    "en": "Each round of the loop script gives the agent a fresh context and one feature to build, then commits. Set a maximum number of rounds and agree on a stop marker the agent prints when no work is left. Avoid plugins that pack many rounds into one context."
+  },
+  "steps.2.title": {
+    "zh": "让每轮留下进度和提交",
+    "en": "Have every round leave progress and a commit"
+  },
+  "steps.2.how": {
+    "zh": "要求 agent 每完成一项就提交,并在本地进度文件里追加记录,让下一轮(新上下文)知道已经做到哪里。",
+    "en": "Ask the agent to commit after each item and append a line to a local progress file, so the next round, with its new context, knows how far things got."
+  },
+  "steps.3.title": {
+    "zh": "放进沙箱,限制危险操作",
+    "en": "Run it in a sandbox and block dangerous actions"
+  },
+  "steps.3.how": {
+    "zh": "无人值守时让 agent 在容器或沙箱里运行,并用 hooks 拦住危险的 git 命令,防止它破坏宿主机或仓库。",
+    "en": "When nobody is watching, run the agent in a container or sandbox and use hooks to stop dangerous git commands, so it cannot damage the host or the repository."
+  },
+  "steps.4.title": {
+    "zh": "夜班:规划 agent 派活,评审 agent 先审",
+    "en": "Night shift: a planning agent assigns, a review agent checks first"
+  },
+  "steps.4.how": {
+    "zh": "规划 agent 判断哪些票现在可以做、哪些被阻塞,然后并行启动多个实现 agent;每个实现配一个自动评审 agent,对照 PRD 和代码质量检查;产出进分支、提 PR,再由人做 QA。",
+    "en": "A planning agent works out which tickets can be done now and which are blocked, then starts several implementation agents in parallel. Each implementation gets an automated review agent that checks it against the PRD and for code quality. The output lands on a branch as a PR, and then a person does QA."
+  },
+  "steps.5.title": {
+    "zh": "工厂从极小规模起步,逐步扩大",
+    "en": "Start the factory tiny and grow it"
+  },
+  "steps.5.how": {
+    "zh": "先每天只让它处理一个问题,检查输出、调整,再逐步增加数量。入门可以用 GitHub Actions:issue 当票、label 触发、cron 跑日常任务。(从小起步的思路他注明借自 Dex Horthy。)",
+    "en": "Begin with one issue a day: check the output, adjust, then raise the number. GitHub Actions is an easy start: issues as tickets, labels as triggers, cron for routine jobs. He credits the start-small idea to Dex Horthy."
+  },
+  "examples.0.title": {
+    "zh": "本站示例:最小的循环骨架(伪代码)",
+    "en": "Our example: the smallest loop skeleton (pseudocode)"
+  },
+  "examples.0.body": {
+    "zh": "for i in 1..10:\n  新会话运行 agent:读 PRD 和 progress.txt,只做一个未完成的功能\n  通过类型检查和测试后提交,并追加 progress.txt\n  如果 agent 输出「全部完成」标记:退出循环\n之后:人工 QA / 评审",
+    "en": "for i in 1..10:\n  new session runs the agent: read the PRD and progress.txt, build one unfinished feature\n  after typecheck and tests pass, commit and append to progress.txt\n  if the agent prints the \"all done\" marker: exit the loop\nthen: human QA / review"
+  },
+  "examples.1.title": {
+    "zh": "Sandcastle(MIT):在沙箱中编排 agent 的 TypeScript 库",
+    "en": "Sandcastle (MIT): a TypeScript library for orchestrating agents in sandboxes"
+  },
+  "pitfalls.0.text": {
+    "zh": "在同一个不断变长的上下文里连续做很多任务。",
+    "en": "Doing many tasks in a row in one context that keeps growing."
+  },
+  "pitfalls.1.text": {
+    "zh": "跳过反馈回路:没有类型、测试、CI,循环只会产出 slop。",
+    "en": "Skipping feedback loops: without types, tests and CI the loop only produces slop."
+  },
+  "pitfalls.2.text": {
+    "zh": "一上来就让工厂处理整个 backlog。",
+    "en": "Pointing the factory at the whole backlog on day one."
+  },
+  "pitfalls.3.text": {
+    "zh": "以为 AFK 可以省掉规划:需求收集依旧是人的活。",
+    "en": "Thinking AFK removes planning: gathering requirements is still a person's job."
+  },
+  "evolution.0.stance": {
+    "zh": "background agents 出现:他认为这正是自己理想的工作形态。",
+    "en": "Background agents arrive, and he sees them as the way he wants to work."
+  },
+  "evolution.1.stance": {
+    "zh": "Ralph:一个 bash 循环加 PRD 加进度文件;放进 docker 沙箱;反对使用插件。",
+    "en": "Ralph: a bash loop plus a PRD plus a progress file, run in a docker sandbox; he argues against plugins."
+  },
+  "evolution.2.stance": {
+    "zh": "形成完整链路:PRD → 票 → Ralph → 人工 QA;再发展为白班/夜班,由规划 agent 派活、评审 agent 把关;开源 Sandcastle。",
+    "en": "A full chain takes shape: PRD, tickets, Ralph, human QA. It grows into day and night shifts with a planning agent assigning work and a review agent guarding it; he open-sources Sandcastle."
+  },
+  "evolution.3.stance": {
+    "zh": "称之为「软件工厂」:从极小规模起步,可以用 GitHub Actions 入门;他观察到 AFK 运行的质量没有下降,反倒是人在环的规划阶段成了麻烦。",
+    "en": "He calls it a \"software factory\": start tiny, GitHub Actions is a fine way in. He notices AFK runs have not dropped in quality; the human-in-the-loop planning stage is now the hard part."
+  }
+}

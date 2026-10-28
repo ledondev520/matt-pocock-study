@@ -1,0 +1,70 @@
+{
+  "question": {
+    "zh": "做技术视频(YouTube、课程视频)时,形式、选题和制作流程怎么取舍?",
+    "en": "When making technical videos (YouTube, course videos), how do you weigh format, topic and production?"
+  },
+  "claim.text": {
+    "zh": "技术视频要在「技巧够酷」「每一步准确」「有趣简洁」之间做取舍,三者只能选两个;形式上可以用低成本的一镜到底提高频率,把重要内容切成小段精心录制;他还持续用自建工具(边录边剪的编辑器、AI 预演)降低制作成本。",
+    "en": "A technical video can have a cool technique, accuracy at every step, or a fun, concise delivery. Pick two. Use inexpensive one-take recordings to publish often; record important material carefully in small pieces. Reduce production work with tools such as an editor that cuts as you record and AI previews."
+  },
+  "steps.0.title": {
+    "zh": "先决定这条视频要哪两样",
+    "en": "First decide which two this video gets"
+  },
+  "steps.0.how": {
+    "zh": "技巧、准确、娱乐三者难以兼得。做教程就优先准确和步骤完整;做快讯或观点就优先有趣和简洁。先定取舍,再定长度和剪辑方式。",
+    "en": "Technique, accuracy and entertainment are hard to get together. A tutorial puts accuracy and complete steps first; a news item or opinion puts fun and brevity first. Decide the trade-off before the length and the editing."
+  },
+  "steps.1.title": {
+    "zh": "选题:一条一个主题,讲新动态或新心智模型",
+    "en": "Topics: one topic per video, news or a new mental model"
+  },
+  "steps.1.how": {
+    "zh": "一条视频只讲一个主题:他把原本的一条长视频按依赖图拆成多条短视频,发现更能留住观众、也更利于搜索。他还观察到「新闻式」视频和能给出新心智模型的讲解视频反响最好:报道 TS 社区的新动态,或者把一个常见主题换个角度讲透。",
+    "en": "One video covers one topic: he split one long video along its dependency graph into several short ones and found they held viewers better and did better in search. He also saw that news-style videos and explanations that give a new mental model do best: reporting what is new in the TS community, or taking a common topic from a new angle and explaining it fully."
+  },
+  "steps.2.title": {
+    "zh": "两种节奏:低成本一镜到底,和分段精录",
+    "en": "Two rhythms: a cheap single take, and careful pieces"
+  },
+  "steps.2.how": {
+    "zh": "日常内容可以一镜到底、不剪辑,十分钟做完,保持频率(他后来专门开了一个发原始内容的副频道);重要内容(如会议演讲)切成小段逐段录好再拼起来。",
+    "en": "Everyday content can be one take with no editing, done in ten minutes, to keep up the frequency (he later started a second channel just for raw content); important material (such as a conference talk) is cut into short pieces, each recorded well and then joined."
+  },
+  "steps.3.title": {
+    "zh": "缩略图当作产品的一部分来练",
+    "en": "Practise thumbnails as part of the product"
+  },
+  "steps.3.how": {
+    "zh": "缩略图决定点击。他会在设计工具里模拟 YouTube 页面,把缩略图放在真实环境里比较。",
+    "en": "Thumbnails decide clicks. He mocks up a YouTube page in a design tool and compares thumbnails in a realistic setting."
+  },
+  "steps.4.title": {
+    "zh": "用工具降低制作成本:边录边剪、AI 预演",
+    "en": "Use tools to cut production cost: edit while recording, AI previews"
+  },
+  "steps.4.how": {
+    "zh": "他自建了视频编辑器:录制时按说话自动切片并转写,可以边录边删;2026 年又让 AI 根据课程内容生成带配音的预演版(animatic),在正式拍摄前检查节奏和画面。",
+    "en": "He built his own video editor that slices and transcribes by speech as you record, so you can delete as you go. In 2026 he also had AI generate a voiced preview (an animatic) from course content, to check pacing and visuals before the real shoot."
+  },
+  "pitfalls.0.text": {
+    "zh": "想一条视频同时做到又酷、又完整准确、又短又有趣。",
+    "en": "Trying to make one video cool, complete and accurate, and short and fun all at once."
+  },
+  "pitfalls.1.text": {
+    "zh": "标题党缩略图:他承认偶尔用,但要内容配得上。",
+    "en": "Clickbait thumbnails: he admits to using them now and then, but the content has to live up to them."
+  },
+  "evolution.0.stance": {
+    "zh": "把 Twitter 上的 TS 技巧整理成 YouTube 播放列表;发现「新闻式」视频受欢迎;练缩略图。",
+    "en": "He gathers his Twitter TS tips into YouTube playlists, finds news-style videos popular, and practises thumbnails."
+  },
+  "evolution.1.stance": {
+    "zh": "总结三选二;尝试一镜到底的低成本形式;演讲分段精录。",
+    "en": "He sums up the pick-two rule, tries a cheap one-take format, and records talks in carefully made pieces."
+  },
+  "evolution.2.stance": {
+    "zh": "自建边录边剪的编辑器;开副频道发原始内容;用 AI 生成视频预演。",
+    "en": "He builds an editor that cuts while recording, starts a second channel for raw content, and uses AI to generate video previews."
+  }
+}

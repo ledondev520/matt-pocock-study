@@ -1,0 +1,362 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://matt.withkeya.com/methodology.schema.json",
+  "title": "Methodology",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "domain",
+    "title",
+    "claim",
+    "steps",
+    "sources_count",
+    "evidence",
+    "date_first",
+    "date_last",
+    "status"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^m\\.[a-z0-9-]+$"
+    },
+    "domain": {
+      "enum": [
+        "delivery",
+        "typescript",
+        "ai-coding",
+        "llm-apps",
+        "teach-learn"
+      ]
+    },
+    "title": {
+      "$ref": "#/$defs/i18n"
+    },
+    "question": {
+      "$ref": "#/$defs/i18n"
+    },
+    "claim": {
+      "$ref": "#/$defs/claim"
+    },
+    "steps": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/step"
+      }
+    },
+    "examples": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/example"
+      }
+    },
+    "pitfalls": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/claim"
+      }
+    },
+    "evolution": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "period",
+          "stance",
+          "change",
+          "anchors"
+        ],
+        "properties": {
+          "period": {
+            "type": "string",
+            "pattern": "^[0-9]{4}(-[0-9]{2})?(–[0-9]{4}(-[0-9]{2})?)?$"
+          },
+          "stance": {
+            "$ref": "#/$defs/i18n"
+          },
+          "change": {
+            "enum": [
+              "first",
+              "refine",
+              "reverse",
+              "reaffirm",
+              "unclear"
+            ]
+          },
+          "current": {
+            "type": "boolean"
+          },
+          "anchors": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "$ref": "#/$defs/anchor"
+            }
+          }
+        }
+      }
+    },
+    "related": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^m\\."
+      }
+    },
+    "prerequisites": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^m\\."
+      }
+    },
+    "site_pages": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "repos": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "url",
+          "license"
+        ],
+        "properties": {
+          "url": {
+            "type": "string"
+          },
+          "license": {
+            "type": "string"
+          },
+          "reuse": {
+            "enum": [
+              "mit-with-notice",
+              "link-only"
+            ]
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "sources_count": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "keyword_hits",
+        "curated"
+      ],
+      "properties": {
+        "keyword_hits": {
+          "type": "integer"
+        },
+        "curated": {
+          "type": "integer"
+        },
+        "method": {
+          "type": "string"
+        }
+      }
+    },
+    "evidence": {
+      "enum": [
+        "Direct",
+        "Supported",
+        "Inferred"
+      ]
+    },
+    "date_first": {
+      "type": "string",
+      "format": "date"
+    },
+    "date_last": {
+      "type": "string",
+      "format": "date"
+    },
+    "status": {
+      "enum": [
+        "draft",
+        "published"
+      ]
+    },
+    "updated": {
+      "type": "string",
+      "format": "date"
+    },
+    "thin": {
+      "const": true
+    }
+  },
+  "$defs": {
+    "i18n": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "zh",
+        "en"
+      ],
+      "properties": {
+        "zh": {
+          "type": "string",
+          "minLength": 1
+        },
+        "en": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "anchor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "url",
+        "date"
+      ],
+      "properties": {
+        "url": {
+          "type": "string",
+          "pattern": "^https://(x\\.com/mattpocockuk/status/[0-9]+|www\\.aihero\\.dev/|github\\.com/mattpocock/)"
+        },
+        "date": {
+          "type": "string",
+          "format": "date"
+        },
+        "quote": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "quote_zh": {
+          "type": "string"
+        }
+      }
+    },
+    "claim": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "text",
+        "anchors",
+        "evidence"
+      ],
+      "properties": {
+        "text": {
+          "$ref": "#/$defs/i18n"
+        },
+        "anchors": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/anchor"
+          }
+        },
+        "evidence": {
+          "enum": [
+            "Direct",
+            "Supported",
+            "Inferred"
+          ]
+        }
+      }
+    },
+    "step": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "order",
+        "title",
+        "how",
+        "anchors",
+        "evidence"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^m\\.[a-z0-9-]+#s[0-9]+$"
+        },
+        "order": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "title": {
+          "$ref": "#/$defs/i18n"
+        },
+        "how": {
+          "$ref": "#/$defs/i18n"
+        },
+        "anchors": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/anchor"
+          }
+        },
+        "evidence": {
+          "enum": [
+            "Direct",
+            "Supported",
+            "Inferred"
+          ]
+        },
+        "since": {
+          "type": "string"
+        }
+      }
+    },
+    "example": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "origin"
+      ],
+      "properties": {
+        "origin": {
+          "enum": [
+            "site",
+            "mit",
+            "link-only"
+          ]
+        },
+        "title": {
+          "$ref": "#/$defs/i18n"
+        },
+        "lang": {
+          "type": "string"
+        },
+        "body": {
+          "oneOf": [
+            {
+              "type": "string",
+              "maxLength": 2000
+            },
+            {
+              "$ref": "#/$defs/i18n"
+            }
+          ]
+        },
+        "license_ref": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/$defs/i18n"
+            }
+          ]
+        },
+        "url": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

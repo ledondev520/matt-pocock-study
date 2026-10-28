@@ -1,0 +1,94 @@
+{
+  "question": {
+    "zh": "tsconfig 该怎么配?module / moduleResolution 选哪个?发 npm 包要用 ESM 还是 CJS?",
+    "en": "How should tsconfig be set up? Which module / moduleResolution? Should an npm package ship ESM or CJS?"
+  },
+  "claim.text": {
+    "zh": "tsconfig 没有看起来那么难:先打开严格检查,再按「代码由谁转译」二选一地设定模块选项;新项目和新库直接用 ESM。tsc --init 生成的默认值已经过时,不要照单全收。",
+    "en": "tsconfig is less hard than it looks: turn on strict checking first, then set the module options by choosing between two cases based on who transpiles your code; new projects and libraries go straight to ESM. The defaults from tsc --init are out of date and shouldn't be taken as is."
+  },
+  "steps.0.title": {
+    "zh": "先开 strict,再加 noUncheckedIndexedAccess",
+    "en": "Turn on strict first, then add noUncheckedIndexedAccess"
+  },
+  "steps.0.how": {
+    "zh": "严格模式是底线;不开它,TypeScript 的大部分保护就没了。在此之上,他新建项目时第一个加的是 noUncheckedIndexedAccess,让按索引取数组或对象时把 undefined 也算进去。",
+    "en": "Strict mode is the baseline; without it most of TypeScript's protection is gone. On top of that, the first thing he adds in a new project is noUncheckedIndexedAccess, so indexing into arrays or objects includes undefined."
+  },
+  "steps.1.title": {
+    "zh": "模块选项只问一个问题:谁来转译?",
+    "en": "Module options come down to one question: who transpiles?"
+  },
+  "steps.1.how": {
+    "zh": "如果直接用 tsc 编译、在 Node 里运行,用 NodeNext;如果交给打包器或其他工具(Vite、esbuild 等)处理,用 Preserve(TS 5.4 之前是 ESNext)搭配 bundler 解析。TS 5.4 之后 moduleResolution 可以省略,由 module 推出。",
+    "en": "If tsc compiles and Node runs the output, use NodeNext; if a bundler or other tool (Vite, esbuild and so on) handles it, use Preserve (ESNext before TS 5.4) with bundler resolution. Since TS 5.4 moduleResolution can be left out and is derived from module."
+  },
+  "steps.2.title": {
+    "zh": "弄清楚你的代码最后是 ESM 还是 CJS",
+    "en": "Know whether your code ends up as ESM or CJS"
+  },
+  "steps.2.how": {
+    "zh": "很多人不知道自己的 TS 编译成了哪种模块格式,很多「莫名其妙」的导入报错都来自这里。新项目选 ESM;生态里 CJS 已能 require ESM,迁移的阻力在变小。",
+    "en": "Many people don't know which module format their TS compiles to, and many baffling import errors start there. Choose ESM for new projects; now that CJS can require ESM, migration is getting easier."
+  },
+  "steps.3.title": {
+    "zh": "发包:新库只发 ESM,并检查类型导出",
+    "en": "Publishing: new libraries ship ESM only, and check the type exports"
+  },
+  "steps.3.how": {
+    "zh": "2025 年起他的建议是新库不再同时发 CJS 和 ESM,只发 ESM;他的 npm 发包长文也据此删掉了 CJS 打包部分。发包前检查导出的类型能否被使用方正确解析(他的发包指南里有完整流程)。",
+    "en": "Since 2025 his advice is that new libraries stop shipping both CJS and ESM and ship ESM only; his long npm publishing guide dropped its CJS bundling section accordingly. Before publishing, check that consumers can resolve the exported types (his publishing guide has the full process)."
+  },
+  "steps.4.title": {
+    "zh": "应用代码不写 .d.ts,路径别名用 package.json#imports",
+    "en": "No .d.ts in application code; path aliases via package.json#imports"
+  },
+  "steps.4.how": {
+    "zh": "写应用代码时类型直接放在 .ts 文件里,.d.ts 留给描述外部 JS 的场景。需要路径别名时,用 package.json 的 imports 字段集中声明,而不是在每个工具里重复配置 paths。",
+    "en": "In application code keep types in .ts files and leave .d.ts for describing outside JS. For path aliases, declare them once in package.json's imports field rather than repeating paths settings in every tool."
+  },
+  "examples.0.title": {
+    "zh": "本站示例:两种常见场景的最小配置",
+    "en": "Our example: minimal configs for two common cases"
+  },
+  "examples.0.body": {
+    "zh": "// 场景 A:用 tsc 编译、Node 运行\n{ \"compilerOptions\": { \"strict\": true, \"noUncheckedIndexedAccess\": true, \"module\": \"NodeNext\" } }\n\n// 场景 B:交给打包器(Vite/esbuild 等)\n{ \"compilerOptions\": { \"strict\": true, \"noUncheckedIndexedAccess\": true, \"module\": \"Preserve\", \"noEmit\": true } }",
+    "en": "// case A: tsc compiles, Node runs\n{ \"compilerOptions\": { \"strict\": true, \"noUncheckedIndexedAccess\": true, \"module\": \"NodeNext\" } }\n\n// case B: a bundler handles it (Vite/esbuild etc.)\n{ \"compilerOptions\": { \"strict\": true, \"noUncheckedIndexedAccess\": true, \"module\": \"Preserve\", \"noEmit\": true } }"
+  },
+  "examples.1.title": {
+    "zh": "他的 TSConfig cheat sheet(2023,后续随 TS 版本更新)",
+    "en": "His TSConfig cheat sheet (2023, updated with later TS versions)"
+  },
+  "examples.2.title": {
+    "zh": "发包演示仓库 tt-package-demo(MIT)",
+    "en": "Publishing demo repository tt-package-demo (MIT)"
+  },
+  "pitfalls.0.text": {
+    "zh": "照搬 tsc --init 的默认配置:target 过时、默认 commonjs。",
+    "en": "Copying the tsc --init defaults: an outdated target and commonjs by default."
+  },
+  "pitfalls.1.text": {
+    "zh": "新库还在双发 CJS + ESM,徒增复杂度。",
+    "en": "New libraries still dual-publishing CJS and ESM, adding complexity for nothing."
+  },
+  "pitfalls.2.text": {
+    "zh": "应用代码里写 .d.ts 来放类型——他 2024 年明确改口反对。",
+    "en": "Putting types in .d.ts files in application code; he explicitly reversed on this in 2024."
+  },
+  "pitfalls.3.text": {
+    "zh": "路径别名在 tsconfig、打包器、测试工具里各配一遍,容易不一致。",
+    "en": "Configuring path aliases separately in tsconfig, the bundler and the test tool, so they drift apart."
+  },
+  "evolution.0.stance": {
+    "zh": "Node 项目用 NodeNext,打包器场景用 ESNext + bundler;写 cheat sheet 作为 tsc --init 的替代。",
+    "en": "NodeNext for Node projects, ESNext plus bundler for bundled code; he writes a cheat sheet as an alternative to tsc --init."
+  },
+  "evolution.1.stance": {
+    "zh": "TS 5.4 起改推 module: \"preserve\",moduleResolution 可以省略;发布推荐配置库;改口认为应用代码不该用 .d.ts。",
+    "en": "From TS 5.4 he recommends module: \"preserve\" and dropping moduleResolution; he releases a recommended-config library; he reverses and says application code shouldn't use .d.ts."
+  },
+  "evolution.2.stance": {
+    "zh": "Node 原生支持 TS、CJS 可以 require ESM 后,建议全面转向 ESM;2025 年起新库只发 ESM。",
+    "en": "With Node running TS natively and CJS able to require ESM, he advises moving fully to ESM; from 2025 new libraries ship ESM only."
+  }
+}

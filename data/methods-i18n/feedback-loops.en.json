@@ -1,0 +1,86 @@
+{
+  "title": {
+    "zh": "反馈回路与自动检查方法论",
+    "en": "Feedback loops and automated checks"
+  },
+  "question": {
+    "zh": "怎样让 agent 自己发现错误,而不是靠人逐行检查?",
+    "en": "How do you get an agent to find its own mistakes instead of having a person check every line?"
+  },
+  "claim.text": {
+    "zh": "给 agent 足够的自动反馈:类型检查、测试、格式化、lint,用提交前钩子和 CI 强制执行。agent 不怕重复,失败了就会再试,所以这些摩擦对 AI 编程来说是好事。每犯一次错,就想办法把模糊的规则变成确定性检查。",
+    "en": "Give the agent plenty of automatic feedback: type checks, tests, formatting and lint, enforced by pre-commit hooks and CI. Agents don't mind repetition and will retry after a failure, so this friction is a good thing for AI coding. Every time a mistake happens, look for a way to turn a vague rule into a deterministic check."
+  },
+  "steps.0.title": {
+    "zh": "类型检查作为第一道免费反馈",
+    "en": "Type checking is the first free feedback"
+  },
+  "steps.0.how": {
+    "zh": "用 TypeScript 而不是 JavaScript,在 package.json 里加 typecheck 脚本。类型能抓住很多 agent 不开浏览器就发现不了的错误。",
+    "en": "Use TypeScript rather than JavaScript and add a typecheck script to package.json. Types catch many errors an agent would otherwise miss without opening a browser."
+  },
+  "steps.1.title": {
+    "zh": "加自动化测试",
+    "en": "Add automated tests"
+  },
+  "steps.1.how": {
+    "zh": "用测试框架覆盖核心逻辑;更多地考虑集成测试,让 agent 改动后能跑测试确认行为没变。",
+    "en": "Cover the core logic with a test framework and lean more towards integration tests, so the agent can run them after a change and confirm the behaviour still holds."
+  },
+  "steps.2.title": {
+    "zh": "用提交前钩子强制执行",
+    "en": "Enforce it with pre-commit hooks"
+  },
+  "steps.2.how": {
+    "zh": "提交前自动跑格式化、类型检查和测试,任何一步失败就阻止提交,agent 会拿到报错信息再修。合并到主分支和部署前,在 CI 里再检查一遍。",
+    "en": "Run formatting, type checks and tests automatically before each commit and block the commit if any step fails; the agent gets the error and fixes it. Check again in CI before merging to the main branch and deploying."
+  },
+  "steps.3.title": {
+    "zh": "让 agent 能看到运行中的应用",
+    "en": "Let the agent see the running app"
+  },
+  "steps.3.how": {
+    "zh": "静态检查只能看到代码本身。还要让 agent 能访问本地运行的开发服务器,或者至少能读到它的日志输出(例如把输出写进文件,在 AGENTS.md 里注明位置)。这样前端改动、运行时报错也能形成反馈,不必每次都由人打开浏览器检查后再转述给 agent。",
+    "en": "Static checks only see the code. Also let the agent reach the local dev server, or at least read its log output (for example written to a file whose location is noted in AGENTS.md). Front-end changes and runtime errors then give feedback too, without a person opening the browser each time and relaying what they saw."
+  },
+  "steps.4.title": {
+    "zh": "把每次犯错变成确定性检查",
+    "en": "Turn every mistake into a deterministic check"
+  },
+  "steps.4.how": {
+    "zh": "出了错就做复盘,把「请不要这样做」之类模糊的规则,改写成自定义 lint 规则、提交前钩子或 CI 工作流,让同样的错误以后不可能再发生。",
+    "en": "When something goes wrong, review it and rewrite vague rules such as \"please don't do this\" as something a machine enforces: your own lint rule, a hook that runs before each commit, or a check in CI, so the same mistake cannot happen again."
+  },
+  "examples.0.title": {
+    "zh": "本站示例:提交前检查",
+    "en": "Our example: pre-commit checks"
+  },
+  "examples.0.body": {
+    "zh": "# .husky/pre-commit\nnpx lint-staged      # 格式化已暂存文件\nnpm run typecheck    # tsc\nnpm run test         # 单元/集成测试",
+    "en": "# .husky/pre-commit\nnpx lint-staged      # format staged files\nnpm run typecheck    # tsc\nnpm run test         # unit/integration tests"
+  },
+  "pitfalls.0.text": {
+    "zh": "没有反馈回路就让 Ralph 这类 AFK 循环跑。",
+    "en": "Running an AFK loop like Ralph without feedback loops."
+  },
+  "pitfalls.1.text": {
+    "zh": "自动检查太宽松。",
+    "en": "Automated checks that are too loose."
+  },
+  "pitfalls.2.text": {
+    "zh": "在每个场景都强制类型正确,反而拖慢开发。人类开发者只需在关键节点卡住。",
+    "en": "Forcing type correctness everywhere, which slows development down. Human developers only need a gate at key points."
+  },
+  "evolution.0.stance": {
+    "zh": "人类团队时代:只在 PR 合并到 main 和部署前强制类型正确。",
+    "en": "Human teams: type correctness is enforced only when a PR merges to main and before deploying."
+  },
+  "evolution.1.stance": {
+    "zh": "AI 编程让摩擦变成好事:每个 TS 项目都配置类型、测试、钩子和格式化,作为 AFK 循环的前提。",
+    "en": "AI coding makes friction a good thing: every TS project gets types, tests, hooks and formatting as the precondition for AFK loops."
+  },
+  "evolution.2.stance": {
+    "zh": "把复盘得到的规则写成确定性检查;认为软件开发容易自动化,正是因为它有大量高质量的自动反馈回路。",
+    "en": "Rules found in reviews become deterministic checks; he thinks software development is easy to automate precisely because it has so many high-quality automatic feedback loops."
+  }
+}

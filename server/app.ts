@@ -148,7 +148,7 @@ export function createApp(db: Database.Database, staticRoot?: string, corpus: Co
       c.req.raw = new Request(original, { headers })
       try {
         const response = await staticFiles(c, next)
-        if (response instanceof Response && /^\/(zh|en)\/[a-z0-9-]+\.md$/.test(c.req.path)) response.headers.set('Content-Type', 'text/markdown; charset=utf-8')
+        if (response instanceof Response && /^\/(zh|en)\/(?:methods\/)?[a-z0-9-]+\.md$/.test(c.req.path)) response.headers.set('Content-Type', 'text/markdown; charset=utf-8')
         return response
       } finally { c.req.raw = original }
     })

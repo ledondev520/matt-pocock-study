@@ -1,0 +1,90 @@
+{
+  "question": {
+    "zh": "什么时候该给函数或组件加类型参数?什么时候不需要泛型?",
+    "en": "When should a function or component get a type parameter, and when don't you need generics?"
+  },
+  "claim.text": {
+    "zh": "泛型不是一种独立的「东西」,而是让 TypeScript 追踪类型之间依赖关系的手段:只有当一个类型依赖另一个类型(返回值依赖参数、一个参数依赖另一个参数)时才加类型参数,其余情况用普通类型或联合类型就够了。",
+    "en": "Generics are not a separate \"thing\" but a way for TypeScript to track dependencies between types. Add a type parameter only when one type depends on another (the return value on an argument, one argument on another); otherwise a plain type or a union is enough."
+  },
+  "steps.0.title": {
+    "zh": "先问:函数里有没有动态的部分?",
+    "en": "First ask: is anything in the function dynamic?"
+  },
+  "steps.0.how": {
+    "zh": "如果函数的输入输出类型都是固定的,就不需要泛型;如果有动态部分但所有可能的形状事先都知道,通常一个联合类型就够了。只有剩下的情况才考虑泛型。",
+    "en": "If the input and output types are fixed, no generic is needed; if something is dynamic but every possible shape is known in advance, a union is usually enough. Only what is left calls for a generic."
+  },
+  "steps.1.title": {
+    "zh": "找类型依赖:返回值依赖参数,或参数依赖参数",
+    "en": "Find the type dependency: return on argument, or argument on argument"
+  },
+  "steps.1.how": {
+    "zh": "判断标准是「类型依赖」:比如去重函数的返回类型取决于传入的数组;一个渲染函数的参数取决于另一个参数传入的行数据。找到这种依赖,就用一个类型参数把它们连起来,剩下的交给推断。",
+    "en": "The test is a type dependency: a dedupe function's return type depends on the array passed in; a render function's parameter depends on the row data passed in another parameter. Once you find the dependency, link the two with one type parameter and leave the rest to inference."
+  },
+  "steps.2.title": {
+    "zh": "组件同理:一个 prop 依赖另一个 prop 的形状时才用泛型组件",
+    "en": "Components too: a generic component only when one prop depends on another's shape"
+  },
+  "steps.2.how": {
+    "zh": "比如表格组件的 renderRow 需要知道 rows 的类型,这时泛型组件很合适。如果只是不同 props 组合(例如 as=\"a\" 和 as=\"button\" 各有一组 props),判别联合往往更简单、更常用。",
+    "en": "A table component's renderRow needs to know the type of rows, which suits a generic component. When it is just different combinations of props (as=\"a\" and as=\"button\" each with their own props), a discriminated union is usually simpler and more common."
+  },
+  "steps.3.title": {
+    "zh": "用类型参数代替 any,让调用处自动推断",
+    "en": "Use a type parameter instead of any so call sites infer"
+  },
+  "steps.3.how": {
+    "zh": "函数里写了 any 来「兼容各种输入」时,通常换成一个类型参数,调用方就能拿到准确的类型而不用手动标注。",
+    "en": "Where a function uses any to accept all kinds of input, a type parameter usually works better: callers get the exact type without annotating by hand."
+  },
+  "steps.4.title": {
+    "zh": "控制推断:const 类型参数、NoInfer、默认值",
+    "en": "Steer inference: const type parameters, NoInfer, defaults"
+  },
+  "steps.4.how": {
+    "zh": "泛型推断出的类型不理想时,有几个工具:const 类型参数让推断保留字面量;NoInfer(TS 5.4)指定某个位置不参与推断;想强制调用方显式传类型参数时,可以把默认值设成一条错误信息。",
+    "en": "When the inferred type is not what you want, there are tools: a const type parameter keeps literals; NoInfer (TS 5.4) keeps a position out of inference; to force callers to pass the type argument explicitly, set its default to an error message."
+  },
+  "examples.0.title": {
+    "zh": "本站示例:有依赖才加类型参数",
+    "en": "Our example: a type parameter only where there is a dependency"
+  },
+  "examples.0.body": {
+    "zh": "// 无依赖:不需要泛型\nconst len = (s: string): number => s.length;\n\n// 返回值依赖参数:加一个类型参数\nconst uniq = <T,>(arr: T[]): T[] => [...new Set(arr)];\nuniq([1, 2, 2]); // number[]\n\n// 参数依赖参数\nconst logRows = <Row,>(rows: Row[], render: (r: Row) => string) => rows.map(render);",
+    "en": "// no dependency: no generic needed\nconst len = (s: string): number => s.length;\n\n// return depends on argument: add a type parameter\nconst uniq = <T,>(arr: T[]): T[] => [...new Set(arr)];\nuniq([1, 2, 2]); // number[]\n\n// argument depends on argument\nconst logRows = <Row,>(rows: Row[], render: (r: Row) => string) => rows.map(render);"
+  },
+  "examples.1.title": {
+    "zh": "他的泛型入门长帖(2023)",
+    "en": "His long intro thread on generics (2023)"
+  },
+  "examples.2.title": {
+    "zh": "「Spotting Generics」:所有实例化泛型的方式(2022)",
+    "en": "\"Spotting Generics\": every way to instantiate a generic (2022)"
+  },
+  "pitfalls.0.text": {
+    "zh": "事先知道所有形状却硬上泛型——联合类型就能解决。",
+    "en": "Forcing a generic when every shape is known in advance; a union solves it."
+  },
+  "pitfalls.1.text": {
+    "zh": "被第三方库的复杂泛型绑住:先试着不依赖库写出自己的类型,往往更简单、以后也好重构。",
+    "en": "Getting tied up in a library's complex generics: try writing your own types without the library first; it is often simpler and easier to refactor later."
+  },
+  "pitfalls.2.text": {
+    "zh": "别把 2023-04-01 那条「90% 的情况该用 any 而不是泛型」的帖子当成他的立场:它发在愚人节,之后没有后续,很可能是玩笑。",
+    "en": "Do not take the 2023-04-01 post saying to use any instead of generics 90% of the time as his position. It was April Fools’ Day, with no follow-up. It was probably a joke."
+  },
+  "evolution.0.stance": {
+    "zh": "以「TypeScript Tip」系列展示泛型的各种用法;给出判断规则:没有动态部分不用泛型,形状已知用联合。",
+    "en": "The \"TypeScript Tip\" series shows many uses of generics, with a rule of thumb: nothing dynamic, no generic; known shapes, a union."
+  },
+  "evolution.1.stance": {
+    "zh": "强调「没有泛型这种东西」,泛型是类型参数和类型实参的组合;组件层面更推荐判别联合。",
+    "en": "He stresses that \"generic\" is not a thing of its own: it is type parameters plus type arguments; for components he prefers discriminated unions."
+  },
+  "evolution.2.stance": {
+    "zh": "提出「类型依赖」这个心智模型来回答「什么时候用泛型」;同时介绍 const 类型参数、NoInfer 等控制推断的新工具。",
+    "en": "He offers the type-dependency mental model to answer when to use generics, and introduces new inference controls such as const type parameters and NoInfer."
+  }
+}

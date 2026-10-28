@@ -11,7 +11,7 @@ const indexRequests = (page: Page) => {
 // Typing before React has attached its handlers would test the server HTML, not the search.
 const hydrated = (page: Page) => page.waitForFunction(() => Object.keys(document.getElementById('site-search')!).some(key => key.startsWith('__reactProps')))
 for (const viewport of [{ width: 390, height: 844 }, { width: 1440, height: 900 }]) {
-  test(`zh home search finds a knowledge entry by a Chinese fragment and opens it by keyboard (${viewport.width}px)`, async ({ browser }) => {
+  test(`zh home search finds a method by a Chinese fragment and opens it by keyboard (${viewport.width}px)`, async ({ browser }) => {
     const context = await browser.newContext({ viewport })
     try {
       const page = await context.newPage()
@@ -30,7 +30,7 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1440, height: 900 
       await page.keyboard.type([...title].slice(1, 4).join(''))
       const results = page.locator('#site-search-results a')
       await expect(results.first()).toBeVisible()
-      expect(await results.evaluateAll(links => links.map(a => a.getAttribute('href')))).toContain(href)
+      expect(await results.evaluateAll(links => links.map(a => a.getAttribute('href')!.split('#')[0]))).toContain(href)
       await page.keyboard.press('ArrowDown')
       await expect(results.first()).toBeFocused()
       const target = (await results.first().getAttribute('href'))!

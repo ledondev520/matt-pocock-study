@@ -1,0 +1,86 @@
+{
+  "title": {
+    "zh": "Evals 方法论",
+    "en": "Evals"
+  },
+  "question": {
+    "zh": "LLM 应用的输出不确定,怎样知道改动让它变好还是变坏?",
+    "en": "LLM apps give uncertain output. How do you know whether a change made things better or worse?"
+  },
+  "claim.text": {
+    "zh": "evals 就是概率系统的单元测试。把典型输入整理成数据集,用评分器打分,每次改提示词、模型或上下文后都跑一遍,用数据而不是感觉判断好坏。评分器优先用确定性的,其次用 LLM 当裁判,最后靠人工反馈;再用线上观测数据反过来补充 evals。",
+    "en": "Evals are unit tests for probabilistic systems. Collect typical inputs into a dataset, score them with scorers, and run them after every change to the prompt, model or context, so data rather than gut feel decides. Prefer deterministic scorers, then an LLM as judge, then human feedback; and feed production observations back into the evals."
+  },
+  "steps.0.title": {
+    "zh": "认清为什么普通测试不够",
+    "en": "See why ordinary tests are not enough"
+  },
+  "steps.0.how": {
+    "zh": "LLM 系统里没有「小改动」,一个词的大小写都可能改变输出;手工点一点演示也看不出整体变好还是变坏。所以需要一套可以反复跑的评估。",
+    "en": "In an LLM system there is no small change; even the case of one word can change the output, and clicking through a demo by hand won't tell you whether things got better or worse overall. You need evaluations you can run again and again."
+  },
+  "steps.1.title": {
+    "zh": "先用确定性评分器",
+    "en": "Start with deterministic scorers"
+  },
+  "steps.1.how": {
+    "zh": "能写成通过/失败规则的就写成规则,例如输出格式是否合法、是否包含必需字段、长度是否超限、是否调用了某个工具。这类评估运行快、结果稳定、面向开发者,应该最先写,也最适合放进 CI 里每次都跑。",
+    "en": "Anything that can be a pass/fail rule becomes a rule: is the output format valid, are required fields present, is it within length, did it call a given tool. These run fast, give stable results and are aimed at developers; write them first, and run them in CI every time."
+  },
+  "steps.2.title": {
+    "zh": "确定性做不到时,用 LLM 当裁判",
+    "en": "When determinism can't do it, use an LLM as judge"
+  },
+  "steps.2.how": {
+    "zh": "让另一个模型按标准评判输出,并让它返回文本枚举(例如「好/一般/差」),再由代码换算成分数,不要让它直接打数字分。裁判不通过的时候,通常就该由人来看一看。",
+    "en": "Have another model judge the output against criteria and return a text label (good / fair / poor) that code converts into a score, rather than asking it for a number. When the judge fails something, that is usually the time for a person to look."
+  },
+  "steps.3.title": {
+    "zh": "本地快速迭代:评估驱动开发",
+    "en": "Iterate fast locally: eval-driven development"
+  },
+  "steps.3.how": {
+    "zh": "用本地运行、监听文件改动、带界面的评估工具,改一次提示词或工具描述就立刻看到分数变化;把模型调用缓存下来,让循环更快。这就是评估驱动开发。",
+    "en": "Use an eval tool that runs locally, watches files and has a UI, so every change to a prompt or tool description shows its effect on the score at once; cache model calls to speed up the loop. That is eval-driven development."
+  },
+  "steps.4.title": {
+    "zh": "用线上数据补 evals,用 evals 代替黑箱调参",
+    "en": "Grow evals from production data; use evals instead of black-box tuning"
+  },
+  "steps.4.how": {
+    "zh": "接入可观测性工具,把真实用户数据变成新的评估用例;有了 evals,就直接改提示词并用分数验证,不必用复杂的自动优化把提示词变成黑箱。",
+    "en": "Connect observability tools and turn real user data into new eval cases. With evals in place, change the prompt directly and check it with the scores, rather than handing the prompt to a complex automatic optimiser that turns it into a black box."
+  },
+  "examples.0.title": {
+    "zh": "本站示例:LLM 裁判的文本枚举",
+    "en": "Our example: text labels for an LLM judge"
+  },
+  "examples.0.body": {
+    "zh": "裁判提示:判断回答是否引用了给定资料。\n只输出以下之一:YES / PARTIAL / NO\n代码换算:YES=1, PARTIAL=0.5, NO=0",
+    "en": "Judge prompt: decide whether the answer cites the given material.\nOutput exactly one of: YES / PARTIAL / NO\nIn code: YES=1, PARTIAL=0.5, NO=0"
+  },
+  "pitfalls.0.text": {
+    "zh": "只靠手工点几下演示来判断改动好坏。",
+    "en": "Judging a change by clicking through a demo a few times."
+  },
+  "pitfalls.1.text": {
+    "zh": "让 LLM 裁判直接打数字分。",
+    "en": "Having an LLM judge give a numeric score directly."
+  },
+  "pitfalls.2.text": {
+    "zh": "以为 skill 或 agent 行为很容易评估。他自己也承认这很难。",
+    "en": "Thinking skills or agent behaviour are easy to evaluate. He admits himself that it is hard."
+  },
+  "evolution.0.stance": {
+    "zh": "把 evals 定义为 AI 工程师的单元测试,分三类;开始做基于 Vitest 的本地评估工具 Evalite。",
+    "en": "He defines evals as the AI engineer's unit tests, in three kinds, and starts Evalite, a local eval tool built on Vitest."
+  },
+  "evolution.1.stance": {
+    "zh": "LLM 裁判用文本枚举;evals 加可观测性构成技术栈;对「evals 已死」的说法持调侃态度。",
+    "en": "LLM judges return text labels; evals plus observability make up the stack; he jokes about claims that \"evals are dead\"."
+  },
+  "evolution.2.stance": {
+    "zh": "Evalite 进入 v1,推广评估驱动开发;之后转向 AI 编程,承认评估 skills 和模型很难。",
+    "en": "Evalite reaches v1 and he promotes eval-driven development; later, moving to AI coding, he admits evaluating skills and models is hard."
+  }
+}

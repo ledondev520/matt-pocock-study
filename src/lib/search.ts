@@ -14,7 +14,8 @@ export const searchIndexPath = (lang: Lang) => `/search/${lang}.json`
 export const fold = (text: string) => text.normalize('NFKC').toLowerCase().replace(/\s+/g, ' ').trim()
 
 /** Substring match on every space-separated term, so Chinese needs no word segmentation. Title hits
- * rank first; ties keep index order (newest knowledge entries, then notes in reading order). */
+ * rank first; ties keep index order. Method passages share one result per page, so one long
+ * method cannot crowd all the notes out of the results. Knowledge entries keep separate links. */
 export function searchItems(items: SearchItem[], query: string, limit = 8): SearchItem[] {
   const q = fold(query)
   if (!q) return []
@@ -25,7 +26,13 @@ export function searchItems(items: SearchItem[], query: string, limit = 8): Sear
     if (!terms.every(term => body.includes(term))) return
     hits.push({ item, i, score: (title.includes(q) ? 4 : 0) + terms.filter(term => title.includes(term)).length })
   })
-  return hits.sort((a, b) => b.score - a.score || a.i - b.i).slice(0, limit).map(hit => hit.item)
+  const seen = new Set<string>()
+  return hits.sort((a, b) => b.score - a.score || a.i - b.i).filter(({ item }) => {
+    const key = /^\/(zh|en)\/methods\//.test(item.href) ? item.href.split('#')[0] : item.href
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
+  }).slice(0, limit).map(hit => hit.item)
 }
 
 /** The static index source: one request per language, made on first use and then cached. */

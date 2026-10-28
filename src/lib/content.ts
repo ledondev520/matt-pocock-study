@@ -38,7 +38,10 @@ export interface Model { pages: PageSummary[]; currentPage?: Page; figures: Figu
   /** What to learn today (newest first); only set on the home pages. */
   today?: import('./learn').TodayItem[]
   /** Timeline items in this view's language (newest first); only set on the timeline views. */
-  timeline?: import('./timeline').TimelineItem[] }
+  timeline?: import('./timeline').TimelineItem[]
+
+  /** Methodology list, and the open set on a set's page; only set on the methods views. */
+  methods?: import('./methods').MethodsView }
 export interface Licences {
   mit: { id: string; name: string; repo: string; licenseUrl: string; adapted: { file: string; pages: string[] }[]; text: string }[]
   fonts: { id: string; name: string; pkg: string; repo: string; href: string; text: string }[]

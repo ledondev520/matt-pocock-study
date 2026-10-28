@@ -1,0 +1,62 @@
+{
+  "question": {
+    "zh": "库或项目的文档该怎么组织?代码里的说明文档还要不要写?",
+    "en": "How should a library's or project's documentation be organised? Should you still write explanatory docs for code?"
+  },
+  "claim.text": {
+    "zh": "好文档先回答「这东西是什么」,再用渐进式展开(progressive disclosure)把读者从概念带到细节;组织内容时先把知识画成依赖图,再找一条线性路径。对自己代码的解释性文档,他 2026 年的看法是:能删就删,把精力花在让代码自解释上,只保留代码说不出的东西(备选方案、领域语言)。",
+    "en": "Good docs first answer what the thing is. Use progressive disclosure to move from concepts to details. Map the knowledge dependencies, then choose an order to teach them. For docs explaining your own code, his 2026 advice is to delete what you can. Make the code explain itself. Keep what code cannot say: alternatives considered and domain language."
+  },
+  "steps.0.title": {
+    "zh": "先讲清「它是什么」",
+    "en": "First make clear what it is"
+  },
+  "steps.0.how": {
+    "zh": "文档最容易缺的是对核心概念本身的描述。他批评 Effect 文档时说读完仍「感觉」不到 Effect 是什么;一年后改口称赞,理由之一正是文档补上了对 Effect 是什么的精彩描述。",
+    "en": "What docs most often lack is a description of the core concept itself. Criticising the Effect docs, he said that after reading them he still couldn't feel what Effect was; a year later he praised them, partly because they had added a great description of what Effect is."
+  },
+  "steps.1.title": {
+    "zh": "把知识画成图,再找一条线性路径",
+    "en": "Draw the knowledge as a graph, then find a linear path"
+  },
+  "steps.1.how": {
+    "zh": "他做文档和视频内容的通用方法:把信息整理成有向无环图(谁依赖谁),给图的各个区域分组,再找出一条穿过这些分组的线性顺序。他说这套方法用在了 TS 课程、XState 和 Turborepo/Turbopack 文档上;2025 年他仍用同样的依赖图来拆分视频和帖子。",
+    "en": "His general method for docs and video content: arrange the information as a directed acyclic graph (what depends on what), group regions of the graph, then find a linear order through those groups. He says he used it on the TS courses and the XState and Turborepo/Turbopack docs; in 2025 he still used the same dependency graph to split videos and posts."
+  },
+  "steps.2.title": {
+    "zh": "概念指南与 API 细节分开",
+    "en": "Keep concept guides apart from API details"
+  },
+  "steps.2.how": {
+    "zh": "设计 XState 文档结构时,他的第一步是一份长篇的「概念」指南,少放代码,像一本讲状态图的小书;API 细节放在另一层。",
+    "en": "For the XState docs, he started with a long concepts guide and little code: a small book on statecharts. API details belong in a separate layer."
+  },
+  "steps.3.title": {
+    "zh": "解释代码的文档:删掉,让代码自解释",
+    "en": "Docs that explain code: delete them and let the code explain itself"
+  },
+  "steps.3.how": {
+    "zh": "为解释自己代码而写的文档会过时、还要花 token 维护。他建议把维护文档的精力用来改进代码本身;例外是代码无法表达的内容,比如考虑过的备选方案和领域术语,即 ADR 和术语表。",
+    "en": "Docs written to explain your own code go stale and cost tokens to maintain. He suggests spending that effort improving the code itself; the exception is what code can't express, such as alternatives considered and domain terms, that is, ADRs and a glossary."
+  },
+  "pitfalls.0.text": {
+    "zh": "入门资料和进阶资料混在一起,基础知识出现得太晚。",
+    "en": "Mixing beginner and advanced material, so the basics turn up too late."
+  },
+  "pitfalls.1.text": {
+    "zh": "给自己的代码写大量解释性文档,随后疏于维护而过时。",
+    "en": "Writing lots of explanatory docs for your own code, then letting them go stale."
+  },
+  "evolution.0.stance": {
+    "zh": "参与重写 XState、Turborepo、Turbopack 文档;提出「概念指南 + 依赖图 → 线性路径」的组织方法。",
+    "en": "He helps rewrite the XState, Turborepo and Turbopack docs and proposes organising by concepts guide plus dependency graph into a linear path."
+  },
+  "evolution.1.stance": {
+    "zh": "自称对文档「极其有主见」;以 Effect 文档为例批评缺少概念描述。",
+    "en": "He calls himself extremely opinionated about docs and uses the Effect docs as an example of missing concept descriptions."
+  },
+  "evolution.2.stance": {
+    "zh": "称赞 Effect 文档的渐进式展开;对代码的解释性文档主张删除,只保留 ADR 和术语表。",
+    "en": "He praises the progressive disclosure in the Effect docs; for docs explaining code he argues for deleting them and keeping only ADRs and a glossary."
+  }
+}
