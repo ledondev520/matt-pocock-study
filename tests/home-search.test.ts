@@ -113,6 +113,15 @@ it('removes only newly exposed leading sentence punctuation after dropping count
     expect(withoutCounts(` ${punctuation} 后文 140 赞`)).toBe(` ${punctuation} 后文`)
   }
 })
+it.each([
+  ['140 likes .NET configuration', '.NET configuration'],
+  ['140 赞。.env 配置', '.env 配置'],
+  ['140 likes .NET', '.NET'],
+  ['140 likes, .NET configuration', '.NET configuration'],
+  ['140 赞。 .env 配置', '.env 配置'],
+])('preserves identifier punctuation after a removed count: %s', (input, expected) => {
+  expect(withoutCounts(input)).toBe(expected)
+})
 it('the learn source feeds today (newest first, limited) and the search index from one place', () => {
   const knowledge = [entry('1', '2026-10-26', '旧的', '旧'), entry('2', '2026-10-27', '新的一', '一'), entry('3', '2026-10-27', '新的二', '二')]
   const pages = [{ lang: 'zh', slug: 'review-and-pr', title: '评审与 PR', subtitle: '评审与 PR', summary: '需求与规范。' }, { lang: 'en', slug: 'review-and-pr', title: 'Review and PRs', subtitle: 'Review', summary: 'Two axes.' }] as PageSummary[]

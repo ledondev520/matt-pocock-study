@@ -166,34 +166,26 @@ const suspicious = (hits: Hits) => hits.ordinary >= 16 || hits.han >= 3 || hits.
 
 /** Fingerprints are candidate evidence, not proof of copying. Verify a rejection against
  * actual source strings: a sustained run, complete sentences sharing the quote allowance,
- * or reconstruction of almost all of an original from scattered words/characters.
- * The last check retains protection against interleaved/affixed short-word copying without
- * treating every occurrence of "at" in "parameter" as a copied source word.
+ * or emitted source words/characters sharing the same allowance. Repetitions consume
+ * budget on every occurrence, regardless of how much of the original was copied.
  */
 async function independentSourceMatches(output: string, sources: { text: string; url?: string }[], linked: Set<string> | undefined, quotes: Extract[]): Promise<boolean> {
   const tokens = (text: string) => text.replace(/\p{Script=Han}/gu, ' $& ').match(/[\p{L}\p{N}]+/gu) ?? []
   const outputLetters = letters(output)
-  const outputTokens = ` ${tokens(output).join(' ')} `
   const outputSymbols = symbols(output)
   const runs = (text: string, size: number) => new Set(Array.from({ length: Math.max(0, text.length - size + 1) }, (_, i) => text.slice(i, i + size)))
   const longRuns = [runs(outputLetters, 40), runs(outputSymbols, 20)]
   const outputWords = output.match(/[a-z0-9]+/g) ?? []
   const wordRuns = new Set(outputWords.flatMap(word => [...runs(word, 20)]))
-  const fragments = new Set<string>()
   let work = 0
-  for (const word of outputWords) for (const fragment of shortFragments(word)) {
-    fragments.add(fragment)
-    if (++work % QUANTUM === 0) await yieldToRequests()
-  }
   const outputHan = [...outputLetters].filter(c => han(c.codePointAt(0)!))
-  const hanSet = new Set(outputHan)
-  const originals = new Map<string, { sentences: Set<string>; words: Set<string>; counts: Map<string, number>; wordChars: Map<string, number>; han: Set<string>; size: number; covered: number }>()
+  const originals = new Map<string, { sentences: Set<string>; words: Set<string>; pairs: Set<string>; counts: Map<string, number>; wordChars: Map<string, number>; han: Set<string> }>()
   let normalizedSize = 0
   for (const { text, url } of sources) {
     const key = url ? sourceKey(url) : ''
     let original = originals.get(key)
     if (!original) {
-      original = { sentences: new Set(), words: new Set(), counts: new Map(), wordChars: new Map(), han: new Set(), size: 0, covered: 0 }
+      original = { sentences: new Set(), words: new Set(), pairs: new Set(), counts: new Map(), wordChars: new Map(), han: new Set() }
       originals.set(key, original)
     }
     const parts: string[] = []
@@ -217,21 +209,15 @@ async function independentSourceMatches(output: string, sources: { text: string;
     }
     for (const sentence of normalized.split(/[.!?。！？\n]+/u)) {
       const words = tokens(sentence)
-      if (words.length) original.sentences.add(` ${words.join(' ')} `)
+      if (words.length) original.sentences.add(words.join(''))
     }
-    // Require source words in their original order, per source passage and original URL,
-    // rather than pooling unrelated fingerprints across posts and answer fields.
-    let cursor = 0
+    let previous = ''
     for (const word of tokens(normalized)) {
       if (++work % QUANTUM === 0) await yieldToRequests()
-      original.size += word.length
-      const isHan = /^\p{Script=Han}$/u.test(word)
-      if (isHan) original.han.add(word); else original.words.add(word)
+      if (/^\p{Script=Han}$/u.test(word)) original.han.add(word); else original.words.add(word)
       original.counts.set(word, (original.counts.get(word) ?? 0) + 1)
-      if (isHan ? hanSet.has(word) : word.length <= 4 ? fragments.has(word) : outputLetters.includes(word)) {
-        const index = outputLetters.indexOf(word, cursor)
-        if (index !== -1) { original.covered += word.length; cursor = index + word.length }
-      }
+      if (previous) original.pairs.add(`${previous} ${word}`)
+      previous = word
     }
   }
   for (const [url, original] of originals) {
@@ -240,39 +226,39 @@ async function independentSourceMatches(output: string, sources: { text: string;
     for (const sentence of original.sentences) {
       if (++work % QUANTUM === 0) await yieldToRequests()
       // Count emitted occurrences, including repeats of a sentence already quoted.
-      for (let i = outputTokens.indexOf(sentence); i !== -1; i = outputTokens.indexOf(sentence, i + sentence.length - 1)) {
+      for (let i = outputLetters.indexOf(sentence); i !== -1; i = outputLetters.indexOf(sentence, i + sentence.length)) {
         if (linked && !linked.has(url)) return false
         if (++total.sentences > MAX_SENTENCES) return false
       }
     }
-    if (!original.size || original.covered / original.size < 0.9) continue
-    const remaining = new Map(original.counts)
-    const consume = (word: string) => {
-      const count = remaining.get(word) ?? 0
-      if (count) remaining.set(word, count - 1)
-      return count > 0
-    }
-    const copiedHan = outputHan.filter(c => original.han.has(c) && consume(c)).length
+    const copiedHan = outputHan.filter(c => original.han.has(c)).length
     total.cjk += copiedHan
     total.chars += copiedHan
-    const longWords = [...original.words].filter(w => w.length > 4).sort((a, b) => b.length - a.length)
     const countWord = (word: string, chars = original.wordChars.get(word) ?? word.length + 1) => {
-      if (consume(word)) { total.words++; total.chars += chars }
+      total.words++; total.chars += chars
     }
-    for (const word of outputWords) {
+    for (const [position, word] of outputWords.entries()) {
       if (++work % 128 === 0) await yieldToRequests()
+      const inPair = original.pairs.has(`${outputWords[position - 1]} ${word}`) || original.pairs.has(`${word} ${outputWords[position + 1]}`)
       // Long exact words may have an added suffix or meet the next response field.
-      const longWord = longWords.find(w => word.includes(w))
-      if (longWord) { countWord(longWord); continue }
-      if (original.words.has(word)) { countWord(word); continue }
-      let next = 0
       for (let i = 0; i < word.length; i++) {
         if (++work % QUANTUM === 0) await yieldToRequests()
-        if (i < next) continue
-        const fragment = [...fragmentsAt(word, i)].find(f => original.words.has(f))
+        // A 20-character source run inside a token was already rejected above, so
+        // at most 19 candidate lengths remain, independent of the source vocabulary.
+        let longWord: string | undefined
+        for (let size = Math.min(19, word.length - i); size >= 5; size--) {
+          const candidate = word.slice(i, i + size)
+          if (original.words.has(candidate)) { longWord = candidate; break }
+        }
+        if (longWord) { countWord(longWord); i += longWord.length - 1; continue }
+        // Isolated tiny function words are incidental evidence (e.g. "a" in "ask",
+        // or repeated "the" in an independent explanation). A repeated source word
+        // or a neighboring source word supplies stronger evidence. Complete phrases
+        // also share the sentence budget, including punctuation and field splits.
+        const fragment = [...fragmentsAt(word, i)].find(f => original.words.has(f) && (f.length >= 4 || (original.counts.get(f) ?? 0) > 1 || (f === word && inPair)))
         if (fragment) {
           countWord(fragment, fragment.length)
-          next = i + fragment.length
+          i += fragment.length - 1
         }
       }
     }
