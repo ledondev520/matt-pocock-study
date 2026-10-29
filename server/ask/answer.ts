@@ -6,7 +6,7 @@ import type { ChatMessage } from './deepseek'
 import { isAllowedSourceUrl, isSitePath, originalPost, type Unit } from './units'
 
 export type Lang = 'zh' | 'en'
-export const PROMPT_VERSION = 'methodology-v14-trimmed-answer'
+export const PROMPT_VERSION = 'methodology-v15-trimmed-titles'
 
 export interface Citation { n: number; kind: Unit['kind']; date?: string; sourceUrl?: string; siteUrl?: string; title?: string; snippet?: string }
 export interface Point { title: string; text: string; quote?: string; quoteUrl?: string; cites: number[] }
@@ -158,7 +158,7 @@ export async function parseAnswer(content: string, units: Unit[], siteUrl: strin
   const responseQuotes = points.flatMap(p => p.quote && p.quoteUrl ? [{ text: p.quote, url: p.quoteUrl }] : [])
   if (!quotesWithinBudget(responseQuotes)) return undefined
   const responseUrls = [...responseCitations.flatMap(c => c.sourceUrl ? [c.sourceUrl] : []), ...responseQuotes.map(q => q.url)]
-  const responseFields = [title, ...points.flatMap(p => [p.title, p.text]), ...responseCitations.map(c => c.title ?? '')]
+  const responseFields = [title, ...points.flatMap(p => [p.title, p.text]), ...[...responseNumbering].flatMap(([old]) => [citationTitles[old - 1], citations[old - 1].title ?? ''])]
   if (!await explanationsAreIndependent(responseFields, units, responseUrls, responseQuotes)) return undefined
   return { found: true, title, points, citations: responseCitations }
 }

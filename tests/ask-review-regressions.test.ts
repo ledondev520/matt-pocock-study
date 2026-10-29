@@ -230,6 +230,48 @@ for (const fixture of [
   })
 }
 
+for (const clean of [false, true]) {
+  it(`rechecks both trimmed citation title forms with wrapped posts (clean=${clean})`, async () => {
+    const sourceUrl = (n: number) => `https://x.com/mattpocockuk/status/300000000000000000${n}`
+    const units: Unit[] = [
+      { id: 'note:separator', kind: 'note', title: 'Metadata', text: 'Our commentary.', sourceUrl: sourceUrl(1) },
+      { id: 'post:wrapper', kind: 'post', title: 'Scope', text: 'Scope · Matt Pocock, 2026-10-29\nPlan carefully.', sourceUrl: sourceUrl(2) },
+      { id: 'method:tail', kind: 'method', title: 'reversible work', text: 'Our second commentary.', sourceUrl: sourceUrl(4) },
+      { id: 'post:uncited', kind: 'post', title: '', text: 'Prefer reversible work.', sourceUrl: sourceUrl(4) },
+    ]
+    const points = clean
+      ? [{ title: 'Inspect', text: 'Validate assumptions before committing further effort.', sources: ['S2'] }]
+      : [{ title: 'Discarded', text: '', sources: ['S1'] }, { title: '', text: 'Prefer', sources: ['S2', 'S3'] }]
+    const content = JSON.stringify({ found: true, title: clean ? 'Plan' : '', points })
+    const parsed = await parse(content, units)
+    if (clean) expect(parsed).toMatchObject({ found: true, points: [{ text: points[0].text }], citations: [{ title: 'Scope' }] })
+    else expect(parsed).toBeUndefined()
+    const store = openStore(':memory:')
+    try {
+      const writes = vi.spyOn(store, 'putCache')
+      let calls = 0
+      const app = createAskApp({ config: config(), units, store, log: () => {}, fetch: (async (_url, init) => {
+        calls++
+        const prompt = JSON.parse(String(init?.body)).messages[1].content as string
+        const supplied = [...prompt.matchAll(/<source id="(S\d+)"[^>]*>(.*?)<\/source>/gs)].map(([, id, payload]) => ({ id, text: JSON.parse(payload).text }))
+        const mapping = new Map(units.map((unit, i) => [`S${i + 1}`, supplied.find(source => source.text === unit.text)?.id]))
+        const mapped = points.map(p => ({ ...p, sources: p.sources.map(id => mapping.get(id)) }))
+        return new Response(upstream(JSON.stringify({ found: true, title: clean ? 'Plan' : '', points: mapped })))
+      }) as typeof fetch })
+      for (let i = 0; i < 2; i++) {
+        const response = await request(app, 'Our commentary scope plan carefully reversible work prefer')
+        expect(response.status).toBe(200)
+        const body = await response.json()
+        expect(body).toMatchObject(clean
+          ? { mode: 'answer', points: [{ text: points[0].text }], citations: [{ title: 'Scope' }], cached: i === 1 }
+          : { mode: 'search', reason: 'unverified', cached: false })
+      }
+      expect(calls).toBe(clean ? 1 : 2)
+      expect(writes).toHaveBeenCalledTimes(clean ? 1 : 0)
+    } finally { store.close() }
+  })
+}
+
 for (const title of ['Managing the context window', 'Designing a codebase for agents']) {
   for (const withQuote of [true, false]) {
     it(`preserves and caches independent prose with generated heading ${title} (quote=${withQuote})`, async () => {
