@@ -37,6 +37,7 @@ const pick = (value: MethodologyChunk['title']) => typeof value === 'string' ? v
 function hasMethodologyTitle(c: MethodologyChunk): boolean {
   const lang = c.lang
   if (c.kind !== 'post' || (lang !== 'zh' && lang !== 'en')) return false
+  if (c.stance_status !== undefined && c.stance_status !== 'current' && c.stance_status !== 'history' && c.stance_status !== 'superseded') return false
   if (c.methodology_ids !== undefined && !Array.isArray(c.methodology_ids)) return false
   const ids = [...(c.methodology_id === undefined ? [] : [c.methodology_id]), ...(c.methodology_ids ?? [])]
   if (!ids.length || ids.some(id => typeof id !== 'string')) return false

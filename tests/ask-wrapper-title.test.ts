@@ -84,12 +84,45 @@ const labelChunk: MethodologyChunk = {
   text: 'Testing and TDD · Matt Pocock, 2026-01-01\nKeep boundaries small.', source_url: url,
 }
 
+it('rejects and never caches corpus text smuggled through a stance suffix matching the wrapper heading', async () => {
+  const copied = `${protectedText} Carefully reviewed specifications preserve operational clarity across distributed engineering teams. Consistent verification routines expose subtle integration failures before applications reach production.`
+  const title = `Testing and TDD (${copied})`
+  const units = chunkUnits([{ ...labelChunk, stance_status: copied,
+    text: `${title} · Matt Pocock, 2026-01-01\n${copied}\nOther material.`,
+  }])
+  expect(units[0].title).toBe(title)
+  expect(units[0]).not.toHaveProperty('titleOrigin')
+  expect(originalPost(units[0]).title).toBe('')
+  const output = answer('核实边界后继续。')
+  expect(await parse(output, units)).toBeUndefined()
+
+  const store = openStore(':memory:')
+  let calls = 0
+  try {
+    const config = { ...loadConfig({ ASK_ENABLED: '1', DEEPSEEK_API_KEY: 'test-placeholder' }), minScore: 0 }
+    const app = createAskApp({ config, units, store, log: () => {}, fetch: async () => {
+      calls++
+      return new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify(output) } }] }))
+    } })
+    for (let i = 0; i < 2; i++) {
+      const response = await app.request('/api/ask', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ q: 'Testing TDD', lang: 'zh' }),
+      })
+      expect(await response.json()).toMatchObject({ mode: 'search', reason: 'unverified', cached: false })
+    }
+    expect(calls).toBe(2)
+  } finally { store.close() }
+})
+
 it.each<{ name: string; fields: Partial<MethodologyChunk>; trusted: boolean }>([
   { name: 'known ID and English title', fields: {}, trusted: true },
   { name: 'known ID and Chinese title', fields: { lang: 'zh', title: { zh: '测试与 TDD 方法论' } }, trusted: true },
   { name: 'plural IDs with a matching title', fields: { methodology_id: undefined, methodology_ids: ['m.context-mgmt', 'm.testing-tdd'] }, trusted: true },
+  { name: 'current stance', fields: { stance_status: 'current' }, trusted: true },
   { name: 'history suffix', fields: { stance_status: 'history' }, trusted: true },
   { name: 'superseded suffix', fields: { stance_status: 'superseded' }, trusted: true },
+  { name: 'empty stance', fields: { stance_status: '' }, trusted: false },
+  { name: 'unknown stance', fields: { stance_status: 'arbitrary corpus text' }, trusted: false },
   { name: 'missing IDs', fields: { methodology_id: undefined }, trusted: false },
   { name: 'unknown ID', fields: { methodology_id: 'm.not-in-this-repo' }, trusted: false },
   { name: 'unknown plural ID', fields: { methodology_ids: ['m.not-in-this-repo'] }, trusted: false },
