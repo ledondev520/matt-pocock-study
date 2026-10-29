@@ -5,9 +5,10 @@ import { join } from 'node:path'
 import { createServer } from 'node:net'
 import { afterEach, describe, expect, it } from 'vitest'
 import { createAskApp, clientAddress } from '../server/ask/app'
-import { checkQuote, parseAnswer, stripLinks } from '../server/ask/answer'
+import { checkQuote, parseAnswer, stripLinks, type Citation, type Point } from '../server/ask/answer'
 import { loadConfig, type AskConfig } from '../server/ask/config'
 import { CircuitBreaker } from '../server/ask/deepseek'
+import { explanationsAreIndependent } from '../server/ask/excerpts'
 import { chunkUnits } from '../server/ask/methodology-adapter'
 import { openStore, type Store } from '../server/ask/store'
 import type { Unit } from '../server/ask/units'
@@ -63,19 +64,35 @@ function setup(over: Partial<AskConfig> = {}, fetch = upstream()) {
 }
 
 describe('POST /api/ask', () => {
-  it('rejects the former success fixture whose prose and quote exceed the shared word limit', async () => {
-    const { ask, calls } = setup({}, upstream(overBudgetAnswer))
+  it.each([false, true])('drops the over-budget point and returns search only when no clean point remains (only copied=%s)', async onlyCopied => {
+    const { ask, calls } = setup({ cacheDays: 0 }, upstream(prompt => {
+      const answer = JSON.parse(overBudgetAnswer(prompt))
+      if (onlyCopied) answer.points = answer.points.slice(0, 1)
+      return JSON.stringify(answer)
+    }))
     for (let i = 0; i < 2; i++) {
       const response = await ask()
       expect(response.status).toBe(200)
       const body = await response.json()
-      expect(body).toMatchObject({ mode: 'search', reason: 'unverified', cached: false })
+      expect(body).toMatchObject(onlyCopied ? { mode: 'search', reason: 'unverified', cached: false } : { mode: 'answer', cached: false })
+      expect(JSON.stringify(body)).not.toContain('Ship behind a flag first')
+      expect(JSON.stringify(body)).not.toContain('Put everything in a first PR you can roll back.')
       expect(body.citations.length).toBeGreaterThan(0)
       for (const citation of body.citations) {
-        expect(citation).not.toHaveProperty('title')
+        if (body.mode === 'search') expect(citation).not.toHaveProperty('title')
         expect(citation).not.toHaveProperty('snippet')
       }
-      expect(body).not.toHaveProperty('points')
+      if (onlyCopied) expect(body).not.toHaveProperty('points')
+      else {
+        const points = body.points as Point[]
+        expect(points).toEqual([{ title: 'Flip in a second PR', text: 'The second PR crosses the one-way door.', cites: [2] }])
+        for (const point of points) expect(point.text.trim()).not.toBe('')
+        const citations = body.citations as Citation[]
+        const quotes = points.flatMap(p => p.quote && p.quoteUrl ? [{ text: p.quote, url: p.quoteUrl }] : [])
+        expect(await explanationsAreIndependent([
+          body.title, ...points.flatMap(p => [p.title, p.text]), ...citations.map(c => c.title ?? ''),
+        ], units, [...citations.flatMap(c => c.sourceUrl ? [c.sourceUrl] : []), ...quotes.map(q => q.url)], quotes)).toBe(true)
+      }
     }
     expect(calls).toHaveLength(2)
   })

@@ -32,11 +32,10 @@ for (const fixture of [
   { name: 'English explanation plus single-character marker', source: 'Start small. Adjust quickly. Build trust.', points: [point('Start small. Our own check. Adjust quickly.', marker(29, 30))], quote: 'B', query: 'small', title: '' },
   { name: 'short-word explanation sharing its budget with a marker', source: Array(26).fill('code').join(' '), points: [point(Array(25).fill('code').join(' Our thought. '), marker(0, 4))], quote: 'code', query: 'code', title: '' },
 ]) {
-  it(`degrades ${fixture.name} and never caches the copied prose`, async () => {
+  it(`rejects ${fixture.name} and never caches the copied prose`, async () => {
     const unit = post(fixture.source)
     const content = answer(fixture.points, fixture.title)
-    const expected = { found: true, title: '', degraded: true, points: [{ title: '', text: '', quote: fixture.quote, quoteUrl: url, cites: [1] }] }
-    expect(await parse(content, [unit])).toMatchObject(expected)
+    expect(await parse(content, [unit])).toBeUndefined()
     const store = openStore(':memory:')
     try {
       let calls = 0
@@ -47,7 +46,7 @@ for (const fixture of [
       for (let i = 0; i < 2; i++) {
         const response = await request(app, fixture.query)
         expect(response.status).toBe(200)
-        expect(await response.json()).toEqual({ mode: 'answer', title: '', points: expected.points, citations: [{ n: 1, kind: 'post', sourceUrl: url }], cached: false })
+        expect(await response.json()).toEqual({ mode: 'search', reason: 'unverified', message: '', citations: [{ n: 1, kind: 'post', sourceUrl: url }], cached: false })
       }
       expect(calls).toBe(2)
     } finally { store.close() }
@@ -63,7 +62,7 @@ for (const fixture of [
   { name: 'repeated English sentence', first: 'Start small.', second: ' Adjust quickly.', third: 'Start small.', query: 'small' },
 ]) {
   for (const anchors of [false, true]) {
-    it(`degrades ${fixture.name} two-sentence quote plus copied prose (cross-anchor=${anchors}) without caching`, async () => {
+    it(`rejects ${fixture.name} two-sentence quote plus copied prose (cross-anchor=${anchors}) without caching`, async () => {
       const quoted = fixture.first + fixture.second
       const units: Unit[] = anchors ? [
         { ...post('Our workflow interpretation.'), kind: 'method', quotes: [{ text: quoted, url: `${url}?s=20#first` }] },
@@ -71,8 +70,7 @@ for (const fixture of [
       ] : [post(quoted + fixture.third)]
       const quote = { chunk_id: anchors ? 'S1:Q1' : 'S1', start: 0, end: quoted.length }
       const content = answer([point(fixture.third, quote)])
-      const expectedPoints = [{ title: '', text: '', quote: quoted, quoteUrl: anchors ? `${url}?s=20#first` : url, cites: [1] }]
-      expect(await parse(content, units)).toEqual({ found: true, title: '', degraded: true, points: expectedPoints, citations: [{ n: 1, kind: anchors ? 'method' : 'post', title: undefined, sourceUrl: url, siteUrl: undefined, date: undefined }] })
+      expect(await parse(content, units)).toBeUndefined()
       const store = openStore(':memory:')
       try {
         const writes = vi.spyOn(store, 'putCache')
@@ -84,7 +82,7 @@ for (const fixture of [
         for (let i = 0; i < 2; i++) {
           const response = await request(app, anchors ? 'workflow' : fixture.query)
           expect(response.status).toBe(200)
-          expect(await response.json()).toEqual({ mode: 'answer', title: '', points: expectedPoints, citations: [{ n: 1, kind: anchors ? 'method' : 'post', sourceUrl: url }], cached: false })
+          expect(await response.json()).toEqual({ mode: 'search', reason: 'unverified', message: '', citations: anchors ? [{ n: 1, kind: 'method', sourceUrl: url }, { n: 2, kind: 'method', sourceUrl: url }] : [{ n: 1, kind: 'post', sourceUrl: url }], cached: false })
         }
         expect(calls).toBe(2)
         expect(writes).not.toHaveBeenCalled()
@@ -106,7 +104,7 @@ it('isolates unsafe mixed answers already cached under the v7 marker policy', as
       calls++
       return new Response(upstream(content))
     }) as typeof fetch })
-    for (let i = 0; i < 2; i++) expect(await (await request(app, '分拆')).json()).toMatchObject({ mode: 'answer', title: '', cached: false, points: [{ text: '', quote: '后发布' }] })
+    for (let i = 0; i < 2; i++) expect(await (await request(app, '分拆')).json()).toEqual({ mode: 'search', reason: 'unverified', message: '', citations: [{ n: 1, kind: 'post', sourceUrl: url }], cached: false })
     expect(calls).toBe(2)
   } finally { store.close() }
 })
@@ -223,7 +221,7 @@ for (const fixture of [
         const response = await request(app, fixture.query)
         expect(response.status).toBe(200)
         const body = await response.json()
-        if (fixture.mode === 'answer') expect(body).toEqual({ mode: 'answer', title: '', points: [{ title: '', text: '', quote: '先分拆。再验证。', quoteUrl: url, cites: [1] }], citations: [{ n: 1, kind: 'post', sourceUrl: url }], cached: false })
+        if (fixture.mode === 'answer') expect(body).toEqual({ mode: 'search', reason: 'unverified', message: '', citations: [{ n: 1, kind: 'post', sourceUrl: url }], cached: false })
         else expect(body).toEqual({ mode: 'search', reason: 'unverified', message: '', citations: [{ n: 1, kind: 'post', sourceUrl: url }], cached: false })
       }
       expect(calls).toBe(2)
