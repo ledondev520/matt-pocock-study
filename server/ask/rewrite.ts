@@ -240,6 +240,9 @@ export async function buildRewriteMessages(messages: ChatMessage[], content: str
   return [...messages, { role: 'assistant', content }, { role: 'user', content: feedback }]
 }
 
+/** Request-local classification only; no model content is included in cache eligibility. */
+export interface RewriteOutcome { rejection?: 'guard' | 'rewrite_skipped' }
+
 /** One repair attempt, only after an independence rejection. The caller gates the real call
  * with time/cost/breaker limits. Every candidate goes through the identical parser. */
 export async function answerWithRewrite(opts: {
@@ -249,10 +252,19 @@ export async function answerWithRewrite(opts: {
   messages: ChatMessage[]
   rewrite: (messages: ChatMessage[]) => Promise<ChatResult | undefined>
   rewriteDiagnostics?: AnswerDiagnostics
+  outcome?: RewriteOutcome
 }) {
+  if (opts.outcome) delete opts.outcome.rejection
+  const rejected = (rejection: RewriteOutcome['rejection']) => {
+    if (opts.outcome) opts.outcome.rejection = rejection
+    return undefined
+  }
   const diagnostics: AnswerDiagnostics = {}
   const parsed = await parseAnswer(opts.content, opts.units, opts.siteUrl, diagnostics)
-  if (parsed || diagnostics.reason !== 'independence') return parsed
+  if (parsed) return parsed
+  if (diagnostics.reason !== 'independence') return rejected('guard')
   const rewritten = await opts.rewrite(await buildRewriteMessages(opts.messages, opts.content, diagnostics, opts.units))
-  return rewritten ? parseAnswer(rewritten.content, opts.units, opts.siteUrl, opts.rewriteDiagnostics) : undefined
+  if (!rewritten) return rejected('rewrite_skipped')
+  const repaired = await parseAnswer(rewritten.content, opts.units, opts.siteUrl, opts.rewriteDiagnostics)
+  return repaired ?? rejected('guard')
 }

@@ -105,7 +105,7 @@ for (const lang of ['en', 'zh'] as const) {
     expect(await explanationsAreIndependent(['', point.title, point.text, ''], [unit], [sourceUrl], [])).toBe(true)
   })
 
-  it(`${lang}: rejects copying split across individually accepted points and never caches it`, async () => {
+  it(`${lang}: rejects copying split across individually accepted points and caches only search`, async () => {
     const texts = lang === 'en' ? ['Start small.', 'Adjust quickly.', 'Build trust.'] : ['先分拆。', '再验证。', '后发布。']
     const unit: Unit = { id: 'post:fixture', kind: 'post', title: '', text: texts.join(lang === 'en' ? ' ' : ''), sourceUrl }
     for (const text of texts) expect(await explanationsAreIndependent(['', text], [unit], [sourceUrl], [])).toBe(true)
@@ -118,15 +118,15 @@ for (const lang of ['en', 'zh'] as const) {
     try {
       const app = createAskApp({ config: config(), units: [unit], store, fetch, log: () => {} })
       for (let i = 0; i < 2; i++) expect(await (await request(app, texts[0], lang)).json()).toEqual({
-        mode: 'search', reason: 'unverified', message: '', citations: [{ n: 1, kind: 'post', sourceUrl }], cached: false,
+        mode: 'search', reason: 'unverified', message: '', citations: [{ n: 1, kind: 'post', sourceUrl }], cached: i === 1,
       })
-      expect(fetch).toHaveBeenCalledTimes(4)
-      expect(writes).not.toHaveBeenCalled()
+      expect(fetch).toHaveBeenCalledTimes(2)
+      expect(writes).toHaveBeenCalledTimes(1)
     } finally { store.close() }
   })
 
   for (const text of ['', 'https://discarded.example/path']) {
-    it(`${lang}: returns uncached search when no point text survives (${text || 'empty'})`, async () => {
+    it(`${lang}: returns cached search when no point text survives (${text || 'empty'})`, async () => {
       const unit: Unit = { id: 'post:fixture', kind: 'post', title: '', text: 'Review changes by risk before release.', sourceUrl }
       const content = JSON.stringify({ found: true, title: 'Assess release risk', points: [{
         title: 'Inspect the change', text, quote: { chunk_id: 'S1', start: 0, end: 6 }, sources: ['S1'],
@@ -138,10 +138,10 @@ for (const lang of ['en', 'zh'] as const) {
       try {
         const app = createAskApp({ config: config(), units: [unit], store, fetch, log: () => {} })
         for (let i = 0; i < 2; i++) expect(await (await request(app, 'review changes', lang)).json()).toEqual({
-          mode: 'search', reason: 'unverified', message: '', citations: [{ n: 1, kind: 'post', sourceUrl }], cached: false,
+          mode: 'search', reason: 'unverified', message: '', citations: [{ n: 1, kind: 'post', sourceUrl }], cached: i === 1,
         })
-        expect(fetch).toHaveBeenCalledTimes(2)
-        expect(writes).not.toHaveBeenCalled()
+        expect(fetch).toHaveBeenCalledTimes(1)
+        expect(writes).toHaveBeenCalledTimes(1)
       } finally { store.close() }
     })
   }
@@ -238,15 +238,15 @@ for (const lang of ['en', 'zh'] as const) {
       for (let i = 0; i < 2; i++) {
         const response = await request(app, 'start small review changes', lang)
         expect(response.status).toBe(200)
-        expect(await response.json()).toMatchObject({ mode: 'search', reason: 'unverified', cached: false })
+        expect(await response.json()).toMatchObject({ mode: 'search', reason: 'unverified', cached: i === 1 })
       }
-      expect(fetch).toHaveBeenCalledTimes(4)
-      expect(writes).not.toHaveBeenCalled()
+      expect(fetch).toHaveBeenCalledTimes(2)
+      expect(writes).toHaveBeenCalledTimes(1)
     } finally { store.close() }
   })
 
   for (const clean of [false, true]) {
-    it(`${lang}: ${clean ? 'keeps and caches normal multi-source prose without counting equal titles twice' : 'rejects an overlapping original-title run interrupted by a displayed wrapper title without caching'}`, async () => {
+    it(`${lang}: ${clean ? 'keeps and caches normal multi-source prose without counting equal titles twice' : 'rejects an overlapping original-title run interrupted by a displayed wrapper title and caches only search'}`, async () => {
       const wrapper = clean ? 'Scope' : lang === 'en' ? 'Grid' : '流程'
       const wrapperTitle = !clean && lang === 'zh' ? `${wrapper} (history)` : wrapper
       const tail = clean ? lang === 'en' ? 'reversible work' : '分步改动' : lang === 'en' ? 'iterate' : '可逆步'
@@ -297,12 +297,12 @@ for (const lang of ['en', 'zh'] as const) {
           const body = await response.json()
           if (clean) expect(body).toEqual({ mode: 'answer', ...expected, cached: i === 1 })
           else {
-            expect(body).toMatchObject({ mode: 'search', reason: 'unverified', cached: false })
+            expect(body).toMatchObject({ mode: 'search', reason: 'unverified', cached: i === 1 })
             expect(body).not.toHaveProperty('points')
           }
         }
-        expect(fetch).toHaveBeenCalledTimes(clean ? 1 : 4)
-        expect(writes).toHaveBeenCalledTimes(clean ? 1 : 0)
+        expect(fetch).toHaveBeenCalledTimes(clean ? 1 : 2)
+        expect(writes).toHaveBeenCalledTimes(1)
       } finally { store.close() }
     })
   }

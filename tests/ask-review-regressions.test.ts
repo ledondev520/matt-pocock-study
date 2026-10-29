@@ -46,9 +46,9 @@ for (const fixture of [
       for (let i = 0; i < 2; i++) {
         const response = await request(app, fixture.query)
         expect(response.status).toBe(200)
-        expect(await response.json()).toEqual({ mode: 'search', reason: 'unverified', message: '', citations: [{ n: 1, kind: 'post', sourceUrl: url }], cached: false })
+        expect(await response.json()).toEqual({ mode: 'search', reason: 'unverified', message: '', citations: [{ n: 1, kind: 'post', sourceUrl: url }], cached: i === 1 })
       }
-      expect(calls).toBe(4)
+      expect(calls).toBe(2)
     } finally { store.close() }
   })
 }
@@ -62,7 +62,7 @@ for (const fixture of [
   { name: 'repeated English sentence', first: 'Start small.', second: ' Adjust quickly.', third: 'Start small.', query: 'small' },
 ]) {
   for (const anchors of [false, true]) {
-    it(`rejects ${fixture.name} two-sentence quote plus copied prose (cross-anchor=${anchors}) without caching`, async () => {
+    it(`rejects ${fixture.name} two-sentence quote plus copied prose (cross-anchor=${anchors}) with cached search fallback`, async () => {
       const quoted = fixture.first + fixture.second
       const units: Unit[] = anchors ? [
         { ...post('Our workflow interpretation.'), kind: 'method', quotes: [{ text: quoted, url: `${url}?s=20#first` }] },
@@ -82,10 +82,10 @@ for (const fixture of [
         for (let i = 0; i < 2; i++) {
           const response = await request(app, anchors ? 'workflow' : fixture.query)
           expect(response.status).toBe(200)
-          expect(await response.json()).toEqual({ mode: 'search', reason: 'unverified', message: '', citations: anchors ? [{ n: 1, kind: 'method', sourceUrl: url }, { n: 2, kind: 'method', sourceUrl: url }] : [{ n: 1, kind: 'post', sourceUrl: url }], cached: false })
+          expect(await response.json()).toEqual({ mode: 'search', reason: 'unverified', message: '', citations: anchors ? [{ n: 1, kind: 'method', sourceUrl: url }, { n: 2, kind: 'method', sourceUrl: url }] : [{ n: 1, kind: 'post', sourceUrl: url }], cached: i === 1 })
         }
-        expect(calls).toBe(4)
-        expect(writes).not.toHaveBeenCalled()
+        expect(calls).toBe(2)
+        expect(writes).toHaveBeenCalledTimes(1)
       } finally { store.close() }
     })
   }
@@ -104,8 +104,8 @@ it('isolates unsafe mixed answers already cached under the v7 marker policy', as
       calls++
       return new Response(upstream(content))
     }) as typeof fetch })
-    for (let i = 0; i < 2; i++) expect(await (await request(app, '分拆')).json()).toEqual({ mode: 'search', reason: 'unverified', message: '', citations: [{ n: 1, kind: 'post', sourceUrl: url }], cached: false })
-    expect(calls).toBe(4)
+    for (let i = 0; i < 2; i++) expect(await (await request(app, '分拆')).json()).toEqual({ mode: 'search', reason: 'unverified', message: '', citations: [{ n: 1, kind: 'post', sourceUrl: url }], cached: i === 1 })
+    expect(calls).toBe(2)
   } finally { store.close() }
 })
 
@@ -133,9 +133,9 @@ for (const fixture of [
       for (let i = 0; i < 2; i++) {
         const response = await request(app, fixture.anchors ? 'review' : fixture.words[0])
         expect(response.status).toBe(200)
-        expect(await response.json()).toMatchObject({ mode: 'search', reason: 'unverified', cached: false })
+        expect(await response.json()).toMatchObject({ mode: 'search', reason: 'unverified', cached: i === 1 })
       }
-      expect(calls).toBe(4)
+      expect(calls).toBe(2)
     } finally { store.close() }
   })
 }
@@ -154,7 +154,7 @@ for (const words of [Array<string>(61).fill('code'), readable]) {
     { name: 'combined format and suffix', render: (word: string) => word.slice(0, 2) + '\ufeff' + word.slice(2) + 'X' },
   ]) {
     for (const layout of ['post', 'one method', 'same-source methods'] as const) {
-      it(`blocks ${words[0]} fragments with ${variant.name} in ${layout} without caching`, async () => {
+      it(`blocks ${words[0]} fragments with ${variant.name} in ${layout} with cached search fallback`, async () => {
         const makeMethod = (parts: string[], id: number): Unit => ({ ...post('Our review interpretation.'), id: `method:${id}`, kind: 'method', quotes: parts.map(text => ({ text, url: id ? `${url}/?s=20#part` : url })) })
         const units = layout === 'post' ? [post(words.join(' '))] : layout === 'one method' ? [makeMethod(words, 0)] : [makeMethod(words.slice(0, 30), 0), makeMethod(words.slice(30), 1)]
         const text = words.map(variant.render).join(' Our thought. ')
@@ -172,17 +172,17 @@ for (const words of [Array<string>(61).fill('code'), readable]) {
           for (let i = 0; i < 2; i++) {
             const response = await request(app, layout === 'post' ? words[0] : 'review')
             expect(response.status).toBe(200)
-            expect(await response.json()).toEqual({ mode: 'search', reason: 'unverified', message: '', cached: false, citations: layout === 'same-source methods' ? [{ n: 1, kind: 'method', sourceUrl: url }, { n: 2, kind: 'method', sourceUrl: url }] : [{ n: 1, kind: layout === 'post' ? 'post' : 'method', sourceUrl: url }] })
+            expect(await response.json()).toEqual({ mode: 'search', reason: 'unverified', message: '', cached: i === 1, citations: layout === 'same-source methods' ? [{ n: 1, kind: 'method', sourceUrl: url }, { n: 2, kind: 'method', sourceUrl: url }] : [{ n: 1, kind: layout === 'post' ? 'post' : 'method', sourceUrl: url }] })
           }
-          expect(calls).toBe(4)
-          expect(writes).not.toHaveBeenCalled()
+          expect(calls).toBe(2)
+          expect(writes).toHaveBeenCalledTimes(1)
         } finally { store.close() }
       })
     }
   }
 }
 
-it('counts repeated suffixed short anchors inside a single token without caching', async () => {
+it('counts repeated suffixed short anchors inside a single token with cached search fallback', async () => {
   const unit: Unit = { ...post('Our review interpretation.'), kind: 'method', quotes: Array.from({ length: 61 }, () => ({ text: 'code', url })) }
   const content = answer([point('codeX'.repeat(61))])
   expect(await parse(content, [unit])).toBeUndefined()
@@ -194,9 +194,9 @@ it('counts repeated suffixed short anchors inside a single token without caching
       calls++
       return new Response(upstream(content))
     }) as typeof fetch })
-    for (let i = 0; i < 2; i++) expect(await (await request(app, 'review')).json()).toEqual({ mode: 'search', reason: 'unverified', message: '', cached: false, citations: [{ n: 1, kind: 'method', sourceUrl: url }] })
-    expect(calls).toBe(4)
-    expect(writes).not.toHaveBeenCalled()
+    for (let i = 0; i < 2; i++) expect(await (await request(app, 'review')).json()).toEqual({ mode: 'search', reason: 'unverified', message: '', cached: i === 1, citations: [{ n: 1, kind: 'method', sourceUrl: url }] })
+    expect(calls).toBe(2)
+    expect(writes).toHaveBeenCalledTimes(1)
   } finally { store.close() }
 })
 
@@ -204,7 +204,7 @@ for (const fixture of [
   { name: 'mixed allocation', source: '先分拆。再验证。后发布。', text: '后发布。', quote: marker(0, 8), query: '分拆', mode: 'answer' },
   { name: 'short-word suffix', source: Array(61).fill('code').join(' '), text: Array(61).fill('codeX').join(' Our thought. '), quote: undefined, query: 'code', mode: 'search' },
 ]) {
-  it(`isolates the v8 cached ${fixture.name} bypass and never writes a replacement`, async () => {
+  it(`isolates the v8 cached ${fixture.name} rejection and caches only search`, async () => {
     const unit = post(fixture.source)
     const cfg = config()
     const digest = createHash('sha256').update(JSON.stringify([[unit.id, 'post', '', unit.text, null, url, null, []]])).digest('hex')
@@ -221,11 +221,11 @@ for (const fixture of [
         const response = await request(app, fixture.query)
         expect(response.status).toBe(200)
         const body = await response.json()
-        if (fixture.mode === 'answer') expect(body).toEqual({ mode: 'search', reason: 'unverified', message: '', citations: [{ n: 1, kind: 'post', sourceUrl: url }], cached: false })
-        else expect(body).toEqual({ mode: 'search', reason: 'unverified', message: '', citations: [{ n: 1, kind: 'post', sourceUrl: url }], cached: false })
+        if (fixture.mode === 'answer') expect(body).toEqual({ mode: 'search', reason: 'unverified', message: '', citations: [{ n: 1, kind: 'post', sourceUrl: url }], cached: i === 1 })
+        else expect(body).toEqual({ mode: 'search', reason: 'unverified', message: '', citations: [{ n: 1, kind: 'post', sourceUrl: url }], cached: i === 1 })
       }
-      expect(calls).toBe(4)
-      expect(writes).not.toHaveBeenCalled()
+      expect(calls).toBe(2)
+      expect(writes).toHaveBeenCalledTimes(1)
     } finally { store.close() }
   })
 }
@@ -264,10 +264,10 @@ for (const clean of [false, true]) {
         const body = await response.json()
         expect(body).toMatchObject(clean
           ? { mode: 'answer', points: [{ text: points[0].text }], citations: [{ title: 'Scope' }], cached: i === 1 }
-          : { mode: 'search', reason: 'unverified', cached: false })
+          : { mode: 'search', reason: 'unverified', cached: i === 1 })
       }
-      expect(calls).toBe(clean ? 1 : 4)
-      expect(writes).toHaveBeenCalledTimes(clean ? 1 : 0)
+      expect(calls).toBe(clean ? 1 : 2)
+      expect(writes).toHaveBeenCalledTimes(1)
     } finally { store.close() }
   })
 }
@@ -309,7 +309,7 @@ it('yields during output preparation even when there are no original sources to 
   await scheduled
 })
 
-it('fails closed on legal-size NFKC expansion for four concurrent API requests without caching', async () => {
+it('fails closed on legal-size NFKC expansion for four concurrent API requests with cached search fallback', async () => {
   const text = '\ufdfa'.repeat(21_500)
   const content = answer([point(text)])
   expect(content.length).toBeLessThan(32_000)
@@ -336,12 +336,12 @@ it('fails closed on legal-size NFKC expansion for four concurrent API requests w
       const responses = await Promise.all(Array.from({ length: 4 }, (_, i) => request(app, `independent source ${i}`, `198.51.100.${i + 1}`)))
       for (const response of responses) {
         expect(response.status).toBe(200)
-        expect(await response.json()).toMatchObject({ mode: 'search', reason: 'unverified', cached: false })
+        expect(await response.json()).toMatchObject({ mode: 'search', reason: 'unverified', cached: round === 1 })
       }
     }
     maxDelay = Math.max(maxDelay, performance.now() - last)
     expect(maxDelay).toBeLessThan(100)
     expect(ticks).toBeGreaterThan(0)
-    expect(calls).toBe(16)
+    expect(calls).toBe(8)
   } finally { clearInterval(timer); store.close() }
 })

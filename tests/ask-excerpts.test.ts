@@ -194,9 +194,9 @@ for (const fixture of regressions) {
       for (let i = 0; i < 2; i++) {
         const response = await request(app, 'probe')
         expect(response.status).toBe(200)
-        expect(await response.json()).toEqual({ mode: 'search', reason: 'unverified', message: '', cached: false, citations: [{ n: 1, kind: 'post', sourceUrl: url }] })
+        expect(await response.json()).toEqual({ mode: 'search', reason: 'unverified', message: '', cached: i === 1, citations: [{ n: 1, kind: 'post', sourceUrl: url }] })
       }
-      expect(calls).toBe(4)
+      expect(calls).toBe(2)
     } finally { store.close() }
   })
 }
@@ -218,7 +218,7 @@ it('checks all retrieved originals, including uncited originals, linked variants
   expect(await parse(answer([point(groups(punctuationSource))]), chunks)).toBeUndefined()
 })
 
-it('returns uncached search when citation metadata still fails after point isolation', async () => {
+it('returns cached search when citation metadata still fails after point isolation', async () => {
   const content = answer([point(longText, marker(12)), point('This innocent point must also disappear.')], longText)
   const unit = { ...shortPost, text: `${shortPost.text} ${longText}`, title: longText }
   const parsed = await parse(content, [unit])
@@ -229,10 +229,10 @@ it('returns uncached search when citation metadata still fails after point isola
     const app = createAskApp({ config: config(), units: [unit], store, log: () => {}, fetch: (async () => { calls++; return fetchAnswer(content)('unused') }) as typeof fetch })
     for (let i = 0; i < 2; i++) {
       const body = await (await request(app, 'workflow')).json()
-      expect(body).toEqual({ mode: 'search', reason: 'unverified', message: '', citations: [{ n: 1, kind: 'post', sourceUrl: url }], cached: false })
+      expect(body).toEqual({ mode: 'search', reason: 'unverified', message: '', citations: [{ n: 1, kind: 'post', sourceUrl: url }], cached: i === 1 })
       expect(JSON.stringify(body)).not.toContain(longText)
     }
-    expect(calls).toBe(4)
+    expect(calls).toBe(2)
   } finally { store.close() }
 })
 
@@ -296,11 +296,11 @@ describe('persistent answer content version', () => {
       }) as typeof fetch })
       for (let i = 0; i < 2; i++) {
         expect(await (await request(app, 'configuration')).json()).toEqual({
-          mode: 'search', reason: 'unverified', message: '', cached: false,
+          mode: 'search', reason: 'unverified', message: '', cached: i === 1,
           citations: [{ n: 1, kind: 'post', sourceUrl: url }],
         })
       }
-      expect(calls).toBe(4)
+      expect(calls).toBe(2)
     } finally { store.close() }
   })
 
@@ -323,11 +323,11 @@ describe('persistent answer content version', () => {
       }) as typeof fetch })
       for (let i = 0; i < 2; i++) {
         expect(await (await request(app, 'configuration')).json()).toEqual({
-          mode: 'search', reason: 'unverified', message: '', cached: false,
+          mode: 'search', reason: 'unverified', message: '', cached: i === 1,
           citations: [{ n: 1, kind: 'post', sourceUrl: url }],
         })
       }
-      expect(calls).toBe(4)
+      expect(calls).toBe(2)
     } finally { store.close() }
   })
 
@@ -349,11 +349,11 @@ describe('persistent answer content version', () => {
       }) as typeof fetch })
       for (let i = 0; i < 2; i++) {
         expect(await (await request(app, 'documentation')).json()).toEqual({
-          mode: 'search', reason: 'unverified', message: '', cached: false,
+          mode: 'search', reason: 'unverified', message: '', cached: i === 1,
           citations: [{ n: 1, kind: 'post', sourceUrl: url }],
         })
       }
-      expect(calls).toBe(4)
+      expect(calls).toBe(2)
     } finally { store.close() }
   })
 
@@ -460,9 +460,9 @@ it('checks quote char budgets across same-source points at the API and preserves
         expect(response.status).toBe(200)
         const body = await response.json()
         if (length === 120) expect(body).toMatchObject({ mode: 'answer', points: [{ quote: 'a'.repeat(120) }, { quote: 'b'.repeat(120) }], cached: i === 1 })
-        else expect(body).toEqual({ mode: 'search', reason: 'unverified', message: '', cached: false, citations: [{ n: 1, kind: 'post', sourceUrl: url }] })
+        else expect(body).toEqual({ mode: 'search', reason: 'unverified', message: '', cached: i === 1, citations: [{ n: 1, kind: 'post', sourceUrl: url }] })
       }
-      expect(calls).toBe(length === 120 ? 1 : 2)
+      expect(calls).toBe(1)
     } finally { store.close() }
   }
 })
@@ -477,8 +477,8 @@ it('invalidates the review-6 cache policy and refuses its short-word bypass twic
     store.putCache(cacheKey('abcdefghij', 'en', `${digest}:${cfg.model}:methodology-v6-character-spans`), JSON.stringify({ mode: 'answer', title: 'Unsafe cached answer', points: [{ text: unit.text }], citations: [], cached: false }), 86_400_000, Date.now())
     let calls = 0
     const app = createAskApp({ config: cfg, units: [unit], store, log: () => {}, fetch: (async () => { calls++; return fetchAnswer(content)('unused') }) as typeof fetch })
-    for (let i = 0; i < 2; i++) expect(await (await request(app, 'abcdefghij')).json()).toEqual({ mode: 'search', reason: 'unverified', message: '', cached: false, citations: [{ n: 1, kind: 'post', sourceUrl: url }] })
-    expect(calls).toBe(4)
+    for (let i = 0; i < 2; i++) expect(await (await request(app, 'abcdefghij')).json()).toEqual({ mode: 'search', reason: 'unverified', message: '', cached: i === 1, citations: [{ n: 1, kind: 'post', sourceUrl: url }] })
+    expect(calls).toBe(2)
   } finally { store.close() }
 })
 

@@ -73,11 +73,11 @@ it('regression: rewrites a rejected answer once, caches only the clean result an
   expect((await s.ask('crimson lanterns next')).status).toBe(429)
 })
 
-it('regression: 重写仍抄时返回 search，且不缓存', async () => {
+it('regression: 重写仍抄时返回 search，且仅缓存搜索回退', async () => {
   const s = setup([copied, copied, copied, copied])
-  for (let i = 0; i < 2; i++) expect(await (await s.ask()).json()).toMatchObject({ mode: 'search', reason: 'unverified', cached: false })
-  expect(s.requests).toHaveLength(4)
-  expect(s.writes).not.toHaveBeenCalled()
+  for (let i = 0; i < 2; i++) expect(await (await s.ask()).json()).toMatchObject({ mode: 'search', reason: 'unverified', cached: i === 1 })
+  expect(s.requests).toHaveLength(2)
+  expect(s.writes).toHaveBeenCalledTimes(1)
 })
 
 it('regression: accepts a clean rewrite with fewer points and the original source IDs', async () => {
