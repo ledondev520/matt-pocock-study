@@ -4,7 +4,7 @@
 // https://api-docs.deepseek.com/guides/json_mode/ (`response_format: json_object`, the prompt
 // must contain the word "json").
 
-export interface ChatMessage { role: 'system' | 'user'; content: string }
+export interface ChatMessage { role: 'system' | 'user' | 'assistant'; content: string }
 export interface ChatRequest {
   model: string
   messages: ChatMessage[]

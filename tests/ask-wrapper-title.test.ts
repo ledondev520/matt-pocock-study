@@ -110,7 +110,7 @@ it('rejects and never caches corpus text smuggled through a stance suffix matchi
       })
       expect(await response.json()).toMatchObject({ mode: 'search', reason: 'unverified', cached: false })
     }
-    expect(calls).toBe(2)
+    expect(calls).toBe(4)
   } finally { store.close() }
 })
 
@@ -194,7 +194,7 @@ it('invalidates a persisted answer when only title provenance changes after rest
     store.close(); store = openStore(file)
     const app = makeApp(unmarked)
     for (let i = 0; i < 2; i++) expect(await (await request(app)).json()).toMatchObject({ mode: 'search', reason: 'unverified', cached: false })
-    expect(calls).toBe(3)
+    expect(calls).toBe(5)
   } finally { store?.close(); await rm(dir, { recursive: true, force: true }) }
 })
 

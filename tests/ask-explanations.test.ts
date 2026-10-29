@@ -120,7 +120,7 @@ for (const lang of ['en', 'zh'] as const) {
       for (let i = 0; i < 2; i++) expect(await (await request(app, texts[0], lang)).json()).toEqual({
         mode: 'search', reason: 'unverified', message: '', citations: [{ n: 1, kind: 'post', sourceUrl }], cached: false,
       })
-      expect(fetch).toHaveBeenCalledTimes(2)
+      expect(fetch).toHaveBeenCalledTimes(4)
       expect(writes).not.toHaveBeenCalled()
     } finally { store.close() }
   })
@@ -240,7 +240,7 @@ for (const lang of ['en', 'zh'] as const) {
         expect(response.status).toBe(200)
         expect(await response.json()).toMatchObject({ mode: 'search', reason: 'unverified', cached: false })
       }
-      expect(fetch).toHaveBeenCalledTimes(2)
+      expect(fetch).toHaveBeenCalledTimes(4)
       expect(writes).not.toHaveBeenCalled()
     } finally { store.close() }
   })
@@ -301,7 +301,7 @@ for (const lang of ['en', 'zh'] as const) {
             expect(body).not.toHaveProperty('points')
           }
         }
-        expect(fetch).toHaveBeenCalledTimes(clean ? 1 : 2)
+        expect(fetch).toHaveBeenCalledTimes(clean ? 1 : 4)
         expect(writes).toHaveBeenCalledTimes(clean ? 1 : 0)
       } finally { store.close() }
     })
@@ -309,7 +309,7 @@ for (const lang of ['en', 'zh'] as const) {
 
   for (const oldVersion of ['methodology-v9-normalized-overlap', 'methodology-v12-ordered-overlap', 'methodology-v13-point-isolation', 'methodology-v14-trimmed-answer']) {
     it(`${lang}: isolates empty shells cached under ${oldVersion}`, async () => {
-      expect(PROMPT_VERSION).toBe('methodology-v17-wrapper-title')
+      expect(PROMPT_VERSION).toBe('methodology-v18-rewrite-on-reject')
       const unit: Unit = { id: 'post:fixture', kind: 'post', title: '', text: 'Review changes by risk before release.', sourceUrl }
       const cfg = config()
       const digest = createHash('sha256').update(JSON.stringify([[unit.id, 'post', '', unit.text, null, sourceUrl, null, []]])).digest('hex')

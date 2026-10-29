@@ -48,7 +48,7 @@ for (const fixture of [
         expect(response.status).toBe(200)
         expect(await response.json()).toEqual({ mode: 'search', reason: 'unverified', message: '', citations: [{ n: 1, kind: 'post', sourceUrl: url }], cached: false })
       }
-      expect(calls).toBe(2)
+      expect(calls).toBe(4)
     } finally { store.close() }
   })
 }
@@ -84,7 +84,7 @@ for (const fixture of [
           expect(response.status).toBe(200)
           expect(await response.json()).toEqual({ mode: 'search', reason: 'unverified', message: '', citations: anchors ? [{ n: 1, kind: 'method', sourceUrl: url }, { n: 2, kind: 'method', sourceUrl: url }] : [{ n: 1, kind: 'post', sourceUrl: url }], cached: false })
         }
-        expect(calls).toBe(2)
+        expect(calls).toBe(4)
         expect(writes).not.toHaveBeenCalled()
       } finally { store.close() }
     })
@@ -105,7 +105,7 @@ it('isolates unsafe mixed answers already cached under the v7 marker policy', as
       return new Response(upstream(content))
     }) as typeof fetch })
     for (let i = 0; i < 2; i++) expect(await (await request(app, '分拆')).json()).toEqual({ mode: 'search', reason: 'unverified', message: '', citations: [{ n: 1, kind: 'post', sourceUrl: url }], cached: false })
-    expect(calls).toBe(2)
+    expect(calls).toBe(4)
   } finally { store.close() }
 })
 
@@ -135,7 +135,7 @@ for (const fixture of [
         expect(response.status).toBe(200)
         expect(await response.json()).toMatchObject({ mode: 'search', reason: 'unverified', cached: false })
       }
-      expect(calls).toBe(2)
+      expect(calls).toBe(4)
     } finally { store.close() }
   })
 }
@@ -174,7 +174,7 @@ for (const words of [Array<string>(61).fill('code'), readable]) {
             expect(response.status).toBe(200)
             expect(await response.json()).toEqual({ mode: 'search', reason: 'unverified', message: '', cached: false, citations: layout === 'same-source methods' ? [{ n: 1, kind: 'method', sourceUrl: url }, { n: 2, kind: 'method', sourceUrl: url }] : [{ n: 1, kind: layout === 'post' ? 'post' : 'method', sourceUrl: url }] })
           }
-          expect(calls).toBe(2)
+          expect(calls).toBe(4)
           expect(writes).not.toHaveBeenCalled()
         } finally { store.close() }
       })
@@ -195,7 +195,7 @@ it('counts repeated suffixed short anchors inside a single token without caching
       return new Response(upstream(content))
     }) as typeof fetch })
     for (let i = 0; i < 2; i++) expect(await (await request(app, 'review')).json()).toEqual({ mode: 'search', reason: 'unverified', message: '', cached: false, citations: [{ n: 1, kind: 'method', sourceUrl: url }] })
-    expect(calls).toBe(2)
+    expect(calls).toBe(4)
     expect(writes).not.toHaveBeenCalled()
   } finally { store.close() }
 })
@@ -224,7 +224,7 @@ for (const fixture of [
         if (fixture.mode === 'answer') expect(body).toEqual({ mode: 'search', reason: 'unverified', message: '', citations: [{ n: 1, kind: 'post', sourceUrl: url }], cached: false })
         else expect(body).toEqual({ mode: 'search', reason: 'unverified', message: '', citations: [{ n: 1, kind: 'post', sourceUrl: url }], cached: false })
       }
-      expect(calls).toBe(2)
+      expect(calls).toBe(4)
       expect(writes).not.toHaveBeenCalled()
     } finally { store.close() }
   })
@@ -266,7 +266,7 @@ for (const clean of [false, true]) {
           ? { mode: 'answer', points: [{ text: points[0].text }], citations: [{ title: 'Scope' }], cached: i === 1 }
           : { mode: 'search', reason: 'unverified', cached: false })
       }
-      expect(calls).toBe(clean ? 1 : 2)
+      expect(calls).toBe(clean ? 1 : 4)
       expect(writes).toHaveBeenCalledTimes(clean ? 1 : 0)
     } finally { store.close() }
   })
@@ -342,6 +342,6 @@ it('fails closed on legal-size NFKC expansion for four concurrent API requests w
     maxDelay = Math.max(maxDelay, performance.now() - last)
     expect(maxDelay).toBeLessThan(100)
     expect(ticks).toBeGreaterThan(0)
-    expect(calls).toBe(8)
+    expect(calls).toBe(16)
   } finally { clearInterval(timer); store.close() }
 })

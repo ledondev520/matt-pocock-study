@@ -6,7 +6,7 @@ import type { ChatMessage } from './deepseek'
 import { isAllowedSourceUrl, isSitePath, originalPost, type Unit } from './units'
 
 export type Lang = 'zh' | 'en'
-export const PROMPT_VERSION = 'methodology-v17-wrapper-title'
+export const PROMPT_VERSION = 'methodology-v18-rewrite-on-reject'
 
 export interface Citation { n: number; kind: Unit['kind']; date?: string; sourceUrl?: string; siteUrl?: string; title?: string; snippet?: string }
 export interface Point { title: string; text: string; quote?: string; quoteUrl?: string; cites: number[] }
@@ -16,6 +16,15 @@ export type AskResponse =
   | { mode: 'search'; reason: string; message: string; citations: Citation[]; cached: false }
 
 const MAX_POINTS = 8
+
+export interface RejectedField { name: string; text: string }
+/** Optional request-local diagnostics; never part of the parsed answer. Joint checks identify
+ * participating fields, not individual offending substrings. No additional guard calls. */
+export interface AnswerDiagnostics {
+  reason?: 'shape' | 'no_points' | 'quote_budget' | 'independence'
+  fields?: RejectedField[]
+  scope?: 'title' | 'points' | 'joint'
+}
 
 export const notFoundMessage = (lang: Lang) => lang === 'zh' ? '站内没找到相关内容。' : 'Nothing on this site covers that.'
 
@@ -97,17 +106,26 @@ export function checkQuote(marker: unknown, units: Unit[], citedIndexes = units.
 }
 
 /** Parses and checks the model output. Returns undefined when nothing usable survives. */
-export async function parseAnswer(content: string, units: Unit[], siteUrl: string): Promise<{ found: false } | { found: true; title: string; points: Point[]; citations: Citation[] } | undefined> {
-  if (content.length > 32_000 || !contextFits(units)) return undefined
+export async function parseAnswer(content: string, units: Unit[], siteUrl: string, diagnostics?: AnswerDiagnostics): Promise<{ found: false } | { found: true; title: string; points: Point[]; citations: Citation[] } | undefined> {
+  if (diagnostics) { delete diagnostics.reason; delete diagnostics.fields; delete diagnostics.scope }
+  const reject = (reason: AnswerDiagnostics['reason'], fields?: RejectedField[], scope?: AnswerDiagnostics['scope']) => {
+    if (diagnostics) { diagnostics.reason = reason; diagnostics.fields = fields; diagnostics.scope = scope }
+    return undefined
+  }
+  if (content.length > 32_000 || !contextFits(units)) return reject('shape')
   let raw: unknown
-  try { raw = JSON.parse(content) } catch { return undefined }
-  if (!raw || typeof raw !== 'object') return undefined
+  try { raw = JSON.parse(content) } catch { return reject('shape') }
+  if (!raw || typeof raw !== 'object') return reject('shape')
   const value = raw as { found?: unknown; title?: unknown; points?: unknown }
   if (value.found === false) return { found: false }
-  if (value.found !== true || !Array.isArray(value.points)) return undefined
+  if (value.found !== true || !Array.isArray(value.points)) return reject('shape')
   const numbering = new Map<number, number>() // unit index -> citation number
   let points: Point[] = []
+  const pointNumbers = new Map<Point, number>()
+  const pointOutput = new Map<Point, { title: string; text: string }>()
+  let pointNumber = 0
   for (const item of value.points.slice(0, MAX_POINTS)) {
+    pointNumber++
     if (!item || typeof item !== 'object') continue
     const p = item as { title?: unknown; text?: unknown; quote?: unknown; sources?: unknown }
     const ids = Array.isArray(p.sources) ? p.sources : []
@@ -122,30 +140,44 @@ export async function parseAnswer(content: string, units: Unit[], siteUrl: strin
     for (const i of linked) if (!numbering.has(i)) numbering.set(i, numbering.size + 1)
     // Invalid markers are discarded; a valid set that exceeds a shared budget rejects the answer.
     points.push({ title, text, ...(quote ? { quote: quote.text, ...(isAllowedSourceUrl(quote.url) ? { quoteUrl: quote.url } : {}) } : {}), cites: linked.map(i => numbering.get(i)!) })
+    pointNumbers.set(points[points.length - 1], pointNumber)
+    pointOutput.set(points[points.length - 1], {
+      title: typeof p.title === 'string' ? p.title : '', text: typeof p.text === 'string' ? p.text : '',
+    })
   }
-  if (!points.length) return undefined
+  if (!points.length) return reject('no_points')
   const citations = [...numbering].map(([i, n]) => citationFor(units[i], n, siteUrl))
   const title = typeof value.title === 'string' ? stripLinks(value.title) : ''
+  const outputTitle = typeof value.title === 'string' ? value.title : ''
   const quotes = points.flatMap(p => p.quote && p.quoteUrl ? [{ text: p.quote, url: p.quoteUrl }] : [])
-  if (!quotesWithinBudget(quotes)) return undefined
+  if (!quotesWithinBudget(quotes)) return reject('quote_budget')
   const citationTitles = [...numbering.keys()].map(i => units[i].kind === 'post' ? originalPost(units[i]).title : units[i].title)
   const urls = [...citations.flatMap(c => c.sourceUrl ? [c.sourceUrl] : []), ...quotes.map(q => q.url)]
   const independent = (fields: string[]) => explanationsAreIndependent(fields, units, urls, quotes)
   const fields = () => [title, ...points.flatMap(p => [p.title, p.text]), ...citationTitles]
+  const pointFields = (selected: Point[]): RejectedField[] => selected.flatMap(p => [
+    ...(p.title ? [{ name: `point ${pointNumbers.get(p)} title`, text: pointOutput.get(p)!.title }] : []),
+    ...(p.text ? [{ name: `point ${pointNumbers.get(p)} text`, text: pointOutput.get(p)!.text }] : []),
+  ])
+  const failedPoints: Point[] = []
+  const implicatedFields = (): RejectedField[] => failedPoints.length ? pointFields(failedPoints)
+    : [...(title ? [{ name: 'answer title', text: outputTitle }] : []), ...pointFields(points)]
+  const scope = () => failedPoints.length ? 'points' as const : 'joint' as const
   if (!await independent(fields())) {
-    if (!await independent([title])) return undefined
+    if (!await independent([title])) return reject('independence', [{ name: 'answer title', text: outputTitle }], 'title')
     const retained: Point[] = []
     for (const point of points) {
       if (await independent([point.title, point.text])) retained.push(point)
+      else failedPoints.push(point)
     }
     points = retained
     // Keep the original sources, links and quote evidence for the joint check: isolating
     // points must not let copying spread across fields or points escape the existing guard.
-    if (!points.some(p => p.text) || !await independent(fields())) return undefined
+    if (!points.some(p => p.text) || !await independent(fields())) return reject('independence', implicatedFields(), scope())
   }
   // Shape the response only after the joint check has seen all original evidence.
   points = points.filter(p => p.text)
-  if (!points.length) return undefined
+  if (!points.length) return reject('no_points')
   const responseNumbering = new Map<number, number>() // original citation number -> response number
   for (const point of points) {
     point.cites = point.cites.map(n => {
@@ -156,7 +188,7 @@ export async function parseAnswer(content: string, units: Unit[], siteUrl: strin
   const responseCitations = [...responseNumbering].map(([old, n]) => ({ ...citations[old - 1], n }))
   // Trimming evidence can make the displayed answer fail even when the full-evidence check passed.
   const responseQuotes = points.flatMap(p => p.quote && p.quoteUrl ? [{ text: p.quote, url: p.quoteUrl }] : [])
-  if (!quotesWithinBudget(responseQuotes)) return undefined
+  if (!quotesWithinBudget(responseQuotes)) return reject('quote_budget')
   const responseUrls = [...responseCitations.flatMap(c => c.sourceUrl ? [c.sourceUrl] : []), ...responseQuotes.map(q => q.url)]
   const responseFields = [title, ...points.flatMap(p => [p.title, p.text])]
   // Check each title sequence separately: interleaving can interrupt overlap runs or count equal titles twice.
@@ -166,6 +198,6 @@ export async function parseAnswer(content: string, units: Unit[], siteUrl: strin
   })
   const originalTitles = [...responseNumbering].map(([old]) => citationTitles[old - 1])
   if (!await explanationsAreIndependent([...responseFields, ...displayedTitles], units, responseUrls, responseQuotes)
-    || !await explanationsAreIndependent([...responseFields, ...originalTitles], units, responseUrls, responseQuotes)) return undefined
+    || !await explanationsAreIndependent([...responseFields, ...originalTitles], units, responseUrls, responseQuotes)) return reject('independence', implicatedFields(), scope())
   return { found: true, title, points, citations: responseCitations }
 }

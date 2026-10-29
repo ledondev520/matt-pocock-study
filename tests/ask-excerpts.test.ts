@@ -196,7 +196,7 @@ for (const fixture of regressions) {
         expect(response.status).toBe(200)
         expect(await response.json()).toEqual({ mode: 'search', reason: 'unverified', message: '', cached: false, citations: [{ n: 1, kind: 'post', sourceUrl: url }] })
       }
-      expect(calls).toBe(2)
+      expect(calls).toBe(4)
     } finally { store.close() }
   })
 }
@@ -232,7 +232,7 @@ it('returns uncached search when citation metadata still fails after point isola
       expect(body).toEqual({ mode: 'search', reason: 'unverified', message: '', citations: [{ n: 1, kind: 'post', sourceUrl: url }], cached: false })
       expect(JSON.stringify(body)).not.toContain(longText)
     }
-    expect(calls).toBe(2)
+    expect(calls).toBe(4)
   } finally { store.close() }
 })
 
@@ -300,7 +300,7 @@ describe('persistent answer content version', () => {
           citations: [{ n: 1, kind: 'post', sourceUrl: url }],
         })
       }
-      expect(calls).toBe(2)
+      expect(calls).toBe(4)
     } finally { store.close() }
   })
 
@@ -327,7 +327,7 @@ describe('persistent answer content version', () => {
           citations: [{ n: 1, kind: 'post', sourceUrl: url }],
         })
       }
-      expect(calls).toBe(2)
+      expect(calls).toBe(4)
     } finally { store.close() }
   })
 
@@ -353,7 +353,7 @@ describe('persistent answer content version', () => {
           citations: [{ n: 1, kind: 'post', sourceUrl: url }],
         })
       }
-      expect(calls).toBe(2)
+      expect(calls).toBe(4)
     } finally { store.close() }
   })
 
@@ -478,7 +478,7 @@ it('invalidates the review-6 cache policy and refuses its short-word bypass twic
     let calls = 0
     const app = createAskApp({ config: cfg, units: [unit], store, log: () => {}, fetch: (async () => { calls++; return fetchAnswer(content)('unused') }) as typeof fetch })
     for (let i = 0; i < 2; i++) expect(await (await request(app, 'abcdefghij')).json()).toEqual({ mode: 'search', reason: 'unverified', message: '', cached: false, citations: [{ n: 1, kind: 'post', sourceUrl: url }] })
-    expect(calls).toBe(2)
+    expect(calls).toBe(4)
   } finally { store.close() }
 })
 
