@@ -30,7 +30,7 @@ function config(over: Partial<AskConfig> = {}): AskConfig {
 const idOf = (prompt: string, attr: string) => prompt.match(new RegExp(`<source id="(S\\d+)"[^>]*${attr.replace(/[.?#/]/g, '\\$&')}`))?.[1]
 const overBudgetAnswer = (prompt: string) => JSON.stringify({ found: true, title: 'Split by reversibility', points: [
   { title: 'Ship behind a flag first', text: 'Put everything in a first PR you can roll back. See https://evil.example/x and [here](https://evil.example).', quote: 'the first one ships everything behind a flag and is easy to roll back', sources: [idOf(prompt, POST_URL)] },
-  { title: 'Flip in a second PR', text: 'The second PR crosses the one-way door.', quote: 'Matt never said this sentence at all', sources: [idOf(prompt, 'site="/zh/knowledge#n1"'), 'S9'] },
+  { title: 'Assess activation', text: 'Review risk before proceeding.', quote: 'Matt never said this sentence at all', sources: [idOf(prompt, 'site="/zh/knowledge#n1"'), 'S9'] },
   { title: 'Unlinked', text: 'No usable source.', sources: ['S42'] },
 ] })
 const goodAnswer = (prompt: string) => JSON.stringify({ found: true, title: 'Manage reversibility', points: [
@@ -85,7 +85,7 @@ describe('POST /api/ask', () => {
       if (onlyCopied) expect(body).not.toHaveProperty('points')
       else {
         const points = body.points as Point[]
-        expect(points).toEqual([{ title: 'Flip in a second PR', text: 'The second PR crosses the one-way door.', cites: [2] }])
+        expect(points).toEqual([{ title: 'Assess activation', text: 'Review risk before proceeding.', cites: [1] }])
         for (const point of points) expect(point.text.trim()).not.toBe('')
         const citations = body.citations as Citation[]
         const quotes = points.flatMap(p => p.quote && p.quoteUrl ? [{ text: p.quote, url: p.quoteUrl }] : [])
@@ -93,6 +93,23 @@ describe('POST /api/ask', () => {
           body.title, ...points.flatMap(p => [p.title, p.text]), ...citations.map(c => c.title ?? ''),
         ], units, [...citations.flatMap(c => c.sourceUrl ? [c.sourceUrl] : []), ...quotes.map(q => q.url)], quotes)).toBe(true)
       }
+    }
+    expect(calls).toHaveLength(2)
+  })
+
+  it('returns uncached search when a surviving point needs a dropped point\'s citation to pass the guard', async () => {
+    const { ask, calls } = setup({}, upstream(prompt => {
+      const answer = JSON.parse(overBudgetAnswer(prompt))
+      answer.points[1].title = 'Flip in a second PR'
+      answer.points[1].text = 'The second PR crosses the one-way door.'
+      return JSON.stringify(answer)
+    }))
+    for (let i = 0; i < 2; i++) {
+      const response = await ask()
+      expect(response.status).toBe(200)
+      const body = await response.json()
+      expect(body).toMatchObject({ mode: 'search', reason: 'unverified', cached: false })
+      expect(body).not.toHaveProperty('points')
     }
     expect(calls).toHaveLength(2)
   })

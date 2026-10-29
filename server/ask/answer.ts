@@ -6,7 +6,7 @@ import type { ChatMessage } from './deepseek'
 import { isAllowedSourceUrl, isSitePath, originalPost, type Unit } from './units'
 
 export type Lang = 'zh' | 'en'
-export const PROMPT_VERSION = 'methodology-v13-point-isolation'
+export const PROMPT_VERSION = 'methodology-v14-trimmed-answer'
 
 export interface Citation { n: number; kind: Unit['kind']; date?: string; sourceUrl?: string; siteUrl?: string; title?: string; snippet?: string }
 export interface Point { title: string; text: string; quote?: string; quoteUrl?: string; cites: number[] }
@@ -143,6 +143,22 @@ export async function parseAnswer(content: string, units: Unit[], siteUrl: strin
     // points must not let copying spread across fields or points escape the existing guard.
     if (!points.some(p => p.text) || !await independent(fields())) return undefined
   }
-  if (!points.some(p => p.text)) return undefined
-  return { found: true, title, points, citations }
+  // Shape the response only after the joint check has seen all original evidence.
+  points = points.filter(p => p.text)
+  if (!points.length) return undefined
+  const responseNumbering = new Map<number, number>() // original citation number -> response number
+  for (const point of points) {
+    point.cites = point.cites.map(n => {
+      if (!responseNumbering.has(n)) responseNumbering.set(n, responseNumbering.size + 1)
+      return responseNumbering.get(n)!
+    })
+  }
+  const responseCitations = [...responseNumbering].map(([old, n]) => ({ ...citations[old - 1], n }))
+  // Trimming evidence can make the displayed answer fail even when the full-evidence check passed.
+  const responseQuotes = points.flatMap(p => p.quote && p.quoteUrl ? [{ text: p.quote, url: p.quoteUrl }] : [])
+  if (!quotesWithinBudget(responseQuotes)) return undefined
+  const responseUrls = [...responseCitations.flatMap(c => c.sourceUrl ? [c.sourceUrl] : []), ...responseQuotes.map(q => q.url)]
+  const responseFields = [title, ...points.flatMap(p => [p.title, p.text]), ...responseCitations.map(c => c.title ?? '')]
+  if (!await explanationsAreIndependent(responseFields, units, responseUrls, responseQuotes)) return undefined
+  return { found: true, title, points, citations: responseCitations }
 }

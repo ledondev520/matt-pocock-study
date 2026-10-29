@@ -146,9 +146,108 @@ for (const lang of ['en', 'zh'] as const) {
     })
   }
 
-  for (const oldVersion of ['methodology-v9-normalized-overlap', 'methodology-v12-ordered-overlap']) {
+  for (const text of ['', '   ', 'https://discarded.example/path', undefined]) {
+    for (const copied of [false, true]) {
+      it(`${lang}: removes empty point text (${String(text)}) before returning and caching (copied=${copied})`, async () => {
+        const unit: Unit = { id: 'post:fixture', kind: 'post', title: '', text: 'Start small. Adjust quickly. Build trust.', sourceUrl }
+        const content = JSON.stringify({ found: true, title: '', points: [
+          ...(copied ? [{ title: '', text: unit.text, sources: ['S1'] }] : []),
+          { title: '', text, quote: { chunk_id: 'S1', start: 0, end: 12 }, sources: ['S1'] },
+          { title: 'Inspect risk', text: 'Prefer reversible increments.', sources: ['S1'] },
+        ] })
+        const store = openStore(':memory:')
+        const writes = vi.spyOn(store, 'putCache')
+        const fetch = vi.fn(async () => completion(content))
+        try {
+          const app = createAskApp({ config: config(), units: [unit], store, fetch, log: () => {} })
+          for (let i = 0; i < 2; i++) {
+            const response = await request(app, 'start small', lang)
+            expect(response.status).toBe(200)
+            expect(await response.json()).toEqual({
+              mode: 'answer', title: '', cached: i === 1,
+              points: [{ title: 'Inspect risk', text: 'Prefer reversible increments.', cites: [1] }],
+              citations: [{ n: 1, kind: 'post', sourceUrl }],
+            })
+          }
+          expect(fetch).toHaveBeenCalledTimes(1)
+          expect(writes).toHaveBeenCalledTimes(1)
+        } finally { store.close() }
+      })
+    }
+  }
+
+  it.each([false, true])(`${lang}: trims unused citations and renumbers in surviving first-use order, including cache hits (copied=%s)`, async copied => {
+    const units: Unit[] = [
+      { id: 'post:one', kind: 'post', title: '', text: 'Start small. Adjust quickly. Build trust.', sourceUrl },
+      { id: 'post:two', kind: 'post', title: '', text: 'Review changes before release.', sourceUrl: sourceUrl.replace(/1$/, '2') },
+      { id: 'post:three', kind: 'post', title: '', text: 'Review dependencies before proceeding.', sourceUrl: sourceUrl.replace(/1$/, '3') },
+    ]
+    const fetch = vi.fn(async (_url: unknown, init?: RequestInit) => {
+      const prompt = JSON.parse(String(init?.body)).messages[1].content as string
+      const sources = [...prompt.matchAll(/<source id="(S\d+)"[^>]*>(.*?)<\/source>/gs)]
+      const ids = units.map(unit => sources.find(([, , payload]) => JSON.parse(payload).text === unit.text)![1])
+      return completion(JSON.stringify({ found: true, title: '', points: [
+        { title: '', text: copied ? units[0].text : '', sources: ids, quote: { chunk_id: ids[0], start: 0, end: 12 } },
+        { title: 'Inspect risk', text: 'Prefer reversible increments.', sources: [ids[2], ids[1]] },
+        { title: 'Assess scope', text: 'Limit the impact of each decision.', sources: [ids[1]] },
+      ] }))
+    })
+    const store = openStore(':memory:')
+    const writes = vi.spyOn(store, 'putCache')
+    try {
+      const app = createAskApp({ config: config(), units, store, fetch, log: () => {} })
+      for (let i = 0; i < 2; i++) {
+        const response = await request(app, 'review changes dependencies start small', lang)
+        expect(response.status).toBe(200)
+        expect(await response.json()).toEqual({
+          mode: 'answer', title: '', cached: i === 1,
+          points: [
+            { title: 'Inspect risk', text: 'Prefer reversible increments.', cites: [1, 2] },
+            { title: 'Assess scope', text: 'Limit the impact of each decision.', cites: [2] },
+          ],
+          citations: [
+            { n: 1, kind: 'post', sourceUrl: sourceUrl.replace(/1$/, '3') },
+            { n: 2, kind: 'post', sourceUrl: sourceUrl.replace(/1$/, '2') },
+          ],
+        })
+      }
+      expect(fetch).toHaveBeenCalledTimes(1)
+      expect(writes).toHaveBeenCalledTimes(1)
+    } finally { store.close() }
+  })
+
+  it(`${lang}: checks citation titles belonging only to dropped points before trimming`, async () => {
+    const copied = 'Start small. Adjust quickly. Build trust.'
+    const units: Unit[] = [
+      { id: 'post:one', kind: 'post', title: copied, text: copied, sourceUrl },
+      { id: 'post:two', kind: 'post', title: '', text: 'Review changes before release.', sourceUrl: sourceUrl.replace(/1$/, '2') },
+    ]
+    const fetch = vi.fn(async (_url: unknown, init?: RequestInit) => {
+      const prompt = JSON.parse(String(init?.body)).messages[1].content as string
+      const sources = [...prompt.matchAll(/<source id="(S\d+)"[^>]*>(.*?)<\/source>/gs)]
+      const ids = units.map(unit => sources.find(([, , payload]) => JSON.parse(payload).text === unit.text)![1])
+      return completion(JSON.stringify({ found: true, title: '', points: [
+        { title: '', text: copied, sources: [ids[0]] },
+        { title: 'Inspect risk', text: 'Prefer reversible increments.', sources: [ids[1]] },
+      ] }))
+    })
+    const store = openStore(':memory:')
+    const writes = vi.spyOn(store, 'putCache')
+    try {
+      const app = createAskApp({ config: config(), units, store, fetch, log: () => {} })
+      for (let i = 0; i < 2; i++) {
+        const response = await request(app, 'start small review changes', lang)
+        expect(response.status).toBe(200)
+        expect(await response.json()).toMatchObject({ mode: 'search', reason: 'unverified', cached: false })
+      }
+      expect(fetch).toHaveBeenCalledTimes(2)
+      expect(writes).not.toHaveBeenCalled()
+    } finally { store.close() }
+  })
+
+  for (const oldVersion of ['methodology-v9-normalized-overlap', 'methodology-v12-ordered-overlap', 'methodology-v13-point-isolation']) {
     it(`${lang}: isolates empty shells cached under ${oldVersion}`, async () => {
-      expect(PROMPT_VERSION).toBe('methodology-v13-point-isolation')
+      expect(PROMPT_VERSION).toBe('methodology-v14-trimmed-answer')
       const unit: Unit = { id: 'post:fixture', kind: 'post', title: '', text: 'Review changes by risk before release.', sourceUrl }
       const cfg = config()
       const digest = createHash('sha256').update(JSON.stringify([[unit.id, 'post', '', unit.text, null, sourceUrl, null, []]])).digest('hex')
