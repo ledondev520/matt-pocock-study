@@ -4,6 +4,7 @@
 // changes, change `MethodologyChunk` and `chunkUnits` here and nothing else.
 // Supports existing chunks and language-specific keys/sitePath from the methodology exporter.
 import { readFileSync } from 'node:fs'
+import { getMethodology } from '../../scripts/methods'
 import { isAllowedSourceUrl, isSitePath, type Anchor, type Unit } from './units'
 
 export interface MethodologyChunk {
@@ -32,6 +33,20 @@ export interface MethodologyChunk {
 
 const pick = (value: MethodologyChunk['title']) => typeof value === 'string' ? value : [value?.zh, value?.en].filter(Boolean).join(' / ')
 
+/** Corpus metadata alone cannot establish that a displayed title is our label. */
+function hasMethodologyTitle(c: MethodologyChunk): boolean {
+  const lang = c.lang
+  if (c.kind !== 'post' || (lang !== 'zh' && lang !== 'en')) return false
+  if (c.stance_status !== undefined && c.stance_status !== 'current' && c.stance_status !== 'history' && c.stance_status !== 'superseded') return false
+  if (c.methodology_ids !== undefined && !Array.isArray(c.methodology_ids)) return false
+  const ids = [...(c.methodology_id === undefined ? [] : [c.methodology_id]), ...(c.methodology_ids ?? [])]
+  if (!ids.length || ids.some(id => typeof id !== 'string')) return false
+  const methods = ids.map(id => getMethodology(id))
+  // Compare the title before the adapter appends its stance suffix. Every supplied ID
+  // must resolve, and at least one associated methodology must own this exact label.
+  return methods.every(m => m !== undefined) && methods.some(m => m?.title[lang] === pick(c.title))
+}
+
 /** Reads a JSON array or JSON Lines file of chunks. */
 export function readChunks(file: string): MethodologyChunk[] {
   const raw = readFileSync(file, 'utf8').trim()
@@ -54,7 +69,8 @@ export function chunkUnits(chunks: MethodologyChunk[]): Unit[] {
     const id = c.kind === 'post' ? c.chunk_id : `method:${c.key ?? c.chunk_id}`
     if (seen.has(id)) continue
     seen.add(id)
-    units.push({ id, kind: c.kind === 'post' ? 'post' : 'method', title: `${pick(c.title)}${stance}`, text, date: c.date_last, sourceUrl, sitePath, quotes })
+    // Only repo-owned methodology labels qualify for the displayed-title exemption.
+    units.push({ id, kind: c.kind === 'post' ? 'post' : 'method', title: `${pick(c.title)}${stance}`, ...(hasMethodologyTitle(c) ? { titleOrigin: 'methodology' as const } : {}), text, date: c.date_last, sourceUrl, sitePath, quotes })
   }
   return units
 }

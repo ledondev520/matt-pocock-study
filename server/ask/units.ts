@@ -31,6 +31,8 @@ export interface Unit {
   id: string
   kind: UnitKind
   title: string
+  /** Set only by the adapter after verifying the label against repo methodology data; never trusted from JSON. */
+  titleOrigin?: 'methodology'
   text: string
   date?: string
   /** Original post or page on the author's site (x.com, github.com, aihero.dev). */
@@ -130,7 +132,11 @@ export function loadUnits(opts: { indexFile: string; pageManifestFile: string; d
   if (index.version !== 1 || !Array.isArray(index.units)) throw new Error('ask index: unexpected format')
   return [
     ...(opts.chunksFile ? chunkUnits(readChunks(opts.chunksFile)) : []),
-    ...index.units,
+    ...index.units.map(unit => {
+      const clean = { ...unit }
+      delete clean.titleOrigin
+      return clean
+    }),
     ...(opts.datasetDir ? postUnits(opts.datasetDir) : []),
   ].map(unit => {
     if ((unit.kind === 'method' || isMethodLink(unit.sitePath)) && !hasGeneratedPage(pages, unit.sitePath)) {

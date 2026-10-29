@@ -70,7 +70,7 @@ export function createAskApp(deps: AskDeps) {
   const peer = deps.peer ?? ((c: Context) => (c.env as { incoming?: { socket?: { remoteAddress?: string } } } | undefined)?.incoming?.socket?.remoteAddress)
   const retriever = createRetriever(deps.units)
   const indexVersion = sha256(JSON.stringify(deps.units.map(u => [
-    u.id, u.kind, u.title, u.text, u.date ?? null, u.sourceUrl ?? null, u.sitePath ?? null,
+    u.id, u.kind, u.title, u.text, u.date ?? null, u.sourceUrl ?? null, u.sitePath ?? null, u.titleOrigin ?? null,
     u.quotes?.map(q => [q.text, q.url, q.date ?? null]) ?? [],
   ])))
   const version = `${indexVersion}:${config.model}:${PROMPT_VERSION}`
