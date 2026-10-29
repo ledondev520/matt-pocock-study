@@ -245,9 +245,71 @@ for (const lang of ['en', 'zh'] as const) {
     } finally { store.close() }
   })
 
+  for (const clean of [false, true]) {
+    it(`${lang}: ${clean ? 'keeps and caches normal multi-source prose without counting equal titles twice' : 'rejects an overlapping original-title run interrupted by a displayed wrapper title without caching'}`, async () => {
+      const wrapper = clean ? 'Scope' : lang === 'en' ? 'Grid' : '流程'
+      const wrapperTitle = !clean && lang === 'zh' ? `${wrapper} (history)` : wrapper
+      const tail = clean ? lang === 'en' ? 'reversible work' : '分步改动' : lang === 'en' ? 'iterate' : '可逆步'
+      const head = lang === 'en' ? 'Incrementally' : '采用'
+      const units: Unit[] = [
+        ...(!clean ? [{ id: 'note:separator', kind: 'note' as const, title: lang === 'en' ? 'Context' : '背景', text: 'Our unique commentary.', sourceUrl }] : []),
+        { id: 'post:wrapper', kind: 'post', title: wrapperTitle, text: `${wrapper} · Matt Pocock, 2025-07-18\n${clean ? 'Plan carefully.' : lang === 'en' ? 'Inspect the surroundings.' : '先看周围。'}`, sourceUrl: sourceUrl.replace(/1$/, '2') },
+        { id: 'method:tail', kind: 'method', title: tail, text: 'Our second unique commentary.', sourceUrl: sourceUrl.replace(/1$/, '4') },
+        { id: 'post:uncited', kind: 'post', title: '', text: clean ? `${tail}.` : `${head} ${tail}.`, sourceUrl: sourceUrl.replace(/1$/, '4') },
+      ]
+      const title = clean ? lang === 'en' ? 'Plan' : '计划' : ''
+      const text = clean
+        ? lang === 'en' ? 'Validate assumptions before committing further effort.' : '把每轮目标控制在容易评估的范围内，遇到疑问就先停下来核实。'
+        : head
+      const points = clean
+        ? [{ title: lang === 'en' ? 'Inspect' : '核实', text, sources: ['S1', 'S2'] }]
+        : [{ title: 'Discarded', text: '', sources: ['S1'] }, { title: '', text, sources: ['S2', 'S3'] }]
+      const content = JSON.stringify({ found: true, title, points })
+      const expected = {
+        title, points: [{ title: points[0].title, text, cites: [1, 2] }],
+        citations: [
+          { n: 1, kind: 'post', title: wrapperTitle, sourceUrl: sourceUrl.replace(/1$/, '2') },
+          { n: 2, kind: 'method', title: tail, sourceUrl: sourceUrl.replace(/1$/, '4') },
+        ],
+      }
+      const parsed = await parse(content, units)
+      if (clean) expect(parsed).toEqual({ found: true, ...expected })
+      else expect(parsed).toBeUndefined()
+      const fetch = vi.fn(async (_url: unknown, init?: RequestInit) => {
+        const prompt = JSON.parse(String(init?.body)).messages[1].content as string
+        const supplied = [...prompt.matchAll(/<source id="(S\d+)"[^>]*>(.*?)<\/source>/gs)]
+        const ids = units.map(unit => supplied.find(([, , payload]) => JSON.parse(payload).text === unit.text)?.[1])
+        const mapped = points.map(p => ({ ...p, sources: p.sources.map(id => {
+          const suppliedId = ids[Number(id.slice(1)) - 1]
+          expect(suppliedId).toBeDefined()
+          return suppliedId
+        }) }))
+        return completion(JSON.stringify({ found: true, title, points: mapped }))
+      })
+      const store = openStore(':memory:')
+      const writes = vi.spyOn(store, 'putCache')
+      try {
+        const app = createAskApp({ config: config(), units, store, fetch, log: () => {} })
+        const query = `Our unique commentary ${wrapper} Plan carefully Inspect the surroundings 先看周围 ${head} ${tail}`
+        for (let i = 0; i < 2; i++) {
+          const response = await request(app, query, lang)
+          expect(response.status).toBe(200)
+          const body = await response.json()
+          if (clean) expect(body).toEqual({ mode: 'answer', ...expected, cached: i === 1 })
+          else {
+            expect(body).toMatchObject({ mode: 'search', reason: 'unverified', cached: false })
+            expect(body).not.toHaveProperty('points')
+          }
+        }
+        expect(fetch).toHaveBeenCalledTimes(clean ? 1 : 2)
+        expect(writes).toHaveBeenCalledTimes(clean ? 1 : 0)
+      } finally { store.close() }
+    })
+  }
+
   for (const oldVersion of ['methodology-v9-normalized-overlap', 'methodology-v12-ordered-overlap', 'methodology-v13-point-isolation', 'methodology-v14-trimmed-answer']) {
     it(`${lang}: isolates empty shells cached under ${oldVersion}`, async () => {
-      expect(PROMPT_VERSION).toBe('methodology-v15-trimmed-titles')
+      expect(PROMPT_VERSION).toBe('methodology-v16-separate-title-checks')
       const unit: Unit = { id: 'post:fixture', kind: 'post', title: '', text: 'Review changes by risk before release.', sourceUrl }
       const cfg = config()
       const digest = createHash('sha256').update(JSON.stringify([[unit.id, 'post', '', unit.text, null, sourceUrl, null, []]])).digest('hex')
