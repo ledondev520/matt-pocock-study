@@ -2,15 +2,17 @@
 // Order of checks: input -> per-IP minute limit -> cache -> retrieval (no match: "not found",
 // no model call) -> concurrency -> per-IP day limit -> site-wide day limit -> circuit breaker ->
 // DeepSeek. Every limit after the cache counts model calls only; the minute limit counts every
-// request. Nothing here stores or logs the question text or the client address.
+// request. A repair counts as another site-wide call but as the same per-IP daily question.
+// Nothing here stores or logs the question text or the client address.
 import { createHash, createHmac } from 'node:crypto'
 import { isIP } from 'node:net'
 import { Hono, type Context } from 'hono'
-import { buildMessages, citationFor, notFoundMessage, parseAnswer, PROMPT_VERSION, type AskResponse, type Citation, type Lang } from './answer'
+import { buildMessages, citationFor, notFoundMessage, PROMPT_VERSION, type AskResponse, type Citation, type Lang } from './answer'
 import { contextFits } from './excerpts'
 import type { AskConfig } from './config'
 import { callDeepSeek, chatRequest, CircuitBreaker, UpstreamError } from './deepseek'
 import { createRetriever, relevant } from './retrieve'
+import { ANSWER_BUDGET_MS, MIN_REWRITE_MS, answerWithRewrite, type RewriteOutcome } from './rewrite'
 import type { Store } from './store'
 import type { Unit } from './units'
 
@@ -132,17 +134,18 @@ export function createAskApp(deps: AskDeps) {
     const hits = relevant(retriever.search(q, config.contextUnits * 3), config.minScore)
     const units = dedupe(hits.map(h => h.unit)).slice(0, config.contextUnits)
     const finish = (response: AskResponse, extra: Record<string, unknown> = {}, cacheable = true) => {
-      if (cacheable && cacheTtl && response.mode !== 'search') store.putCache(key, JSON.stringify(response), cacheTtl, t)
+      if (cacheable && cacheTtl) store.putCache(key, JSON.stringify(response), cacheTtl, t)
       record({ ...base, status: 200, mode: response.mode, cached: false, ...extra })
       return c.json(response)
     }
     if (!units.length) return finish({ mode: 'not_found', message: notFoundMessage(lang), citations: [], cached: false })
 
-    const fallback = (reason: string, extra: Record<string, unknown> = {}): Response => {
+    const fallback = (reason: string, extra: Record<string, unknown> = {}, cacheable = false): Response => {
       const citations: Citation[] = units.map((u, i) => ({ ...citationFor(u, i + 1, config.siteUrl), title: undefined }))
-      return finish({ mode: 'search', reason, message: '', citations, cached: false }, { reason, ...extra })
+      return finish({ mode: 'search', reason, message: '', citations, cached: false }, { reason, ...extra }, cacheable)
     }
     if (!config.enabled || !config.apiKey) return fallback('disabled')
+    const apiKey = config.apiKey
     if (!contextFits(units)) return fallback('unverified')
     if ((inFlight.get(ip) ?? 0) >= 1) {
       record({ ...base, status: 429, reason: 'per_ip_concurrent' })
@@ -162,17 +165,40 @@ export function createAskApp(deps: AskDeps) {
 
     inFlight.set(ip, (inFlight.get(ip) ?? 0) + 1)
     calls++
+    const deadline = started + ANSWER_BUDGET_MS
+    const metrics = { rewrite: false, rewriteMs: 0, inTokens: 0, outTokens: 0 }
     try {
-      const result = await callDeepSeek({ baseUrl: config.baseUrl, apiKey: config.apiKey, request: chatRequest(config.model, buildMessages(q, lang, units)), timeoutMs: config.timeoutMs, fetch: deps.fetch })
+      const messages = buildMessages(q, lang, units)
+      const result = await callDeepSeek({ baseUrl: config.baseUrl, apiKey, request: chatRequest(config.model, messages), timeoutMs: Math.max(1, Math.min(config.timeoutMs, deadline - now())), fetch: deps.fetch })
       breaker.success()
-      const usage = { inTokens: result.inputTokens, outTokens: result.outputTokens }
-      const parsed = await parseAnswer(result.content, units, config.siteUrl)
-      if (!parsed) return fallback('unverified', usage)
-      if (!parsed.found) return finish({ mode: 'not_found', message: notFoundMessage(lang), citations: [], cached: false }, usage)
-      return finish({ mode: 'answer', title: parsed.title, points: parsed.points, citations: parsed.citations, cached: false }, usage)
+      metrics.inTokens += result.inputTokens
+      metrics.outTokens += result.outputTokens
+      const outcome: RewriteOutcome = {}
+      const parsed = await answerWithRewrite({ content: result.content, units, siteUrl: config.siteUrl, messages, outcome, rewrite: async followup => {
+        const rewriteStarted = now()
+        const timeoutMs = Math.min(config.timeoutMs, deadline - rewriteStarted)
+        if (timeoutMs < MIN_REWRITE_MS) return undefined
+        const rewriteDay = dayOf(rewriteStarted)
+        if (store.count('site', `d:${rewriteDay}`) >= config.globalPerDay) return undefined
+        if (!breaker.allow(rewriteStarted)) return undefined
+        // No await between the limits and counter write. Keep the original concurrency slot;
+        // the client submitted one question, so the per-IP daily counter is not charged again.
+        store.hit('site', `d:${rewriteDay}`, 2 * DAY, rewriteStarted)
+        metrics.rewrite = true
+        try {
+          const repaired = await callDeepSeek({ baseUrl: config.baseUrl, apiKey, request: chatRequest(config.model, followup), timeoutMs, fetch: deps.fetch })
+          breaker.success()
+          metrics.inTokens += repaired.inputTokens
+          metrics.outTokens += repaired.outputTokens
+          return repaired
+        } finally { metrics.rewriteMs = now() - rewriteStarted }
+      } })
+      if (!parsed) return fallback('unverified', metrics, outcome.rejection === 'guard')
+      if (!parsed.found) return finish({ mode: 'not_found', message: notFoundMessage(lang), citations: [], cached: false }, metrics)
+      return finish({ mode: 'answer', title: parsed.title, points: parsed.points, citations: parsed.citations, cached: false }, metrics)
     } catch (error) {
       breaker.failure(now())
-      return fallback('upstream_error', { upstream: error instanceof UpstreamError ? error.kind : 'unknown' })
+      return fallback('upstream_error', { ...metrics, upstream: error instanceof UpstreamError ? error.kind : 'unknown' })
     } finally {
       calls--
       const left = (inFlight.get(ip) ?? 1) - 1
