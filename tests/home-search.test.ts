@@ -87,6 +87,32 @@ it('engagement counts are dropped from knowledge text at build', () => {
   const kept = dropCounts({ ...entry('1', '2026-10-27', '标题', ''), body: [{ text: '共 300 赞' }, { text: '原帖', href: 'https://x.com/a' }] } as KbEntry)
   expect(kept.body).toEqual([{ text: '共' }, { text: '原帖', href: 'https://x.com/a' }])
 })
+it('drops a count-only segment before a link but preserves punctuation after the link', () => {
+  const original = {
+    ...entry('matt-notes-2026-10-28-2115394392273895644', '2026-10-28', 'PR 描述', ''),
+    body: [
+      { text: '140 赞。' },
+      { text: '原帖', href: 'https://x.com/mattpocockuk/status/2115394392273895644' },
+      { text: '，PR 是 ' },
+      { text: 'course-video-manager#2399', href: 'https://github.com/mattpocock/course-video-manager/pull/2399' },
+      { text: '。' },
+    ],
+  }
+  expect(dropCounts(original).body).toEqual([
+    { text: '原帖', href: 'https://x.com/mattpocockuk/status/2115394392273895644' },
+    { text: '，PR 是 ' },
+    { text: 'course-video-manager#2399', href: 'https://github.com/mattpocock/course-video-manager/pull/2399' },
+    { text: '。' },
+  ])
+})
+it('removes only newly exposed leading sentence punctuation after dropping counts', () => {
+  for (const punctuation of '。，、；：！？.,;:!?…') {
+    expect(withoutCounts(`140 赞${punctuation}`)).toBe('')
+    expect(withoutCounts(` 140 赞 ${punctuation} ${punctuation} 后文。`)).toBe('后文。')
+    expect(withoutCounts(` ${punctuation} 后文。`)).toBe(` ${punctuation} 后文。`)
+    expect(withoutCounts(` ${punctuation} 后文 140 赞`)).toBe(` ${punctuation} 后文`)
+  }
+})
 it('the learn source feeds today (newest first, limited) and the search index from one place', () => {
   const knowledge = [entry('1', '2026-10-26', '旧的', '旧'), entry('2', '2026-10-27', '新的一', '一'), entry('3', '2026-10-27', '新的二', '二')]
   const pages = [{ lang: 'zh', slug: 'review-and-pr', title: '评审与 PR', subtitle: '评审与 PR', summary: '需求与规范。' }, { lang: 'en', slug: 'review-and-pr', title: 'Review and PRs', subtitle: 'Review', summary: 'Two axes.' }] as PageSummary[]
