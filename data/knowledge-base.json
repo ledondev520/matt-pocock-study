@@ -2,6 +2,147 @@
   "version": 2,
   "entries": [
     {
+      "id": "matt-notes-2026-10-29-2115751897558614073",
+      "date": "2026-10-29",
+      "source": "matt-notes",
+      "title": "Codex 默认让子 agent 继承父 agent 的上下文（fork），这会毁掉靠干净上下文的 skill（代码评审、implement-spec 等）；他把所有派子 agent 的 skill 都改成\"用全新上下文窗口启动\"",
+      "body": [
+        {
+          "text": "366 赞。"
+        },
+        {
+          "text": "原帖",
+          "href": "https://x.com/mattpocockuk/status/2115751897558614073"
+        },
+        {
+          "text": "（帖里只有 t.co 链接）。对应的应是 "
+        },
+        {
+          "text": "skills#1341",
+          "href": "https://github.com/mattpocock/skills/pull/1341"
+        },
+        {
+          "text": "（帖子发出前 1 分钟合并，链接对应关系是 ）：8 处一句话改动，统一写成 \"spin up a subagent with a fresh context window\"，并在仓库规范里加一条\"所有派子 agent 的 skill 都要写明\"；Claude Code 默认就是全新上下文，不受影响（PR 正文）。"
+        }
+      ],
+      "url": "https://x.com/mattpocockuk/status/2115751897558614073"
+    },
+    {
+      "id": "matt-notes-2026-10-29-2115756445862134157",
+      "date": "2026-10-29",
+      "source": "matt-notes",
+      "title": "\"用一个形容词修好一个 bug\"：",
+      "body": [
+        {
+          "text": "skills#1342",
+          "href": "https://github.com/mattpocock/skills/pull/1342"
+        },
+        {
+          "text": " 只在 implement-spec 两处加了 \"fresh\"，防止编排者把下一张工单或评审修复交给还带着上一张工单上下文的实现子 agent；merger 子 agent 故意允许复用。169 赞。"
+        },
+        {
+          "text": "原帖",
+          "href": "https://x.com/mattpocockuk/status/2115756445862134157"
+        },
+        {
+          "text": "。（PR 正文）。"
+        }
+      ],
+      "url": "https://x.com/mattpocockuk/status/2115756445862134157"
+    },
+    {
+      "id": "matt-notes-2026-10-29-2115538750147023323",
+      "date": "2026-10-29",
+      "source": "matt-notes",
+      "title": "新课宣传：大家都在讲用 agent 更快（循环、YOLO 模式、黑灯工厂），那是\"垃圾炮\"；要先学会刹车——自动化评审、代码库设计、DDD 和统一语言、变异测试、反馈回路——约束 agent、提高质量后才能信任它，再提速",
+      "body": [
+        {
+          "text": "1255 赞。"
+        },
+        {
+          "text": "原帖",
+          "href": "https://x.com/mattpocockuk/status/2115538750147023323"
+        },
+        {
+          "text": "。（课程本身 11 月 9 日开始，内容只读到链接）。补充：spec 是临时文档，翻译成代码后就该退场（"
+        },
+        {
+          "text": "回复",
+          "href": "https://x.com/mattpocockuk/status/2115542173319835986"
+        },
+        {
+          "text": "）。"
+        }
+      ],
+      "url": "https://x.com/mattpocockuk/status/2115538750147023323"
+    },
+    {
+      "id": "matt-notes-2026-10-29-2115442777647726835",
+      "date": "2026-10-29",
+      "source": "matt-notes",
+      "title": "想在 React 应用里直接禁用 useState，\"把 agent 推进成功黑洞\"",
+      "body": [
+        {
+          "text": "1077 赞。"
+        },
+        {
+          "text": "原帖",
+          "href": "https://x.com/mattpocockuk/status/2115442777647726835"
+        },
+        {
+          "text": "。被问用什么替代，他两次只回 \"useReducer\"（"
+        },
+        {
+          "text": "回复1",
+          "href": "https://x.com/mattpocockuk/status/2115449780830961867"
+        },
+        {
+          "text": "、"
+        },
+        {
+          "text": "回复2",
+          "href": "https://x.com/mattpocockuk/status/2115449750174531806"
+        },
+        {
+          "text": "），说不一定要全局状态（"
+        },
+        {
+          "text": "回复",
+          "href": "https://x.com/mattpocockuk/status/2115455351856238949"
+        },
+        {
+          "text": "），而且他说的状态变化太频繁不适合放 URL（"
+        },
+        {
+          "text": "回复",
+          "href": "https://x.com/mattpocockuk/status/2115694933931933813"
+        },
+        {
+          "text": "）。"
+        }
+      ],
+      "url": "https://x.com/mattpocockuk/status/2115442777647726835"
+    },
+    {
+      "id": "matt-notes-2026-10-29-2115711568524554277",
+      "date": "2026-10-29",
+      "source": "matt-notes",
+      "title": "一个开发者问\"让 agent 自己做一个\"，替公司做出比授权组件更好更快的版本，授权方反过来付钱求别开源",
+      "body": [
+        {
+          "text": "836 赞。"
+        },
+        {
+          "text": "原帖",
+          "href": "https://x.com/mattpocockuk/status/2115711568524554277"
+        },
+        {
+          "text": "，转述 @GergelyOrosz 播客里的匿名故事（他自己没核实细节，评论里也有人质疑\"全是匿名\"）。（他的转述）/ 故事真实性 。"
+        }
+      ],
+      "url": "https://x.com/mattpocockuk/status/2115711568524554277"
+    },
+    {
       "id": "matt-notes-2026-10-28-2115368342898848021",
       "date": "2026-10-28",
       "source": "matt-notes",
