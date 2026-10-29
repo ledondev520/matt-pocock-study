@@ -54,7 +54,8 @@ export function chunkUnits(chunks: MethodologyChunk[]): Unit[] {
     const id = c.kind === 'post' ? c.chunk_id : `method:${c.key ?? c.chunk_id}`
     if (seen.has(id)) continue
     seen.add(id)
-    units.push({ id, kind: c.kind === 'post' ? 'post' : 'method', title: `${pick(c.title)}${stance}`, text, date: c.date_last, sourceUrl, sitePath, quotes })
+    // Post chunk titles are methodology labels assigned here, never model output.
+    units.push({ id, kind: c.kind === 'post' ? 'post' : 'method', title: `${pick(c.title)}${stance}`, ...(c.kind === 'post' ? { titleOrigin: 'methodology' as const } : {}), text, date: c.date_last, sourceUrl, sitePath, quotes })
   }
   return units
 }

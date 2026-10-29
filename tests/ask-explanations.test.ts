@@ -309,7 +309,7 @@ for (const lang of ['en', 'zh'] as const) {
 
   for (const oldVersion of ['methodology-v9-normalized-overlap', 'methodology-v12-ordered-overlap', 'methodology-v13-point-isolation', 'methodology-v14-trimmed-answer']) {
     it(`${lang}: isolates empty shells cached under ${oldVersion}`, async () => {
-      expect(PROMPT_VERSION).toBe('methodology-v16-separate-title-checks')
+      expect(PROMPT_VERSION).toBe('methodology-v17-wrapper-title')
       const unit: Unit = { id: 'post:fixture', kind: 'post', title: '', text: 'Review changes by risk before release.', sourceUrl }
       const cfg = config()
       const digest = createHash('sha256').update(JSON.stringify([[unit.id, 'post', '', unit.text, null, sourceUrl, null, []]])).digest('hex')

@@ -31,6 +31,8 @@ export interface Unit {
   id: string
   kind: UnitKind
   title: string
+  /** Set by the methodology adapter when it assigns our label to a post's title. */
+  titleOrigin?: 'methodology'
   text: string
   date?: string
   /** Original post or page on the author's site (x.com, github.com, aihero.dev). */
