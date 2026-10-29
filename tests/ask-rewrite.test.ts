@@ -229,7 +229,13 @@ it('regression: feedback names title fields and caps overlapping fragments witho
 // Compile the actual immutable revision with the same dependency modules. This avoids a
 // hand-maintained imitation of the reference parser or storing baseline implementation code.
 function referenceParser(): typeof parseAnswer {
-  const source = execFileSync('git', ['show', 'ff83488:server/ask/answer.ts'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] })
+  const baseline = 'ff8348872a6fe67644dbef393defbc13ddee4bc8'
+  let source: string
+  try {
+    source = execFileSync('git', ['show', `${baseline}:server/ask/answer.ts`], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] })
+  } catch (error) {
+    throw new Error(`Baseline commit ${baseline} is missing; CI needs full history (actions/checkout fetch-depth: 0).`, { cause: error })
+  }
   const js = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText
   const exports: { parseAnswer?: typeof parseAnswer } = {}
   new Function('require', 'exports', js)((name: string) => {
