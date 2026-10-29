@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto'
 import { expect, it, vi } from 'vitest'
 import { cacheKey, createAskApp } from '../server/ask/app'
 import { parseAnswer } from '../server/ask/answer'
+import { explanationsAreIndependent } from '../server/ask/excerpts'
 import { loadConfig } from '../server/ask/config'
 import { chunkUnits } from '../server/ask/methodology-adapter'
 import { openStore } from '../server/ask/store'
@@ -11,6 +12,25 @@ import { buildChunks } from '../src/lib/methods'
 
 // Our own explanations of the checked-in methodology fixtures, not upstream completions.
 const samples = [
+  {
+    // The review repro: 148 words, three points with three sentences each, against the claim anchor.
+    question: 'generics', lang: 'en' as const, slug: 'generics', claim: true,
+    title: 'Connect related positions',
+    points: [
+      ['Name the connection', 'Think of a generic as a promise to keep information flowing through an API. When a caller passes an array of invoices, selecting an item should produce an invoice rather than an unknown value. The type parameter gives that choice a name.'],
+      ['Choose the signature', 'TypeScript can infer the name at the call site, so users usually do not need to spell out a type argument. By comparison, a union is a good fit when a function accepts a fixed set of alternatives. Check whether the result actually depends on the caller’s choice before adding a parameter.'],
+      ['Check the benefit', 'For a reusable table, connect the row data to the callback that renders a cell; that lets the callback see the right fields. If a parameter appears only once and connects nothing, try removing it. Keep the signature focused on the relationship a caller needs to understand, and let inference handle the routine details.'],
+    ],
+  },
+  {
+    question: 'monorepo', lang: 'zh' as const, slug: 'codebase-design',
+    title: '让仓库结构帮助团队判断修改范围',
+    points: [
+      ['从一次具体修改出发', 'monorepo 让多个项目可以在同一个位置协作，但目录放到一起以后，职责不会自动变清楚。先选择一个常见任务，记录需要打开哪些文件、询问哪些同事，以及哪些地方容易产生意外影响。根据这些观察重新安排模块，让每个包都能解释自己负责什么，并让调用方从少量公开入口获得需要的能力。'],
+      ['把接口当成协作契约', 'agent 开始修改之前，应当能够从接口看出输入、结果和允许依赖的方向。使用 lint 和依赖检查发现绕过包入口的导入，让工具在评审之前给出可以定位的反馈。这样增加一个功能时，团队可以先确认契约是否需要变化，再决定内部实现放在哪里，避免把所有细节都暴露给每个使用者。'],
+      ['用维护成本检验抽象', '一个封装是否值得留下，要看它能否减少调用方需要理解的事情。只转发参数、增加跳转、却没有隐藏复杂性的层，可以结合实际调用逐步合并。保留修改前后的行为检查，每次处理一个可以撤回的范围，再观察新的结构是否让下一次任务更容易判断；仓库大小本身不能说明设计是否有效。'],
+    ],
+  },
   {
     question: 'What does Matt say about TypeScript generics?', lang: 'en' as const, slug: 'generics',
     title: 'Choose generics by the relationship they express',
@@ -45,16 +65,20 @@ const samples = [
 for (const sample of samples) {
   it(`preserves and caches realistic explanations: ${sample.question}`, async () => {
     const method = getMethodology(sample.slug)!
-    const units = chunkUnits(buildChunks(method, sample.lang).filter(c => c.kind === 'step').slice(0, sample.points.length)).map(unit => ({
+    const units = ('claim' in sample ? [{
+      id: 'method:long', kind: 'method', title: sample.slug === 'generics' ? 'Generics' : 'monorepo',
+      text: 'Our explanatory note', sourceUrl: method.claim.anchors[0].url, sitePath: `/${sample.lang}/methods/${sample.slug}`,
+      quotes: [{ text: method.claim.anchors[0].quote!, url: method.claim.anchors[0].url }],
+    } satisfies Unit] : chunkUnits(buildChunks(method, sample.lang).filter(c => c.kind === 'step').slice(0, sample.points.length))).map(unit => ({
       ...unit,
       // Label this retrieval fixture with the question's topic; the protected anchors
       // and the explanatory content are the checked-in methodology data.
       title: sample.slug === 'codebase-design' ? `Matt · monorepo · ${unit.title}` : unit.title,
     }))
     const contentFor = (ids: string[]) => JSON.stringify({ found: true, title: sample.title, points: sample.points.map(([title, text], i) => ({
-      title, text, sources: [ids[i]],
-      // One brief server-extracted reference per point; these remain subject to all budgets.
-      quote: { chunk_id: `${ids[i]}:Q1`, start: 0, end: Math.min(12, units[i].quotes![0].text.length) },
+      title, text, sources: [ids['claim' in sample ? 0 : i]],
+      // Step fixtures include a brief server-extracted reference per point, within all budgets.
+      ...(!('claim' in sample) ? { quote: { chunk_id: `${ids[i]}:Q1`, start: 0, end: Math.min(12, units[i].quotes![0].text.length) } } : {}),
     })) })
     const expected = sample.points.map(([title, text]) => ({ title, text }))
     const parsed = await parseAnswer(contentFor(units.map((_, i) => `S${i + 1}`)), units, 'https://site.example')
@@ -126,4 +150,12 @@ it('isolates empty shells persisted under the v9 policy', async () => {
     for (let i = 0; i < 2; i++) expect(await (await request(app)).json()).toMatchObject({ mode: 'answer', title: 'Assess release risk', points: [{ text }], cached: i === 1 })
     expect(fetch).toHaveBeenCalledTimes(1)
   } finally { store.close() }
+})
+
+it('does not charge incidental function words repeatedly against the same shared terminology', async () => {
+  const sample = samples[0]
+  const anchor = getMethodology('generics')!.claim.anchors[0]
+  const unit: Unit = { id: 'method:generics', kind: 'method', title: 'Generics', text: 'Our explanatory note', quotes: [{ text: anchor.quote!, url: anchor.url }] }
+  const explanation = sample.points.map(([, text]) => text).join(' ')
+  expect(await explanationsAreIndependent([explanation, explanation, explanation], [unit], [anchor.url])).toBe(true)
 })

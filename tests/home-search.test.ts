@@ -132,3 +132,20 @@ it('the learn source feeds today (newest first, limited) and the search index fr
   expect(searchIndex(source, 'zh').map(i => i.href)).toEqual(['/zh/knowledge#1', '/zh/knowledge#2', '/zh/knowledge#3', '/zh/review-and-pr'])
   expect(searchIndex(source, 'en')).toEqual([{ kind: 'note', title: 'Review and PRs', text: 'Review Two axes.', href: '/en/review-and-pr' }])
 })
+
+it.each([
+  ['140 赞、30 万浏览。正文。', '正文。'],
+  ['140 likes, 20 views.', ''],
+  ['(140 likes).', ''],
+  ['（140 赞）。正文。', '正文。'],
+  ['140 赞。30 浏览。.env 配置', '.env 配置'],
+  ['(140 likes), (20 views); .NET configuration', '.NET configuration'],
+])('removes the separators of a leading count run: %s', (input, expected) => {
+  expect(withoutCounts(input)).toBe(expected)
+})
+it('drops consecutive and parenthesized count-only segments without changing linked punctuation', () => {
+  const link = { text: 'Original', href: 'https://x.com/a' }
+  expect(dropCounts({ ...entry('counts', '2026-10-29', '(140 likes).', ''), body: [
+    { text: '140 likes, 20 views.' }, { text: '（140 赞）。' }, link, { text: '，说明。' },
+  ] }).body).toEqual([link, { text: '，说明。' }])
+})
