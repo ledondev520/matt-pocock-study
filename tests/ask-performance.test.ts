@@ -77,3 +77,25 @@ it('bounds normalized short-fragment preparation and expanded source scans with 
     expect(ticks).toBeGreaterThan(0)
   } finally { clearInterval(timer) }
 })
+
+it('shares output indexes across 5,000 distinct anchors near the output size limit', async () => {
+  const anchors: Unit[] = [{
+    id: 'method:fixture', kind: 'method', title: '', text: 'Our explanation.', sourceUrl,
+    quotes: Array.from({ length: 5000 }, (_, i) => ({ text: 'abcdefghijklmnopqrstu', url: sourceUrl + i })),
+  }]
+  const text = 'abcde ' + 'z'.repeat(23_990)
+  const raw = JSON.stringify({ found: true, title: '', points: [{ title: '', text, sources: ['S1'] }] })
+  const started = performance.now()
+  expect(await explanationsAreIndependent(['', '', text], anchors, [sourceUrl])).toBe(true)
+  expect(await parseAnswer(raw, anchors, 'https://site.example')).toMatchObject({ found: true })
+  expect(performance.now() - started).toBeLessThan(1500)
+})
+
+it('marks repeated term positions once when 5,000 anchors all match the same term', async () => {
+  const quotes = Array.from({ length: 5000 }, (_, i) => ({ text: 'bcdefghij', url: sourceUrl + i }))
+  const anchors: Unit[] = [{ id: 'method:fixture', kind: 'method', title: '', text: 'Our explanation.', sourceUrl, quotes }]
+  const text = 'bcdefghij independently considers alternatives. '.repeat(500)
+  const started = performance.now()
+  expect(await explanationsAreIndependent([text], anchors, quotes.map(q => q.url))).toBe(true)
+  expect(performance.now() - started).toBeLessThan(1500)
+})

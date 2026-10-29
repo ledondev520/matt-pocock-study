@@ -1,8 +1,8 @@
 // Explicit extracts have exact budgets. Explanations use a conservative, cooperative guard;
-// it deliberately makes no attempt to reconstruct or count copied source intervals.
+// fingerprint coverage only restricts the repetition exception, never an excerpt budget.
 import { setImmediate as yieldToRequests } from 'node:timers/promises'
 import { originalPost, type Unit } from './units'
-import { ProseRuns } from './prose-runs'
+import { RepeatedSpans } from './repeated-spans'
 
 export const MAX_QUOTE_CHARS = 240
 const MAX_WORDS = 25
@@ -58,13 +58,13 @@ function gram(chars: number[], start: number, size: number) {
   for (let i = start; i < start + size; i++) key = Math.imul(key, 31) + chars[i] | 0
   return key
 }
-interface Fingerprint { key: number; han: boolean; singleHan?: boolean }
+interface Fingerprint { key: number; han: boolean; singleHan?: boolean; start: number }
 function* fingerprints(chars: number[], symbolStream = false): Generator<Fingerprint> {
   for (let i = 0; i < chars.length; i++) {
-    // Five-character runs protect symbols and quote-backed overlap; three retain Chinese anchors.
-    if (!symbolStream && han(chars[i])) yield { key: gram(chars, i, 1), han: false, singleHan: true }
-    if (i >= 4) yield { key: gram(chars, i - 4, 5), han: false }
-    if (!symbolStream && i >= 2 && chars.slice(i - 2, i + 1).some(han)) yield { key: gram(chars, i - 2, 3), han: true }
+    // Five-character runs complement short whole words; three retain Chinese anchors.
+    if (!symbolStream && han(chars[i])) yield { key: gram(chars, i, 1), start: i, han: false, singleHan: true }
+    if (i >= 4) yield { key: gram(chars, i - 4, 5), start: i - 4, han: false }
+    if (!symbolStream && i >= 2 && chars.slice(i - 2, i + 1).some(han)) yield { key: gram(chars, i - 2, 3), start: i - 2, han: true }
   }
 }
 
@@ -114,7 +114,7 @@ function* shortWords(text: string, state: { tail: string }, final = false): Gene
   for (const match of joined.matchAll(/[\p{L}\p{N}]+/gu)) {
     const word = match[0]
     if (!final && match.index + word.length === joined.length) state.tail = word.slice(0, 5)
-    else yield /^[a-z0-9]{1,4}$/.test(word) ? word : ''
+    else if (/^[a-z0-9]{1,4}$/.test(word)) yield word
   }
 }
 
@@ -179,22 +179,26 @@ export async function explanationsAreIndependent(fields: string[], units: Unit[]
     }
     for (const quote of unit.quotes ?? []) sources.push({ text: quote.text, url: quote.url })
   }
-  // Check normalized expansion before building output indexes or fingerprinting sources.
+  const linked = linkedUrls && new Set(linkedUrls.map(sourceKey))
+  const output = await normalizedProse(fields)
+  if (output === undefined) return false
+  // Check normalized source expansion before fingerprinting; index the bounded output once.
   // A tiny compatibility character can expand a bounded raw context past the work limit.
+  const repetitions = new RepeatedSpans(output)
   let normalizedContextSize = 0
   for (const source of sources) {
+    const scanner = repetitions.source(source.url && sourceKey(source.url))
     for await (const normalized of normalizedSlices(source.text)) {
       if (normalized === undefined) return false
+      scanner.feed(normalized)
       normalizedContextSize += normalized.length
       if (normalizedContextSize > MAX_SOURCE_UNITS) return false
     }
+    scanner.finish()
   }
-  const linked = linkedUrls && new Set(linkedUrls.map(sourceKey))
-  // Unverified displayed post labels retain the conservative policy. Only adapter-owned
-  // provenance can establish that a wrapper is ours; model strings cannot grant it.
+  repetitions.finish()
+  if (repetitions.scatteredCopy()) return false
   const strictMetadata = units.some(u => u.kind === 'post' && u.titleOrigin !== 'methodology' && u.title && fields.includes(u.title))
-  const output = await normalizedProse(fields)
-  if (output === undefined) return false
   const outputSentences = [...sentences(output, { parts: [], size: 0 }, true)]
   const wantedSentences = new Set(outputSentences)
   const normalizedFields = fields.map(normalize)
@@ -212,21 +216,6 @@ export async function explanationsAreIndependent(fields: string[], units: Unit[]
     }
   }
   const matchedWords = new Set<string>()
-  const runEvidence = await ProseRuns.create(output, linked, quotes.map(q => ({
-    text: normalize(q.text), url: sourceKey(q.url), sentences: measure(q.text).sentences, chars: measure(q.text).chars,
-  })), MAX_SENTENCES, normalizedFields)
-  const wordContexts = new Set<string>()
-  const wantedContexts = new Set<string>()
-  // Adjacent source tokens support tiny fragments even when each emitted token has an
-  // affix. This retains aX/a and catX/cat attacks without counting a inside assessment.
-  for (let i = 1; i < outputWords.length; i++) {
-    for (let a = 1; a <= Math.min(4, outputWords[i - 1].length); a++) {
-      for (let b = 1; b <= Math.min(4, outputWords[i].length); b++) {
-        wantedContexts.add(outputWords[i - 1].slice(0, a) + ':' + outputWords[i].slice(0, b))
-        if (++work % QUANTUM === 0) await yieldToRequests()
-      }
-    }
-  }
   const streams = [letters, symbols]
   for (const [index, stream] of streams.entries()) {
     const keys: Fingerprint[] = []
@@ -239,6 +228,12 @@ export async function explanationsAreIndependent(fields: string[], units: Unit[]
     if (!wanted.size && (index || !wantedWords.size)) continue
     const matched = new Set<number>()
     const unlinked = new Set<number>()
+    // A match from any other source must remain evidence, even when its hash also
+    // occurs inside the repeated term selected for another original.
+    const nonrepeatable = new Set<number>()
+    const sourceMatches = new Map<string | undefined, Set<number>>()
+    const sourceRepeatable = new Map<string | undefined, Set<number>>()
+    const sourceCoverage = new Map<string | undefined, number>()
     // Extracts supply limited additional evidence only when prose matches the same original.
     // They cannot trigger a prose downgrade alone; ordinary reuse of a topic word still fits.
     const quoted = new Map<string, QuotedEvidence>()
@@ -266,9 +261,15 @@ export async function explanationsAreIndependent(fields: string[], units: Unit[]
     }
     let normalizedSize = 0
     for (const { text: source, url } of sources) {
-      const runs = runEvidence.source(url)
-      let previousWord = ''
+      const repeated = index === 0 && !strictMetadata ? repetitions.selected(url && sourceKey(url)) : undefined
+      const sourceId = url && sourceKey(url)
+      const sourceMatched = sourceMatches.get(sourceId) ?? new Set<number>()
+      sourceMatches.set(sourceId, sourceMatched)
+      const repeatable = new Set(repeated ? [...fingerprints(codes(repeated))].map(f => f.key) : [])
+      sourceRepeatable.set(sourceId, repeatable)
       let tail: number[] = []
+      let sourceOffset = 0
+      let coveredEnd = 0
       const wordState = { tail: '' }
       const sentenceState = { parts: [] as string[], size: 0 }
       const evidence = url ? quoted.get(sourceKey(url)) : undefined
@@ -277,53 +278,77 @@ export async function explanationsAreIndependent(fields: string[], units: Unit[]
         normalizedSize += normalized.length
         if (normalizedSize > MAX_SOURCE_UNITS) return false
         if (index === 0) {
-          if (!await runs.feed(normalized)) return false
-          for (const sentence of sentences(normalized, sentenceState)) {
-            if (!runs.sentence(sentence)) return false
-            if (wantedSentences.has(sentence)) evidence?.matchedSentences.add(sentence)
+          if (evidence) {
+            for (const sentence of sentences(normalized, sentenceState)) {
+              if (wantedSentences.has(sentence)) evidence.matchedSentences.add(sentence)
+            }
           }
           for (const word of shortWords(normalized, wordState)) {
-            const pair = previousWord + ':' + word
-            if (word && previousWord && wantedContexts.has(pair)) wordContexts.add(pair)
-            previousWord = word
             if (!wantedWords.has(word)) continue
             matchedWords.add(word)
             evidence?.words.add(word)
           }
         }
         const text = [...tail, ...codes(stream(normalized))]
-        for (const { key } of fingerprints(text, index === 1)) {
+        for (const entry of fingerprints(text, index === 1)) {
+          const { key } = entry
           if (!wanted.has(key)) continue
+          if (index === 0 && !entry.han && !entry.singleHan) {
+            const start = sourceOffset - tail.length + entry.start
+            const covered = Math.max(0, start + 5 - Math.max(start, coveredEnd))
+            sourceCoverage.set(sourceId, (sourceCoverage.get(sourceId) ?? 0) + covered)
+            coveredEnd = Math.max(coveredEnd, start + 5)
+          }
+          sourceMatched.add(key)
           matched.add(key)
+          if (!repeatable.has(key)) nonrepeatable.add(key)
           evidence?.matched.add(key)
           if (linked && (!url || !linked.has(sourceKey(url)))) unlinked.add(key)
         }
         // Carry across arbitrarily long removed punctuation/format runs as well.
+        sourceOffset += text.length - tail.length
         tail = text.slice(-4)
       }
       if (index === 0) {
-        runs.finish()
-        for (const sentence of sentences('', sentenceState, true)) {
-          if (!runs.sentence(sentence)) return false
-          if (wantedSentences.has(sentence)) evidence?.matchedSentences.add(sentence)
+        if (evidence) {
+          for (const sentence of sentences('', sentenceState, true)) {
+            if (wantedSentences.has(sentence)) evidence.matchedSentences.add(sentence)
+          }
         }
         for (const word of shortWords('', wordState, true)) {
-          const pair = previousWord + ':' + word
-          if (word && previousWord && wantedContexts.has(pair)) wordContexts.add(pair)
           if (!wantedWords.has(word)) continue
           matchedWords.add(word)
           evidence?.words.add(word)
         }
       }
     }
-    if (index === 0 && !await runEvidence.independent()) return false
+    const quoteBacked = new Set([...quoted.values()].flatMap(evidence => [...evidence.matched]))
+    const notIsolated = new Set<number>()
+    if (index === 0 && !strictMetadata) {
+      for (const [url, keys] of sourceMatches) {
+        const span = repetitions.selected(url)
+        const repeatable = sourceRepeatable.get(url)!
+        // More than one short span's worth of actual source positions always
+        // restores the entire old counter, including repetitions. Shared hashes
+        // cannot collapse distinct or overlapping source intervals into a term.
+        if (!repetitions.shortEvidence(sourceCoverage.get(url) ?? 0)) {
+          for (const key of keys) nonrepeatable.add(key)
+        }
+        if (span && [...keys].every(key => repeatable.has(key))) repetitions.isolate(span)
+        else for (const key of keys) notIsolated.add(key)
+      }
+    }
     const hits = emptyHits()
     let unlinkedHits = 0
     for (const [position, entry] of keys.entries()) {
       if (position % QUANTUM === 0) await yieldToRequests()
       if (!matched.has(entry.key)) continue
-      // Ordinary prose needs aligned runs; retain the original CJK and symbol checks.
-      if (index === 0 && !entry.han && !entry.singleHan && !runEvidence.repeatsQuote && !strictMetadata) continue
+      // Only a repeated, complete source term can remove redundant windows. A sole
+      // isolated term contributes one signal; every other first span remains complete.
+      // Quote-backed/uncited evidence always uses the original positional accounting.
+      if (index === 0 && !strictMetadata && !entry.han && !entry.singleHan
+        && !unlinked.has(entry.key) && !quoteBacked.has(entry.key) && !nonrepeatable.has(entry.key)
+        && (repetitions.redundant(entry.start) || (!notIsolated.has(entry.key) && repetitions.single(entry.start)))) continue
       countHit(hits, entry)
       if (unlinked.has(entry.key)) unlinkedHits++
       if (suspicious(hits) || unlinkedHits >= 6) return false
@@ -357,16 +382,6 @@ export async function explanationsAreIndependent(fields: string[], units: Unit[]
           for (const fragment of fragmentsAt(word, position, fieldStarts.has(wordEntries[wordIndex].index + position))) {
             if (++work % QUANTUM === 0) await yieldToRequests()
             if (!matchedWords.has(fragment)) continue
-            if (fragment.length < 3 && !strictMetadata) {
-              const before = outputWords[wordIndex - 1] ?? ''
-              const after = outputWords[wordIndex + 1] ?? ''
-              let adjacent = false
-              for (let size = 1; size <= 4; size++) {
-                if (wordContexts.has(before.slice(0, size) + ':' + fragment)
-                  || wordContexts.has(fragment + ':' + after.slice(0, size))) { adjacent = true; break }
-              }
-              if (!adjacent) continue
-            }
             length = Math.max(length, fragment.length)
             for (const evidence of quoted.values()) {
               if (evidence.words.has(fragment)) quotedLengths.set(evidence, Math.max(quotedLengths.get(evidence) ?? 0, fragment.length))
