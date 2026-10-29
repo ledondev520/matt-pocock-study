@@ -36,6 +36,7 @@ export const q3bOutput = {
 
 const chunk = (id: string, text = '', history = true): MethodologyChunk => ({
   chunk_id: `post:${id}`, kind: 'post', title: 'Testing and TDD',
+  methodology_id: 'm.testing-tdd', lang: 'en',
   text: `Testing and TDD · Matt Pocock, 2026-01-01\n${text}`,
   source_url: `https://x.com/mattpocockuk/status/${id}`,
   stance_status: history ? 'history' : 'current',

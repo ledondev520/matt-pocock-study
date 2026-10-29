@@ -272,10 +272,10 @@ for (const clean of [false, true]) {
   })
 }
 
-for (const title of ['Managing the context window', 'Designing a codebase for agents']) {
+for (const [methodology_id, title] of [['m.context-mgmt', 'Managing the context window'], ['m.codebase-design', 'Designing a codebase for agents']]) {
   for (const withQuote of [true, false]) {
     it(`preserves and caches independent prose with generated heading ${title} (quote=${withQuote})`, async () => {
-      const units = chunkUnits([{ chunk_id: 'post:fixture', kind: 'post', title, text: `${title} · Matt Pocock, 2026-01-01\nKeep boundaries small. Test changes early.`, source_url: url }])
+      const units = chunkUnits([{ chunk_id: 'post:fixture', kind: 'post', methodology_id, lang: 'en', title, text: `${title} · Matt Pocock, 2026-01-01\nKeep boundaries small. Test changes early.`, source_url: url }])
       const text = 'Automate a narrow check before expanding the task so feedback arrives while revisions are cheap.'
       const content = answer([point(text, withQuote ? marker(0, 22) : undefined)])
       const parsed = await parse(content, units)
