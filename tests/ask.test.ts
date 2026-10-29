@@ -5,9 +5,10 @@ import { join } from 'node:path'
 import { createServer } from 'node:net'
 import { afterEach, describe, expect, it } from 'vitest'
 import { createAskApp, clientAddress } from '../server/ask/app'
-import { checkQuote, parseAnswer, stripLinks } from '../server/ask/answer'
+import { checkQuote, parseAnswer, stripLinks, type Citation, type Point } from '../server/ask/answer'
 import { loadConfig, type AskConfig } from '../server/ask/config'
 import { CircuitBreaker } from '../server/ask/deepseek'
+import { explanationsAreIndependent } from '../server/ask/excerpts'
 import { chunkUnits } from '../server/ask/methodology-adapter'
 import { openStore, type Store } from '../server/ask/store'
 import type { Unit } from '../server/ask/units'
@@ -29,7 +30,7 @@ function config(over: Partial<AskConfig> = {}): AskConfig {
 const idOf = (prompt: string, attr: string) => prompt.match(new RegExp(`<source id="(S\\d+)"[^>]*${attr.replace(/[.?#/]/g, '\\$&')}`))?.[1]
 const overBudgetAnswer = (prompt: string) => JSON.stringify({ found: true, title: 'Split by reversibility', points: [
   { title: 'Ship behind a flag first', text: 'Put everything in a first PR you can roll back. See https://evil.example/x and [here](https://evil.example).', quote: 'the first one ships everything behind a flag and is easy to roll back', sources: [idOf(prompt, POST_URL)] },
-  { title: 'Flip in a second PR', text: 'The second PR crosses the one-way door.', quote: 'Matt never said this sentence at all', sources: [idOf(prompt, 'site="/zh/knowledge#n1"'), 'S9'] },
+  { title: 'Assess activation', text: 'Review risk before proceeding.', quote: 'Matt never said this sentence at all', sources: [idOf(prompt, 'site="/zh/knowledge#n1"'), 'S9'] },
   { title: 'Unlinked', text: 'No usable source.', sources: ['S42'] },
 ] })
 const goodAnswer = (prompt: string) => JSON.stringify({ found: true, title: 'Manage reversibility', points: [
@@ -63,18 +64,51 @@ function setup(over: Partial<AskConfig> = {}, fetch = upstream()) {
 }
 
 describe('POST /api/ask', () => {
-  it('rejects the former success fixture whose prose and quote exceed the shared word limit', async () => {
-    const { ask, calls } = setup({}, upstream(overBudgetAnswer))
+  it.each([false, true])('drops the over-budget point and returns search only when no clean point remains (only copied=%s)', async onlyCopied => {
+    const { ask, calls } = setup({ cacheDays: 0 }, upstream(prompt => {
+      const answer = JSON.parse(overBudgetAnswer(prompt))
+      if (onlyCopied) answer.points = answer.points.slice(0, 1)
+      return JSON.stringify(answer)
+    }))
+    for (let i = 0; i < 2; i++) {
+      const response = await ask()
+      expect(response.status).toBe(200)
+      const body = await response.json()
+      expect(body).toMatchObject(onlyCopied ? { mode: 'search', reason: 'unverified', cached: false } : { mode: 'answer', cached: false })
+      expect(JSON.stringify(body)).not.toContain('Ship behind a flag first')
+      expect(JSON.stringify(body)).not.toContain('Put everything in a first PR you can roll back.')
+      expect(body.citations.length).toBeGreaterThan(0)
+      for (const citation of body.citations) {
+        if (body.mode === 'search') expect(citation).not.toHaveProperty('title')
+        expect(citation).not.toHaveProperty('snippet')
+      }
+      if (onlyCopied) expect(body).not.toHaveProperty('points')
+      else {
+        const points = body.points as Point[]
+        expect(points).toEqual([{ title: 'Assess activation', text: 'Review risk before proceeding.', cites: [1] }])
+        for (const point of points) expect(point.text.trim()).not.toBe('')
+        const citations = body.citations as Citation[]
+        const quotes = points.flatMap(p => p.quote && p.quoteUrl ? [{ text: p.quote, url: p.quoteUrl }] : [])
+        expect(await explanationsAreIndependent([
+          body.title, ...points.flatMap(p => [p.title, p.text]), ...citations.map(c => c.title ?? ''),
+        ], units, [...citations.flatMap(c => c.sourceUrl ? [c.sourceUrl] : []), ...quotes.map(q => q.url)], quotes)).toBe(true)
+      }
+    }
+    expect(calls).toHaveLength(2)
+  })
+
+  it('returns uncached search when a surviving point needs a dropped point\'s citation to pass the guard', async () => {
+    const { ask, calls } = setup({}, upstream(prompt => {
+      const answer = JSON.parse(overBudgetAnswer(prompt))
+      answer.points[1].title = 'Flip in a second PR'
+      answer.points[1].text = 'The second PR crosses the one-way door.'
+      return JSON.stringify(answer)
+    }))
     for (let i = 0; i < 2; i++) {
       const response = await ask()
       expect(response.status).toBe(200)
       const body = await response.json()
       expect(body).toMatchObject({ mode: 'search', reason: 'unverified', cached: false })
-      expect(body.citations.length).toBeGreaterThan(0)
-      for (const citation of body.citations) {
-        expect(citation).not.toHaveProperty('title')
-        expect(citation).not.toHaveProperty('snippet')
-      }
       expect(body).not.toHaveProperty('points')
     }
     expect(calls).toHaveLength(2)

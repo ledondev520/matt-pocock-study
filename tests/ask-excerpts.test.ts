@@ -218,19 +218,18 @@ it('checks all retrieved originals, including uncited originals, linked variants
   expect(await parse(answer([point(groups(punctuationSource))]), chunks)).toBeUndefined()
 })
 
-it('degrades the whole answer to code-extracted quotes and links and never caches it', async () => {
+it('returns uncached search when citation metadata still fails after point isolation', async () => {
   const content = answer([point(longText, marker(12)), point('This innocent point must also disappear.')], longText)
   const unit = { ...shortPost, text: `${shortPost.text} ${longText}`, title: longText }
   const parsed = await parse(content, [unit])
-  expect(parsed).toMatchObject({ found: true, title: '', degraded: true, points: [{ title: '', text: '', quote: 'Start small.', quoteUrl: url }], citations: [{ title: undefined }] })
-  expect(parsed && parsed.found && parsed.points).toHaveLength(1)
+  expect(parsed).toBeUndefined()
   const store = openStore(':memory:')
   try {
     let calls = 0
     const app = createAskApp({ config: config(), units: [unit], store, log: () => {}, fetch: (async () => { calls++; return fetchAnswer(content)('unused') }) as typeof fetch })
     for (let i = 0; i < 2; i++) {
       const body = await (await request(app, 'workflow')).json()
-      expect(body).toEqual({ mode: 'answer', title: '', points: [{ title: '', text: '', quote: 'Start small.', quoteUrl: url, cites: [1] }], citations: [{ n: 1, kind: 'post', sourceUrl: url }], cached: false })
+      expect(body).toEqual({ mode: 'search', reason: 'unverified', message: '', citations: [{ n: 1, kind: 'post', sourceUrl: url }], cached: false })
       expect(JSON.stringify(body)).not.toContain(longText)
     }
     expect(calls).toBe(2)

@@ -6,7 +6,7 @@ import type { ChatMessage } from './deepseek'
 import { isAllowedSourceUrl, isSitePath, originalPost, type Unit } from './units'
 
 export type Lang = 'zh' | 'en'
-export const PROMPT_VERSION = 'methodology-v9-normalized-overlap'
+export const PROMPT_VERSION = 'methodology-v16-separate-title-checks'
 
 export interface Citation { n: number; kind: Unit['kind']; date?: string; sourceUrl?: string; siteUrl?: string; title?: string; snippet?: string }
 export interface Point { title: string; text: string; quote?: string; quoteUrl?: string; cites: number[] }
@@ -97,7 +97,7 @@ export function checkQuote(marker: unknown, units: Unit[], citedIndexes = units.
 }
 
 /** Parses and checks the model output. Returns undefined when nothing usable survives. */
-export async function parseAnswer(content: string, units: Unit[], siteUrl: string): Promise<{ found: false } | { found: true; title: string; points: Point[]; citations: Citation[]; degraded?: boolean } | undefined> {
+export async function parseAnswer(content: string, units: Unit[], siteUrl: string): Promise<{ found: false } | { found: true; title: string; points: Point[]; citations: Citation[] } | undefined> {
   if (content.length > 32_000 || !contextFits(units)) return undefined
   let raw: unknown
   try { raw = JSON.parse(content) } catch { return undefined }
@@ -106,7 +106,7 @@ export async function parseAnswer(content: string, units: Unit[], siteUrl: strin
   if (value.found === false) return { found: false }
   if (value.found !== true || !Array.isArray(value.points)) return undefined
   const numbering = new Map<number, number>() // unit index -> citation number
-  const points: Point[] = []
+  let points: Point[] = []
   for (const item of value.points.slice(0, MAX_POINTS)) {
     if (!item || typeof item !== 'object') continue
     const p = item as { title?: unknown; text?: unknown; quote?: unknown; sources?: unknown }
@@ -129,12 +129,40 @@ export async function parseAnswer(content: string, units: Unit[], siteUrl: strin
   const quotes = points.flatMap(p => p.quote && p.quoteUrl ? [{ text: p.quote, url: p.quoteUrl }] : [])
   if (!quotesWithinBudget(quotes)) return undefined
   const citationTitles = [...numbering.keys()].map(i => units[i].kind === 'post' ? originalPost(units[i]).title : units[i].title)
-  if (!await explanationsAreIndependent([title, ...points.flatMap(p => [p.title, p.text]), ...citationTitles], units, [...citations.flatMap(c => c.sourceUrl ? [c.sourceUrl] : []), ...quotes.map(q => q.url)], quotes)) {
-    // Discard the entire explanation, including titles and metadata. Keep only code-extracted
-    // quotes and links. With no safe quote, the caller uses its links-only search response.
-    const extracted = points.filter(p => p.quote).map(p => ({ ...p, title: '', text: '' }))
-    if (!extracted.length) return undefined
-    return { found: true, title: '', points: extracted, citations: citations.map(c => ({ ...c, title: undefined })), degraded: true }
+  const urls = [...citations.flatMap(c => c.sourceUrl ? [c.sourceUrl] : []), ...quotes.map(q => q.url)]
+  const independent = (fields: string[]) => explanationsAreIndependent(fields, units, urls, quotes)
+  const fields = () => [title, ...points.flatMap(p => [p.title, p.text]), ...citationTitles]
+  if (!await independent(fields())) {
+    if (!await independent([title])) return undefined
+    const retained: Point[] = []
+    for (const point of points) {
+      if (await independent([point.title, point.text])) retained.push(point)
+    }
+    points = retained
+    // Keep the original sources, links and quote evidence for the joint check: isolating
+    // points must not let copying spread across fields or points escape the existing guard.
+    if (!points.some(p => p.text) || !await independent(fields())) return undefined
   }
-  return { found: true, title, points, citations }
+  // Shape the response only after the joint check has seen all original evidence.
+  points = points.filter(p => p.text)
+  if (!points.length) return undefined
+  const responseNumbering = new Map<number, number>() // original citation number -> response number
+  for (const point of points) {
+    point.cites = point.cites.map(n => {
+      if (!responseNumbering.has(n)) responseNumbering.set(n, responseNumbering.size + 1)
+      return responseNumbering.get(n)!
+    })
+  }
+  const responseCitations = [...responseNumbering].map(([old, n]) => ({ ...citations[old - 1], n }))
+  // Trimming evidence can make the displayed answer fail even when the full-evidence check passed.
+  const responseQuotes = points.flatMap(p => p.quote && p.quoteUrl ? [{ text: p.quote, url: p.quoteUrl }] : [])
+  if (!quotesWithinBudget(responseQuotes)) return undefined
+  const responseUrls = [...responseCitations.flatMap(c => c.sourceUrl ? [c.sourceUrl] : []), ...responseQuotes.map(q => q.url)]
+  const responseFields = [title, ...points.flatMap(p => [p.title, p.text])]
+  // Check each title sequence separately: interleaving can interrupt overlap runs or count equal titles twice.
+  const displayedTitles = responseCitations.map(c => c.title ?? '')
+  const originalTitles = [...responseNumbering].map(([old]) => citationTitles[old - 1])
+  if (!await explanationsAreIndependent([...responseFields, ...displayedTitles], units, responseUrls, responseQuotes)
+    || !await explanationsAreIndependent([...responseFields, ...originalTitles], units, responseUrls, responseQuotes)) return undefined
+  return { found: true, title, points, citations: responseCitations }
 }

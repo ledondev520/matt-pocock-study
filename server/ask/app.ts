@@ -169,7 +169,7 @@ export function createAskApp(deps: AskDeps) {
       const parsed = await parseAnswer(result.content, units, config.siteUrl)
       if (!parsed) return fallback('unverified', usage)
       if (!parsed.found) return finish({ mode: 'not_found', message: notFoundMessage(lang), citations: [], cached: false }, usage)
-      return finish({ mode: 'answer', title: parsed.title, points: parsed.points, citations: parsed.citations, cached: false }, usage, !parsed.degraded)
+      return finish({ mode: 'answer', title: parsed.title, points: parsed.points, citations: parsed.citations, cached: false }, usage)
     } catch (error) {
       breaker.failure(now())
       return fallback('upstream_error', { upstream: error instanceof UpstreamError ? error.kind : 'unknown' })

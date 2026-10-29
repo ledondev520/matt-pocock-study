@@ -87,6 +87,41 @@ it('engagement counts are dropped from knowledge text at build', () => {
   const kept = dropCounts({ ...entry('1', '2026-10-27', '标题', ''), body: [{ text: '共 300 赞' }, { text: '原帖', href: 'https://x.com/a' }] } as KbEntry)
   expect(kept.body).toEqual([{ text: '共' }, { text: '原帖', href: 'https://x.com/a' }])
 })
+it('drops a count-only segment before a link but preserves punctuation after the link', () => {
+  const original = {
+    ...entry('matt-notes-2026-10-28-2115394392273895644', '2026-10-28', 'PR 描述', ''),
+    body: [
+      { text: '140 赞。' },
+      { text: '原帖', href: 'https://x.com/mattpocockuk/status/2115394392273895644' },
+      { text: '，PR 是 ' },
+      { text: 'course-video-manager#2399', href: 'https://github.com/mattpocock/course-video-manager/pull/2399' },
+      { text: '。' },
+    ],
+  }
+  expect(dropCounts(original).body).toEqual([
+    { text: '原帖', href: 'https://x.com/mattpocockuk/status/2115394392273895644' },
+    { text: '，PR 是 ' },
+    { text: 'course-video-manager#2399', href: 'https://github.com/mattpocock/course-video-manager/pull/2399' },
+    { text: '。' },
+  ])
+})
+it('removes only newly exposed leading sentence punctuation after dropping counts', () => {
+  for (const punctuation of '。，、；：！？.,;:!?…') {
+    expect(withoutCounts(`140 赞${punctuation}`)).toBe('')
+    expect(withoutCounts(` 140 赞 ${punctuation} ${punctuation} 后文。`)).toBe('后文。')
+    expect(withoutCounts(` ${punctuation} 后文。`)).toBe(` ${punctuation} 后文。`)
+    expect(withoutCounts(` ${punctuation} 后文 140 赞`)).toBe(` ${punctuation} 后文`)
+  }
+})
+it.each([
+  ['140 likes .NET configuration', '.NET configuration'],
+  ['140 赞。.env 配置', '.env 配置'],
+  ['140 likes .NET', '.NET'],
+  ['140 likes, .NET configuration', '.NET configuration'],
+  ['140 赞。 .env 配置', '.env 配置'],
+])('preserves identifier punctuation after a removed count: %s', (input, expected) => {
+  expect(withoutCounts(input)).toBe(expected)
+})
 it('the learn source feeds today (newest first, limited) and the search index from one place', () => {
   const knowledge = [entry('1', '2026-10-26', '旧的', '旧'), entry('2', '2026-10-27', '新的一', '一'), entry('3', '2026-10-27', '新的二', '二')]
   const pages = [{ lang: 'zh', slug: 'review-and-pr', title: '评审与 PR', subtitle: '评审与 PR', summary: '需求与规范。' }, { lang: 'en', slug: 'review-and-pr', title: 'Review and PRs', subtitle: 'Review', summary: 'Two axes.' }] as PageSummary[]
@@ -96,4 +131,33 @@ it('the learn source feeds today (newest first, limited) and the search index fr
   expect(todayItems(source, 'en').every(i => i.href.startsWith('https://x.com/') && !/[\u3000-\u9fff]/.test(i.title))).toBe(true)
   expect(searchIndex(source, 'zh').map(i => i.href)).toEqual(['/zh/knowledge#1', '/zh/knowledge#2', '/zh/knowledge#3', '/zh/review-and-pr'])
   expect(searchIndex(source, 'en')).toEqual([{ kind: 'note', title: 'Review and PRs', text: 'Review Two axes.', href: '/en/review-and-pr' }])
+})
+
+it.each([
+  ['140 赞、30 万浏览。正文。', '正文。'],
+  ['140 likes, 20 views.', ''],
+  ['(140 likes).', ''],
+  ['（140 赞）。正文。', '正文。'],
+  ['140 赞。30 浏览。.env 配置', '.env 配置'],
+  ['(140 likes), (20 views); .NET configuration', '.NET configuration'],
+])('removes the separators of a leading count run: %s', (input, expected) => {
+  expect(withoutCounts(input)).toBe(expected)
+})
+it('drops consecutive and parenthesized count-only segments without changing linked punctuation', () => {
+  const link = { text: 'Original', href: 'https://x.com/a' }
+  expect(dropCounts({ ...entry('counts', '2026-10-29', '(140 likes).', ''), body: [
+    { text: '140 likes, 20 views.' }, { text: '（140 赞）。' }, link, { text: '，说明。' },
+  ] }).body).toEqual([link, { text: '，说明。' }])
+})
+it.each([
+  ['(7 likes, 12 views.) Explanation.', 'Explanation.'],
+  ['（7 赞、12 浏览。）正文。', '正文。'],
+  ['Before (7 likes, 12 views.) after.', 'Before after.'],
+  ['前文（7 赞、12 浏览。）正文。', '前文正文。'],
+])('removes punctuation inside count-only parentheses: %s', (input, expected) => {
+  expect(withoutCounts(input)).toBe(expected)
+})
+it.each(['(…)', '（？）', '(see .NET)', '()', '（）'])('preserves parentheses containing no removed count: %s', text => {
+  expect(withoutCounts(text)).toBe(text)
+  expect(withoutCounts(`7 likes ${text}`)).toBe(text)
 })
