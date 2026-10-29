@@ -2,6 +2,7 @@
 // it deliberately makes no attempt to reconstruct or count copied source intervals.
 import { setImmediate as yieldToRequests } from 'node:timers/promises'
 import { originalPost, type Unit } from './units'
+import { ProseRuns } from './prose-runs'
 
 export const MAX_QUOTE_CHARS = 240
 const MAX_WORDS = 25
@@ -60,7 +61,7 @@ function gram(chars: number[], start: number, size: number) {
 interface Fingerprint { key: number; han: boolean; singleHan?: boolean }
 function* fingerprints(chars: number[], symbolStream = false): Generator<Fingerprint> {
   for (let i = 0; i < chars.length; i++) {
-    // Five-character runs complement short whole words; three retain Chinese anchors.
+    // Five-character runs protect symbols and quote-backed overlap; three retain Chinese anchors.
     if (!symbolStream && han(chars[i])) yield { key: gram(chars, i, 1), han: false, singleHan: true }
     if (i >= 4) yield { key: gram(chars, i - 4, 5), han: false }
     if (!symbolStream && i >= 2 && chars.slice(i - 2, i + 1).some(han)) yield { key: gram(chars, i - 2, 3), han: true }
@@ -113,7 +114,7 @@ function* shortWords(text: string, state: { tail: string }, final = false): Gene
   for (const match of joined.matchAll(/[\p{L}\p{N}]+/gu)) {
     const word = match[0]
     if (!final && match.index + word.length === joined.length) state.tail = word.slice(0, 5)
-    else if (/^[a-z0-9]{1,4}$/.test(word)) yield word
+    else yield /^[a-z0-9]{1,4}$/.test(word) ? word : ''
   }
 }
 
@@ -135,15 +136,15 @@ function* sentences(text: string, state: { parts: string[]; size: number }, fina
 }
 
 // At most four candidates per character, including affixed short source words.
-function* fragmentsAt(word: string, start: number): Generator<string> {
+function* fragmentsAt(word: string, start: number, fieldStart = false): Generator<string> {
   for (let size = Math.min(4, word.length - start); size > 0; size--) {
     // One- and two-letter words are too common inside unrelated words; retain their
     // prefix matches so suffixes cannot hide them, and scan longer fragments anywhere.
-    if (size >= 3 || start === 0) yield word.slice(start, start + size)
+    if (size >= 3 || start === 0 || fieldStart) yield word.slice(start, start + size)
   }
 }
-function* shortFragments(word: string): Generator<string> {
-  for (let i = 0; i < word.length; i++) yield* fragmentsAt(word, i)
+function* shortFragments(word: string, offset: number, fieldStarts: Set<number>): Generator<string> {
+  for (let i = 0; i < word.length; i++) yield* fragmentsAt(word, i, fieldStarts.has(offset + i))
 }
 
 interface Hits { ordinary: number; han: number; singleHan: number }
@@ -178,21 +179,54 @@ export async function explanationsAreIndependent(fields: string[], units: Unit[]
     }
     for (const quote of unit.quotes ?? []) sources.push({ text: quote.text, url: quote.url })
   }
+  // Check normalized expansion before building output indexes or fingerprinting sources.
+  // A tiny compatibility character can expand a bounded raw context past the work limit.
+  let normalizedContextSize = 0
+  for (const source of sources) {
+    for await (const normalized of normalizedSlices(source.text)) {
+      if (normalized === undefined) return false
+      normalizedContextSize += normalized.length
+      if (normalizedContextSize > MAX_SOURCE_UNITS) return false
+    }
+  }
   const linked = linkedUrls && new Set(linkedUrls.map(sourceKey))
+  // Unverified displayed post labels retain the conservative policy. Only adapter-owned
+  // provenance can establish that a wrapper is ours; model strings cannot grant it.
+  const strictMetadata = units.some(u => u.kind === 'post' && u.titleOrigin !== 'methodology' && u.title && fields.includes(u.title))
   const output = await normalizedProse(fields)
   if (output === undefined) return false
   const outputSentences = [...sentences(output, { parts: [], size: 0 }, true)]
   const wantedSentences = new Set(outputSentences)
-  const outputWords = output.match(/[a-z0-9]+/g) ?? []
+  const normalizedFields = fields.map(normalize)
+  if (normalizedFields.join('') !== output) return false
+  let fieldOffset = 0
+  const fieldStarts = new Set(normalizedFields.map(field => { const start = fieldOffset; fieldOffset += field.length; return start }))
+  const wordEntries = [...output.matchAll(/[a-z0-9]+/g)]
+  const outputWords = wordEntries.map(entry => entry[0])
   const wantedWords = new Set<string>()
   let work = 0
-  for (const word of outputWords) {
-    for (const fragment of shortFragments(word)) {
+  for (const entry of wordEntries) {
+    for (const fragment of shortFragments(entry[0], entry.index, fieldStarts)) {
       wantedWords.add(fragment)
       if (++work % QUANTUM === 0) await yieldToRequests()
     }
   }
   const matchedWords = new Set<string>()
+  const runEvidence = await ProseRuns.create(output, linked, quotes.map(q => ({
+    text: normalize(q.text), url: sourceKey(q.url), sentences: measure(q.text).sentences, chars: measure(q.text).chars,
+  })), MAX_SENTENCES, normalizedFields)
+  const wordContexts = new Set<string>()
+  const wantedContexts = new Set<string>()
+  // Adjacent source tokens support tiny fragments even when each emitted token has an
+  // affix. This retains aX/a and catX/cat attacks without counting a inside assessment.
+  for (let i = 1; i < outputWords.length; i++) {
+    for (let a = 1; a <= Math.min(4, outputWords[i - 1].length); a++) {
+      for (let b = 1; b <= Math.min(4, outputWords[i].length); b++) {
+        wantedContexts.add(outputWords[i - 1].slice(0, a) + ':' + outputWords[i].slice(0, b))
+        if (++work % QUANTUM === 0) await yieldToRequests()
+      }
+    }
+  }
   const streams = [letters, symbols]
   for (const [index, stream] of streams.entries()) {
     const keys: Fingerprint[] = []
@@ -232,6 +266,8 @@ export async function explanationsAreIndependent(fields: string[], units: Unit[]
     }
     let normalizedSize = 0
     for (const { text: source, url } of sources) {
+      const runs = runEvidence.source(url)
+      let previousWord = ''
       let tail: number[] = []
       const wordState = { tail: '' }
       const sentenceState = { parts: [] as string[], size: 0 }
@@ -241,12 +277,15 @@ export async function explanationsAreIndependent(fields: string[], units: Unit[]
         normalizedSize += normalized.length
         if (normalizedSize > MAX_SOURCE_UNITS) return false
         if (index === 0) {
-          if (evidence) {
-            for (const sentence of sentences(normalized, sentenceState)) {
-              if (wantedSentences.has(sentence)) evidence.matchedSentences.add(sentence)
-            }
+          if (!await runs.feed(normalized)) return false
+          for (const sentence of sentences(normalized, sentenceState)) {
+            if (!runs.sentence(sentence)) return false
+            if (wantedSentences.has(sentence)) evidence?.matchedSentences.add(sentence)
           }
           for (const word of shortWords(normalized, wordState)) {
+            const pair = previousWord + ':' + word
+            if (word && previousWord && wantedContexts.has(pair)) wordContexts.add(pair)
+            previousWord = word
             if (!wantedWords.has(word)) continue
             matchedWords.add(word)
             evidence?.words.add(word)
@@ -263,23 +302,28 @@ export async function explanationsAreIndependent(fields: string[], units: Unit[]
         tail = text.slice(-4)
       }
       if (index === 0) {
-        if (evidence) {
-          for (const sentence of sentences('', sentenceState, true)) {
-            if (wantedSentences.has(sentence)) evidence.matchedSentences.add(sentence)
-          }
+        runs.finish()
+        for (const sentence of sentences('', sentenceState, true)) {
+          if (!runs.sentence(sentence)) return false
+          if (wantedSentences.has(sentence)) evidence?.matchedSentences.add(sentence)
         }
         for (const word of shortWords('', wordState, true)) {
+          const pair = previousWord + ':' + word
+          if (word && previousWord && wantedContexts.has(pair)) wordContexts.add(pair)
           if (!wantedWords.has(word)) continue
           matchedWords.add(word)
           evidence?.words.add(word)
         }
       }
     }
+    if (index === 0 && !await runEvidence.independent()) return false
     const hits = emptyHits()
     let unlinkedHits = 0
     for (const [position, entry] of keys.entries()) {
       if (position % QUANTUM === 0) await yieldToRequests()
       if (!matched.has(entry.key)) continue
+      // Ordinary prose needs aligned runs; retain the original CJK and symbol checks.
+      if (index === 0 && !entry.han && !entry.singleHan && !runEvidence.repeatsQuote && !strictMetadata) continue
       countHit(hits, entry)
       if (unlinked.has(entry.key)) unlinkedHits++
       if (suspicious(hits) || unlinkedHits >= 6) return false
@@ -304,15 +348,25 @@ export async function explanationsAreIndependent(fields: string[], units: Unit[]
       let chars = 0
       // Count non-overlapping emitted matches, including repetitions within one token,
       // across same-source anchors. Affixes cannot hide repeated source words.
-      for (const word of outputWords) {
+      for (const [wordIndex, word] of outputWords.entries()) {
         let next = 0
         const quotedNext = new Map<QuotedEvidence, number>()
         for (let position = 0; position < word.length; position++) {
           let length = 0
           const quotedLengths = new Map<QuotedEvidence, number>()
-          for (const fragment of fragmentsAt(word, position)) {
+          for (const fragment of fragmentsAt(word, position, fieldStarts.has(wordEntries[wordIndex].index + position))) {
             if (++work % QUANTUM === 0) await yieldToRequests()
             if (!matchedWords.has(fragment)) continue
+            if (fragment.length < 3 && !strictMetadata) {
+              const before = outputWords[wordIndex - 1] ?? ''
+              const after = outputWords[wordIndex + 1] ?? ''
+              let adjacent = false
+              for (let size = 1; size <= 4; size++) {
+                if (wordContexts.has(before.slice(0, size) + ':' + fragment)
+                  || wordContexts.has(fragment + ':' + after.slice(0, size))) { adjacent = true; break }
+              }
+              if (!adjacent) continue
+            }
             length = Math.max(length, fragment.length)
             for (const evidence of quoted.values()) {
               if (evidence.words.has(fragment)) quotedLengths.set(evidence, Math.max(quotedLengths.get(evidence) ?? 0, fragment.length))
