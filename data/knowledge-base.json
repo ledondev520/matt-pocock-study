@@ -2,6 +2,93 @@
   "version": 2,
   "entries": [
     {
+      "id": "matt-notes-2026-10-30-2116134077896225052",
+      "date": "2026-10-30",
+      "source": "matt-notes",
+      "title": "自动合并的终点：所有双向门（能回滚）的改动自动合并，所有单向门（回滚不了）的改动由人检查",
+      "body": [
+        {
+          "text": "回应\"没人说不用审 AI 代码\"的争论。"
+        },
+        {
+          "text": "回复",
+          "href": "https://x.com/mattpocockuk/status/2116134077896225052"
+        },
+        {
+          "text": "。"
+        }
+      ],
+      "url": "https://x.com/mattpocockuk/status/2116134077896225052"
+    },
+    {
+      "id": "matt-notes-2026-10-30-2115855541285122189",
+      "date": "2026-10-30",
+      "source": "matt-notes",
+      "title": "别人的 agent\"自发\"用上了和他 /pr skill 一样的 PR 格式，他调侃 \"/pr 已经进模型权重了？\"；但他自己说 Opus 5.5 数据截止 6 月，这个 skill 9 月才有，不太可能",
+      "body": [
+        {
+          "text": "572 赞。"
+        },
+        {
+          "text": "引用帖",
+          "href": "https://x.com/mattpocockuk/status/2115855541285122189"
+        },
+        {
+          "text": "、"
+        },
+        {
+          "text": "回复",
+          "href": "https://x.com/mattpocockuk/status/2115858622630506506"
+        },
+        {
+          "text": "。另一位说没显式调用 skill 也出了这个格式，他指出全局装了 skill 就等于在用（"
+        },
+        {
+          "text": "回复",
+          "href": "https://x.com/mattpocockuk/status/2115858724984426857"
+        },
+        {
+          "text": "）。"
+        }
+      ],
+      "url": "https://x.com/mattpocockuk/status/2115855541285122189"
+    },
+    {
+      "id": "matt-notes-2026-10-30-2116078869279027424",
+      "date": "2026-10-30",
+      "source": "matt-notes",
+      "title": "评估一个 skill / 流程值不值，就做有它和没它的对比，主要指标是你花的时间",
+      "body": [
+        {
+          "text": "回答 grill 会话里决策反复修改、最后要不要整体复核的问题（提问原文只读到截断部分）。"
+        },
+        {
+          "text": "回复",
+          "href": "https://x.com/mattpocockuk/status/2116078869279027424"
+        },
+        {
+          "text": "。"
+        }
+      ],
+      "url": "https://x.com/mattpocockuk/status/2116078869279027424"
+    },
+    {
+      "id": "matt-notes-2026-10-30-2116127841976979654",
+      "date": "2026-10-30",
+      "source": "matt-notes",
+      "title": "skill 在 Claude Code 和 Codex 之间要不要分别测？他说不逐个测，靠用户反馈再调整",
+      "body": [
+        {
+          "text": "回复",
+          "href": "https://x.com/mattpocockuk/status/2116127841976979654"
+        },
+        {
+          "text": "。"
+        }
+      ],
+      "url": "https://x.com/mattpocockuk/status/2116127841976979654"
+    },
+    {
       "id": "matt-notes-2026-10-29-2115751897558614073",
       "date": "2026-10-29",
       "source": "matt-notes",
