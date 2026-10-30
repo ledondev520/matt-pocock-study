@@ -15,6 +15,9 @@ import { loadCorpus, queryCorpus, importCorpus, corpusTags, type CorpusRecord } 
 const encodeBrotli = promisify(brotliCompress)
 const encodeGzip = promisify(gzip)
 
+// Allow Cloudflare's automatically injected Web Analytics beacon script.
+export const PAGE_CSP = "default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'"
+
 function negotiateEncoding(header: string | undefined) {
   const accepted = parseAccept(header ?? '')
   const wildcard = accepted.find(value => value.type === '*')?.q
@@ -47,7 +50,7 @@ export function createApp(db: Database.Database, staticRoot?: string, corpus: Co
     await next()
     c.header('X-Content-Type-Options', 'nosniff')
     c.header('Referrer-Policy', 'strict-origin-when-cross-origin')
-    c.header('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'")
+    c.header('Content-Security-Policy', PAGE_CSP)
     c.header('Cache-Control', c.req.path.startsWith('/assets/') ? 'public, max-age=31536000, immutable' : 'no-cache')
     const vary = c.res.headers.get('Vary')
     if (vary !== '*' && !vary?.split(',').some(value => value.trim().toLowerCase() === 'accept-encoding')) c.header('Vary', vary ? `${vary}, Accept-Encoding` : 'Accept-Encoding')
