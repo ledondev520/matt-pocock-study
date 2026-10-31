@@ -2,6 +2,79 @@
   "version": 2,
   "entries": [
     {
+      "id": "matt-notes-2026-10-31-2116240284870684737",
+      "date": "2026-10-31",
+      "source": "matt-notes",
+      "title": "\"skills 规范太烂了\"：只允许用户调用的 skill（标了 disable-model-invocation），斜杠命令的位置稍微不对，模型就调不起来",
+      "body": [
+        {
+          "text": "他的例子：/grill-me /software-factory 能用，/grill-me about my /software-factory 不行。515 赞。"
+        },
+        {
+          "text": "原帖",
+          "href": "https://x.com/mattpocockuk/status/2116240284870684737"
+        },
+        {
+          "text": "（正文只有一句加 t.co 链接，配图内容没读到）、"
+        },
+        {
+          "text": "回复",
+          "href": "https://x.com/mattpocockuk/status/2116258076017701143"
+        },
+        {
+          "text": "。补充：他认为 skills 规范应该把这种情况写清楚（"
+        },
+        {
+          "text": "回复",
+          "href": "https://x.com/mattpocockuk/status/2116279259933110531"
+        },
+        {
+          "text": "）；Claude Code 会真的执行 skill 里的东西，所以调用上要更谨慎（"
+        },
+        {
+          "text": "回复",
+          "href": "https://x.com/mattpocockuk/status/2116284173539242250"
+        },
+        {
+          "text": "）；有人说\"只能用户触发的 skill 也应该能被另一个 skill 调用，否则只能写一个大 skill\"，他回 \"Yes yes yes\"（"
+        },
+        {
+          "text": "回复",
+          "href": "https://x.com/mattpocockuk/status/2116283645543710931"
+        },
+        {
+          "text": "）；被问直接说\"grill me about my software factory\"会不会自动触发两个 skill，他说不会，两个都只能用户调用（"
+        },
+        {
+          "text": "回复",
+          "href": "https://x.com/mattpocockuk/status/2116422197564604689"
+        },
+        {
+          "text": "）。"
+        }
+      ],
+      "url": "https://x.com/mattpocockuk/status/2116240284870684737"
+    },
+    {
+      "id": "matt-notes-2026-10-31-2116172513801863211",
+      "date": "2026-10-31",
+      "source": "matt-notes",
+      "title": "他的 agent 在给他的 Pixel Watch 做语音助手 app，录音直接发给他的 agent；/pr skill 能把视觉改动截下来放进 PR，他不用自己 QA",
+      "body": [
+        {
+          "text": "496 赞。"
+        },
+        {
+          "text": "原帖",
+          "href": "https://x.com/mattpocockuk/status/2116172513801863211"
+        },
+        {
+          "text": "（配图内容没读到）。"
+        }
+      ],
+      "url": "https://x.com/mattpocockuk/status/2116172513801863211"
+    },
+    {
       "id": "matt-notes-2026-10-30-2116134077896225052",
       "date": "2026-10-30",
       "source": "matt-notes",
