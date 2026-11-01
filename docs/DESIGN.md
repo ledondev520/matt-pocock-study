@@ -25,7 +25,7 @@ Lime remains on the logo and lesson number chip; the hero's final PR node and CT
 
 ## Typography and layout
 
-- Headings: Space Grotesk. Body: self-hosted Inter and Noto Sans SC, with locally installed CJK fallbacks. Command labels: self-hosted JetBrains Mono. No remote fonts or image requests; no font subsetting. The 中文 language switch uses `lang="zh-Hans"` and the local PingFang SC / Hiragino Sans GB / Microsoft YaHei / Noto Sans CJK SC stack.
+- Headings and body: self-hosted Source Sans 3 variable Latin subset, with system CJK fonts. Command labels: self-hosted JetBrains Mono. No remote fonts or image requests; Latin subsetting at build time. The 中文 language switch uses `lang="zh-Hans"` and the local PingFang SC / Hiragino Sans GB / Microsoft YaHei / Noto Sans CJK SC stack.
 - Inline navigation and prose arrows use `Arrow` SVG paths. Decorative arrows are hidden from assistive technology; meaningful arrows have an accessible label. SVG text isolates arrow characters in system-font tspans. Markdown and llms exports retain their original characters.
 - Reading body: **18px / 1.85**; descriptions, cards, captions and footer prose: **at least 17px**. Article reading column: **38em maximum**.
 - Article paragraphs stay short; the key-point cards and success/failure criteria hold the supporting detail. The spec/ticket/ADR table retains real table semantics and wraps within a 390px viewport.
@@ -51,7 +51,7 @@ The hand-written inline SVG components in `src/Diagrams.tsx` supply the hero and
 
 ## Build and visual review
 
-`npm run build` renders crawler-readable static HTML and the React reader. Fonts are bundled locally through @fontsource, including Noto Sans SC for consistent CJK typography. Full OFL notices ship in `public/font-licenses/`.
+`npm run build` renders crawler-readable static HTML and the React reader. Fonts are bundled locally through @fontsource, with a Source Sans 3 variable Latin subset; Chinese uses OS fonts. Full OFL notices ship in `public/font-licenses/`.
 
 `npm run contrast` recomputes the approved token pairs below; every pair must reach **4.5:1**. It runs as part of `npm test`.
 Run `node scripts/contrast.mjs --write` after palette changes to refresh this table.

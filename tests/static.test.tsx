@@ -1,8 +1,7 @@
 import { execFileSync } from 'node:child_process'
 import { readdir, readFile, stat, mkdtemp, writeFile, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
-import { createRequire } from 'node:module'
-import { dirname, join, resolve } from 'node:path'
+import { join, resolve } from 'node:path'
 import { beforeAll, afterAll, expect, it, vi } from 'vitest'
 import { JSDOM } from 'jsdom'
 import { renderToString } from 'react-dom/server'
@@ -19,8 +18,7 @@ import { siteNotice } from '../src/lib/notice'
 import { auditSite } from '../scripts/audit/non-content-text.mjs'
 import { searchItems, type SearchItem } from '../src/lib/search'
 import registry from '../data/figures.json'
-import { collectCharacters, fontWeights } from '../scripts/fonts.mjs'
-import { parseFontFaces, type NotoFace } from './font-faces'
+import { parseFontFaces } from './font-faces'
 import { methodSlugs } from './method-slugs'
 
 // Tests that read every built page grow with the page count (62 methodology pages); 5 s is too
@@ -519,7 +517,7 @@ async function walk(root: string, suffix: string): Promise<string[]> {
 }
 const isArchify = (svg: Element) => [...svg.classList].some(name => name.startsWith('arch-'))
 const licenceFiles = ['third_party/mattpocock-skills/LICENSE', 'third_party/archify/LICENSE']
-const fontFiles = ['public/font-licenses/inter.txt', 'public/font-licenses/space-grotesk.txt', 'public/font-licenses/jetbrains-mono.txt', 'public/font-licenses/noto-sans-sc.txt']
+const fontFiles = ['public/font-licenses/source-sans-3.txt', 'public/font-licenses/jetbrains-mono.txt']
 it('every built page and SVG file that embeds Archify CSS points to or carries the Archify licence in full', async () => {
   const licence = await readFile('third_party/archify/LICENSE', 'utf8')
   const pagesWithArchify: string[] = []
@@ -557,7 +555,7 @@ it('every built page and SVG file that embeds Archify CSS points to or carries t
 })
 
 // /zh/licenses and /en/licenses hold every notice, byte for byte: both MIT LICENSE files (each with
-// its upstream repository and LICENSE link) and the four font OFL files, in the static HTML and in
+// its upstream repository and LICENSE link) and the font OFL files, in the static HTML and in
 // the view's JSON (the client renders from it).
 it('the licences pages show each MIT and font licence byte-identical to its file, with its upstream links', async () => {
   const expected = await Promise.all([...licenceFiles, ...fontFiles].map(file => readFile(file)))
@@ -701,49 +699,41 @@ it('serves the Chinese home page at / with /zh as canonical and a pre-paint redi
   }
 })
 
-it('build ships the Noto subset faces and the full Fontsource fallback slices, all self-hosted (option A)', async () => {
-  const fontsource = dirname(createRequire(import.meta.url).resolve('@fontsource/noto-sans-sc/package.json'))
+it('ships only Source Sans 3 and JetBrains Mono faces with existing local font assets', async () => {
   const sheets = (await readdir('dist/assets')).filter(name => name.endsWith('.css'))
-  const faces: NotoFace[] = []
-  for (const sheet of sheets) faces.push(...parseFontFaces(await readFile(join('dist/assets', sheet), 'utf8'), '/assets/'))
-  // The HTML links the stylesheet that carries the faces (no extra request for the fallback).
-  const html = await readFile('dist/zh/index.html', 'utf8')
-  const linked = sheets.filter(sheet => html.includes(`/assets/${sheet}`))
-  expect(linked).toHaveLength(1)
-  expect(faces.length).toBeGreaterThan(0)
-  const linkedFaces = parseFontFaces(await readFile(join('dist/assets', linked[0]), 'utf8'), '/assets/')
-  expect(linkedFaces).toHaveLength(faces.length)
-  const generated = parseFontFaces(await readFile('generated/fonts/noto-sans-sc.css', 'utf8'), './')
-  const characters = await collectCharacters()
-  for (const weight of fontWeights) {
-    const own = faces.filter(face => face.weight === weight)
-    const subset = own.filter(face => face.kind === 'subset')
-    const fallbacks = own.filter(face => face.kind === 'fallback')
-    expect(subset).toHaveLength(1)
-    expect(fallbacks.length).toBeGreaterThan(50)
-    // Same faces and ranges as the generated CSS (the minifier must not drop or merge any).
-    const expected = generated.filter(face => face.weight === weight)
-    expect(own.map(face => [face.kind, face.slice, [...face.codes].sort((a, b) => a - b).join()])).toEqual(expected.map(face => [face.kind, face.slice, [...face.codes].sort((a, b) => a - b).join()]))
-    // Ranges are disjoint: a subset character can never pull a fallback slice.
-    const owner = new Map<number, string>()
-    const overlaps: string[] = []
-    for (const face of own) for (const code of face.codes) { if (owner.has(code)) overlaps.push(`U+${code.toString(16)}`); owner.set(code, face.file) }
-    expect(overlaps).toEqual([])
-    // Every collected character has a face: the subset, or a fallback slice.
-    expect([...characters].filter(character => !owner.has(character.codePointAt(0)!))).toEqual([])
-    const subsetBytes = await readFile(join('dist/assets', subset[0].file))
-    expect(subsetBytes.toString('ascii', 0, 4)).toBe('wOF2')
-    for (const face of fallbacks) {
-      // The shipped file exists and is the unmodified Fontsource slice for that id and weight.
-      const shipped = await readFile(join('dist/assets', face.file)).catch(() => null)
-      expect(shipped, face.file).not.toBeNull()
-      expect(shipped!.equals(await readFile(join(fontsource, `files/noto-sans-sc-${face.slice}-${weight}-normal.woff2`))), face.file).toBe(true)
+  const css = (await Promise.all(sheets.map(sheet => readFile(join('dist/assets', sheet), 'utf8')))).join('\n')
+  const faces = parseFontFaces(css, '/assets/')
+  expect([...new Set(faces.map(face => face.family))].sort()).toEqual(['JetBrains Mono', 'Source Sans 3'])
+  const latin = faces.filter(face => face.family === 'Source Sans 3')
+  expect(latin).toHaveLength(1)
+  expect(latin[0].weight).toBe('200 900')
+  const generated = parseFontFaces(await readFile('generated/fonts/source-sans-3.css', 'utf8'), './')
+  expect(latin[0].codes).toEqual(generated[0].codes)
+  for (const face of faces) expect((await readFile(join('dist/assets', face.file))).toString('ascii', 0, 4)).toBe('wOF2')
+  for (const [, url] of css.matchAll(/url\(["']?([^)'"\s]+\.(?:woff2?|ttf|otf))["']?\)/g)) {
+    expect(url).toMatch(/^\/assets\//)
+    expect(await stat(join('dist', url.slice(1)))).toBeDefined()
+  }
+  expect(css).not.toMatch(/(?:font-family|font):[^;}]*\b(?:Inter|Space Grotesk|Noto Sans SC)\b/i)
+  async function check(directory: string): Promise<void> {
+    for (const entry of await readdir(directory, { withFileTypes: true })) {
+      if (entry.isDirectory()) await check(join(directory, entry.name))
+      else if (/\.(?:woff2?|otf|ttf)$/i.test(entry.name)) expect(entry.name).not.toMatch(/noto|inter-|space-grotesk/i)
     }
   }
-  // No other Noto files ship (e.g. a leftover Fontsource import with its 100+ slices and woff copies).
-  const shippedNoto = (await readdir('dist/assets')).filter(name => /^noto-sans-sc/.test(name)).sort()
-  expect(shippedNoto).toEqual(faces.map(face => face.file).sort())
-}, 60000)
+  await check('dist')
+  for (const file of await files('dist')) {
+    const doc = new JSDOM(await readFile(file, 'utf8')).window.document
+    expect([...doc.querySelectorAll('link[rel="stylesheet"]')].some(node => sheets.some(sheet => node.getAttribute('href') === `/assets/${sheet}`)), file).toBe(true)
+    const preload = doc.querySelectorAll('link[rel="preload"][as="font"]')
+    expect(preload, file).toHaveLength(1)
+    expect(preload[0].getAttribute('href')).toBe(latin[0].url)
+    expect(preload[0].getAttribute('type')).toBe('font/woff2')
+    expect(preload[0].hasAttribute('crossorigin')).toBe(true)
+    const ids = [...doc.querySelectorAll('article [data-figure]')].map(node => node.getAttribute('data-figure'))
+    expect(new Set(ids).size, file).toBe(ids.length)
+  }
+})
 
 // ---- PR #8 batch: one site notice, a quiet home, no self-description ----
 

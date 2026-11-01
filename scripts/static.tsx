@@ -46,7 +46,14 @@ export function pageModel(model: Model, pages: Page[], path: string, sets: Metho
   }
 }
 export async function staticPages(root = 'dist', kbFile = 'data/knowledge-base.json') {
-  const template = await readFile(join(root, 'index.html'), 'utf8')
+  let template = await readFile(join(root, 'index.html'), 'utf8')
+  const sheets = [...template.matchAll(/<link\b[^>]*href="(\/assets\/[^"<>]+\.css)"[^>]*>/g)].map(match => match[1])
+  if (sheets.length) {
+    const styles = await Promise.all(sheets.map(file => readFile(join(root, file.slice(1)), 'utf8')))
+    const latinUrl = styles.join('\n').match(/url\(["']?(\/assets\/source-sans-3-latin-wght-[^)'"\s]+\.woff2)["']?\)/)?.[1]
+    if (!latinUrl) throw new Error('Missing hashed Source Sans 3 asset')
+    template = template.replace('</head>', `<link rel="preload" as="font" type="font/woff2" crossorigin href="${latinUrl}"></head>`)
+  }
   const db = createIndex([])
   importCorpus(db, loadCorpus())
   const corpus = queryCorpus(db, { limit: 20 })

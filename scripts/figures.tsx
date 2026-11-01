@@ -83,7 +83,7 @@ async function downloadableFigure(id: string, lang: Lang) {
   const rules = [...css.matchAll(/([^{}]+)\{([^{}]+)\}/g)]
     .filter(m => /^\s*\.(chain|diagram|layer|time|risk|slice|loop|final)[\w-]+\s*$/.test(m[1]) && /fill:|stroke:|font-size:/.test(m[2]))
     .map(m => `.${scope} ${m[1].trim()}{${m[2].replace(/var\(--([\w-]+)\)/g, (_, key) => tokens[key])}}`).join('\n')
-  const style = `<style>.${scope} text{font-family:Inter,'Noto Sans SC','Noto Sans CJK SC',sans-serif}${rules}</style>`
+  const style = `<style>.${scope} text{font-family:'Source Sans 3','PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC','Source Han Sans SC',system-ui,sans-serif}${rules}</style>`
   if (id === 's06-tracer') {
     const html = renderToStaticMarkup(<TracerFigure lang={lang} />)
     // Captions may contain inline Arrow SVGs; downloads include only the diagram panels.
