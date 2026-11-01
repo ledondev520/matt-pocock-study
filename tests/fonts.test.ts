@@ -84,6 +84,19 @@ describe('Source Sans 3 variable Latin subset', () => {
     for (const c of ['A', '—', '→']) expect(nonCjkCharacter(c)).toBe(true)
   })
 
+  it('collects CSS pseudo-element text and files in nested subdirectories', async () => {
+    const root = await inputs('collector-nested')
+    // Each marker appears in exactly one fixture file; expected values are explicit literals.
+    await writeFile(join(root, 'src/style.css'), '.probe::after { content: "Ċ"; }\n') // U+010A
+    for (const directory of ['content/zh', 'content/en', 'diagrams/src']) await mkdir(join(root, directory), { recursive: true })
+    await writeFile(join(root, 'content/zh/nested.md'), 'ċ中文\n') // U+010B
+    await writeFile(join(root, 'content/en/nested.md'), 'Č\n') // U+010C
+    await writeFile(join(root, 'diagrams/src/nested.svg'), '<svg xmlns="http://www.w3.org/2000/svg"><text x="0" y="10">č</text></svg>\n') // U+010D
+    const chars = await collectCharacters(root)
+    for (const c of ['Ċ', 'ċ', 'Č', 'č']) expect(chars.has(c), c).toBe(true)
+    for (const c of '中文') expect(chars.has(c), c).toBe(false)
+  })
+
   it('allows unsupported characters to fall back but rejects missing supported subset glyphs', async () => {
     const root = await inputs('unsupported')
     await writeFile(join(root, 'content/page.md'), 'A\u{10ffff}中文')
