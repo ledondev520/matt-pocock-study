@@ -120,5 +120,5 @@ jobs:
       - if: steps.playwright-cache.outputs.cache-hit == 'true'
         run: npx playwright install-deps chromium
       - run: npm run build
-      - name: Layout at 320, 390 and 1440px, no Noto on English pages, and no CJK character drawn by a fallback font
+      - name: Layout at 320, 390 and 1440px, local font budgets, and Chinese system font coverage
         run: npm run test:layout

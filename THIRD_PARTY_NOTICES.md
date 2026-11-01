@@ -90,10 +90,8 @@ The adapted skills structures themselves are rewritten in the pages, not copied 
 
 Fonts are distributed through these @fontsource packages under the SIL Open Font License 1.1 (OFL), with their bundled licence notices:
 
-- `@fontsource/inter`: Inter, Copyright 2016 The Inter Project Authors. [Source and OFL](https://github.com/rsms/inter/blob/master/LICENSE.txt).
-- `@fontsource/space-grotesk`: Space Grotesk, Copyright 2020 The Space Grotesk Project Authors. [Source and OFL](https://github.com/floriankarsten/space-grotesk/blob/master/OFL.txt).
+- `@fontsource-variable/source-sans-3`: Source Sans 3, Google Inc. (as recorded in the package licence). [Source and OFL](https://github.com/adobe-fonts/source-sans).
 - `@fontsource/jetbrains-mono`: JetBrains Mono, Copyright 2020 The JetBrains Mono Project Authors. [Source and OFL](https://github.com/JetBrains/JetBrainsMono/blob/master/OFL.txt).
-- `@fontsource/noto-sans-sc`: Noto Sans SC, Google Inc. (as recorded in the package licence). [Source and OFL](https://github.com/notofonts/noto-cjk/blob/main/Sans/LICENSE).
 
 The electric design, hand-written SVGs and sample lesson are project-authored assets,
 ported into this platform. No additional upstream repository code was vendored.

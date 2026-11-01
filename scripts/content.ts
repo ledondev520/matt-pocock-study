@@ -91,6 +91,10 @@ export async function renderMarkdown(source: string, lang: Lang) {
       quotes.push({ text: f.text ?? '', url: f.url ?? '', date: f.date ?? '', ...(f.note ? { note: f.note } : {}), section: quoteSection })
     })
   }
+  const figureIds = new Set<string>()
+  marked.walkTokens(visible, token => {
+    if (token.type === 'code' && token.lang === 'figure') figureIds.add(fields(token.text).id)
+  })
   const exports = new Map<string, string>()
   async function transform(token: Token) {
     if (token.type !== 'code' || !componentNames.includes(token.lang ?? '')) return
@@ -112,7 +116,7 @@ export async function renderMarkdown(source: string, lang: Lang) {
     } else if (kind === 'cards') {
       const items = text.split('\n').filter(line => /^-\s/.test(line)).map(line => line.replace(/^-\s+/, ''))
       if (items.length < 2 || items.length > 4 || items.some(item => !/^\*\*[^*]+\*\*/.test(item))) throw new Error('Cards need 2–4 bold-titled items')
-      html = `<div class="key-cards">${items.map((item, i) => { const [, title, body] = /^\*\*(.*?)\*\*\s*(.*)$/.exec(item)!; return `<section class="key-card"><span>0${i + 1}</span><h3>${inline(title)}</h3><p>${inline(body)}</p></section>` }).join('')}</div>`
+      html = `<ol class="key-cards" role="list">${items.map((item) => { const [, title, body] = /^\*\*(.*?)\*\*\s*(.*)$/.exec(item)!; return `<li class="key-card"><h3>${inline(title)}</h3><p>${inline(body)}</p></li>` }).join('')}</ol>`
       readable = items.map(item => `- ${item}`).join('\n')
     } else if (kind === 'exercise') {
       if (!f.title) throw new Error('Exercise requires title')
@@ -141,7 +145,7 @@ export async function renderMarkdown(source: string, lang: Lang) {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(quote.date)) throw new Error(`Quote date must be YYYY-MM-DD: ${quote.url}`)
     if (quote.section && !toc.some(entry => entry.id === quote.section)) throw new Error(`Quote section has no heading: ${quote.section}`)
   }
-  return { html, markdown: markdown.trim() + '\n', toc, quotes }
+  return { figureIds, html, markdown: markdown.trim() + '\n', toc, quotes }
 }
 
 // The site's status and the authors' rights are stated once, on /licenses (src/lib/notice.ts). A
@@ -165,9 +169,9 @@ export async function readPages(contentDir: string): Promise<Page[]> {
         || !/^\d{4}-\d{2}-\d{2}$/.test(String(updated))) throw new Error(`Invalid front matter: ${lang}/${file}`)
       if (lang === 'zh' ? [...String(summary)].length > 40 : String(summary).split(/\s+/).length > 25) throw new Error(`Summary too long: ${lang}/${slug}`)
       if (head !== 'card' && !figureById(String(head))) throw new Error(`Unknown figure id: ${head}`)
-      const rendered = await renderMarkdown(source.slice(match[0].length), lang)
+      const { figureIds, ...rendered } = await renderMarkdown(source.slice(match[0].length), lang)
       pages.push({ lang, slug, title, subtitle, number, order, section: section as Section, summary, head, updated, ...rendered,
-        headHtml: head === 'card' ? renderArrows(`<aside class="key-point"><p>${escapeHtml(String(summary))}</p></aside>`) : await figureHtml(String(head), lang),
+        headHtml: head === 'card' ? renderArrows(`<aside class="key-point"><p>${escapeHtml(String(summary))}</p></aside>`) : figureIds.has(String(head)) ? '' : await figureHtml(String(head), lang),
       } as Page)
     }
   }

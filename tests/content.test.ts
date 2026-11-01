@@ -282,8 +282,9 @@ This is our inference.
 const x = 1;
 \`\`\`
 `, 'en')
-    for (const fragment of ['key-cards', '<th scope="row">', 'punch-quote', '<details>', 'data-figure="s06-tracer"', '/art/s06-tracer.en.svg', '/art/s06-tracer.en-dark.svg', 'callout inference', 'code-window', 'data-copy']) expect(result.html).toContain(fragment)
+    for (const fragment of ['<ol class="key-cards" role="list">', '<li class="key-card"><h3>First</h3>', '<th scope="row">', 'punch-quote', '<details>', 'data-figure="s06-tracer"', '/art/s06-tracer.en.svg', '/art/s06-tracer.en-dark.svg', 'callout inference', 'code-window', 'data-copy']) expect(result.html).toContain(fragment)
     for (const fragment of ['- **First**', '> One short sentence.', 'Author', 'https://example.org/source', '2026-01-01', 'Figure:', '/art/s06-tracer.en.svg', 'Suggested approach', '**Our inference**']) expect(result.markdown).toContain(fragment)
+    expect(result.html).not.toContain('<span>0')
     expect(result.toc).toEqual([{ id: 'a-section', title: 'A section' }])
   })
   it.each([
@@ -332,4 +333,58 @@ const x = 1;
       })
     }
   })
+})
+
+it('renders a shared head/body figure once in context, preserves a head-only figure and summary cards', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'study-head-'))
+  try {
+    for (const lang of ['en', 'zh']) await mkdir(join(root, lang))
+    const original = await readFile('content/en/core-principles.md', 'utf8')
+    const front = original.match(/^---\n[\s\S]*?\n---\n/)![0]
+    for (const [head, body, inHead] of [
+      ['d02-failure-sort', 'Before.\n\n```figure\nid: d02-failure-sort\n```\n\nAfter.', false],
+      ['d02-failure-sort', 'Body without a figure.', true],
+      ['card', 'Body without a figure.', false],
+    ] as const) {
+      for (const lang of ['en', 'zh']) await writeFile(join(root, lang, 'core-principles.md'), front.replace(/^head:.*$/m, `head: ${head}`).replace(/^summary:.*$/m, 'summary: Brief.') + body)
+      for (const page of await readPages(root)) {
+        if (head === 'card') expect(page.headHtml).toContain('class="key-point"')
+        else {
+          expect(page.headHtml.includes('data-figure="d02-failure-sort"')).toBe(inHead)
+          expect((page.headHtml + page.html).match(/data-figure="d02-failure-sort"/g)).toHaveLength(1)
+          if (!inHead) {
+            expect(page.headHtml).toBe('')
+            expect(page.html.indexOf('Before.')).toBeLessThan(page.html.indexOf('data-figure='))
+            expect(page.html.indexOf('After.')).toBeGreaterThan(page.html.indexOf('data-figure='))
+          }
+        }
+      }
+    }
+  } finally { await rm(root, { recursive: true, force: true }) }
+})
+
+it.each([
+  ['a hidden licence section', '## Licence\n\n```figure\nid: d02-failure-sort\n```\n\n```licence\nid: mattpocock-skills\n```', 'd02-failure-sort'],
+  ['a different body figure', '## Body\n\n```figure\nid: s06-tracer\n```', 's06-tracer'],
+])('keeps the head when its figure is absent from the visible body: %s', async (_, body, exportedFigure) => {
+  const root = await mkdtemp(join(tmpdir(), 'study-visible-head-'))
+  try {
+    for (const lang of ['en', 'zh']) {
+      await mkdir(join(root, lang))
+      const original = await readFile(`content/${lang}/core-principles.md`, 'utf8')
+      const front = original.match(/^---\n[\s\S]*?\n---\n/)![0].replace(/^head:.*$/m, 'head: d02-failure-sort')
+      await writeFile(join(root, lang, 'core-principles.md'), front + body)
+    }
+    for (const page of await readPages(root)) {
+      expect(page.headHtml).toContain('data-figure="d02-failure-sort"')
+      expect(page.html).not.toContain('data-figure="d02-failure-sort"')
+      expect((page.headHtml + page.html).match(/data-figure="d02-failure-sort"/g)).toHaveLength(1)
+      expect(page.markdown).toContain(`/${exportedFigure === 's06-tracer' ? 'art' : 'diagrams'}/${exportedFigure}.${page.lang}.svg`)
+      if (exportedFigure === 's06-tracer') expect(page.html.match(/data-figure="s06-tracer"/g)).toHaveLength(1)
+      else {
+        expect(page.html).not.toContain('Permission is hereby granted')
+        expect(page.markdown).toContain(licenceText('mattpocock-skills').trimEnd())
+      }
+    }
+  } finally { await rm(root, { recursive: true, force: true }) }
 })

@@ -79,10 +79,8 @@ export function archifyAppendix(lang) {
  * the matching @fontsource package, byte for byte; the pinned sha256 makes any edit fail the build.
  */
 export const fonts = {
-  inter: { name: 'Inter', pkg: '@fontsource/inter', repo: 'https://github.com/rsms/inter', file: 'public/font-licenses/inter.txt', sha256: '3b0a5fca3d17942cde889069889dedbbbd075e9b599968c82a95f4d944e9b345' },
-  'space-grotesk': { name: 'Space Grotesk', pkg: '@fontsource/space-grotesk', repo: 'https://github.com/floriankarsten/space-grotesk', file: 'public/font-licenses/space-grotesk.txt', sha256: '18a4de52385f6b988782639d5d0cc1326e5a8c2de9a7f01d7b20d9aedcc60943' },
+  'source-sans-3': { name: 'Source Sans 3', pkg: '@fontsource-variable/source-sans-3', repo: 'https://github.com/adobe-fonts/source-sans', file: 'public/font-licenses/source-sans-3.txt', sha256: '18aabf190848725e2576eefb5c29ba06aac1029d02132252a7f312eac2e50cf3' },
   'jetbrains-mono': { name: 'JetBrains Mono', pkg: '@fontsource/jetbrains-mono', repo: 'https://github.com/JetBrains/JetBrainsMono', file: 'public/font-licenses/jetbrains-mono.txt', sha256: '403581b69dac5cff4079205e01c6b467e56af449ecbd7247693ddb1baafa005b' },
-  'noto-sans-sc': { name: 'Noto Sans SC', pkg: '@fontsource/noto-sans-sc', repo: 'https://github.com/notofonts/noto-cjk', file: 'public/font-licenses/noto-sans-sc.txt', sha256: '18aabf190848725e2576eefb5c29ba06aac1029d02132252a7f312eac2e50cf3' },
 }
 
 function fontLicenceText(id, read = file => readFileSync(file, 'utf8')) {
