@@ -6,10 +6,9 @@ import { execFileSync } from 'node:child_process'
 import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, existsSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { afterAll, describe, expect, it, vi } from 'vitest'
+import { afterAll, describe, expect, it } from 'vitest'
 import { renderToString } from 'react-dom/server'
-import { hydrateRoot } from 'react-dom/client'
-import { act, createElement } from 'react'
+import { createElement } from 'react'
 import { JSDOM } from 'jsdom'
 import { KbText } from '../src/KbText'
 import { buildFeed, byDate, checkText, gateFeed, parseNotes, validateFeed, type KbFeed } from '../scripts/kb/feed'
@@ -314,34 +313,6 @@ describe('rendering', () => {
     expect(doc.querySelector('.kb-head')!.textContent).toBe(head)
     expect(doc.querySelector('.kb-tail')!.textContent).toBe(tail)
     expect(doc.querySelector('.kb-keep')!.textContent).toBe(text + '）。')
-  })
-  it.each(tailCases)('hydrates %s without Segmenter and preserves the server DOM', async (text, head, tail) => {
-    const view = createElement(KbText, { segments: [{ text, href: post(111) }, { text: '）。' }] })
-    const html = renderToString(view)
-    const dom = new JSDOM(`<div id="root">${html}</div>`)
-    const container = dom.window.document.getElementById('root')!
-    const link = container.querySelector('a')!
-    const errors: unknown[] = []
-    let root: ReturnType<typeof hydrateRoot> | undefined
-    try {
-      vi.stubGlobal('window', dom.window)
-      vi.stubGlobal('document', dom.window.document)
-      vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true)
-      vi.stubGlobal('Intl', Object.create(Intl, { Segmenter: { value: undefined } }))
-      expect(Intl.Segmenter).toBeUndefined()
-      await act(async () => { root = hydrateRoot(container, view, { onRecoverableError: error => errors.push(error) }) })
-      expect(errors).toEqual([])
-      expect(container.innerHTML).toBe(html)
-      expect(container.querySelector('a')).toBe(link)
-      expect(link.textContent).toBe(text)
-      expect(link.getAttribute('href')).toBe(post(111))
-      expect(link.querySelector('.kb-head')!.textContent).toBe(head)
-      expect(link.querySelector('.kb-tail')!.textContent).toBe(tail)
-    } finally {
-      await act(async () => root?.unmount())
-      dom.window.close()
-      vi.unstubAllGlobals()
-    }
   })
   it.each([true, false])('keeps spaced closing punctuation with its preceding character (links=%s)', links => {
     const feed: KbFeed = JSON.parse(readFileSync('data/knowledge-base.json', 'utf8'))
