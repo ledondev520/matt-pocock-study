@@ -362,3 +362,29 @@ it('renders a shared head/body figure once in context, preserves a head-only fig
     }
   } finally { await rm(root, { recursive: true, force: true }) }
 })
+
+it.each([
+  ['a hidden licence section', '## Licence\n\n```figure\nid: d02-failure-sort\n```\n\n```licence\nid: mattpocock-skills\n```', 'd02-failure-sort'],
+  ['a different body figure', '## Body\n\n```figure\nid: s06-tracer\n```', 's06-tracer'],
+])('keeps the head when its figure is absent from the visible body: %s', async (_, body, exportedFigure) => {
+  const root = await mkdtemp(join(tmpdir(), 'study-visible-head-'))
+  try {
+    for (const lang of ['en', 'zh']) {
+      await mkdir(join(root, lang))
+      const original = await readFile(`content/${lang}/core-principles.md`, 'utf8')
+      const front = original.match(/^---\n[\s\S]*?\n---\n/)![0].replace(/^head:.*$/m, 'head: d02-failure-sort')
+      await writeFile(join(root, lang, 'core-principles.md'), front + body)
+    }
+    for (const page of await readPages(root)) {
+      expect(page.headHtml).toContain('data-figure="d02-failure-sort"')
+      expect(page.html).not.toContain('data-figure="d02-failure-sort"')
+      expect((page.headHtml + page.html).match(/data-figure="d02-failure-sort"/g)).toHaveLength(1)
+      expect(page.markdown).toContain(`/${exportedFigure === 's06-tracer' ? 'art' : 'diagrams'}/${exportedFigure}.${page.lang}.svg`)
+      if (exportedFigure === 's06-tracer') expect(page.html.match(/data-figure="s06-tracer"/g)).toHaveLength(1)
+      else {
+        expect(page.html).not.toContain('Permission is hereby granted')
+        expect(page.markdown).toContain(licenceText('mattpocock-skills').trimEnd())
+      }
+    }
+  } finally { await rm(root, { recursive: true, force: true }) }
+})

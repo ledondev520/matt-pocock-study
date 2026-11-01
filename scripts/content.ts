@@ -92,6 +92,9 @@ export async function renderMarkdown(source: string, lang: Lang) {
     })
   }
   const figureIds = new Set<string>()
+  marked.walkTokens(visible, token => {
+    if (token.type === 'code' && token.lang === 'figure') figureIds.add(fields(token.text).id)
+  })
   const exports = new Map<string, string>()
   async function transform(token: Token) {
     if (token.type !== 'code' || !componentNames.includes(token.lang ?? '')) return
@@ -103,7 +106,6 @@ export async function renderMarkdown(source: string, lang: Lang) {
       // Exports keep it in place; the page shows it only on /licenses.
       readable = licenceMarkdown(f.id ?? '', lang)
     } else if (kind === 'figure') {
-      figureIds.add(f.id)
       html = await figureHtml(f.id, lang); readable = figureMarkdown(f.id, lang)
     } else if (kind === 'quote') {
       if (!/^https?:\/\//.test(f.url ?? '')) throw new Error('Quote requires an http(s) url')

@@ -9,6 +9,8 @@ import { join } from 'node:path'
 import { afterAll, describe, expect, it } from 'vitest'
 import { renderToString } from 'react-dom/server'
 import { createElement } from 'react'
+import { JSDOM } from 'jsdom'
+import { KbText } from '../src/KbText'
 import { buildFeed, byDate, checkText, gateFeed, parseNotes, validateFeed, type KbFeed } from '../scripts/kb/feed'
 import { runSync, sourceFiles } from '../scripts/kb/sync'
 import { Site } from '../src/Site'
@@ -268,7 +270,68 @@ describe('rendering', () => {
   })
   it('a link and the closing mark after it share one unbreakable span', () => {
     const html = renderToString(createElement(Site, { model, path: '/zh/knowledge' }))
-    expect(html).toMatch(/<span class="kb-keep"><a [^>]*>原帖<\/a>。<\/span>/)
+    expect(html).toMatch(/<span class="kb-keep"><a [^>]*><span class="kb-head">原<\/span><span class="kb-tail">帖<\/span><\/a>。<\/span>/)
+  })
+  it('keeps the final URL grapheme inside the link with its trailing punctuation', () => {
+    const url = 'https://github.com/mattpocock/skills/pull/1316'
+    const html = renderToString(createElement(KbText, { segments: [{ text: url, href: url }, { text: '）。' }] }))
+    expect(html).toContain(`><span class="kb-head">${url.slice(0, -1)}</span><span class="kb-tail">6</span></a>）。</span>`)
+    const doc = new JSDOM(html).window.document
+    const keep = doc.querySelector('.kb-keep')!
+    const link = keep.querySelector('a')!
+    expect(keep.textContent).toBe(url + '）。')
+    expect(link.getAttribute('href')).toBe(url)
+    expect(link.classList.contains('kb-split')).toBe(true)
+    expect(link.textContent).toBe(url)
+    expect(link.getAttribute('aria-label')).toBeNull()
+    expect(link.querySelectorAll('.kb-head')).toHaveLength(1)
+    expect(link.querySelector('.kb-head')!.textContent).toBe(url.slice(0, -1))
+    expect(link.querySelectorAll('.kb-tail')).toHaveLength(1)
+    expect(link.querySelector('.kb-tail')!.textContent).toBe('6')
+  })
+  it('leaves links without trailing punctuation unchanged', () => {
+    const url = 'https://github.com/mattpocock/skills/pull/1316'
+    const html = renderToString(createElement(KbText, { segments: [{ text: url, href: url }, { text: ' 后文' }] }))
+    expect(html).toBe(`<span class="kb-keep"><a href="${url}" target="_blank" rel="noreferrer">${url}</a></span> 后文`)
+    const doc = new JSDOM(html).window.document
+    expect(doc.querySelector('.kb-head, .kb-tail')).toBeNull()
+    expect(doc.querySelector('a')!.classList.contains('kb-split')).toBe(false)
+  })
+  it.each(['e\u0301', '👩‍💻'])('keeps the whole final grapheme %s inside the link tail', tail => {
+    const text = '文字' + tail
+    const html = renderToString(createElement(KbText, { segments: [{ text, href: post(111) }, { text: '）。' }] }))
+    const doc = new JSDOM(html).window.document
+    expect(doc.querySelector('a')!.textContent).toBe(text)
+    expect(doc.querySelector('.kb-tail')!.textContent).toBe(tail)
+    expect(doc.querySelector('.kb-keep')!.textContent).toBe(text + '）。')
+  })
+  it.each([true, false])('keeps spaced closing punctuation with its preceding character (links=%s)', links => {
+    const feed: KbFeed = JSON.parse(readFileSync('data/knowledge-base.json', 'utf8'))
+    const segments = feed.entries.find(entry => entry.id === 'matt-notes-2026-10-25-2114311664069718370')!.body
+    const before = JSON.stringify(segments)
+    const html = renderToString(createElement(KbText, { segments, links }))
+    expect(html).toContain('<span class="kb-keep">型&quot; ）。</span>')
+    const doc = new JSDOM(html).window.document
+    expect([...doc.querySelectorAll('.kb-keep')].at(-1)!.textContent).toBe('型" ）。')
+    expect(doc.body.textContent).toBe(segments.map(segment => segment.text).join(''))
+    expect(JSON.stringify(segments)).toBe(before)
+  })
+  it.each(['"', "'", '“”', '‘’'])('keeps only one real character before trailing quotes %s', quotes => {
+    const text = '很长的说明'.repeat(40) + `模型${quotes} ）。`
+    const html = renderToString(createElement(KbText, { segments: [{ text }] }))
+    const doc = new JSDOM(html).window.document
+    expect(doc.querySelectorAll('.kb-keep')).toHaveLength(1)
+    expect(doc.querySelector('.kb-keep')!.textContent).toBe(`型${quotes} ）。`)
+    expect(doc.body.textContent).toBe(text)
+  })
+  it.each([true, false])('keeps whitespace and closing punctuation after a link in its span (links=%s)', links => {
+    const segments = [{ text: '原帖', href: post(111) }, { text: ' ）。后文' }]
+    const html = renderToString(createElement(KbText, { segments, links }))
+    const doc = new JSDOM(html).window.document
+    expect(doc.querySelector('.kb-keep')!.textContent).toBe('原帖 ）。')
+    expect(doc.querySelector('.kb-keep')!.querySelector(links ? 'a' : 'span')!.textContent).toBe('原帖')
+    expect(doc.body.textContent).toBe('原帖 ）。后文')
+    expect(segments[1].text).toBe(' ）。后文')
   })
   it('English page has no Chinese characters (English pages never load the Chinese font)', () => {
     const html = renderToString(createElement(Site, { model, path: '/en/knowledge' }))

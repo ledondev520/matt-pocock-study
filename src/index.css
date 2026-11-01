@@ -317,6 +317,7 @@ button, select { font: inherit; }
 html[lang="en"] .full-article p, html[lang="en"] .article-body { line-height: 1.7; }
 .article-body > p { margin-block: 17px; }
 .article-body ul, .article-body ol { padding-left: 24px; }
+.article-body ol.key-cards { padding: 0; margin: 26px 0; list-style: none; }
 .article-body a { color: var(--link); text-decoration: underline; text-underline-offset: 4px; }
 
 .article-sidebar ul, .page-toc ol { list-style: none; padding: 0; margin-block: 18px; }
@@ -408,7 +409,7 @@ svg.inline-arrow { display: inline-block; width: 1em; height: 1em; vertical-alig
 .kb-list { list-style: none; padding: 0; margin: 14px 0 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 26px; }.kb-entry { max-width: 45em; min-width: 0; }
 .kb-badge { display: inline-block; font: 11px 'JetBrains Mono', monospace; letter-spacing: 0; color: var(--muted-foreground); border: 1px solid var(--border); border-radius: 4px; padding: 1px 6px; }
 .kb-entry h3 { margin-top: 6px; font-size: 20px; line-height: 1.5; }.kb-entry p { margin-top: 8px; font-size: 17px; line-height: 1.8; overflow-wrap: break-word; }
-.kb-entry p a{ color: var(--link); text-decoration: underline; text-underline-offset: 3px; overflow-wrap: anywhere; }.kb-keep { white-space: nowrap; }.kb-keep a, .kb-keep > span { white-space: normal; }
+.kb-entry p a{ color: var(--link); text-decoration: underline; text-underline-offset: 3px; overflow-wrap: anywhere; }.kb-keep { white-space: nowrap; overflow-wrap: normal; }.kb-keep a, .kb-keep > span { white-space: normal; }.kb-keep a.kb-split, .kb-entry p .kb-keep a.kb-split { overflow-wrap: normal; }.kb-head { white-space: normal; overflow-wrap: anywhere; }.kb-tail { white-space: nowrap; overflow-wrap: normal; }
 .kb-source { display: inline-flex; align-items: center; gap: 0.4em; margin-top: 8px; font-size: 14px; color: var(--link); }
 
 /* Home: search on top, the newest knowledge entries, the notes index, and one quiet copy line. */
