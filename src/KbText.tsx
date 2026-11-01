@@ -6,7 +6,7 @@ import type { Segment } from '../scripts/kb/feed'
 // link and the punctuation right after it stay on one line, so no line starts with a closing mark.
 // With `links` off (the timeline before originals are shown) a link's text is kept as plain text.
 const SPACED_CLOSE = /([^\s"'“”‘’]["'“”‘’]*\s+[。，、；：！？）」』”’,.;:!?)\]]+)/u
-const graphemes = typeof Intl.Segmenter === 'function' ? new Intl.Segmenter(undefined, { granularity: 'grapheme' }) : undefined
+const FINAL_CHARACTER = /\P{M}(?:\p{M}|\p{Emoji_Modifier})*(?:\u200D\P{M}(?:\p{M}|\p{Emoji_Modifier})*)*$/u
 export function KbText({ segments, links = true }: { segments: Segment[]; links?: boolean }) {
   const out = []
   for (let i = 0; i < segments.length; i++) {
@@ -20,7 +20,7 @@ export function KbText({ segments, links = true }: { segments: Segment[]; links?
     const split = !!(links && lead && s.text)
     let text = <ArrowText>{s.text}</ArrowText>
     if (split) {
-      const tail = graphemes ? Array.from(graphemes.segment(s.text)).at(-1)!.segment : Array.from(s.text).at(-1)!
+      const tail = FINAL_CHARACTER.exec(s.text)?.[0] ?? s.text
       text = <><span className="kb-head"><ArrowText>{s.text.slice(0, -tail.length)}</ArrowText></span><span className="kb-tail"><ArrowText>{tail}</ArrowText></span></>
     }
     out.push(<span className="kb-keep" key={i}>{links ? <a href={s.href} target="_blank" rel="noreferrer" className={split ? 'kb-split' : undefined}>{text}</a> : <span><ArrowText>{s.text}</ArrowText></span>}{lead}</span>)

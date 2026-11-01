@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test'
 import { routes } from './routes'
+import { auditCjkFonts } from './cjk-fonts'
 
 for (const colorScheme of ['light', 'dark'] as const) {
   test(`every built route uses only local Latin/code web fonts (${colorScheme})`, async ({ browser, baseURL }) => {
@@ -107,3 +108,63 @@ for (const colorScheme of ['light', 'dark'] as const) {
     }
   })
 }
+
+test('every Chinese route uses the page stack and approved system fonts for visible Chinese text', async ({ browser }) => {
+  test.setTimeout(600_000)
+  const chineseRoutes = routes.filter(route => route === '/zh' || route.startsWith('/zh/'))
+  expect(chineseRoutes.length).toBeGreaterThan(20)
+  for (const route of chineseRoutes) {
+    const context = await browser.newContext({ colorScheme: 'light' })
+    await context.addInitScript(() => localStorage.setItem('theme', 'light'))
+    try {
+      const page = await context.newPage()
+      await page.goto(route, { waitUntil: 'networkidle' })
+      const result = await auditCjkFonts(page, route)
+      expect(result.elements, route).toBeGreaterThan(0)
+      expect(result.probes, route).toBeGreaterThan(0)
+      expect(result.stackErrors, route).toEqual([])
+      expect(result.glyphErrors, route).toEqual([])
+      if (route === '/zh/knowledge') await expect(page.locator('.kb-reader button, .kb-reader input[type="search"]')).toHaveCount(0)
+    } finally { await context.close() }
+  }
+})
+
+test('Chinese font detectors reject an incorrect stack and a font outside the system stack', async ({ browser }) => {
+  test.setTimeout(120_000)
+  const context = await browser.newContext({ colorScheme: 'light' })
+  try {
+    const page = await context.newPage()
+    await page.goto('/zh', { waitUntil: 'networkidle' })
+    const baseline = await auditCjkFonts(page, '/zh')
+    expect(baseline.stackErrors).toEqual([])
+    expect(baseline.glyphErrors).toEqual([])
+    await page.evaluate(() => {
+      const main = document.querySelector('main')!
+      for (const [id, tag, family] of [
+        ['cjk-wrong-stack', 'h2', 'serif'],
+        ['cjk-wrong-platform', 'h2', '"Noto Serif CJK SC"'],
+        ['cjk-mono-wrong-platform', 'code', '"JetBrains Mono", "Noto Serif CJK SC"'],
+        ['cjk-nonmono-wrong-platform', 'h2', '"DejaVu Sans Mono"'],
+      ]) {
+        const element = document.createElement(tag)
+        element.id = id
+        element.style.fontFamily = family
+        element.style.fontWeight = '700'
+        element.textContent = '中文缺字检查 A'
+        main.append(element)
+      }
+    })
+    try {
+      const result = await auditCjkFonts(page, '/zh fixtures')
+      expect(result.stackErrors.some(error => error.includes('#cjk-wrong-stack'))).toBe(true)
+      expect(result.glyphErrors.some(error => error.includes('#cjk-wrong-platform'))).toBe(true)
+      expect(result.glyphErrors.some(error => error.includes('#cjk-mono-wrong-platform'))).toBe(true)
+      expect(result.glyphErrors.some(error => error.includes('#cjk-nonmono-wrong-platform'))).toBe(true)
+    } finally {
+      await page.locator('#cjk-wrong-stack, #cjk-wrong-platform, #cjk-mono-wrong-platform, #cjk-nonmono-wrong-platform').evaluateAll(elements => elements.forEach(element => element.remove()))
+    }
+    const restored = await auditCjkFonts(page, '/zh restored')
+    expect(restored.stackErrors).toEqual([])
+    expect(restored.glyphErrors).toEqual([])
+  } finally { await context.close() }
+})
