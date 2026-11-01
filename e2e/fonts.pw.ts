@@ -122,6 +122,7 @@ test('every Chinese route uses the page stack and approved system fonts for visi
       const result = await auditCjkFonts(page, route)
       expect(result.elements, route).toBeGreaterThan(0)
       expect(result.probes, route).toBeGreaterThan(0)
+      expect(result.characters, route).toBeGreaterThan(0)
       expect(result.stackErrors, route).toEqual([])
       expect(result.glyphErrors, route).toEqual([])
       if (route === '/zh/knowledge') await expect(page.locator('.kb-reader button, .kb-reader input[type="search"]')).toHaveCount(0)
@@ -145,12 +146,13 @@ test('Chinese font detectors reject an incorrect stack and a font outside the sy
         ['cjk-wrong-platform', 'h2', '"Noto Serif CJK SC"'],
         ['cjk-mono-wrong-platform', 'code', '"JetBrains Mono", "Noto Serif CJK SC"'],
         ['cjk-nonmono-wrong-platform', 'h2', '"DejaVu Sans Mono"'],
+        ['cjk-missing-glyph', 'h2', getComputedStyle(document.body).fontFamily],
       ]) {
         const element = document.createElement(tag)
         element.id = id
         element.style.fontFamily = family
         element.style.fontWeight = '700'
-        element.textContent = '中文缺字检查 A'
+        element.textContent = id === 'cjk-missing-glyph' ? '中文\u{10fffd}' : '中文缺字检查 A'
         main.append(element)
       }
     })
@@ -160,8 +162,9 @@ test('Chinese font detectors reject an incorrect stack and a font outside the sy
       expect(result.glyphErrors.some(error => error.includes('#cjk-wrong-platform'))).toBe(true)
       expect(result.glyphErrors.some(error => error.includes('#cjk-mono-wrong-platform'))).toBe(true)
       expect(result.glyphErrors.some(error => error.includes('#cjk-nonmono-wrong-platform'))).toBe(true)
+      expect(result.glyphErrors.some(error => error.includes('#cjk-missing-glyph') && error.includes('[missing glyph U+10FFFD]'))).toBe(true)
     } finally {
-      await page.locator('#cjk-wrong-stack, #cjk-wrong-platform, #cjk-mono-wrong-platform, #cjk-nonmono-wrong-platform').evaluateAll(elements => elements.forEach(element => element.remove()))
+      await page.locator('#cjk-wrong-stack, #cjk-wrong-platform, #cjk-mono-wrong-platform, #cjk-nonmono-wrong-platform, #cjk-missing-glyph').evaluateAll(elements => elements.forEach(element => element.remove()))
     }
     const restored = await auditCjkFonts(page, '/zh restored')
     expect(restored.stackErrors).toEqual([])
